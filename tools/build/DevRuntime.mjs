@@ -1,7 +1,7 @@
 // Development host: tokens exist only in child process environment and memory.
-import { spawn } from 'node:child_process';
-import { randomBytes } from 'node:crypto';
-import { mkdir } from 'node:fs/promises';
+import { spawn, spawnSync } from 'node:child_process';
+import { randomBytes, createHash } from 'node:crypto';
+import { mkdir, readFile, realpath } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { createRequire } from 'node:module';
@@ -16,11 +16,37 @@ const token = randomBytes(32).toString('hex');
 const origin = 'http://127.0.0.1:1420';
 const env = { ...process.env, PYTHONPATH: path.join(repo, 'services/engine/src'), VIDEO_CREATOR_API_TOKEN: token, PYTHONUTF8: '1', PYTHONIOENCODING: 'utf-8' };
 // This launcher never authorizes budget, registers routes, imports model keys, or starts a worker.
+const mediaArgs = [];
+const resourceManifest = process.env.VIDEO_CREATOR_RESOURCE_MANIFEST;
+if (resourceManifest) {
+  const manifest = JSON.parse(await readFile(resourceManifest, 'utf8'));
+  const resourceRoot = await realpath(manifest.runtime_root);
+  for (const file of manifest.files) {
+    const target = await realpath(path.resolve(resourceRoot, file.relative_path));
+    const relative = path.relative(resourceRoot, target);
+    if (relative.startsWith('..') || path.isAbsolute(relative)) throw new Error('Resource manifest escapes its installation root');
+    const bytes = await readFile(target);
+    if (bytes.length !== file.bytes || createHash('sha256').update(bytes).digest('hex') !== file.sha256.toLowerCase()) throw new Error('Resource bytes differ from pinned manifest');
+  }
+  for (const [flag, key, relative] of [['--ffmpeg', 'ffmpeg_path', 'bin/ffmpeg.exe'], ['--ffprobe', 'ffprobe_path', 'bin/ffprobe.exe']]) {
+    if (!manifest.files.some((file) => file.relative_path === relative)) throw new Error('Required media resource is absent');
+    const binary = await realpath(manifest[key]);
+    if (binary !== await realpath(path.join(resourceRoot, relative))) throw new Error('Media resource entry differs from its verified manifest');
+    mediaArgs.push(flag, binary);
+  }
+}
 await mkdir(dataDir, { recursive: true });
-const engine = spawn(python, ['-m', 'video_creator.cli.main', 'serve', '--data-dir', dataDir, '--host', '127.0.0.1', '--port', '0', '--allowed-origin', origin], { cwd: repo, env, stdio: ['ignore', 'pipe', 'pipe'], windowsHide: true });
+const engine = spawn(python, ['-m', 'video_creator.cli.main', 'serve', '--data-dir', dataDir, '--host', '127.0.0.1', '--port', '0', '--allowed-origin', origin, ...mediaArgs], { cwd: repo, env, stdio: ['ignore', 'pipe', 'pipe'], windowsHide: true });
 let vite;
 let stopping = false;
-const stop = () => { if (stopping) return; stopping = true; vite?.kill(); engine.kill(); };
+const stopChild = (child) => {
+  if (!child || child.exitCode !== null) return;
+  if (process.platform === 'win32') {
+    // Venv redirectors and Vite may own descendants; only this host's child trees.
+    spawnSync(path.join(process.env.SystemRoot || 'C:/Windows', 'System32/taskkill.exe'), ['/PID', String(child.pid), '/T', '/F'], { stdio: 'ignore', shell: false, windowsHide: true });
+  } else child.kill('SIGTERM');
+};
+const stop = () => { if (stopping) return; stopping = true; stopChild(vite); stopChild(engine); };
 process.once('SIGINT', stop);
 process.once('SIGTERM', stop);
 process.once('exit', stop);
@@ -52,4 +78,4 @@ vite.stderr.on('data', (data) => process.stderr.write(data));
 vite.once('error', () => { console.error(JSON.stringify({ event: 'failed', code: 'workbench_spawn_failed' })); stop(); process.exitCode = 1; });
 vite.once('exit', (code) => { stop(); process.exitCode = code ?? 1; });
 engine.once('exit', (code) => { if (!stopping) { console.error(JSON.stringify({ event: 'failed', code: 'engine_exited' })); stop(); process.exitCode = code || 1; } });
-console.log(JSON.stringify({ event: 'dev_runtime_ready', workbench_url: origin, instance_id: ready.instance_id, authentication: 'private_same_origin_proxy', paid_worker: false }));
+console.log(JSON.stringify({ event: 'dev_runtime_ready', workbench_url: origin, instance_id: ready.instance_id, authentication: 'private_same_origin_proxy', paid_worker: false, media_resources_verified: mediaArgs.length === 4 }));

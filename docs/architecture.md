@@ -1,0 +1,67 @@
+# A0架构与Gate0接口候选
+
+状态：候选设计v0.1，2026-10-07。依赖、接口实现、框架恢复和安装均待I0/T0及媒体同用例证据；本文件不冻结未测事实。
+
+## 运行和权威边界
+
+模块化单体引擎加一个独立Worker。桌面壳启动受控engine/Worker，React通过受认证loopback连接；Linux由原生服务或可选容器运行同一引擎，静态工作台经浏览器访问。R1不引入Redis/Kafka/微服务集群。桌面退出后若要继续，必须有真实存活的托盘/服务进程。
+
+SQLite业务账本记录领域版本、Step、ProviderOperation、预算和Outbox；独立Flow状态库只持有引用及少量状态。磁盘Objects以哈希标识、暂存校验后提交；DataDir由实例配置，数据库不放网络盘。CrewAI聊天和Flow快照都不是资产、权限或收费执行事实。官方control-plane是R2独立可选运行组件，不进入本地启动依赖。
+
+依赖方向：API/MCP → application受理/权限/账本 → workflows创作与协调 → application受控Operation入口 → providers/media实际工具 → application验证资产/Step/Bundle → Outbox事件。基础领域与公开接口由后端维护；Agent/媒体不得从框架工具直接绕过受理入口收费或任意访问文件。
+
+## 八组公开契约
+
+后端在domain/application/api维护Pydantic及OpenAPI唯一源；架构批准设计，集成从源生成packages/contracts与api-client。下面字段是必要语义候选，具体名称、约束和导出清单待后端实现/测试后冻结；不新增第二套手写TS类型。
+
+| 契约组 | 必要输入/输出与消费者 |
+| --- | --- |
+| Production | Request固定goal、受控inputs、可选source_bindings/brief/insight、解析后的policy/automation/outputs/delivery及请求哈希；Accepted含instance/project/production/run/request_revision ID及状态/事件入口。UI/HTTP/MCP共用application命令 |
+| Revision/Review | Insight/Brief/Script/Storyboard/角色/计划固定版本；ReviewDecision有target revision、approve/revise/reject、主体；Feedback保留原意见/约束及新计划引用。旧版本冲突409，意见不等于扩大权限 |
+| Task/Plan | TaskContext含run/production/step_key、固定输入/来源/工作流/策略引用；CreativePlan/DelegatedTask含角色、依赖、输入/输出Schema、能力路线和限次预算。剩余预算快照仅供建议，执行时必须重验 |
+| Capability/Route | 能力名、支持规格、数据目的地、已配置凭证引用、成本规则及可用/验证状态；RouteDecision记录候选允许路线、选择及回退理由。可用能力不能仅凭Provider存在判定 |
+| Operation | Intent含稳定去重键、输入哈希、Step/路线、预留/成本状态；Observation为pending/succeeded/failed/unknown、external_id、真实结果、usage/cost证据。未知不等于失败，也不等于0费用 |
+| Asset/Media | AssetCandidate为受控暂存引用、规格/哈希/大小/来源/权利；Timeline有画布、轨道、固定资产版本、入出点、混音/字幕；Alignment/Quality分实际证据与模型判断。无任意shell或外部绝对路径 |
+| Bundle/Semantic | Manifest和BundleRef固定版本/哈希/outputs；源稿与实际转写分别保存；SemanticSegment/RAG chunk含来源namespace/版本及实际音视频定位。requested outputs核验齐备才成功，索引状态独立 |
+| Event/Error | EventEnvelope含event_id、单调sequence、run/production/step/实体版本及真实状态；错误code/message/retryability/request_id。SSE游标补读，Outbox至少一次投递，消费者按event_id去重 |
+
+HTTP前缀/api/v1；变更Idempotency-Key，编辑revision/If-Match。MCP一次production_create立即返回引用，连接结束不取消业务。最小只有goal/inputs，默认配置必须已授权；缺主旨/风格/分镜由模型生成，缺必要权限/能力/预算才阻断。
+
+## 受控服务接缝
+
+| 后端提供的接口 | Agent/媒体可做的事 | 后端必须核验 |
+| --- | --- | --- |
+| Production/Revision服务 | 读取固定资料、提出洞察/剧本/分镜/计划及反馈影响范围 | 主体/项目权限、来源事实、版本冲突及保留约束 |
+| CapabilityRegistry | 查询授权能力，提出ModelRouteDecision | 实际配置、数据目的地及允许回退边界 |
+| OperationService | 请求执行、查询、取消/核实已有Operation | 稳定去重、租约/fencing、预算/预留、外发权限、收费意图持久化 |
+| AssetService | 返回受控暂存结果，申请登记及复用已有资产 | 地址/路径边界、大小/类型、哈希、真实解码、来源/许可 |
+| Media/Bundle服务 | 提交Timeline、对齐及审片报告，申请Render和包构建 | 时间坐标/范围、轨道关系、实际文件与全部outputs、原子提交 |
+| Review/Event服务 | 发布需要审核的产物引用，读取已经受理的决策 | 明确人工批准或预授权政策、决策幂等、不能用模型替人批准 |
+
+Provider驱动由Agent/媒体实现，网络提交仅由已受理OperationExecutor调用；它取得受限执行上下文和凭证句柄，不自行开户、扩预算、改账本或把临时URL登记为成片。RenderBackend接收已校验计划和参数数组，后期Agent决定剪辑方案，实际进程由执行器管理。
+
+## 状态与恢复候选
+
+保留规格状态：queued、running、waiting_user、waiting_provider、succeeded、failed、cancel_requested、cancelled、needs_reconciliation。暂停新步骤通过独立调度控制标志表示，已受理上游状态单独保留；不因UI暂停伪称供应商停止。
+
+queued经有效租约进入running；等待审核→waiting_user，异步上游→waiting_provider，不明受理→needs_reconciliation。决策/查询结果受理后重新排队；取消先cancel_requested，停止后续调度与受控本机进程，上游取消结果/费用仍须记录。succeeded只在全部请求交付核验并提交后成立；failed保留诊断和可恢复操作。
+
+收费顺序：持久化Intent与稳定键 → 执行允许的提交 → 记录external_id → 查询/校验结果 → 暂存媒体并独立检查 → Asset/Step/领域事件短事务提交 → 推进Flow。网络/FFmpeg不放数据库事务。租约过期禁止旧Worker提交。
+
+两库不能原子提交；恢复先读业务Step/Operation及暂存文件，再修复Flow推进。文件已产出未入库、Step已提交未存Flow、上游已接收但ID未落库分别注入崩溃。没有查询或供应商幂等证据的未知请求不能再次收费提交。
+
+反馈产生新计划/输入版本及修订Run，继承同Production消耗/预留与最多2轮默认修订；不改旧Flow伪装版本。局部重做只使相关依赖失效，其他资产哈希和Provider调用数保持。
+
+## 数据与时间
+
+全部领域时间整数微秒、半开区间；最终编码按帧量化，保留原始timebase证据。视频时间线、旁白/混音及源素材坐标显式映射。计划源稿不能当实际转写，生成提示不能当最终画面描述。默认包是可移植JSON/JSONL和真实媒体，embedding/向量数据库不为必需。
+
+媒体Range/ETag和短期授权入口服务固定版本。BundleRef的instance/bundle/revision/哈希不是访问密钥；授权到期/撤销实时检查。纯引用实例离线不可取片，完整导出副本由调用方持有。Portal保持独立事实审批、索引选择和投放决策。
+
+## 冻结待办
+
+2026-10-08的架构续跑裁决见0002/0003/0004 ADR：范围和证据规则已获架构批准，技术栈及Gate0仍未冻结。独立Python3.13.16、候选依赖解析/导入、React build、Rust/Cargo1.99及Windows SDK核心文件已有各归属角色证据；MSVC仍缺，两次安装失败保留，FFmpeg/ffprobe/字体、桌面IPC成包和macOS/Linux安装未通过。不得以源码、SDK存在或开发代理HTTP200替代App安装。
+
+T2独立B2机制57绿；W1最终协议/审计35项31绿4红需W3明确免费修复及T3/RV1复核。LangGraph真实经理委派和成果消费、反馈跨进程免费恢复有局部证据；unattended失败，不能据此选定整栈或虚报成片。最终生产只保留一套编排，历史两框架实验与旧任务版本仍可追溯。
+
+用户已授权DeepSeek/Kimi共用CNY20实验，唯一实例/账本与凭证治理见AGENTS；不读取/输出/复制.ssh内容。官方路线必须通过commercial/official-provider-admission.md，私人订阅/API权益不当成商业官方资源。项目和媒体长存安装实例，官方Gateway仅处理授权执行必需的临时数据，TTL/删除/已受理结果取回窗口在准入前明确。未配置生成API、跨OS、商户/平台资质及分发许可继续保留缺口。

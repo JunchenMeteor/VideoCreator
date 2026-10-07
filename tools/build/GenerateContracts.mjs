@@ -12,7 +12,7 @@ function run(exe,args){const r=spawnSync(exe,args,{cwd:root,stdio:'inherit',shel
 run(python,['-m','video_creator.cli.main','export-contracts','--output-dir',out]);
 const generator=path.join(root,'node_modules/openapi-typescript/bin/cli.js');
 run(process.execPath,[generator,'packages/contracts/openapi.json','--output','packages/api-client/src/schema.d.ts']);
-const sourceFiles=['services/engine/src/video_creator/domain/contracts.py','services/engine/src/video_creator/api/app.py','services/engine/src/video_creator/cli/main.py'];
+const sourceFiles=['services/engine/src/video_creator/__init__.py','services/engine/src/video_creator/domain/contracts.py','services/engine/src/video_creator/api/app.py','services/engine/src/video_creator/cli/main.py'];
 const outputs=['packages/contracts/openapi.json','packages/contracts/schemas.json','packages/api-client/src/schema.d.ts'];
 const hash=async file=>createHash('sha256').update(await readFile(path.join(root,file))).digest('hex');
 const source=Object.fromEntries(await Promise.all(sourceFiles.map(async f=>[f,await hash(f)])));

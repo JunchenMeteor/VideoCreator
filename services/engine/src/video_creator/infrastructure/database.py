@@ -25,19 +25,31 @@ class Database:
         self.path = self.data_dir / "Metadata.sqlite"
         migrations = Path(os.environ.get("VIDEO_CREATOR_MIGRATIONS_DIR", Path(__file__).parents[3] / "migrations"))
         with self.connect() as connection:
+            connection.execute("PRAGMA journal_mode=WAL")
+        # The first version read, initial schema and every upgrade share one writer transaction.
+        # executescript is intentionally avoided: it implicitly commits an existing transaction.
+        with self.transaction() as connection:
             version = connection.execute("PRAGMA user_version").fetchone()[0]
             if version > 2:
                 raise EngineError("schema_too_new", "Instance schema is newer than this engine", 503)
-            connection.execute("PRAGMA journal_mode=WAL")
-            if version == 0:
-                connection.executescript((migrations / "0001_ledger.sql").read_text(encoding="utf-8"))
-        # Recheck under a writer lock: another process may have migrated while this one opened.
-        with self.transaction() as connection:
-            if connection.execute("PRAGMA user_version").fetchone()[0] == 1:
-                migration = (migrations / "0002_cancellation_and_commands.sql").read_text(encoding="utf-8")
-                for statement in migration.split(";"):
-                    if statement.strip():
-                        connection.execute(statement)
+            for target, filename in ((1, "0001_ledger.sql"), (2, "0002_cancellation_and_commands.sql")):
+                if version < target:
+                    self._apply_migration(connection, migrations / filename)
+                    actual = connection.execute("PRAGMA user_version").fetchone()[0]
+                    if actual != target:
+                        raise EngineError("migration_version_mismatch", "Migration did not produce its declared schema version", 503)
+                    version = actual
+
+    @staticmethod
+    def _apply_migration(connection: sqlite3.Connection, path: Path):
+        statement = ""
+        for line in path.read_text(encoding="utf-8").splitlines(keepends=True):
+            statement += line
+            if sqlite3.complete_statement(statement):
+                connection.execute(statement)
+                statement = ""
+        if statement.strip():
+            raise EngineError("migration_incomplete", "Migration SQL is incomplete", 503)
 
     def connect(self) -> sqlite3.Connection:
         connection = sqlite3.connect(self.path, timeout=5, isolation_level=None, factory=_Connection)

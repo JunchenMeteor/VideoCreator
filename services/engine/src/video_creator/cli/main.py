@@ -7,6 +7,7 @@ import os
 import socket
 import sys
 import time
+from collections.abc import Callable
 from pathlib import Path
 
 import uvicorn
@@ -15,9 +16,48 @@ from pydantic import ValidationError
 from video_creator.api.app import create_app
 from video_creator.application.engine import EngineService
 from video_creator.domain import contracts
-from video_creator.domain.contracts import CapabilityRoute, Money
+from video_creator.domain.contracts import CapabilityRoute, MediaProbe, Money
 from video_creator.domain.errors import EngineError
 from video_creator.infrastructure.credentials import CredentialVault
+
+
+def configured_media_validator(engine: EngineService, ffmpeg: Path | None,
+                               ffprobe: Path | None) -> Callable[[Path, str], MediaProbe] | None:
+    """Wire only the fixed media implementation to trusted launcher resources.
+
+    HTTP/model input cannot choose binaries or staging roots. An unavailable
+    resource leaves uploads staged and imports explicitly blocked with 503.
+    """
+    if ffmpeg is None and ffprobe is None:
+        return None
+    if ffmpeg is None or ffprobe is None:
+        raise EngineError("media_runtime_incomplete", "FFmpeg and ffprobe must be configured together", 400)
+    if any(not binary.is_absolute() or str(binary).startswith(("\\\\", "//")) for binary in (ffmpeg, ffprobe)):
+        raise EngineError("media_runtime_path_denied", "Media tools require absolute local launcher paths", 400)
+    try:
+        # Lazy fixed import keeps schema export and tool-less local startup usable.
+        from video_creator.media.ffmpeg import FFmpegRuntime
+
+        staging = engine.db.data_dir / "Staging"
+        staging.mkdir(exist_ok=True)
+        if staging.is_symlink() or not staging.resolve().is_relative_to(engine.db.data_dir):
+            raise EngineError("path_denied", "Media staging escaped the installation", 403)
+        runtime = FFmpegRuntime(ffmpeg, ffprobe, staging)
+    except (OSError, EngineError) as error:
+        if isinstance(error, EngineError) and error.code == "path_denied":
+            raise
+        print(json.dumps({"event": "media_unavailable", "code": "media_validator_missing",
+                          "message": "Configured media tools are unavailable; media import remains blocked"}), file=sys.stderr)
+        return None
+
+    def validate(path: Path, media_type: str) -> MediaProbe:
+        try:
+            # AssetService checks the actual probe MIME against the staged MIME.
+            return runtime.probe(path, decode=True)
+        except OSError:
+            raise EngineError("media_validator_missing", "Configured media decoder is unavailable", 503) from None
+
+    return validate
 
 
 def export_contracts(output_dir: Path):
@@ -48,6 +88,8 @@ def parser() -> argparse.ArgumentParser:
     serve.add_argument("--port", default=0, type=int)
     serve.add_argument("--allowed-origin", action="append", default=[])
     serve.add_argument("--allowed-host", action="append", default=[])
+    serve.add_argument("--ffmpeg", type=Path, help="Trusted launcher absolute FFmpeg resource path")
+    serve.add_argument("--ffprobe", type=Path, help="Trusted launcher absolute ffprobe resource path")
     export = commands.add_parser("export-contracts")
     export.add_argument("--output-dir", required=True, type=Path)
     secret = commands.add_parser("credential-import")
@@ -105,6 +147,7 @@ def main() -> int:
         elif args.command == "serve":
             token = os.environ.get("VIDEO_CREATOR_API_TOKEN", "")
             engine = EngineService(args.data_dir)
+            media_validator = configured_media_validator(engine, args.ffmpeg, args.ffprobe)
             listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             listener.bind((args.host, args.port))
@@ -115,7 +158,8 @@ def main() -> int:
                 print(json.dumps({"event": "ready", "base_url": f"http://{args.host}:{actual_port}", "instance_id": engine.instance_id}), flush=True)
 
             app = create_app(engine, token, allowed_origins=tuple(args.allowed_origin),
-                             allowed_hosts=tuple(args.allowed_host or ["127.0.0.1", "localhost"]), on_ready=ready)
+                             allowed_hosts=tuple(args.allowed_host or ["127.0.0.1", "localhost"]),
+                             media_validator=media_validator, on_ready=ready)
 
             uvicorn.Server(uvicorn.Config(app, log_level="warning", access_log=False)).run(sockets=[listener])
         return 0

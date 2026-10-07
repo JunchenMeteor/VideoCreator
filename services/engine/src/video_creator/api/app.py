@@ -34,6 +34,23 @@ from video_creator.domain.contracts import (
 )
 from video_creator.domain.errors import EngineError
 
+# Domain failures and request validation share the existing public model.
+# TrustedHost/CORS and malformed media Range requests may instead return text.
+ERROR_RESPONSES = {
+    400: {
+        "model": ErrorEnvelope,
+        "description": "Invalid domain input (JSON), or a rejected transport Host/Origin/Range (plain text)",
+        "content": {"text/plain": {"schema": {"type": "string"}}},
+    },
+    401: {"model": ErrorEnvelope, "description": "Installation session is invalid"},
+    403: {"model": ErrorEnvelope, "description": "Installation permission or browser origin is denied"},
+    404: {"model": ErrorEnvelope, "description": "Owned resource does not exist"},
+    409: {"model": ErrorEnvelope, "description": "Version, idempotency or execution state conflicts; inspect retryability"},
+    413: {"model": ErrorEnvelope, "description": "Asset upload exceeds the configured limit"},
+    422: {"model": ErrorEnvelope, "description": "Request contract, content integrity or media decoding is invalid"},
+    503: {"model": ErrorEnvelope, "description": "Required installation resource or media validator is unavailable"},
+}
+
 
 def create_app(engine: EngineService, token: str, subject: str = "local-user",
                allowed_origins: tuple[str, ...] = (), allowed_hosts: tuple[str, ...] = ("127.0.0.1", "localhost"),
@@ -48,7 +65,8 @@ def create_app(engine: EngineService, token: str, subject: str = "local-user",
             on_ready()
         yield
 
-    app = FastAPI(title="VideoCreator Engine", version=__version__, docs_url=None, redoc_url=None, lifespan=lifespan)
+    app = FastAPI(title="VideoCreator Engine", version=__version__, docs_url=None, redoc_url=None,
+                  lifespan=lifespan, responses=ERROR_RESPONSES)
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=list(allowed_hosts))
     app.add_middleware(CORSMiddleware, allow_origins=list(allowed_origins), allow_credentials=False,
                        allow_methods=["GET", "POST", "PUT"], allow_headers=["Authorization", "Content-Type", "Idempotency-Key", "If-Match", "Range", "Last-Event-ID"],
@@ -180,7 +198,10 @@ def create_app(engine: EngineService, token: str, subject: str = "local-user",
     def asset_get(asset_id: str, actor: str = Depends(authenticate)):
         return assets.get(actor, asset_id)
 
-    @app.get("/api/v1/assets/{asset_id}/content")
+    @app.get("/api/v1/assets/{asset_id}/content", responses={
+        416: {"description": "Requested byte range is not satisfiable (Starlette transport response)",
+              "content": {"text/plain": {"schema": {"type": "string"}}}},
+    })
     def asset_content(asset_id: str, actor: str = Depends(authenticate)):
         asset = assets.get(actor, asset_id)
         return FileResponse(assets.content_path(actor, asset_id), media_type=asset.media_type,
