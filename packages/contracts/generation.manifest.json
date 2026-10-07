@@ -1,0 +1,14 @@
+{
+  "schema_version": "0.1.0-candidate",
+  "generator": "openapi-typescript@7.13.0",
+  "sources": {
+    "services/engine/src/video_creator/domain/contracts.py": "f6e69e6fb52122c0f0b57561dd347447135eac597203ce79c90e8ffe2d080f16",
+    "services/engine/src/video_creator/api/app.py": "25df3381d703a9427b0125567e12a63d2fb2ae5749ff009bfb4ef5a1a730d598",
+    "services/engine/src/video_creator/cli/main.py": "33e6831386b8b2cf05b77410481fbb2bf1371ed04809b8c74e6b66893f599e94"
+  },
+  "outputs": {
+    "packages/contracts/openapi.json": "64ef65156f508a184aafe99f1444f73907d20f1cb63781e5972b8539fd3cde3c",
+    "packages/contracts/schemas.json": "b86f90149c3695c07e18b4f7ede6e704b114fdf123e1ad52836212be97ff0697",
+    "packages/api-client/src/schema.d.ts": "25bd6a3926625242b2183b234de2da44a6c88300f250152c96e1987ca8293be4"
+  }
+}

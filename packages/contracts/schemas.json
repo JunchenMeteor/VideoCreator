@@ -1,0 +1,3915 @@
+{
+  "schema_version": "0.1.0-candidate",
+  "schemas": {
+    "AssetCandidate": {
+      "additionalProperties": false,
+      "properties": {
+        "staging_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Staging Id",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "size": {
+          "exclusiveMinimum": 0,
+          "title": "Size",
+          "type": "integer"
+        },
+        "media_type": {
+          "title": "Media Type",
+          "type": "string"
+        },
+        "source": {
+          "maxLength": 256,
+          "minLength": 1,
+          "title": "Source",
+          "type": "string"
+        },
+        "rights": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Rights",
+          "type": "string"
+        }
+      },
+      "required": [
+        "staging_id",
+        "sha256",
+        "size",
+        "media_type",
+        "source",
+        "rights"
+      ],
+      "title": "AssetCandidate",
+      "type": "object"
+    },
+    "AssetRecord": {
+      "$defs": {
+        "MediaProbe": {
+          "additionalProperties": false,
+          "properties": {
+            "media_type": {
+              "title": "Media Type",
+              "type": "string"
+            },
+            "duration_us": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Duration Us"
+            },
+            "has_video": {
+              "default": false,
+              "title": "Has Video",
+              "type": "boolean"
+            },
+            "has_audio": {
+              "default": false,
+              "title": "Has Audio",
+              "type": "boolean"
+            },
+            "width": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Width"
+            },
+            "height": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Height"
+            },
+            "tool_version": {
+              "title": "Tool Version",
+              "type": "string"
+            },
+            "decoded": {
+              "title": "Decoded",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "media_type",
+            "tool_version",
+            "decoded"
+          ],
+          "title": "MediaProbe",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "asset_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Asset Id",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "size": {
+          "title": "Size",
+          "type": "integer"
+        },
+        "media_type": {
+          "title": "Media Type",
+          "type": "string"
+        },
+        "source": {
+          "title": "Source",
+          "type": "string"
+        },
+        "rights": {
+          "title": "Rights",
+          "type": "string"
+        },
+        "probe": {
+          "$ref": "#/$defs/MediaProbe"
+        }
+      },
+      "required": [
+        "asset_id",
+        "sha256",
+        "size",
+        "media_type",
+        "source",
+        "rights",
+        "probe"
+      ],
+      "title": "AssetRecord",
+      "type": "object"
+    },
+    "Automation": {
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "default": "interactive",
+          "enum": [
+            "interactive",
+            "unattended"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "max_revision_cycles": {
+          "default": 2,
+          "maximum": 2,
+          "minimum": 0,
+          "title": "Max Revision Cycles",
+          "type": "integer"
+        }
+      },
+      "title": "Automation",
+      "type": "object"
+    },
+    "BundleRef": {
+      "additionalProperties": false,
+      "properties": {
+        "instance_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Instance Id",
+          "type": "string"
+        },
+        "bundle_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Bundle Id",
+          "type": "string"
+        },
+        "bundle_revision_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Bundle Revision Id",
+          "type": "string"
+        },
+        "schema_version": {
+          "default": "0.1.0-candidate",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "manifest_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Manifest Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "instance_id",
+        "bundle_id",
+        "bundle_revision_id",
+        "manifest_sha256"
+      ],
+      "title": "BundleRef",
+      "type": "object"
+    },
+    "CapabilityRoute": {
+      "$defs": {
+        "Money": {
+          "additionalProperties": false,
+          "properties": {
+            "currency": {
+              "const": "CNY",
+              "default": "CNY",
+              "title": "Currency",
+              "type": "string"
+            },
+            "amount": {
+              "anyOf": [
+                {
+                  "minimum": 0.0,
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,12}|(?=[\\d.]{1,19}0*$)\\d{0,12}\\.\\d{0,6}0*$)",
+                  "type": "string"
+                }
+              ],
+              "title": "Amount"
+            }
+          },
+          "required": [
+            "amount"
+          ],
+          "title": "Money",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "route_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Route Id",
+          "type": "string"
+        },
+        "capability": {
+          "enum": [
+            "text",
+            "image",
+            "video",
+            "speech",
+            "transcription",
+            "alignment",
+            "render"
+          ],
+          "title": "Capability",
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "owned_remote",
+            "owned_local",
+            "official"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "destination": {
+          "title": "Destination",
+          "type": "string"
+        },
+        "credential_ref": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Credential Ref"
+        },
+        "max_operation_cost": {
+          "$ref": "#/$defs/Money"
+        },
+        "cost_rule_version": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Cost Rule Version",
+          "type": "string"
+        },
+        "verified": {
+          "default": false,
+          "title": "Verified",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "route_id",
+        "capability",
+        "source",
+        "destination",
+        "max_operation_cost",
+        "cost_rule_version"
+      ],
+      "title": "CapabilityRoute",
+      "type": "object"
+    },
+    "CreativeBriefInput": {
+      "additionalProperties": false,
+      "properties": {
+        "language": {
+          "default": "zh-CN",
+          "title": "Language",
+          "type": "string"
+        },
+        "target_duration_us": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target Duration Us"
+        },
+        "aspect_ratio": {
+          "default": "9:16",
+          "enum": [
+            "9:16",
+            "16:9"
+          ],
+          "title": "Aspect Ratio",
+          "type": "string"
+        },
+        "guidance": {
+          "anyOf": [
+            {
+              "maxLength": 10000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Guidance"
+        }
+      },
+      "title": "CreativeBriefInput",
+      "type": "object"
+    },
+    "CreativePlan": {
+      "$defs": {
+        "DelegatedTask": {
+          "additionalProperties": false,
+          "properties": {
+            "task_key": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "title": "Task Key",
+              "type": "string"
+            },
+            "role": {
+              "enum": [
+                "insight",
+                "writer",
+                "director",
+                "producer",
+                "picture",
+                "sound",
+                "editor",
+                "reviewer"
+              ],
+              "title": "Role",
+              "type": "string"
+            },
+            "dependencies": {
+              "default": [],
+              "items": {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9_.:-]+$",
+                "type": "string"
+              },
+              "title": "Dependencies",
+              "type": "array"
+            },
+            "route_id": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9_.:-]+$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Route Id"
+            },
+            "input_refs": {
+              "default": [],
+              "items": {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9_.:-]+$",
+                "type": "string"
+              },
+              "title": "Input Refs",
+              "type": "array"
+            },
+            "output_schema": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "title": "Output Schema",
+              "type": "string"
+            }
+          },
+          "required": [
+            "task_key",
+            "role",
+            "output_schema"
+          ],
+          "title": "DelegatedTask",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "revision_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Revision Id",
+          "type": "string"
+        },
+        "tasks": {
+          "items": {
+            "$ref": "#/$defs/DelegatedTask"
+          },
+          "title": "Tasks",
+          "type": "array"
+        }
+      },
+      "required": [
+        "revision_id",
+        "tasks"
+      ],
+      "title": "CreativePlan",
+      "type": "object"
+    },
+    "CreativeProposal": {
+      "$defs": {
+        "InsightBrief": {
+          "additionalProperties": false,
+          "properties": {
+            "original_goal": {
+              "title": "Original Goal",
+              "type": "string"
+            },
+            "main_thesis": {
+              "title": "Main Thesis",
+              "type": "string"
+            },
+            "audience": {
+              "title": "Audience",
+              "type": "string"
+            },
+            "angle": {
+              "title": "Angle",
+              "type": "string"
+            },
+            "evidence": {
+              "items": {
+                "$ref": "#/$defs/InsightEvidence"
+              },
+              "title": "Evidence",
+              "type": "array"
+            },
+            "source_gaps": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Source Gaps",
+              "type": "array"
+            },
+            "preserved_facts": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Preserved Facts",
+              "type": "array"
+            }
+          },
+          "required": [
+            "original_goal",
+            "main_thesis",
+            "audience",
+            "angle",
+            "evidence"
+          ],
+          "title": "InsightBrief",
+          "type": "object"
+        },
+        "InsightEvidence": {
+          "additionalProperties": false,
+          "properties": {
+            "evidence_id": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "title": "Evidence Id",
+              "type": "string"
+            },
+            "source_ref": {
+              "title": "Source Ref",
+              "type": "string"
+            },
+            "source_revision": {
+              "title": "Source Revision",
+              "type": "string"
+            },
+            "observation": {
+              "title": "Observation",
+              "type": "string"
+            },
+            "evidence_kind": {
+              "enum": [
+                "provided_fact",
+                "observed_sample",
+                "inference",
+                "creative_hypothesis"
+              ],
+              "title": "Evidence Kind",
+              "type": "string"
+            }
+          },
+          "required": [
+            "evidence_id",
+            "source_ref",
+            "source_revision",
+            "observation",
+            "evidence_kind"
+          ],
+          "title": "InsightEvidence",
+          "type": "object"
+        },
+        "ScriptCandidate": {
+          "additionalProperties": false,
+          "properties": {
+            "candidate_id": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "title": "Candidate Id",
+              "type": "string"
+            },
+            "title": {
+              "title": "Title",
+              "type": "string"
+            },
+            "script": {
+              "title": "Script",
+              "type": "string"
+            },
+            "recommendation_reason": {
+              "title": "Recommendation Reason",
+              "type": "string"
+            }
+          },
+          "required": [
+            "candidate_id",
+            "title",
+            "script",
+            "recommendation_reason"
+          ],
+          "title": "ScriptCandidate",
+          "type": "object"
+        },
+        "StoryboardShot": {
+          "additionalProperties": false,
+          "properties": {
+            "shot_id": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "title": "Shot Id",
+              "type": "string"
+            },
+            "visual": {
+              "title": "Visual",
+              "type": "string"
+            },
+            "narration": {
+              "title": "Narration",
+              "type": "string"
+            },
+            "camera": {
+              "title": "Camera",
+              "type": "string"
+            },
+            "duration_us": {
+              "exclusiveMinimum": 0,
+              "title": "Duration Us",
+              "type": "integer"
+            },
+            "source_refs": {
+              "default": [],
+              "items": {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9_.:-]+$",
+                "type": "string"
+              },
+              "title": "Source Refs",
+              "type": "array"
+            }
+          },
+          "required": [
+            "shot_id",
+            "visual",
+            "narration",
+            "camera",
+            "duration_us"
+          ],
+          "title": "StoryboardShot",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "insight": {
+          "$ref": "#/$defs/InsightBrief"
+        },
+        "candidates": {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/ScriptCandidate"
+            },
+            {
+              "$ref": "#/$defs/ScriptCandidate"
+            },
+            {
+              "$ref": "#/$defs/ScriptCandidate"
+            }
+          ],
+          "title": "Candidates",
+          "type": "array"
+        },
+        "selected_candidate_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Selected Candidate Id",
+          "type": "string"
+        },
+        "shots": {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/StoryboardShot"
+            },
+            {
+              "$ref": "#/$defs/StoryboardShot"
+            },
+            {
+              "$ref": "#/$defs/StoryboardShot"
+            }
+          ],
+          "title": "Shots",
+          "type": "array"
+        }
+      },
+      "required": [
+        "insight",
+        "candidates",
+        "selected_candidate_id",
+        "shots"
+      ],
+      "title": "CreativeProposal",
+      "type": "object"
+    },
+    "CreativeRevision": {
+      "$defs": {
+        "JsonValue": {}
+      },
+      "additionalProperties": false,
+      "properties": {
+        "revision_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Revision Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "insight",
+            "brief",
+            "plan",
+            "script",
+            "storyboard",
+            "quality"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "parent_revision_id": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Parent Revision Id"
+        },
+        "input_revision_refs": {
+          "default": [],
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "type": "string"
+          },
+          "title": "Input Revision Refs",
+          "type": "array"
+        },
+        "body": {
+          "$ref": "#/$defs/JsonValue"
+        }
+      },
+      "required": [
+        "revision_id",
+        "kind",
+        "body"
+      ],
+      "title": "CreativeRevision",
+      "type": "object"
+    },
+    "DelegatedTask": {
+      "additionalProperties": false,
+      "properties": {
+        "task_key": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Task Key",
+          "type": "string"
+        },
+        "role": {
+          "enum": [
+            "insight",
+            "writer",
+            "director",
+            "producer",
+            "picture",
+            "sound",
+            "editor",
+            "reviewer"
+          ],
+          "title": "Role",
+          "type": "string"
+        },
+        "dependencies": {
+          "default": [],
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "type": "string"
+          },
+          "title": "Dependencies",
+          "type": "array"
+        },
+        "route_id": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Route Id"
+        },
+        "input_refs": {
+          "default": [],
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "type": "string"
+          },
+          "title": "Input Refs",
+          "type": "array"
+        },
+        "output_schema": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Output Schema",
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_key",
+        "role",
+        "output_schema"
+      ],
+      "title": "DelegatedTask",
+      "type": "object"
+    },
+    "ErrorEnvelope": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "retryability": {
+          "enum": [
+            "never",
+            "safe",
+            "reconcile"
+          ],
+          "title": "Retryability",
+          "type": "string"
+        },
+        "request_id": {
+          "title": "Request Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "message",
+        "retryability",
+        "request_id"
+      ],
+      "title": "ErrorEnvelope",
+      "type": "object"
+    },
+    "EventEnvelope": {
+      "$defs": {
+        "RunStatus": {
+          "enum": [
+            "queued",
+            "running",
+            "waiting_user",
+            "waiting_provider",
+            "succeeded",
+            "failed",
+            "cancel_requested",
+            "cancelled",
+            "needs_reconciliation"
+          ],
+          "title": "RunStatus",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "event_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Event Id",
+          "type": "string"
+        },
+        "sequence": {
+          "exclusiveMinimum": 0,
+          "title": "Sequence",
+          "type": "integer"
+        },
+        "production_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Production Id",
+          "type": "string"
+        },
+        "run_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Run Id",
+          "type": "string"
+        },
+        "event_type": {
+          "title": "Event Type",
+          "type": "string"
+        },
+        "occurred_at_us": {
+          "title": "Occurred At Us",
+          "type": "integer"
+        },
+        "status": {
+          "$ref": "#/$defs/RunStatus"
+        },
+        "entity_revision_id": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Entity Revision Id"
+        }
+      },
+      "required": [
+        "event_id",
+        "sequence",
+        "production_id",
+        "run_id",
+        "event_type",
+        "occurred_at_us",
+        "status"
+      ],
+      "title": "EventEnvelope",
+      "type": "object"
+    },
+    "ExecutionPermit": {
+      "$defs": {
+        "CapabilityRoute": {
+          "additionalProperties": false,
+          "properties": {
+            "route_id": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "title": "Route Id",
+              "type": "string"
+            },
+            "capability": {
+              "enum": [
+                "text",
+                "image",
+                "video",
+                "speech",
+                "transcription",
+                "alignment",
+                "render"
+              ],
+              "title": "Capability",
+              "type": "string"
+            },
+            "source": {
+              "enum": [
+                "owned_remote",
+                "owned_local",
+                "official"
+              ],
+              "title": "Source",
+              "type": "string"
+            },
+            "destination": {
+              "title": "Destination",
+              "type": "string"
+            },
+            "credential_ref": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9_.:-]+$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Credential Ref"
+            },
+            "max_operation_cost": {
+              "$ref": "#/$defs/Money"
+            },
+            "cost_rule_version": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "title": "Cost Rule Version",
+              "type": "string"
+            },
+            "verified": {
+              "default": false,
+              "title": "Verified",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "route_id",
+            "capability",
+            "source",
+            "destination",
+            "max_operation_cost",
+            "cost_rule_version"
+          ],
+          "title": "CapabilityRoute",
+          "type": "object"
+        },
+        "Money": {
+          "additionalProperties": false,
+          "properties": {
+            "currency": {
+              "const": "CNY",
+              "default": "CNY",
+              "title": "Currency",
+              "type": "string"
+            },
+            "amount": {
+              "anyOf": [
+                {
+                  "minimum": 0.0,
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,12}|(?=[\\d.]{1,19}0*$)\\d{0,12}\\.\\d{0,6}0*$)",
+                  "type": "string"
+                }
+              ],
+              "title": "Amount"
+            }
+          },
+          "required": [
+            "amount"
+          ],
+          "title": "Money",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "operation_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Operation Id",
+          "type": "string"
+        },
+        "run_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Run Id",
+          "type": "string"
+        },
+        "fencing_token": {
+          "title": "Fencing Token",
+          "type": "integer"
+        },
+        "route": {
+          "$ref": "#/$defs/CapabilityRoute"
+        }
+      },
+      "required": [
+        "operation_id",
+        "run_id",
+        "fencing_token",
+        "route"
+      ],
+      "title": "ExecutionPermit",
+      "type": "object"
+    },
+    "ExecutionPolicy": {
+      "$defs": {
+        "Money": {
+          "additionalProperties": false,
+          "properties": {
+            "currency": {
+              "const": "CNY",
+              "default": "CNY",
+              "title": "Currency",
+              "type": "string"
+            },
+            "amount": {
+              "anyOf": [
+                {
+                  "minimum": 0.0,
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,12}|(?=[\\d.]{1,19}0*$)\\d{0,12}\\.\\d{0,6}0*$)",
+                  "type": "string"
+                }
+              ],
+              "title": "Amount"
+            }
+          },
+          "required": [
+            "amount"
+          ],
+          "title": "Money",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "version": {
+          "default": "local-default-v1",
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Version",
+          "type": "string"
+        },
+        "allowed_provider_routes": {
+          "default": [],
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "type": "string"
+          },
+          "title": "Allowed Provider Routes",
+          "type": "array"
+        },
+        "external_transfer_allowed": {
+          "default": false,
+          "title": "External Transfer Allowed",
+          "type": "boolean"
+        },
+        "max_cost": {
+          "$ref": "#/$defs/Money"
+        },
+        "budget_group_id": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Budget Group Id"
+        }
+      },
+      "title": "ExecutionPolicy",
+      "type": "object"
+    },
+    "FeedbackRevision": {
+      "additionalProperties": false,
+      "properties": {
+        "feedback_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Feedback Id",
+          "type": "string"
+        },
+        "previous_run_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Previous Run Id",
+          "type": "string"
+        },
+        "new_run_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "New Run Id",
+          "type": "string"
+        },
+        "target_revision_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Target Revision Id",
+          "type": "string"
+        },
+        "instruction_text": {
+          "title": "Instruction Text",
+          "type": "string"
+        },
+        "preserved_constraints": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Preserved Constraints",
+          "type": "array"
+        }
+      },
+      "required": [
+        "feedback_id",
+        "previous_run_id",
+        "new_run_id",
+        "target_revision_id",
+        "instruction_text",
+        "preserved_constraints"
+      ],
+      "title": "FeedbackRevision",
+      "type": "object"
+    },
+    "InsightBrief": {
+      "$defs": {
+        "InsightEvidence": {
+          "additionalProperties": false,
+          "properties": {
+            "evidence_id": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "title": "Evidence Id",
+              "type": "string"
+            },
+            "source_ref": {
+              "title": "Source Ref",
+              "type": "string"
+            },
+            "source_revision": {
+              "title": "Source Revision",
+              "type": "string"
+            },
+            "observation": {
+              "title": "Observation",
+              "type": "string"
+            },
+            "evidence_kind": {
+              "enum": [
+                "provided_fact",
+                "observed_sample",
+                "inference",
+                "creative_hypothesis"
+              ],
+              "title": "Evidence Kind",
+              "type": "string"
+            }
+          },
+          "required": [
+            "evidence_id",
+            "source_ref",
+            "source_revision",
+            "observation",
+            "evidence_kind"
+          ],
+          "title": "InsightEvidence",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "original_goal": {
+          "title": "Original Goal",
+          "type": "string"
+        },
+        "main_thesis": {
+          "title": "Main Thesis",
+          "type": "string"
+        },
+        "audience": {
+          "title": "Audience",
+          "type": "string"
+        },
+        "angle": {
+          "title": "Angle",
+          "type": "string"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/InsightEvidence"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "source_gaps": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Source Gaps",
+          "type": "array"
+        },
+        "preserved_facts": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Preserved Facts",
+          "type": "array"
+        }
+      },
+      "required": [
+        "original_goal",
+        "main_thesis",
+        "audience",
+        "angle",
+        "evidence"
+      ],
+      "title": "InsightBrief",
+      "type": "object"
+    },
+    "InsightEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Evidence Id",
+          "type": "string"
+        },
+        "source_ref": {
+          "title": "Source Ref",
+          "type": "string"
+        },
+        "source_revision": {
+          "title": "Source Revision",
+          "type": "string"
+        },
+        "observation": {
+          "title": "Observation",
+          "type": "string"
+        },
+        "evidence_kind": {
+          "enum": [
+            "provided_fact",
+            "observed_sample",
+            "inference",
+            "creative_hypothesis"
+          ],
+          "title": "Evidence Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "evidence_id",
+        "source_ref",
+        "source_revision",
+        "observation",
+        "evidence_kind"
+      ],
+      "title": "InsightEvidence",
+      "type": "object"
+    },
+    "InstanceHealth": {
+      "additionalProperties": false,
+      "properties": {
+        "instance_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Instance Id",
+          "type": "string"
+        },
+        "schema_version": {
+          "default": "0.1.0-candidate",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "engine_version": {
+          "title": "Engine Version",
+          "type": "string"
+        },
+        "mode": {
+          "const": "local",
+          "default": "local",
+          "title": "Mode",
+          "type": "string"
+        },
+        "worker_connected": {
+          "title": "Worker Connected",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "instance_id",
+        "engine_version",
+        "worker_connected"
+      ],
+      "title": "InstanceHealth",
+      "type": "object"
+    },
+    "LeaseGrant": {
+      "additionalProperties": false,
+      "properties": {
+        "run_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Run Id",
+          "type": "string"
+        },
+        "worker_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Worker Id",
+          "type": "string"
+        },
+        "fencing_token": {
+          "exclusiveMinimum": 0,
+          "title": "Fencing Token",
+          "type": "integer"
+        },
+        "expires_at_us": {
+          "exclusiveMinimum": 0,
+          "title": "Expires At Us",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "run_id",
+        "worker_id",
+        "fencing_token",
+        "expires_at_us"
+      ],
+      "title": "LeaseGrant",
+      "type": "object"
+    },
+    "MediaProbe": {
+      "additionalProperties": false,
+      "properties": {
+        "media_type": {
+          "title": "Media Type",
+          "type": "string"
+        },
+        "duration_us": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Duration Us"
+        },
+        "has_video": {
+          "default": false,
+          "title": "Has Video",
+          "type": "boolean"
+        },
+        "has_audio": {
+          "default": false,
+          "title": "Has Audio",
+          "type": "boolean"
+        },
+        "width": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Width"
+        },
+        "height": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Height"
+        },
+        "tool_version": {
+          "title": "Tool Version",
+          "type": "string"
+        },
+        "decoded": {
+          "title": "Decoded",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "media_type",
+        "tool_version",
+        "decoded"
+      ],
+      "title": "MediaProbe",
+      "type": "object"
+    },
+    "MediaRange": {
+      "additionalProperties": false,
+      "properties": {
+        "start_us": {
+          "minimum": 0,
+          "title": "Start Us",
+          "type": "integer"
+        },
+        "end_us": {
+          "exclusiveMinimum": 0,
+          "title": "End Us",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "start_us",
+        "end_us"
+      ],
+      "title": "MediaRange",
+      "type": "object"
+    },
+    "Money": {
+      "additionalProperties": false,
+      "properties": {
+        "currency": {
+          "const": "CNY",
+          "default": "CNY",
+          "title": "Currency",
+          "type": "string"
+        },
+        "amount": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,12}|(?=[\\d.]{1,19}0*$)\\d{0,12}\\.\\d{0,6}0*$)",
+              "type": "string"
+            }
+          ],
+          "title": "Amount"
+        }
+      },
+      "required": [
+        "amount"
+      ],
+      "title": "Money",
+      "type": "object"
+    },
+    "OperationIntent": {
+      "$defs": {
+        "Money": {
+          "additionalProperties": false,
+          "properties": {
+            "currency": {
+              "const": "CNY",
+              "default": "CNY",
+              "title": "Currency",
+              "type": "string"
+            },
+            "amount": {
+              "anyOf": [
+                {
+                  "minimum": 0.0,
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,12}|(?=[\\d.]{1,19}0*$)\\d{0,12}\\.\\d{0,6}0*$)",
+                  "type": "string"
+                }
+              ],
+              "title": "Amount"
+            }
+          },
+          "required": [
+            "amount"
+          ],
+          "title": "Money",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "step_key": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Step Key",
+          "type": "string"
+        },
+        "dedupe_key": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Dedupe Key",
+          "type": "string"
+        },
+        "input_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Input Sha256",
+          "type": "string"
+        },
+        "route_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Route Id",
+          "type": "string"
+        },
+        "reserved_cost": {
+          "$ref": "#/$defs/Money"
+        }
+      },
+      "required": [
+        "step_key",
+        "dedupe_key",
+        "input_sha256",
+        "route_id",
+        "reserved_cost"
+      ],
+      "title": "OperationIntent",
+      "type": "object"
+    },
+    "OperationObservation": {
+      "$defs": {
+        "JsonValue": {},
+        "Money": {
+          "additionalProperties": false,
+          "properties": {
+            "currency": {
+              "const": "CNY",
+              "default": "CNY",
+              "title": "Currency",
+              "type": "string"
+            },
+            "amount": {
+              "anyOf": [
+                {
+                  "minimum": 0.0,
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,12}|(?=[\\d.]{1,19}0*$)\\d{0,12}\\.\\d{0,6}0*$)",
+                  "type": "string"
+                }
+              ],
+              "title": "Amount"
+            }
+          },
+          "required": [
+            "amount"
+          ],
+          "title": "Money",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "enum": [
+            "pending",
+            "succeeded",
+            "failed",
+            "unknown"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "external_id": {
+          "anyOf": [
+            {
+              "maxLength": 256,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "External Id"
+        },
+        "result_asset_ids": {
+          "default": [],
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "type": "string"
+          },
+          "title": "Result Asset Ids",
+          "type": "array"
+        },
+        "actual_cost": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Money"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "cost_evidence": {
+          "default": "unknown",
+          "enum": [
+            "provider_receipt",
+            "usage_price_calculation",
+            "confirmed_no_charge",
+            "unknown"
+          ],
+          "title": "Cost Evidence",
+          "type": "string"
+        },
+        "usage": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Usage",
+          "type": "object"
+        },
+        "result_json": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/JsonValue"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "title": "OperationObservation",
+      "type": "object"
+    },
+    "OperationSummary": {
+      "$defs": {
+        "Money": {
+          "additionalProperties": false,
+          "properties": {
+            "currency": {
+              "const": "CNY",
+              "default": "CNY",
+              "title": "Currency",
+              "type": "string"
+            },
+            "amount": {
+              "anyOf": [
+                {
+                  "minimum": 0.0,
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,12}|(?=[\\d.]{1,19}0*$)\\d{0,12}\\.\\d{0,6}0*$)",
+                  "type": "string"
+                }
+              ],
+              "title": "Amount"
+            }
+          },
+          "required": [
+            "amount"
+          ],
+          "title": "Money",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "operation_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Operation Id",
+          "type": "string"
+        },
+        "status": {
+          "title": "Status",
+          "type": "string"
+        },
+        "cost_status": {
+          "enum": [
+            "unknown",
+            "known"
+          ],
+          "title": "Cost Status",
+          "type": "string"
+        },
+        "actual_cost": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Money"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "cost_evidence": {
+          "title": "Cost Evidence",
+          "type": "string"
+        },
+        "external_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "External Id"
+        }
+      },
+      "required": [
+        "operation_id",
+        "status",
+        "cost_status",
+        "actual_cost",
+        "cost_evidence",
+        "external_id"
+      ],
+      "title": "OperationSummary",
+      "type": "object"
+    },
+    "ProductionAccepted": {
+      "$defs": {
+        "RunStatus": {
+          "enum": [
+            "queued",
+            "running",
+            "waiting_user",
+            "waiting_provider",
+            "succeeded",
+            "failed",
+            "cancel_requested",
+            "cancelled",
+            "needs_reconciliation"
+          ],
+          "title": "RunStatus",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "default": "0.1.0-candidate",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "instance_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Instance Id",
+          "type": "string"
+        },
+        "production_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Production Id",
+          "type": "string"
+        },
+        "run_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Run Id",
+          "type": "string"
+        },
+        "project_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Project Id",
+          "type": "string"
+        },
+        "request_revision_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Request Revision Id",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/RunStatus"
+        },
+        "status_path": {
+          "title": "Status Path",
+          "type": "string"
+        },
+        "events_path": {
+          "title": "Events Path",
+          "type": "string"
+        }
+      },
+      "required": [
+        "instance_id",
+        "production_id",
+        "run_id",
+        "project_id",
+        "request_revision_id",
+        "status",
+        "status_path",
+        "events_path"
+      ],
+      "title": "ProductionAccepted",
+      "type": "object"
+    },
+    "ProductionCost": {
+      "$defs": {
+        "Money": {
+          "additionalProperties": false,
+          "properties": {
+            "currency": {
+              "const": "CNY",
+              "default": "CNY",
+              "title": "Currency",
+              "type": "string"
+            },
+            "amount": {
+              "anyOf": [
+                {
+                  "minimum": 0.0,
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,12}|(?=[\\d.]{1,19}0*$)\\d{0,12}\\.\\d{0,6}0*$)",
+                  "type": "string"
+                }
+              ],
+              "title": "Amount"
+            }
+          },
+          "required": [
+            "amount"
+          ],
+          "title": "Money",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "spent": {
+          "$ref": "#/$defs/Money"
+        },
+        "reserved": {
+          "$ref": "#/$defs/Money"
+        }
+      },
+      "required": [
+        "spent",
+        "reserved"
+      ],
+      "title": "ProductionCost",
+      "type": "object"
+    },
+    "ProductionDetail": {
+      "$defs": {
+        "Automation": {
+          "additionalProperties": false,
+          "properties": {
+            "mode": {
+              "default": "interactive",
+              "enum": [
+                "interactive",
+                "unattended"
+              ],
+              "title": "Mode",
+              "type": "string"
+            },
+            "max_revision_cycles": {
+              "default": 2,
+              "maximum": 2,
+              "minimum": 0,
+              "title": "Max Revision Cycles",
+              "type": "integer"
+            }
+          },
+          "title": "Automation",
+          "type": "object"
+        },
+        "CreativeBriefInput": {
+          "additionalProperties": false,
+          "properties": {
+            "language": {
+              "default": "zh-CN",
+              "title": "Language",
+              "type": "string"
+            },
+            "target_duration_us": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Target Duration Us"
+            },
+            "aspect_ratio": {
+              "default": "9:16",
+              "enum": [
+                "9:16",
+                "16:9"
+              ],
+              "title": "Aspect Ratio",
+              "type": "string"
+            },
+            "guidance": {
+              "anyOf": [
+                {
+                  "maxLength": 10000,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Guidance"
+            }
+          },
+          "title": "CreativeBriefInput",
+          "type": "object"
+        },
+        "ExecutionPolicy": {
+          "additionalProperties": false,
+          "properties": {
+            "version": {
+              "default": "local-default-v1",
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "title": "Version",
+              "type": "string"
+            },
+            "allowed_provider_routes": {
+              "default": [],
+              "items": {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9_.:-]+$",
+                "type": "string"
+              },
+              "title": "Allowed Provider Routes",
+              "type": "array"
+            },
+            "external_transfer_allowed": {
+              "default": false,
+              "title": "External Transfer Allowed",
+              "type": "boolean"
+            },
+            "max_cost": {
+              "$ref": "#/$defs/Money"
+            },
+            "budget_group_id": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9_.:-]+$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Budget Group Id"
+            }
+          },
+          "title": "ExecutionPolicy",
+          "type": "object"
+        },
+        "Money": {
+          "additionalProperties": false,
+          "properties": {
+            "currency": {
+              "const": "CNY",
+              "default": "CNY",
+              "title": "Currency",
+              "type": "string"
+            },
+            "amount": {
+              "anyOf": [
+                {
+                  "minimum": 0.0,
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,12}|(?=[\\d.]{1,19}0*$)\\d{0,12}\\.\\d{0,6}0*$)",
+                  "type": "string"
+                }
+              ],
+              "title": "Amount"
+            }
+          },
+          "required": [
+            "amount"
+          ],
+          "title": "Money",
+          "type": "object"
+        },
+        "OperationSummary": {
+          "additionalProperties": false,
+          "properties": {
+            "operation_id": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "title": "Operation Id",
+              "type": "string"
+            },
+            "status": {
+              "title": "Status",
+              "type": "string"
+            },
+            "cost_status": {
+              "enum": [
+                "unknown",
+                "known"
+              ],
+              "title": "Cost Status",
+              "type": "string"
+            },
+            "actual_cost": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Money"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "cost_evidence": {
+              "title": "Cost Evidence",
+              "type": "string"
+            },
+            "external_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "External Id"
+            }
+          },
+          "required": [
+            "operation_id",
+            "status",
+            "cost_status",
+            "actual_cost",
+            "cost_evidence",
+            "external_id"
+          ],
+          "title": "OperationSummary",
+          "type": "object"
+        },
+        "ProductionCost": {
+          "additionalProperties": false,
+          "properties": {
+            "spent": {
+              "$ref": "#/$defs/Money"
+            },
+            "reserved": {
+              "$ref": "#/$defs/Money"
+            }
+          },
+          "required": [
+            "spent",
+            "reserved"
+          ],
+          "title": "ProductionCost",
+          "type": "object"
+        },
+        "ProductionInputs": {
+          "additionalProperties": false,
+          "properties": {
+            "source_text": {
+              "default": "",
+              "maxLength": 500000,
+              "title": "Source Text",
+              "type": "string"
+            },
+            "asset_ids": {
+              "default": [],
+              "items": {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9_.:-]+$",
+                "type": "string"
+              },
+              "title": "Asset Ids",
+              "type": "array"
+            }
+          },
+          "title": "ProductionInputs",
+          "type": "object"
+        },
+        "ProductionRequest": {
+          "additionalProperties": false,
+          "properties": {
+            "goal": {
+              "maxLength": 10000,
+              "minLength": 1,
+              "title": "Goal",
+              "type": "string"
+            },
+            "inputs": {
+              "$ref": "#/$defs/ProductionInputs"
+            },
+            "project_id": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9_.:-]+$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Project Id"
+            },
+            "source_bindings": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/SourceBinding"
+              },
+              "title": "Source Bindings",
+              "type": "array"
+            },
+            "brief": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/CreativeBriefInput"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "automation": {
+              "$ref": "#/$defs/Automation"
+            },
+            "policy": {
+              "$ref": "#/$defs/ExecutionPolicy"
+            },
+            "outputs": {
+              "default": [
+                "video",
+                "narration_audio",
+                "mixed_audio",
+                "approved_script",
+                "actual_transcript",
+                "subtitles",
+                "semantic_manifest",
+                "rag_chunks"
+              ],
+              "items": {
+                "enum": [
+                  "video",
+                  "narration_audio",
+                  "mixed_audio",
+                  "approved_script",
+                  "actual_transcript",
+                  "subtitles",
+                  "semantic_manifest",
+                  "rag_chunks"
+                ],
+                "type": "string"
+              },
+              "title": "Outputs",
+              "type": "array"
+            },
+            "delivery": {
+              "default": "reference",
+              "enum": [
+                "reference",
+                "export"
+              ],
+              "title": "Delivery",
+              "type": "string"
+            }
+          },
+          "required": [
+            "goal"
+          ],
+          "title": "ProductionRequest",
+          "type": "object"
+        },
+        "RunStatus": {
+          "enum": [
+            "queued",
+            "running",
+            "waiting_user",
+            "waiting_provider",
+            "succeeded",
+            "failed",
+            "cancel_requested",
+            "cancelled",
+            "needs_reconciliation"
+          ],
+          "title": "RunStatus",
+          "type": "string"
+        },
+        "SourceBinding": {
+          "additionalProperties": false,
+          "properties": {
+            "system": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "title": "System",
+              "type": "string"
+            },
+            "namespace": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "title": "Namespace",
+              "type": "string"
+            },
+            "article_id": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9_.:-]+$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Article Id"
+            },
+            "article_revision": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9_.:-]+$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Article Revision"
+            },
+            "topic_id": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9_.:-]+$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Topic Id"
+            },
+            "topic_revision": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9_.:-]+$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Topic Revision"
+            },
+            "paragraph_ids": {
+              "default": [],
+              "items": {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9_.:-]+$",
+                "type": "string"
+              },
+              "title": "Paragraph Ids",
+              "type": "array"
+            },
+            "confirmed_facts": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Confirmed Facts",
+              "type": "array"
+            }
+          },
+          "required": [
+            "system",
+            "namespace"
+          ],
+          "title": "SourceBinding",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "default": "0.1.0-candidate",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "instance_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Instance Id",
+          "type": "string"
+        },
+        "production_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Production Id",
+          "type": "string"
+        },
+        "run_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Run Id",
+          "type": "string"
+        },
+        "project_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Project Id",
+          "type": "string"
+        },
+        "request_revision_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Request Revision Id",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/RunStatus"
+        },
+        "status_path": {
+          "title": "Status Path",
+          "type": "string"
+        },
+        "events_path": {
+          "title": "Events Path",
+          "type": "string"
+        },
+        "request": {
+          "$ref": "#/$defs/ProductionRequest"
+        },
+        "cost": {
+          "$ref": "#/$defs/ProductionCost"
+        },
+        "operations": {
+          "items": {
+            "$ref": "#/$defs/OperationSummary"
+          },
+          "title": "Operations",
+          "type": "array"
+        },
+        "revision_cycles": {
+          "title": "Revision Cycles",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "instance_id",
+        "production_id",
+        "run_id",
+        "project_id",
+        "request_revision_id",
+        "status",
+        "status_path",
+        "events_path",
+        "request",
+        "cost",
+        "operations",
+        "revision_cycles"
+      ],
+      "title": "ProductionDetail",
+      "type": "object"
+    },
+    "ProductionInputs": {
+      "additionalProperties": false,
+      "properties": {
+        "source_text": {
+          "default": "",
+          "maxLength": 500000,
+          "title": "Source Text",
+          "type": "string"
+        },
+        "asset_ids": {
+          "default": [],
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "type": "string"
+          },
+          "title": "Asset Ids",
+          "type": "array"
+        }
+      },
+      "title": "ProductionInputs",
+      "type": "object"
+    },
+    "ProductionRequest": {
+      "$defs": {
+        "Automation": {
+          "additionalProperties": false,
+          "properties": {
+            "mode": {
+              "default": "interactive",
+              "enum": [
+                "interactive",
+                "unattended"
+              ],
+              "title": "Mode",
+              "type": "string"
+            },
+            "max_revision_cycles": {
+              "default": 2,
+              "maximum": 2,
+              "minimum": 0,
+              "title": "Max Revision Cycles",
+              "type": "integer"
+            }
+          },
+          "title": "Automation",
+          "type": "object"
+        },
+        "CreativeBriefInput": {
+          "additionalProperties": false,
+          "properties": {
+            "language": {
+              "default": "zh-CN",
+              "title": "Language",
+              "type": "string"
+            },
+            "target_duration_us": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Target Duration Us"
+            },
+            "aspect_ratio": {
+              "default": "9:16",
+              "enum": [
+                "9:16",
+                "16:9"
+              ],
+              "title": "Aspect Ratio",
+              "type": "string"
+            },
+            "guidance": {
+              "anyOf": [
+                {
+                  "maxLength": 10000,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Guidance"
+            }
+          },
+          "title": "CreativeBriefInput",
+          "type": "object"
+        },
+        "ExecutionPolicy": {
+          "additionalProperties": false,
+          "properties": {
+            "version": {
+              "default": "local-default-v1",
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "title": "Version",
+              "type": "string"
+            },
+            "allowed_provider_routes": {
+              "default": [],
+              "items": {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9_.:-]+$",
+                "type": "string"
+              },
+              "title": "Allowed Provider Routes",
+              "type": "array"
+            },
+            "external_transfer_allowed": {
+              "default": false,
+              "title": "External Transfer Allowed",
+              "type": "boolean"
+            },
+            "max_cost": {
+              "$ref": "#/$defs/Money"
+            },
+            "budget_group_id": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9_.:-]+$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Budget Group Id"
+            }
+          },
+          "title": "ExecutionPolicy",
+          "type": "object"
+        },
+        "Money": {
+          "additionalProperties": false,
+          "properties": {
+            "currency": {
+              "const": "CNY",
+              "default": "CNY",
+              "title": "Currency",
+              "type": "string"
+            },
+            "amount": {
+              "anyOf": [
+                {
+                  "minimum": 0.0,
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,12}|(?=[\\d.]{1,19}0*$)\\d{0,12}\\.\\d{0,6}0*$)",
+                  "type": "string"
+                }
+              ],
+              "title": "Amount"
+            }
+          },
+          "required": [
+            "amount"
+          ],
+          "title": "Money",
+          "type": "object"
+        },
+        "ProductionInputs": {
+          "additionalProperties": false,
+          "properties": {
+            "source_text": {
+              "default": "",
+              "maxLength": 500000,
+              "title": "Source Text",
+              "type": "string"
+            },
+            "asset_ids": {
+              "default": [],
+              "items": {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9_.:-]+$",
+                "type": "string"
+              },
+              "title": "Asset Ids",
+              "type": "array"
+            }
+          },
+          "title": "ProductionInputs",
+          "type": "object"
+        },
+        "SourceBinding": {
+          "additionalProperties": false,
+          "properties": {
+            "system": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "title": "System",
+              "type": "string"
+            },
+            "namespace": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "title": "Namespace",
+              "type": "string"
+            },
+            "article_id": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9_.:-]+$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Article Id"
+            },
+            "article_revision": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9_.:-]+$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Article Revision"
+            },
+            "topic_id": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9_.:-]+$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Topic Id"
+            },
+            "topic_revision": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9_.:-]+$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Topic Revision"
+            },
+            "paragraph_ids": {
+              "default": [],
+              "items": {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9_.:-]+$",
+                "type": "string"
+              },
+              "title": "Paragraph Ids",
+              "type": "array"
+            },
+            "confirmed_facts": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Confirmed Facts",
+              "type": "array"
+            }
+          },
+          "required": [
+            "system",
+            "namespace"
+          ],
+          "title": "SourceBinding",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "goal": {
+          "maxLength": 10000,
+          "minLength": 1,
+          "title": "Goal",
+          "type": "string"
+        },
+        "inputs": {
+          "$ref": "#/$defs/ProductionInputs"
+        },
+        "project_id": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Project Id"
+        },
+        "source_bindings": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/SourceBinding"
+          },
+          "title": "Source Bindings",
+          "type": "array"
+        },
+        "brief": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CreativeBriefInput"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "automation": {
+          "$ref": "#/$defs/Automation"
+        },
+        "policy": {
+          "$ref": "#/$defs/ExecutionPolicy"
+        },
+        "outputs": {
+          "default": [
+            "video",
+            "narration_audio",
+            "mixed_audio",
+            "approved_script",
+            "actual_transcript",
+            "subtitles",
+            "semantic_manifest",
+            "rag_chunks"
+          ],
+          "items": {
+            "enum": [
+              "video",
+              "narration_audio",
+              "mixed_audio",
+              "approved_script",
+              "actual_transcript",
+              "subtitles",
+              "semantic_manifest",
+              "rag_chunks"
+            ],
+            "type": "string"
+          },
+          "title": "Outputs",
+          "type": "array"
+        },
+        "delivery": {
+          "default": "reference",
+          "enum": [
+            "reference",
+            "export"
+          ],
+          "title": "Delivery",
+          "type": "string"
+        }
+      },
+      "required": [
+        "goal"
+      ],
+      "title": "ProductionRequest",
+      "type": "object"
+    },
+    "ProjectDraft": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "default": "未命名项目",
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "goal": {
+          "default": "",
+          "maxLength": 10000,
+          "title": "Goal",
+          "type": "string"
+        },
+        "source_text": {
+          "default": "",
+          "maxLength": 500000,
+          "title": "Source Text",
+          "type": "string"
+        },
+        "project_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Project Id",
+          "type": "string"
+        },
+        "revision": {
+          "exclusiveMinimum": 0,
+          "title": "Revision",
+          "type": "integer"
+        },
+        "saved_at_us": {
+          "title": "Saved At Us",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "project_id",
+        "revision",
+        "saved_at_us"
+      ],
+      "title": "ProjectDraft",
+      "type": "object"
+    },
+    "ProjectInput": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "default": "未命名项目",
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "goal": {
+          "default": "",
+          "maxLength": 10000,
+          "title": "Goal",
+          "type": "string"
+        },
+        "source_text": {
+          "default": "",
+          "maxLength": 500000,
+          "title": "Source Text",
+          "type": "string"
+        }
+      },
+      "title": "ProjectInput",
+      "type": "object"
+    },
+    "QualityReport": {
+      "additionalProperties": false,
+      "properties": {
+        "revision_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Revision Id",
+          "type": "string"
+        },
+        "asset_ids": {
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "type": "string"
+          },
+          "title": "Asset Ids",
+          "type": "array"
+        },
+        "passed": {
+          "title": "Passed",
+          "type": "boolean"
+        },
+        "method": {
+          "title": "Method",
+          "type": "string"
+        },
+        "findings": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Findings",
+          "type": "array"
+        }
+      },
+      "required": [
+        "revision_id",
+        "asset_ids",
+        "passed",
+        "method"
+      ],
+      "title": "QualityReport",
+      "type": "object"
+    },
+    "ReviewDecision": {
+      "additionalProperties": false,
+      "properties": {
+        "target_revision_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Target Revision Id",
+          "type": "string"
+        },
+        "action": {
+          "enum": [
+            "approve",
+            "revise",
+            "reject"
+          ],
+          "title": "Action",
+          "type": "string"
+        },
+        "instruction_text": {
+          "default": "",
+          "maxLength": 10000,
+          "title": "Instruction Text",
+          "type": "string"
+        },
+        "preserved_constraints": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Preserved Constraints",
+          "type": "array"
+        }
+      },
+      "required": [
+        "target_revision_id",
+        "action"
+      ],
+      "title": "ReviewDecision",
+      "type": "object"
+    },
+    "ScriptCandidate": {
+      "additionalProperties": false,
+      "properties": {
+        "candidate_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Candidate Id",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "script": {
+          "title": "Script",
+          "type": "string"
+        },
+        "recommendation_reason": {
+          "title": "Recommendation Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "candidate_id",
+        "title",
+        "script",
+        "recommendation_reason"
+      ],
+      "title": "ScriptCandidate",
+      "type": "object"
+    },
+    "SemanticSegment": {
+      "$defs": {
+        "MediaRange": {
+          "additionalProperties": false,
+          "properties": {
+            "start_us": {
+              "minimum": 0,
+              "title": "Start Us",
+              "type": "integer"
+            },
+            "end_us": {
+              "exclusiveMinimum": 0,
+              "title": "End Us",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "start_us",
+            "end_us"
+          ],
+          "title": "MediaRange",
+          "type": "object"
+        },
+        "SourceBinding": {
+          "additionalProperties": false,
+          "properties": {
+            "system": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "title": "System",
+              "type": "string"
+            },
+            "namespace": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "title": "Namespace",
+              "type": "string"
+            },
+            "article_id": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9_.:-]+$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Article Id"
+            },
+            "article_revision": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9_.:-]+$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Article Revision"
+            },
+            "topic_id": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9_.:-]+$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Topic Id"
+            },
+            "topic_revision": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9_.:-]+$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Topic Revision"
+            },
+            "paragraph_ids": {
+              "default": [],
+              "items": {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9_.:-]+$",
+                "type": "string"
+              },
+              "title": "Paragraph Ids",
+              "type": "array"
+            },
+            "confirmed_facts": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Confirmed Facts",
+              "type": "array"
+            }
+          },
+          "required": [
+            "system",
+            "namespace"
+          ],
+          "title": "SourceBinding",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "segment_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Segment Id",
+          "type": "string"
+        },
+        "bundle_revision_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Bundle Revision Id",
+          "type": "string"
+        },
+        "video_asset_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Video Asset Id",
+          "type": "string"
+        },
+        "video_range": {
+          "$ref": "#/$defs/MediaRange"
+        },
+        "speech_text": {
+          "title": "Speech Text",
+          "type": "string"
+        },
+        "visual_description": {
+          "title": "Visual Description",
+          "type": "string"
+        },
+        "source_refs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/SourceBinding"
+          },
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "segment_id",
+        "bundle_revision_id",
+        "video_asset_id",
+        "video_range",
+        "speech_text",
+        "visual_description"
+      ],
+      "title": "SemanticSegment",
+      "type": "object"
+    },
+    "ShotRevisionProposal": {
+      "$defs": {
+        "StoryboardShot": {
+          "additionalProperties": false,
+          "properties": {
+            "shot_id": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "title": "Shot Id",
+              "type": "string"
+            },
+            "visual": {
+              "title": "Visual",
+              "type": "string"
+            },
+            "narration": {
+              "title": "Narration",
+              "type": "string"
+            },
+            "camera": {
+              "title": "Camera",
+              "type": "string"
+            },
+            "duration_us": {
+              "exclusiveMinimum": 0,
+              "title": "Duration Us",
+              "type": "integer"
+            },
+            "source_refs": {
+              "default": [],
+              "items": {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9_.:-]+$",
+                "type": "string"
+              },
+              "title": "Source Refs",
+              "type": "array"
+            }
+          },
+          "required": [
+            "shot_id",
+            "visual",
+            "narration",
+            "camera",
+            "duration_us"
+          ],
+          "title": "StoryboardShot",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "target_shot_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Target Shot Id",
+          "type": "string"
+        },
+        "revised_shot": {
+          "$ref": "#/$defs/StoryboardShot"
+        },
+        "preserved_facts": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Preserved Facts",
+          "type": "array"
+        },
+        "unchanged_shot_ids": {
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "type": "string"
+          },
+          "title": "Unchanged Shot Ids",
+          "type": "array"
+        },
+        "instruction_text": {
+          "title": "Instruction Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "target_shot_id",
+        "revised_shot",
+        "preserved_facts",
+        "unchanged_shot_ids",
+        "instruction_text"
+      ],
+      "title": "ShotRevisionProposal",
+      "type": "object"
+    },
+    "SourceBinding": {
+      "additionalProperties": false,
+      "properties": {
+        "system": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "System",
+          "type": "string"
+        },
+        "namespace": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Namespace",
+          "type": "string"
+        },
+        "article_id": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Article Id"
+        },
+        "article_revision": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Article Revision"
+        },
+        "topic_id": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Topic Id"
+        },
+        "topic_revision": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Topic Revision"
+        },
+        "paragraph_ids": {
+          "default": [],
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "type": "string"
+          },
+          "title": "Paragraph Ids",
+          "type": "array"
+        },
+        "confirmed_facts": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Confirmed Facts",
+          "type": "array"
+        }
+      },
+      "required": [
+        "system",
+        "namespace"
+      ],
+      "title": "SourceBinding",
+      "type": "object"
+    },
+    "StagedAsset": {
+      "additionalProperties": false,
+      "properties": {
+        "staging_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Staging Id",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "size": {
+          "exclusiveMinimum": 0,
+          "title": "Size",
+          "type": "integer"
+        },
+        "media_type": {
+          "title": "Media Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "staging_id",
+        "sha256",
+        "size",
+        "media_type"
+      ],
+      "title": "StagedAsset",
+      "type": "object"
+    },
+    "StoryboardShot": {
+      "additionalProperties": false,
+      "properties": {
+        "shot_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Shot Id",
+          "type": "string"
+        },
+        "visual": {
+          "title": "Visual",
+          "type": "string"
+        },
+        "narration": {
+          "title": "Narration",
+          "type": "string"
+        },
+        "camera": {
+          "title": "Camera",
+          "type": "string"
+        },
+        "duration_us": {
+          "exclusiveMinimum": 0,
+          "title": "Duration Us",
+          "type": "integer"
+        },
+        "source_refs": {
+          "default": [],
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "type": "string"
+          },
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "shot_id",
+        "visual",
+        "narration",
+        "camera",
+        "duration_us"
+      ],
+      "title": "StoryboardShot",
+      "type": "object"
+    },
+    "TaskContext": {
+      "$defs": {
+        "ExecutionPolicy": {
+          "additionalProperties": false,
+          "properties": {
+            "version": {
+              "default": "local-default-v1",
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "title": "Version",
+              "type": "string"
+            },
+            "allowed_provider_routes": {
+              "default": [],
+              "items": {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9_.:-]+$",
+                "type": "string"
+              },
+              "title": "Allowed Provider Routes",
+              "type": "array"
+            },
+            "external_transfer_allowed": {
+              "default": false,
+              "title": "External Transfer Allowed",
+              "type": "boolean"
+            },
+            "max_cost": {
+              "$ref": "#/$defs/Money"
+            },
+            "budget_group_id": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9_.:-]+$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Budget Group Id"
+            }
+          },
+          "title": "ExecutionPolicy",
+          "type": "object"
+        },
+        "Money": {
+          "additionalProperties": false,
+          "properties": {
+            "currency": {
+              "const": "CNY",
+              "default": "CNY",
+              "title": "Currency",
+              "type": "string"
+            },
+            "amount": {
+              "anyOf": [
+                {
+                  "minimum": 0.0,
+                  "type": "number"
+                },
+                {
+                  "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,12}|(?=[\\d.]{1,19}0*$)\\d{0,12}\\.\\d{0,6}0*$)",
+                  "type": "string"
+                }
+              ],
+              "title": "Amount"
+            }
+          },
+          "required": [
+            "amount"
+          ],
+          "title": "Money",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "production_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Production Id",
+          "type": "string"
+        },
+        "run_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Run Id",
+          "type": "string"
+        },
+        "step_key": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Step Key",
+          "type": "string"
+        },
+        "request_revision_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Request Revision Id",
+          "type": "string"
+        },
+        "input_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Input Sha256",
+          "type": "string"
+        },
+        "policy": {
+          "$ref": "#/$defs/ExecutionPolicy"
+        }
+      },
+      "required": [
+        "production_id",
+        "run_id",
+        "step_key",
+        "request_revision_id",
+        "input_sha256",
+        "policy"
+      ],
+      "title": "TaskContext",
+      "type": "object"
+    },
+    "Timeline": {
+      "$defs": {
+        "MediaRange": {
+          "additionalProperties": false,
+          "properties": {
+            "start_us": {
+              "minimum": 0,
+              "title": "Start Us",
+              "type": "integer"
+            },
+            "end_us": {
+              "exclusiveMinimum": 0,
+              "title": "End Us",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "start_us",
+            "end_us"
+          ],
+          "title": "MediaRange",
+          "type": "object"
+        },
+        "TimelineClip": {
+          "additionalProperties": false,
+          "properties": {
+            "asset_id": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "title": "Asset Id",
+              "type": "string"
+            },
+            "source_range": {
+              "$ref": "#/$defs/MediaRange"
+            },
+            "timeline_range": {
+              "$ref": "#/$defs/MediaRange"
+            },
+            "kind": {
+              "enum": [
+                "video",
+                "audio",
+                "subtitle"
+              ],
+              "title": "Kind",
+              "type": "string"
+            }
+          },
+          "required": [
+            "asset_id",
+            "source_range",
+            "timeline_range",
+            "kind"
+          ],
+          "title": "TimelineClip",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "duration_us": {
+          "exclusiveMinimum": 0,
+          "title": "Duration Us",
+          "type": "integer"
+        },
+        "width": {
+          "exclusiveMinimum": 0,
+          "title": "Width",
+          "type": "integer"
+        },
+        "height": {
+          "exclusiveMinimum": 0,
+          "title": "Height",
+          "type": "integer"
+        },
+        "clips": {
+          "items": {
+            "$ref": "#/$defs/TimelineClip"
+          },
+          "title": "Clips",
+          "type": "array"
+        }
+      },
+      "required": [
+        "duration_us",
+        "width",
+        "height",
+        "clips"
+      ],
+      "title": "Timeline",
+      "type": "object"
+    },
+    "TimelineClip": {
+      "$defs": {
+        "MediaRange": {
+          "additionalProperties": false,
+          "properties": {
+            "start_us": {
+              "minimum": 0,
+              "title": "Start Us",
+              "type": "integer"
+            },
+            "end_us": {
+              "exclusiveMinimum": 0,
+              "title": "End Us",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "start_us",
+            "end_us"
+          ],
+          "title": "MediaRange",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "asset_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Asset Id",
+          "type": "string"
+        },
+        "source_range": {
+          "$ref": "#/$defs/MediaRange"
+        },
+        "timeline_range": {
+          "$ref": "#/$defs/MediaRange"
+        },
+        "kind": {
+          "enum": [
+            "video",
+            "audio",
+            "subtitle"
+          ],
+          "title": "Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "asset_id",
+        "source_range",
+        "timeline_range",
+        "kind"
+      ],
+      "title": "TimelineClip",
+      "type": "object"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "@video-creator/api-client",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "types": "./src/schema.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/schema.d.ts"
+    }
+  }
+}

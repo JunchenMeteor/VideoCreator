@@ -1,0 +1,9 @@
+packages:
+  - apps/*
+  - packages/*
+
+onlyBuiltDependencies:
+  - "@tauri-apps/cli"
+  - "esbuild"
+
+strictPeerDependencies: true

@@ -1,0 +1,24 @@
+{
+  "name": "video-creator",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.9.1",
+  "engines": {
+    "node": ">=24.18.0 <25"
+  },
+  "scripts": {
+    "dev:workbench": "pnpm --filter @video-creator/workbench dev",
+    "build:workbench": "pnpm --filter @video-creator/workbench build",
+    "typecheck": "pnpm --filter @video-creator/workbench typecheck",
+    "test:unit": "pnpm --filter @video-creator/workbench test",
+    "desktop": "pnpm --filter @video-creator/desktop tauri",
+    "contracts:generate": "node tools/build/GenerateContracts.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@axe-core/playwright": "4.13.0",
+    "openapi-typescript": "7.13.0",
+    "@types/node": "^24.0.0"
+  }
+}

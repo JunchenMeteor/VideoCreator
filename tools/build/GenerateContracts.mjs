@@ -1,0 +1,20 @@
+import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+const root=fileURLToPath(new URL('../../', import.meta.url));
+const python=process.env.VIDEO_CREATOR_BUILD_PYTHON || path.join(root,'.venv',process.platform==='win32'?'Scripts/python.exe':'bin/python');
+const out=path.join(root,'packages/contracts');
+const sdk=path.join(root,'packages/api-client/src/schema.d.ts');
+await mkdir(out,{recursive:true});await mkdir(path.dirname(sdk),{recursive:true});
+function run(exe,args){const r=spawnSync(exe,args,{cwd:root,stdio:'inherit',shell:false});if(r.error)throw r.error;if(r.status!==0)throw new Error('Contract generation failed with exit '+r.status);}
+run(python,['-m','video_creator.cli.main','export-contracts','--output-dir',out]);
+const generator=path.join(root,'node_modules/openapi-typescript/bin/cli.js');
+run(process.execPath,[generator,'packages/contracts/openapi.json','--output','packages/api-client/src/schema.d.ts']);
+const sourceFiles=['services/engine/src/video_creator/domain/contracts.py','services/engine/src/video_creator/api/app.py','services/engine/src/video_creator/cli/main.py'];
+const outputs=['packages/contracts/openapi.json','packages/contracts/schemas.json','packages/api-client/src/schema.d.ts'];
+const hash=async file=>createHash('sha256').update(await readFile(path.join(root,file))).digest('hex');
+const source=Object.fromEntries(await Promise.all(sourceFiles.map(async f=>[f,await hash(f)])));
+const generated=Object.fromEntries(await Promise.all(outputs.map(async f=>[f,await hash(f)])));
+await writeFile(path.join(out,'generation.manifest.json'),JSON.stringify({schema_version:JSON.parse(await readFile(path.join(out,'schemas.json'),'utf8')).schema_version,generator:'openapi-typescript@7.13.0',sources:source,outputs:generated},null,2)+'\n');
