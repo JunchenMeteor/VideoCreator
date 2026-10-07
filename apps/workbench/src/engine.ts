@@ -9,11 +9,25 @@ export type ProductionInput = Schemas['ProductionRequest-Input'];
 export type CreativeRevision = Schemas['CreativeRevision'];
 export type EngineEvent = Schemas['EventEnvelope'];
 export type AssetRecord = Schemas['AssetRecord'];
+export type ErrorEnvelope = Schemas['ErrorEnvelope'];
 
-// Transport errors are kept separate from the missing generated ErrorEnvelope.
-// No credentials, raw response bodies or request inputs are logged or persisted.
+// Only bounded diagnostic fields from the generated contract cross the transport boundary.
+// Server messages, credentials, raw response bodies and request inputs are never reflected.
 export class RequestFailure extends Error {
-  constructor(public status: number, public code: string) { super(code); }
+  constructor(
+    public status: number,
+    public code: string,
+    public retryability?: ErrorEnvelope['retryability'],
+    public requestId?: ErrorEnvelope['request_id'],
+  ) { super(code); }
+}
+
+function isErrorEnvelope(value: unknown): value is ErrorEnvelope {
+  return Boolean(value && typeof value === 'object'
+    && 'code' in value && typeof value.code === 'string' && /^[a-z0-9_]{1,80}$/.test(value.code)
+    && 'message' in value && typeof value.message === 'string'
+    && 'retryability' in value && (value.retryability === 'never' || value.retryability === 'safe' || value.retryability === 'reconcile')
+    && 'request_id' in value && typeof value.request_id === 'string' && /^[A-Za-z0-9_.:-]{1,128}$/.test(value.request_id));
 }
 
 export function errorMessage(error: unknown): string {
@@ -46,12 +60,15 @@ export async function engineFetch(path: string, init: RequestInit = {}): Promise
   headers.set('X-Video-Creator-Client', 'workbench');
   const response = await fetch(path, { ...init, headers, credentials: 'omit', cache: 'no-store', mode: 'same-origin' });
   if (!response.ok) {
-    let code = 'request_failed';
+    let envelope: ErrorEnvelope | undefined;
     try {
-      const body: unknown = await response.json();
-      if (body && typeof body === 'object' && 'code' in body && typeof body.code === 'string' && /^[a-z0-9_]{1,80}$/.test(body.code)) code = body.code;
-    } catch { /* Do not reflect arbitrary HTML or response content into the UI. */ }
-    throw new RequestFailure(response.status, code);
+      const mediaType = response.headers.get('Content-Type')?.split(';')[0].trim().toLowerCase();
+      if (mediaType === 'application/json' || mediaType?.endsWith('+json')) {
+        const body: unknown = await response.json();
+        if (isErrorEnvelope(body)) envelope = body;
+      }
+    } catch { /* Plain Host/Range errors, framework detail and malformed JSON stay generic. */ }
+    throw new RequestFailure(response.status, envelope?.code ?? 'request_failed', envelope?.retryability, envelope?.request_id);
   }
   return response;
 }
