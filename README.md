@@ -17,3 +17,5 @@ Node 24 LTS 是构建候选；Python 3.13、Tauri 2、CrewAI、FFmpeg 的精确�
 `pnpm dev:runtime --data-dir <绝对本地实例目录>`启动本地API和`http://127.0.0.1:1420/`工作台。开发代理持有私有会话令牌；工作台每次API请求发送`X-Video-Creator-Client: workbench`，无需将令牌写入页面。它不会授权预算、导入模型密钥或启动制作worker。运行时边界和桌面接口状态见[RuntimeContract](packaging/RuntimeContract.md)。
 
 `pnpm typecheck`、`pnpm build:workbench`验证前端，`pnpm contracts:generate`从Python源码生成公开契约；这些命令通过不等于安装包或Agent制作验收通过。
+
+内部引擎候选构建入口见[运行时与成包契约](packaging/RuntimeContract.md)。`tools/build/BuildEngine.mjs`要求精确Git提交和已核验资源manifest，输出构建清单及实际产物hash；它不替代桌面安装包或独立验收。
