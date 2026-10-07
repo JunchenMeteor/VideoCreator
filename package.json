@@ -13,7 +13,8 @@
     "typecheck": "pnpm --filter @video-creator/workbench typecheck",
     "test:unit": "pnpm --filter @video-creator/workbench test",
     "desktop": "pnpm --filter @video-creator/desktop tauri",
-    "contracts:generate": "node tools/build/GenerateContracts.mjs"
+    "contracts:generate": "node tools/build/GenerateContracts.mjs",
+    "dev:runtime": "node tools/build/DevRuntime.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",
