@@ -1,6 +1,6 @@
 # ADR0083：安装器供给与首次运行（Installer Provisioning and First Run）
 
-状态：ARCHITECTURE_FROZEN_DESIGN_ONLY，2026-10-26。冻结"新实例在用户点同意之前必须先被供给什么、由谁供给、失败如何恢复、R1 安装包能交付什么、第三方如何复跑验证"。**本卡只写文档**：不改源码、不改迁移、不改契约、不新增表、不写测试、不产出安装包。§8 的验证清单全部 **NOT_EXECUTED**（仅 V6/V7 的引擎侧行为在本卡之前由真实空实例跑过，见 §0.2）。
+状态：ARCHITECTURE_FROZEN_DESIGN_ONLY，2026-10-26。冻结"新实例在用户点同意之前必须先被供给什么、由谁供给、失败如何恢复、R1 安装包能交付什么、第三方如何复跑验证"。**本卡只写文档**：不改源码、不改迁移、不改契约、不新增表、不写测试、不产出安装包。§8 的验证清单全部 **NOT_EXECUTED**（仅 V6/V7 的引擎侧行为在本卡之前由真实空实例跑过，见 §0.2）。同日按用户裁定做**定点修订**：空 floor 归入供给、执行权威另立卡 ADR0084；逐条见 §0.3 与 §2.2/§3.3/§5.1/§7/§8/§9。
 
 ## 0 实读证据（行号取 HEAD `3f039df`；`vc/` = `services/engine/src/video_creator`）
 
@@ -61,15 +61,34 @@
 | 本卡的供给器、启动器、`InstallationProvisioning.json`、升级/卸载路径 | **全部 NOT_EXECUTED**（本卡只冻结形态） |
 | 冻结产物内 `_package_sources` 覆盖"安装树 `.py` data" | **NOT_EXECUTED**（依据 `Engine.spec:10-11` 的 datas 与 `Entry.py:14` 的 `_MEIPASS`；实现阶段必须实测一次全集相等） |
 
+### 0.3 定点修订（2026-10-26 用户裁定，覆盖本卡初稿的两处留白）
+
+本卡初稿把"空 floor 由谁写"与"执行权威怎么办"开成待决。用户已裁定，以下是**有效条文**，与初稿冲突处以本节为准。
+
+**裁定 1：空 floor 由安装器在供给阶段写入。**
+
+- 理由：floor 是"花费/单位上限"，`minimum_revision=0` 等于**授权不了任何东西**；它不是授权授予，而是让控制面处于"**存在但为空**"的确定状态。不写才会出现 `production_control_unconfigured` 这种"已装好却不能用"的中间态（`production_management.py:128-131,159-161`）。
+- 约束（三条，缺一即不得写）：①**可审计**——`InstallationProvisioning.json` 必须记录该 floor 为空（`minimum_revision=0`、`pending_request_sha256=null`）及其全文件 SHA；②**同批完成**——与实例 ACL（B1）在同一次供给里完成，不得拆成两次；③**不得顺带授权**——不得写入任何非零额度、任何 `budget_groups` 行、任何 policy/admission。
+- 落地位置：§2.2 B4（动作与前置）、§2.4 D 组（禁止项）、§3.3（供给 ≠ 同意）、§5.1 INV-3（新增不变量）。
+
+**裁定 2：执行权威认账，单独立卡 ADR0084《ProductTrustedStartupAuthority》。**
+
+- 认账事实：frozen 无 factory ⇒ `install_startup_services(None,…)→None`（`startup_services.py:56-62`）⇒ 无执行身份 ⇒ 制作 403 `production_authorization_unconfigured`（`engine.py:140-146`）。R1 **不能**停在"只能浏览"。
+- 该卡冻结：权威四要素＝**安装记录 + 实例 OS 所有者/ACL 身份 + registration sha + 资源清单 sha（+ 安装目录与实例目录的固定关系）**；构造在 trusted startup（监听前）；授予"制作/发布"、**不授予**任何 management 能力；与 ADR0081 的关系是"Owner 同意只写 binding，执行权威来自安装事实，二者互不替代"；失败具名；诚实边界写明同账户伪造不可防。
+- 三条禁止（本卡同样适用）：禁止复用 dev 三重条件；禁止环境变量/配置文件直接构成 authority；禁止伪造 `InstalledProductionEvidence`/`NativeLaunchContext`/qualification。
+- 落地位置：§7-6、§9 后继 1、ADR0084 全文。
+
+**对 §8 的影响（不改结论，只定顺序）**：V1-V11 仍是 **NOT_EXECUTED**，且**没有 `installer-admin provision` 实现就无法执行**（V1/V3/V4 直接依赖它写的记录、路由行与 floor）。固定顺序：①后端实现供给（含空 floor，§2.2 B1-B6）；②测试角色在**真实安装实例**上跑 V1-V11 并登记 `docs/acceptance/criteria/COMMANDS.md`；③评审/验收。本卡不预填任何通过结论。
+
 ## 1 结论摘要
 
 1. **供给是一类独立动作**：只写"可核对的配置事实"（程序/资源文件、注册文件、五条路由行、Owner 项目行、空 floor、ACL、供给记录），不产生任何 capability、不写 policy/admission/execution registration/qualification/evidence、不建立任何 secret。
 2. **供给由安装器一次完成**（不是首次启动的管理进程）。唯一理由链见 §3.1：注册必须绑定"已落盘字节 + 随机项目 id"，而这只有装完之后、Owner 之前才是可算的；首启的管理进程在 ADR0081 下不存在（受限进程不装配、无 management 能力）。
 3. **实现形态固定为"引擎内的一次性无监听子进程"**：新增 `installer-admin provision` 子命令域（与 `evidence-admin install` 同形态，`cli/main.py:171-177,353-358`），由安装器/启动器以固定参数拉起；**用户永不输入命令**。它必须复用引擎自己的 `_package_sources`/`_local_file`/`_hash`（`media_registration.py:89-126`），不能另写一套遍历（ADR0077 §3.4 同一纪律）。
 4. **用户只做一次产品内确认**：安装 → 双击启动 → 授权页 → 点"同意" → 启动器自动重启 → 五步工作台。全程无终端。
-5. **两条不变量**（§5.1）：永不出现"有 Owner 但无路由/无注册/无 floor"；永不把"有路由但无 Owner"当成可用实例。
+5. **三条不变量**（§5.1）：永不出现"有 Owner 但无路由/无注册/无 floor"；永不把"有路由但无 Owner"当成可用实例；供给完成时 **floor 必须存在且为空**（`minimum_revision=0`、无 pending），此后只由真实管理动作推进，供给器永不回写。
 6. **R1 安装包可交付**：引擎 onedir（固定 commit）+ 资源（FFmpeg/字体/许可/迁移）+ 可选 ASR 包 + 静态工作台 + 启动器（静态+loopback 代理）+ 安装时生成的注册与供给记录。**明确不做**：签名安装器、Tauri 桌面壳、自动更新、macOS/Linux 包、服务化常驻、静默安装（§7）。
-7. **本 ADR 不解决"执行权威"**。冻结产物无 factory ⇒ `install_startup_services(None,…)→None` ⇒ 无执行身份 ⇒ 制作端点 403 `production_authorization_unconfigured`。这是 R1 Windows 包的真实门槛，必须另立决定（§7 第 6 行、§9 后继），**不得**用 dev 三重条件、环境变量或伪造 authority 绕过。
+7. **执行权威不在本卡，另立 ADR0084《ProductTrustedStartupAuthority》**（§0.3-2）。事实：冻结产物无 factory ⇒ `install_startup_services(None,…)→None` ⇒ 无执行身份 ⇒ 制作端点 403 `production_authorization_unconfigured`。该卡用**安装记录 + 实例 ACL/OS 所有者 + registration sha + 资源清单 sha** 构造产品形态受信启动权威，**不得**用 dev 三重条件、环境变量/配置文件或伪造对象绕过；实现前 R1 包不得宣称"可制作"。
 8. **`serve-dev`/`worker-dev` 保留为开发者路径**，明确标注非产品、不进启动器、不可由安装包触达（§6）。
 
 ## 2 供给内容清单（逐项：写入方 / 时机 / 是否需要管理能力 / 审计）
@@ -105,9 +124,9 @@ A8 的关键约束（不可省）：
 | B1 | 数据目录 + ACL | 建 `<data-dir>`（`%LOCALAPPDATA%\VideoCreator\Instance`，绝对、非 UNC、非 junction）；**先** `/inheritance:r`，再只授予当前用户 SID 与 `NT AUTHORITY\SYSTEM` `(OI)(CI)F` | 目录可建、路径不跨链接（`owner_identity.py:108-112`） | 已存在则只校验 ACL，不重写更宽 |
 | B2 | 实例与迁移 | `EngineService(data_dir)`：跑迁移到当前 `user_version`（当前 11），写入 `metadata.instance_id` | B1 | 已存在则只补迁移，**不**重生 instance_id |
 | B3 | Owner 项目 | `create_project('local-user', ProjectInput(name=…))`，或按 `(name, owner)` 复用现有一行 | B2 | 按名复用；**不隐式**建第二个项目 |
-| B4 | 空 production floor | 写 `Control/ProductionAuthorizationControl.json`：`minimum_revision=0`、`pending_request_sha256=null`、`instance_id` 相符；**仅当**四张授权表（`production_authorization_policies`/`production_admissions`/`daily_project_authorizations`/`execution_registrations`）全空。前置是"四表全空 + 实例相符"，**不是**"已有 binding"（同意之前没有 binding，故不能复用 `product_authorization.py:631-634` 的入口，只复用 `:639-650` 的判定） | B2 | 已存在且是 empty-first → 采纳；已存在且不是 → 拒绝（不覆盖） |
+| B4 | 空 production floor（**由安装器在供给阶段写入**，见 §0.3-1） | 写 `Control/ProductionAuthorizationControl.json`：`minimum_revision=0`、`pending_request_sha256=null`、`instance_id` 相符；**仅当**四张授权表（`production_authorization_policies`/`production_admissions`/`daily_project_authorizations`/`execution_registrations`）全空。前置是"四表全空 + 实例相符"，**不是**"已有 binding"（同意之前没有 binding，故不能复用 `product_authorization.py:631-634` 的入口，只复用 `:639-650` 的判定）。三条约束：记录进供给记录（含文件 SHA）、与 B1 同批完成、**不得**写非零额度/`budget_groups`/policy | B2 | 已存在且是 empty-first → 采纳；已存在且不是 → 拒绝（不覆盖） |
 | B5 | 五条路由行 | 逐份 `Routes/*.json` → `engine.register_route`（`routes` 表 UPSERT by `route_id`） | B2；A7 | 重复登记=UPSERT；`route_id` 相同但 body 变化=重新登记（见 §5.3 升级） |
-| B6 | 供给记录 | `Control/InstallationProvisioning.json`（`installation-provisioning-v1`）：`complete`、`installer_version`、`provisioned_at_us`、`instance_id`、`project_id`、`registration_sha256`、`items[]`、`counts{}`、`revision` | A+B 全部完成并逐项复算通过 | 原子写（`.pending`+`fsync`+`os.replace`，同 `production_management.py:170-190`）；`revision` 单调递增，历史条目只追加 |
+| B6 | 供给记录 | `Control/InstallationProvisioning.json`（`installation-provisioning-v1`）：`complete`、`installer_version`、`provisioned_at_us`、`instance_id`、`project_id`、`registration_sha256`、`items[]`、`counts{}`、`revision`；**另含权威锚点**（ADR0084 §3.1）：`install_root`、`engine_package_relative`、`instance_dir`、`os_subject`、`administrator_id`、`instance_device`、`instance_inode`、`resource_manifest_sha256`、`runtime_manifest_sha256`、`expected_files`、`engine_file_names`、`dacl_summary_sha256`。**同一文件就是启动器钉定的 `--installation-record`**（ADR0084），不另立第二份记录 | A+B 全部完成并逐项复算通过 | 原子写（`.pending`+`fsync`+`os.replace`，同 `production_management.py:170-190`）；`revision` 单调递增，历史条目只追加 |
 
 B4 为什么必须由供给写（三条，逐条可核）：
 
@@ -129,7 +148,9 @@ B5 的诚实边界：`register_route` 没有能力校验（`engine.py:239-246`�
 
 ### 2.4 D 组：谁都不写（供给与产品通道都不得产生）
 
-management secret / Owner secret；任何 `production_authorization_policies`、`production_admissions`、`daily_project_authorizations`、`execution_registrations` 行；任何 qualification / evidence policy / benchmark；任何 budget 组；unattended 预授权；任何 `VIDEO_CREATOR_DEVELOPMENT_INSTALLATION`、`--development-registration*`；任何 HTTP/MCP 可达的注册或路由写入口；任何"跳过确认"的开关。
+**三条硬禁止**（用户 2026-10-26 要求逐条写入）：①**安装器不得写 Owner 控制文件**（`Control/OwnerManagementControl.json`、`Control/ProductAuthorization.json`、`metadata['owner_management_binding']`、`owner.bootstrap.*` 命令行）——那是同意而非供给；②**安装器不得建 management secret**（不调 `secrets.create`，不向 OS vault 写 `VideoCreatorOwnerManagement` 条目）；③**安装器不得写任何 policy / qualification / evidence**（含 evidence policy、benchmark、admission、installation qualification）。
+
+其余禁止项：任何 `production_authorization_policies`、`production_admissions`、`daily_project_authorizations`、`execution_registrations` 行；**任何非零 floor 额度、任何 `budget_groups` 行**（floor 只允许 `minimum_revision=0` 的空首启态）；unattended 预授权；任何 `VIDEO_CREATOR_DEVELOPMENT_INSTALLATION`、`--development-registration*`；任何 HTTP/MCP 可达的注册或路由写入口；任何"跳过确认"的开关。
 
 ## 3 谁执行供给
 
@@ -156,6 +177,16 @@ management secret / Owner secret；任何 `production_authorization_policies`、
 一句话：**供给只写"事实配置"，同意才写"授权"**。二者既不同时、也不同主体、也不同写入集合；供给能成立恰恰因为**它不需要管理能力**——如果需要，它就会撞上 ADR0081 刻意不授予管理能力的决定。
 
 再补一条反面证明：如果让安装器去创建 management secret（走 C5 的相反路径），它就必须调 `secrets.create` 并落 OS vault，之后 `PersistentOwnerManagementRegistry` 会把该来源当成可用管理身份——那就等于用安装器**绕过** ADR0081 的核心决定。本 ADR 明文禁止（D 组）。
+
+### 3.3 三条硬禁止与一句界分（供给 ≠ 同意）
+
+| # | 禁止 | 依据 / 违反后果 |
+| --- | --- | --- |
+| 1 | 安装器**不得**写 Owner 控制文件（`OwnerManagementControl.json`、`ProductAuthorization.json`、`metadata['owner_management_binding']`、`owner.bootstrap.*` 命令行） | 这些只能由 `change()` 在真人同意时写（`owner_bootstrap.py:211-376`）；安装器写＝伪造同意，且会让 `current()` 读出"真人已同意"的假陈述 |
+| 2 | 安装器**不得**建 management secret（`secrets.create` / OS vault `VideoCreatorOwnerManagement`） | 会让 `PersistentOwnerManagementRegistry` 拿到可用管理身份（`owner_bootstrap.py:385-394` 只拦 `product_authorization` 来源），等于绕过 ADR0081「产品内授权不授予管理能力」 |
+| 3 | 安装器**不得**写任何 policy / qualification / evidence（含 benchmark、admission、installation qualification） | ADR0081 §7 已把它们永久移出产品通道；安装器更无权代签，且它们需要独立 authority 与真实语料 |
+
+**界分一句话**：**安装器供给 ≠ 用户同意**。供给把实例变成"配置齐全、**零授权**、只等一个人点同意"的状态（空 floor 的 `minimum_revision=0` 就是这一点的机器可读证据）；同意把 binding 写进 `metadata` 并留审计。前者由安装器以 OS 用户身份完成，后者只能由真人在产品内完成；两者写入集合无交集，且**供给不做任何一件事能让实例获得执行能力**——执行能力来自 ADR0084 的受信启动权威，且该权威**仍然**要过 Owner binding 与 `assemble_owner_services` 的现有门。
 
 ## 4 用户可见流程（全程无终端）
 
@@ -192,6 +223,7 @@ management secret / Owner secret；任何 `production_authorization_policies`、
 
 - **INV-1：永不出现"有 Owner 但无路由/无注册/无 floor"。** 三道防线叠加：①供给完成门在授权页之前（§4.2）；②供给顺序固定 A→B，且 B6 是最后一步；③即使门被绕过，重启后会以 `production_configuration_missing`/`production_configuration_changed`（`main.py:199-204`）、`route_unavailable`（`engine.py:248-253`）、`production_control_unconfigured`（`production_management.py:159-161`）**明确失败**，不会静默降级。此时 Owner 已存在，恢复只能走"补齐供给"（§5.3 修复模式），**不得**重新授权、不得删 binding。
 - **INV-2：永不把"有路由但无 Owner"当成可用实例。** 这是安装后的正常中间态，且被 ADR0081 的受限启动精确覆盖：`/health` 与授权路由之外一律 403 `owner_authorization_required`（`app.py:142-155`），并且该状态**没有**执行身份（`serve` 无 factory ⇒ `startup_services.py:61-62`）。
+- **INV-3：供给完成时 floor 必须存在且为空。** "存在"＝`Control/ProductionAuthorizationControl.json` 在 B6 之前已落盘且 SHA 进了供给记录；"为空"＝`minimum_revision=0` 且 `pending_request_sha256=null`，且四张授权表全空（`product_authorization.py:639-650` 同一判定）。三条推论：①缺失 = 供给失败（`installation_provisioning_incomplete`），不是"首启自愈"；②非空 = 拒绝写入（`installation_provisioning_denied`），因为那意味着这个目录已经历过管理动作、不是新实例；③此后 floor 只允许被**真实管理动作**推进（`reserve`/`complete`），供给器与修复模式**永不回写** floor，也永不写入非零额度或 `budget_groups`。INV-3 的意义是把"已装好却不能用"（`production_control_unconfigured`）与"装好就被授权"（非零 floor）两种坏态同时排除。
 
 ### 5.2 失败码表（供给器/启动器词汇；发生在监听之前，因此**不是** HTTP 响应）
 
@@ -258,7 +290,7 @@ management secret / Owner secret；任何 `production_authorization_policies`、
 | 3 | 自动更新 | 手动覆盖安装（数据目录不变），按 §5.3 升级路径换注册与钉定 | 自动更新需签名 + 回滚通道 + 注册原子换 pin；未具备 |
 | 4 | macOS/Linux 包 | Windows 优先 | 无对应构建机、资格与 FFmpeg 对应源/许可闭环（GPL 对应源未闭合前不可宣可分发） |
 | 5 | Windows 服务 / 托盘常驻 | 前台运行，关闭即停 | 服务化需特权安装与生命周期重定义（ADR0005 语义不变），R1 不做 |
-| 6 | **执行权威（installation authority）** | **不做替代**：本卡不提供 | 冻结产物无 factory ⇒ `install_startup_services(None,…)→None`（`startup_services.py:61-62`）⇒ `engine._authorization_identity` 403（`engine.py:140-146`）。后果：安装+同意之后，制作端点仍 403 `production_authorization_unconfigured`，工作台只能浏览/建项目。门槛：必须先有一个**产品受信启动权威**（安装记录 + ACL + 注册钉定，且不得是 dev 三重条件）或 native 宿主，并在真实安装实例上完成一次成功制作并登记 `COMMANDS.md`。本卡不设计它（§9 后继 1） |
+| 6 | **执行权威（installation authority）** | **另立 ADR0084《ProductTrustedStartupAuthority》**（§0.3-2），本卡不提供 | 冻结产物无 factory ⇒ `install_startup_services(None,…)→None`（`startup_services.py:61-62`）⇒ `engine._authorization_identity` 403（`engine.py:140-146`）。ADR0084 用**安装记录 + 实例 ACL/OS 所有者 + registration sha + 资源清单 sha** 在 trusted startup 构造权威，**不授予**任何 management 能力，且仍必须过 Owner binding 与 `assemble_owner_services` 现有门。门槛：实现 + 真实安装实例上完成一次成功制作并登记 `COMMANDS.md`；在此之前安装包只能浏览/建项目，且工作台必须显示具名阻断 |
 | 7 | 打包内 dev 入口 | 无 | §6 |
 
 对第 6 项的纪律：**不得**为"让安装包能出片"而放宽 `install_startup_services` 的类型门、不得伪造 `InstalledProductionEvidence`、不得在安装包里塞 dev 参数、不得把 `RouteDecision`/`route` 行当成执行能力。R1 的"可用"必须由真实证据决定，不由包形态决定。
@@ -281,16 +313,16 @@ management secret / Owner secret；任何 `production_authorization_policies`、
 | V10 | 工作台可达且不泄 token | `Invoke-WebRequest 'http://127.0.0.1:<Port>/' -SkipHttpErrorCheck`；`Invoke-WebRequest 'http://127.0.0.1:<Port>/api/v1/health'`；`Select-String -Path <页面源码> -Pattern '<token 前 8 位>'` | 前者 200 且含 `<div id="root">`；`/api/v1/health` 经同源代理 200；页面源码与静态资源**无** token/secret 任何片段 |
 | V11 | 执行权威现状（必须显式记录） | `Invoke-WebRequest -Method POST 'http://127.0.0.1:<Port>/api/v1/productions' -SkipHttpErrorCheck -Body <最小请求> -ContentType 'application/json'` | R1 当前预期：403 `production_authorization_unconfigured`；工作台必须显示具名阻断卡而不是"可用"。该负例必须在**真实安装实例**上跑并登记 `COMMANDS.md` 后，§7-6 才可判为"已解决" |
 
-纪律：V1-V11 的**真实执行**必须由测试开发在安装实例上跑完后登记 `docs/acceptance/criteria/COMMANDS.md`（含 exit、逐字输出、产物路径与 SHA）；本卡不预填任何通过结论。V2 必须与"构建该包的同一 commit"配对，否则 `engine_source_sha256` 必然不等——这是预期失败，不是缺陷。
+纪律：V1-V11 的**真实执行**必须由测试开发在安装实例上跑完后登记 `docs/acceptance/criteria/COMMANDS.md`（含 exit、逐字输出、产物路径与 SHA）；本卡不预填任何通过结论。**执行顺序是硬的**：V1/V3/V4 直接依赖 `installer-admin provision` 写出的供给记录、路由行与空 floor，故必须先有该实现（后端）再执行验证；在实现落地前 V1-V11 一律记 `NOT_EXECUTED`，不得以"脚本可跑"代替"实际跑过"。V2 必须与"构建该包的同一 commit"配对，否则 `engine_source_sha256` 必然不等——这是预期失败，不是缺陷。
 
 ## 9 不做与后继
 
 - 不做：改任何生产校验（`install_startup_services`、`assemble_owner_services`、`ProductionAdmissions`、`assemble` 的类型门、`management_access`）；新增数据库表/迁移；让供给写 Owner binding/secret/policy/admission；让供给或产品通道签发 execution registration、qualification、evidence policy；远程访问；静默/无人值守安装；自动更新；三 OS 打包。
 - 后继（按顺序）：
-  1. **产品受信启动权威**（独立 ADR/卡）：解决 §7-6。候选形态是"安装器写安装记录 + 启动器以该记录构造 authority"，必须同时满足：非 dev 条件、注册钉定、ACL 与目录身份复核、不产生管理能力、失败 fail-closed。
-  2. 本卡实现：`installer-admin provision` 子命令域 + `InstallationProvisioning.json` + 启动器供给门 + 修复/升级/卸载（后端 + 集成）。
+  1. **ADR0084《ProductTrustedStartupAuthority》**（独立卡，本卡只登记）：解决 §7-6。以**安装记录 + 实例 ACL/OS 所有者 + registration sha + 资源清单 sha** 构造产品形态受信启动权威；架构先出窄设计（谁验、验哪些字节、失败如何具名、与 ADR0081 §2 重启语义如何配合），后端再实现。三条禁止：不得复用 dev 三重条件、不得让环境变量/配置文件直接构成 authority、不得伪造对象。
+  2. 本卡实现：`installer-admin provision` 子命令域（含空 floor）+ `InstallationProvisioning.json` + 启动器供给门 + 修复/升级/卸载（后端 + 集成）。
   3. 工作台受信 bootstrap 的产品侧等价物（前端 + 集成）：现字面量只在 vite dev 模式定义（`vite.config.ts:55`），静态构建下为 `undefined`，`engine.ts:20-21` 明确"缺 bootstrap 即不可用"。
-  4. 真实安装实例的 V1-V11 执行与 `COMMANDS.md` 登记（测试开发）。
+  4. 真实安装实例的 V1-V11 执行与 `COMMANDS.md` 登记（测试开发；必须在第 2 项之后）。
   5. 独立评审 + 验收（评审/验收角色）。
 
 ## 10 交接
@@ -310,3 +342,4 @@ management secret / Owner secret；任何 `production_authorization_policies`、
 5. 核对 §5.1 INV-1 的三道防线与 §5.3 六个崩溃窗口一一对应。
 6. 核对 §8 每条命令都可直接复制执行，且期望输出是**可判定的**（不是"应该正常"）。
 7. 核对 §7-6 没有被任何措辞软化：R1 包在无执行权威时不得宣称"可用"。
+8. 核对 §0.3 的两条裁定已逐条落到 §2.2 B4、§2.4、§3.3、§5.1 INV-3、§7-6、§8 纪律、§9 后继 1，且没有留下"待决"措辞。
