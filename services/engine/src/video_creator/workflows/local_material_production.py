@@ -276,7 +276,18 @@ class LocalMaterialFlow(Flow[dict]):
             request=self._request, lease=self._lease, registration_sha256=services.registration_sha256,
             phase=phase, action=action, target_id=revision.revision_id,
             target_sha256=digest(canonical(revision)), sources=sources)
+        from video_creator.application.media_registration import sys_event
+        sys_event('flow_admission', run_id=self._lease.run_id, kind=revision.kind,
+                  revision_id=revision.revision_id, state=checked.state, blocker=checked.blocker_code)
         if checked.state != 'allowed':
+            if checked.state == 'waiting_user' and checked.blocker_code is None:
+                with services.engine.db.connect_readonly() as connection:
+                    prior = connection.execute("SELECT body FROM decisions WHERE run_id=?", (self._lease.run_id,)).fetchall()
+                decided = any(__import__('json').loads(row[0]).get('target_revision_id') == revision.revision_id
+                              for row in prior)
+                if decided:
+                    raise EngineError('production_review_state_inconsistent',
+                                      'A stored approval exists but the current admission still waits for review', 409)
             self._blocked(checked.state, checked.blocker_code)
             if checked.state == 'waiting_user' and type(services) is LocalMaterialServices:
                 self.state['waiting_revision_id'] = revision.revision_id
@@ -565,6 +576,19 @@ def _run(services, lease, *, checkpoint_path, cancel, deadline_monotonic, policy
             for p in (path, *path.parents) if p.is_relative_to(root))):
         raise EngineError('local_checkpoint_denied', 'The non-authorizing checkpoint stays in this owned instance.', 403)
     with attempt_control(cancel, deadline_monotonic).activate():
+        # A review decision returns the same Run to queued. The previous attempt
+        # persisted outcome=waiting_user; restoring that checkpoint makes the
+        # Flow look complete and silently skips the post-review masters/final
+        # path. A queued Run is a fresh attempt: discard only its flow progress;
+        # settled Steps/Operations are re-read idempotently.
+        if path.exists():
+            with services.engine.db.connect_readonly() as connection:
+                current = services.engine._run(connection, lease.run_id)
+            if current['status'] == 'queued':
+                for suffix in ('', '-wal', '-shm'):
+                    candidate = Path(str(path) + suffix)
+                    if candidate.exists() and candidate.is_file():
+                        candidate.unlink()
         flow = LocalMaterialFlow(services, lease, SQLiteFlowPersistence(db_path=str(path)))
         flow.state['id'] = str(uuid5(NAMESPACE_URL, 'local-material-production-v1:' + lease.run_id))
         try:
