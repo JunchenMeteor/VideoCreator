@@ -195,8 +195,16 @@ def test_real_import_detects_equal_size_content_tampering(engine, tools):
 
 def test_cli_real_subprocess_lifecycle_and_media_import(tmp_path, tools):
     import httpx
+    from t6_cli_helpers import authorize_instance
 
     data_dir = tmp_path / "CLI 中文 空格 实例"
+    # ADR0081: a `serve` without an Owner binding only answers /health and
+    # /api/v1/authorization/*; this case used to import media into that still
+    # restricted process and now gets 403 owner_authorization_required. Authorize
+    # the instance first through the product's own consent channel (restricted ->
+    # pending -> approve -> restart), not the dev/native path, because the case is
+    # about a production-shaped CLI serve and its real media import.
+    authorize_instance(data_dir)
     environment = {k: v for k, v in os.environ.items() if not k.startswith("VIDEO_CREATOR_SECRET_")}
     environment.update(VIDEO_CREATOR_API_TOKEN=TOKEN, PYTHONPATH=str(ROOT / "services/engine/src"), PYTHONUTF8="1")
     process = subprocess.Popen([sys.executable, "-m", "video_creator.cli.main", "serve", "--data-dir", str(data_dir),
