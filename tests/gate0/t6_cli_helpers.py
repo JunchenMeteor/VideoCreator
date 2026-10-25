@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 import queue
+import secrets
 import socket
 import subprocess
 import sys
@@ -18,6 +19,143 @@ import httpx
 ROOT = Path(__file__).resolve().parents[2]
 TOKEN = "synthetic-t6-local-session-" + "x" * 40
 MARKER = b'{"event":"api_stopped","scope":"api"}'
+
+# The `serve` ready descriptor is an additive contract: these fields must always
+# exist, but a new documented field must not fail every T6 mechanism test. ADR0081
+# added `authorization_state` to the restricted shape only, so the old exact-set
+# equality turned a product addition into 27 unrelated failures.
+READY_REQUIRED = ("event", "base_url", "instance_id")
+READY_OPTIONAL_DOMAINS = {"authorization_state": {"pending", "complete", "none"}}
+
+
+def assert_ready_descriptor(body):
+    """Required fields present with their documented values; optional ones typed."""
+    assert isinstance(body, dict), body
+    missing = [name for name in READY_REQUIRED if name not in body]
+    assert not missing, f"ready descriptor is missing {missing}: {body}"
+    assert body["event"] == "ready", body
+    assert isinstance(body["base_url"], str) and body["base_url"].startswith("http://127.0.0.1:"), body
+    assert isinstance(body["instance_id"], str) and body["instance_id"], body
+    for name, allowed in READY_OPTIONAL_DOMAINS.items():
+        if name in body:
+            assert body[name] in allowed, f"ready {name} left its domain {sorted(allowed)}: {body}"
+    if "principal_id" in body:
+        assert isinstance(body["principal_id"], str) and body["principal_id"], body
+
+
+AUTHORIZATION_SECRET_ENV = "VIDEO_CREATOR_AUTHORIZATION_SESSION_SECRET"
+AUTHORIZATION_HEADER = "X-VideoCreator-Authorization"
+SERVE_BASE = ["-m", "video_creator.cli.main", "serve", "--host", "127.0.0.1", "--port", "0"]
+
+
+def serve_environment(token=TOKEN):
+    """The clean child environment; inherited secrets never leak into a T6 child."""
+    environment = {k: v for k, v in os.environ.items()
+                   if not k.startswith("VIDEO_CREATOR_SECRET_") and k != "VIDEO_CREATOR_API_TOKEN"}
+    environment.update(PYTHONPATH=str(ROOT / "services/engine/src"), PYTHONUTF8="1",
+                       OTEL_SDK_DISABLED="true", CREWAI_TRACING_ENABLED="false")
+    if token is not None:
+        environment["VIDEO_CREATOR_API_TOKEN"] = token
+    return environment
+
+
+def start_ready(argv, environment, *, label="t6-ready", timeout=25.0):
+    """Start one CLI child and wait for its actual `ready` descriptor."""
+    process = subprocess.Popen(argv, cwd=ROOT, env=environment, stdin=subprocess.DEVNULL,
+                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    lines = queue.Queue()
+
+    def pump(stream, name):
+        for line in iter(stream.readline, b""):
+            lines.put((name, line))
+
+    for stream, name in ((process.stdout, "stdout"), (process.stderr, "stderr")):
+        threading.Thread(target=pump, args=(stream, name), daemon=True).start()
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        try:
+            name, line = lines.get(timeout=0.2)
+        except queue.Empty:
+            if process.poll() is not None:
+                raise AssertionError(f"{label}: child exited before readiness")
+            continue
+        if name != "stdout":
+            continue
+        try:
+            body = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if body.get("event") == "ready":
+            return process, body
+    process.kill()
+    raise AssertionError(f"{label}: no real readiness within {timeout}s")
+
+
+def stop_process(process, timeout=15.0):
+    if process.poll() is None:
+        process.terminate()
+        try:
+            process.wait(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.wait(timeout=timeout)
+    for stream in (process.stdout, process.stderr):
+        if stream is not None and not stream.closed:
+            stream.close()
+
+
+def ensure_owned_project(data_dir):
+    """The first Owner project must exist before the consent request (product rule)."""
+    from video_creator.application.engine import EngineService
+    from video_creator.domain.contracts import ProjectInput
+
+    engine = EngineService(data_dir)
+    with engine.db.connect_readonly() as connection:
+        row = connection.execute("SELECT 1 FROM projects WHERE owner=?", ("local-user",)).fetchone()
+    if row is None:
+        engine.create_project("local-user", ProjectInput(name="T6 local instance"))
+
+
+def authorize_instance(data_dir, *, timeout=25.0):
+    """ADR0081: give this instance a real Owner through the product consent channel.
+
+    A `serve` without an Owner binding only answers `/health` and
+    `/api/v1/authorization/*`; every T6 case that uses a product route therefore
+    needs an authorized instance before its measured child starts. The consent
+    surface never unlocks its own process: approval writes the binding and reports
+    `restart_required`, so this runs a short-lived restricted process and the
+    caller then starts the measured child on the same directory.
+
+    On an already authorized instance the restricted channel is absent and this
+    is a no-op that only observes the ready descriptor.
+    """
+    environment = serve_environment()
+    secret = secrets.token_hex(16)
+    environment[AUTHORIZATION_SECRET_ENV] = secret
+    ensure_owned_project(data_dir)
+    argv = [sys.executable, *SERVE_BASE, "--data-dir", str(data_dir)]
+    process, ready = start_ready(argv, environment, label="t6-authorize", timeout=timeout)
+    try:
+        if "authorization_state" not in ready:
+            return {"restricted_ready": ready, "approved": None}
+        assert ready["authorization_state"] == "pending", ready
+        with httpx.Client(base_url=ready["base_url"],
+                          headers={"Authorization": "Bearer " + TOKEN, AUTHORIZATION_HEADER: secret},
+                          trust_env=False, timeout=10) as api:
+            pending = api.get("/api/v1/authorization/pending")
+            assert pending.status_code == 200, pending.text
+            request = pending.json()
+            assert request["nonce"] and request["state"] == "pending", request
+            approved = api.post(f"/api/v1/authorization/{request['authorization_id']}/approve",
+                                json={"scope_sha256": request["scope_sha256"], "nonce": request["nonce"]})
+            assert approved.status_code == 200, approved.text
+            body = approved.json()
+            assert body["state"] == "complete" and body["restart_required"] is True, body
+            return {"restricted_ready": ready, "approved": body}
+    finally:
+        stop_process(process)
+
+
 
 
 def descendants(root_pid):
@@ -68,16 +206,15 @@ def port_closed(url):
 
 
 class Child:
-    def __init__(self, directory, *, controlled=True, mode=None, tools=None, token=True, early=None):
+    def __init__(self, directory, *, controlled=True, mode=None, tools=None, token=True, early=None,
+                 authorize=False):
         self.directory = directory
         directory.mkdir(parents=True, exist_ok=True)
         self.data_dir = directory / "Instance"
-        environment = {k: v for k, v in os.environ.items()
-                       if not k.startswith("VIDEO_CREATOR_SECRET_") and k != "VIDEO_CREATOR_API_TOKEN"}
-        environment.update(PYTHONPATH=str(ROOT / "services/engine/src"), PYTHONUTF8="1",
-                           OTEL_SDK_DISABLED="true", CREWAI_TRACING_ENABLED="false")
-        if token:
-            environment["VIDEO_CREATOR_API_TOKEN"] = TOKEN
+        environment = serve_environment(TOKEN if token else None)
+        # ADR0081: a production-ready instance needs a real Owner binding; the
+        # consent channel is driven over HTTP before the measured child starts.
+        self.authorization = authorize_instance(self.data_dir) if authorize else None
         args = [sys.executable]
         args += [str(ROOT / "tests/gate0/t6_fault_host.py"), mode, str(directory / "HostReceipt.json")] if mode else ["-m", "video_creator.cli.main"]
         args += ["serve", "--data-dir", str(self.data_dir), "--host", "127.0.0.1", "--port", "0"]
@@ -115,7 +252,7 @@ class Child:
             if name == "stdout":
                 body = json.loads(line)
                 if body.get("event") == "ready":
-                    assert set(body) == {"event", "base_url", "instance_id"}
+                    assert_ready_descriptor(body)
                     self.ready = body
                     self.observed_descendants.extend(descendants(self.process.pid))
                     return body

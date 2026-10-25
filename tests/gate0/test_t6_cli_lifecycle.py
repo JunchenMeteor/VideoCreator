@@ -152,7 +152,7 @@ def test_real_unknown_operation_and_shared_reserve_survive_stop_and_restart(tmp_
 
 
 def test_real_sse_observes_event_then_natural_eof_before_success(tmp_path):
-    child = Child(tmp_path / "Child")
+    child = Child(tmp_path / "Child", authorize=True)
     received, errors = [], []
     started, finished = threading.Event(), threading.Event()
     try:
@@ -194,7 +194,7 @@ def test_real_sse_observes_event_then_natural_eof_before_success(tmp_path):
 
 @pytest.mark.parametrize("mode", ["slow-http", "timeout-http"])
 def test_real_inflight_http_drains_or_reports_actual_timeout(tmp_path, mode):
-    child = Child(tmp_path / "Child", mode=mode)
+    child = Child(tmp_path / "Child", mode=mode, authorize=True)
     responses, errors = [], []
     try:
         child.await_ready()

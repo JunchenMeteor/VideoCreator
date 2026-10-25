@@ -39,7 +39,7 @@ def test_real_tcp_unsupported_media_is_415_unique_envelope_before_decoder(tmp_pa
     listener = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
     listener_thread = threading.Thread(target=listener.serve_forever)
     listener_thread.start()
-    child = Child(tmp_path / "Child", mode="media-observe", tools=tools)
+    child = Child(tmp_path / "Child", mode="media-observe", tools=tools, authorize=True)
     try:
         child.await_ready()
         if kind == "apng":
@@ -88,7 +88,7 @@ def test_real_tcp_unsupported_media_is_415_unique_envelope_before_decoder(tmp_pa
 @pytest.mark.parametrize("kind,mime", [("png", "image/png"), ("jpeg", "image/jpeg"), ("wave", "audio/wav"), ("video", "video/mp4"), ("audio", "audio/mp4")])
 def test_real_tcp_legal_media_imports_decodes_and_protected_range_reads(tmp_path, tools, samples, kind, mime):
     content = samples[kind].read_bytes()
-    child = Child(tmp_path / "Child", mode="media-observe", tools=tools)
+    child = Child(tmp_path / "Child", mode="media-observe", tools=tools, authorize=True)
     try:
         child.await_ready()
         with child.api() as api:
@@ -119,7 +119,7 @@ def test_real_tcp_legal_media_imports_decodes_and_protected_range_reads(tmp_path
 
 
 def test_real_tcp_original_garbage_is_422_and_original_errors_remain_distinct(tmp_path, tools):
-    child = Child(tmp_path / "Child", tools=tools)
+    child = Child(tmp_path / "Child", tools=tools, authorize=True)
     try:
         child.await_ready()
         with child.api() as api:
