@@ -61,3 +61,22 @@
 ### 明确后继（不做）
 
 零 cue、no_speech 发布、audio-only、Piper 旁白、`word_verified`、whisper 方法资格。
+
+
+## 用户决定（2026-10-25 23:05）——C 的拍板结果
+
+1. **证据签发方：本地安装实例自签**。由本机 Owner 通过产品内授权签一份**仅本机、零成本、不出网**的作品证据策略；界面必须明确标注"本地自签、未做精度实测"，不得对外表述为第三方认证或官方合规。
+2. **对齐方法：whisper 时间戳**。不安装 CTC（torch/whisperx）；允许 whisper 分段/词级时间戳作为本地方法，需修订 ADR0075 中"R1 强制注册 CTC"的条款，并在证据中诚实标注 `whisper_word_estimate_not_forced_alignment`。
+3. **精度：`not_measured`**。不编造 N/P95，不生成独立 reference；发布允许，但报告写"未测量"。
+
+### 由此产生的实现顺序
+
+- 前置：产品内授权（ADR0081，进行中）——"Owner 签自签策略"这一步必须走那条通道，不再用终端。
+- 架构：新 ADR（本地自签证据策略 + ADR0075 修订）。
+- 后端：自签策略/资格/基准的安装入口（仅本地、仅零成本、仅本机 Owner、审计；不得允许远程或付费能力）。
+- 媒体：`_speech_error` → 真实 whisper 路径（转写、字幕、RAG、`audio_mappings`、`asr_operation_id`）。
+- 测试：真实 WAV → 0.4 包；断言 `not_measured`、字幕字节、mapping 逐 piece；负例见 ADR0080 §6。
+
+### 明确不做（本次）
+
+CTC、word 级认证、第三方认证、官方合规表述、Piper 旁白、audio-only、零 cue。
