@@ -1,6 +1,6 @@
 # ADR0079：开发宿主首次 Owner 自动初始化
 
-状态：ARCHITECTURE_FROZEN_DESIGN_ONLY，2026-10-25。冻结对象协议、接受条件、审计、生产不可达性、失败语义、退役条件与影响面。**本卡只写文档**：不改源码、不改迁移、不新增数据库表、不改 `packages/contracts`、不写测试、不 commit 源码。既有实现仍按 ADR0077：无 Owner binding 时 `serve-dev`/`worker-dev` 在监听端口前以 `owner_restore_refresh_required` 503 拒绝，正向主链仍为 NOT_EXECUTED。
+状态：ARCHITECTURE_FROZEN_DESIGN_ONLY，2026-10-25。冻结对象协议、接受条件、审计、生产不可达性、失败语义、退役条件与影响面。**本卡只写文档**：不改源码、不改迁移、不新增数据库表、不改 `packages/contracts`、不写测试、不 commit 源码。实现已于 commit `292b615` 落地（独立评审 `docs/reviews/RV-LocalChainRealRunFixes.md`）；其中两项超出本文冻结正文的新增由 §13 追认并给出边界，**未传 `--development-auto-owner-init` 时行为仍与 ADR0077 逐字一致**（无 Owner 即 `owner_restore_refresh_required` 503）。正向主链以实测记录为准，不由本 ADR 声明通过。
 
 用户已明确选择：**允许开发模式自动完成首次 Owner 初始化；正式产品仍必须真人确认**。本 ADR 不把该选择扩展到生产，也不提供任何"总是返回 True"的确认入口。
 
@@ -10,9 +10,9 @@
 
 | 事实 | 位置 |
 | --- | --- |
-| `change()` 只接受两种来源：`None` 走 TTY，否则必须是 `OwnerActionConfirmationSource` | `vc/application/owner_bootstrap.py:151-182` |
+| `change()` 只接受两种来源：`None` 走 TTY，否则必须是 `OwnerActionConfirmationSource`（§13 起另有第三个精确类型来源，见 §13.1/§13.3） | `vc/application/owner_bootstrap.py:151-182` |
 | `None` 分支调用 `confirm_local_action(...)`，无注入点 | 同文件 `:168-170` |
-| `confirm_local_action` 强制 stdin/stdout 都是真实 TTY 并按字输入 `AUTHORIZE <instance_id> <action>` | 同文件 `:340-350` |
+| `confirm_local_action` 强制 stdin/stdout 都是真实 TTY 并按字输入 `AUTHORIZE <instance_id> <action>`（实现后行号 `:388-398`） | 同文件 `:340-350`（`562e555` 冻结稿） |
 | `project_scope()` 要求每个 project 真实存在于 `projects` 且 `owner==owner_subject` | 同文件 `:113-121` |
 | 首次初始化才允许建立 Control identity；已存在 binding 时走 restore 拒绝 | 同文件 `:184-198` |
 | 事件顺序：pending 文件 → 控制面 reserve → 单事务写 metadata+commands → complete → 删 pending | 同文件 `:242-286` |
@@ -255,6 +255,7 @@ owner_bootstrap.py:151  def change(..., confirmation_source=None)   # 签名与�
 | 来源对象类型/保留/线程/epoch/调用栈不符 | `development_owner_source_denied` | 403 | 否 |
 | 审计文件写失败 | `development_owner_audit_unwritten` | 503 | 否；Owner 未写入 |
 | 启动时审计文件缺失/内容不符 | `development_owner_audit_missing` / `development_owner_audit_changed` | 503 / 409 | 否；真人 renew 或重建 data-dir |
+| 生产授权 floor 引导状态不允许（链接路径、授权库不可读、四表非空、新 floor 不是空首启） | `development_control_state_denied` | 503 | 否；绝不覆盖或重建既有 floor，见 §13.2 |
 | 既有 `change()` 校验（项目、幂等、floor、pending、secret） | 原码不变（如 `owner_binding_conflict`、`idempotency_conflict`） | 原值 | 否 |
 | 生产 TTY `owner-init` 无终端 | `owner_interactive_confirmation_required` | 403 | 否；语义不变 |
 
@@ -277,7 +278,7 @@ owner_bootstrap.py:151  def change(..., confirmation_source=None)   # 签名与�
 | --- | --- | --- | --- |
 | `docs/decisions/0079-development-owner-auto-initialization.md` | 新增本 ADR | 架构 | 本卡 |
 | `docs/architecture.md` | 追加一段摘要与交叉引用 | 架构 | 本卡 |
-| `application/development_owner_initialization.py` | 新增 dev-only 类型、工厂、审计读写（约 200 行） | 后端 | 新文件；需后端任务卡 |
+| `application/development_owner_initialization.py` | 新增 dev-only 类型、工厂、审计读写（约 200 行）；§13.2 另有控制面引导函数与 `production_control_created` 审计键 | 后端 | 新文件；需后端任务卡 |
 | `application/owner_bootstrap.py` | `change()` 增加一个 `elif` 分支、dev-only 复核、审计 hook（约 25 行）；`_decode`/`current`/`revocation_target`/`confirm_local_action` 一行不改 | 后端 | 原 dev 宿主卡标为禁止修改；本次用户明确授权放开，**仅限该接缝** |
 | `cli/development_host.py` | Owner 门改为"读 active，缺失则构造来源并初始化，成功后重读"；保留三重条件、顺序、`NativeOwnerServices` 硬校验 | 后端 | 同上，仅限该接缝 |
 | `application/production_management.py` | 仅 `ManagementPrincipal.authentication_source` 追加一个字面量 | 后端 | **不在三文件接缝内，需用户追加授权**；不加则无法诚实记录来源（见 §2.4） |
@@ -325,3 +326,78 @@ owner_bootstrap.py:151  def change(..., confirmation_source=None)   # 签名与�
 - 不放宽 `confirm_local_action`、`ProductionAdmissions`、`register_execution_identity`、`install_startup_services` 或任何 native 校验。
 - 不引入 bool/str/dict/环境变量/argv/HTTP 形式的"确认开关"，不提供可注入 confirmer 或 `--yes`。
 - 不让 dev 绑定被当作 native/安装资格证据；不把自动初始化计入 Gate0/R1/发布/验收。
+
+## 13 追认：实现超出冻结正文的两项（评审 P2）
+
+实现 commit `292b615` 在本文 §2/§9 冻结对象之外新增了两项；评审 `docs/reviews/RV-LocalChainRealRunFixes.md` 将其记为越界（P2-1/P2-3/P3-8）。本节追认并冻结其边界与顺序要求，不替换 §1–§12 的任何既有条件，也不放宽任何生产校验。
+
+### 13.1 `--development-auto-owner-init`：显式开关，默认关闭
+
+- **位置**：`cli/development_host.py:76`（`serve-dev`）与 `:91`（`worker-dev`），`action='store_true'`；映射进 `DevelopmentStart.auto_owner_init`（`:60,153`）。
+- **语义**：只有传该 flag 才允许 §2/§3 的自动初始化。不传时 `_owner_binding`（`:365-397`）只调 `store.current(allow_inactive=False)` 并核审计，失败原样抛出——无 Owner binding 仍是 `owner_restore_refresh_required` 503，与 ADR0077 逐字一致。gate 原文即 `if not start.auto_owner_init or error.code != 'owner_restore_refresh_required': raise`（`:383`）。
+- **边界**：该 flag 只决定"是否尝试一次首次初始化"，不携带 owner/project/expiry/action 任何范围；不存在于 `serve`/`worker`/`mcp-stdio` 的 parser（`cli/main.py:117-161`）；不改变 §3 的 7 条接受条件、§4 写入顺序或 §7 失败码；不使能 renew/revoke。
+- **为何追认而非要求改回默认启用**：ADR0079 正文把"自动初始化"当作无条件的 dev 行为，实现把它降为**显式选择**——这是收紧（默认仍是 ADR0077 的拒绝），不是放宽；同时避免"只想跑一次 dev 服务却被静默写入 Owner"的意外副作用。因此冻结为显式 flag。
+
+### 13.2 dev 生产控制面引导：`create_development_production_control`
+
+- **真实鸡生蛋**：`OwnerBootstrapStore` 只建 `Control/OwnerManagementControl.json`（`owner_bootstrap.py:57`，`:262` 初始化的是这个子类）；`Control/ProductionAuthorizationControl.json` 在生产里只由受认证的管理/执行动作创建（`production_authorization.py:158`、`execution_registration.py:149-154`、`local_copy_input_service.py:215`、`installation_trust_consumer.py:176`）。而 dev 装配必须传 `execution_registration`，于是 `assemble_owner_services` 在 `registered is not None` 分支用 `daily.control`（即 `authorization.control`，`daily_projects.py:232`）执行 `read()`（`owner_services.py:165-173`），floor 缺失即 `production_control_unconfigured` 503（`production_management.py:159-161`）。dev 永远不执行那些管理动作 → **owner-init 成功后仍无法启动**。
+- **触发条件（全部成立才创建）**：
+  1. 走 dev 入口且传 `--development-auto-owner-init`（§13.1）；
+  2. 当前 Owner binding 的 `authentication_source == 'development_owner_initialization'`（`development_host.py:464-465`；TTY/生产 binding 永不触发）；
+  3. `Control/ProductionAuthorizationControl.json` 不存在（存在即直接返回 `None`，永不覆盖/重建，`development_owner_initialization.py:549-550`）；
+  4. 四张授权表计数全为 0：`production_authorization_policies`、`production_admissions`、`daily_project_authorizations`、`execution_registrations`（`:55-56,472-482`，只读连接）；
+  5. 调用点在 `assemble_owner_services` **之前**（`development_host.py:464-473` 早于 `:474`）。
+- **拒绝条件**：
+
+  | 条件 | code | status |
+  | --- | --- | --- |
+  | engine 不是 `EngineService` | `development_owner_source_denied` | 403 |
+  | floor 路径是 symlink/junction | `development_control_state_denied` | 503 |
+  | 授权库不可读（无法证明为空） | `development_control_state_denied` | 503 |
+  | 任一授权表计数 > 0（message 附 counts JSON） | `development_control_state_denied` | 503 |
+  | 新建 floor 不是 `(instance, minimum_revision=0, pending=None)` | `development_control_state_denied` | 503 |
+  | 审计写失败 | `development_owner_audit_unwritten` | 503 |
+  | 审计已记录 `production_control_created` 但与实际 floor 不符 | `development_owner_audit_changed` | 409 |
+
+  已有 floor 时返回 `None`：不覆盖、不重建、不补写"由 dev 创建"的审计（真实存在就如实保留；不得伪造创建记录）。
+- **审计**：复用 §5 的同一份 `Control/DevelopmentOwnerInitialization.json` 与同一 metadata 摘要，追加键 `production_control_created`，记录固定为 `{created_at_us, recorded_at_us, floor: 0, path: 'Control/ProductionAuthorizationControl.json', counts: {四表: 0}}`（`:53-54,485-495,564-571`）；写入经 `_append_audit_record`（`:498-528`）：读现审计 → 追加键 → canonical 字节写 `.pending` → fsync → `os.replace` → 新摘要写 metadata（同一事务）。同键同值幂等返回同摘要；同键不同值即 409。文档仍受 64 KiB、canonical、LF 约束（`:40-44,463-469`），字段集见 §5.2（本节只追加一个键，不新增文件）。
+- **顺序要求（评审 P2，后端正在修，未完成前不得声称满足）**：必须**先写审计、后建 floor**，且 floor 创建或校验失败时不得留下"已创建"的审计：
+  1. 只读测四表计数（此时仍全 0）；
+  2. 写"创建尝试"审计事实并 fsync（键名/字段由实现择一，例如 `production_control_pending` 或 `state:'attempted'`，语义固定为**尚未创建**）；
+  3. `ProductionAuthorizationControl(path, instance_id).initialize_new()`；
+  4. `read()` 复核 `(instance, minimum_revision=0, pending=None)`；
+  5. 追加/翻转为 `production_control_created` 并 fsync，摘要写入 metadata。
+  第 3 或第 4 步失败时：只允许存在第 2 步的"尝试"事实，**不得**出现 `production_control_created`，不得 catch 后补写成功审计。当前实现是 `initialize_new()` 之后再 `_append_audit_record()`（`:556-571`），评审已实测"floor 残留 + 审计缺 created"（`RV-LocalChainRealRunFixes.md` §P2-1/P3-8）——这是**未完成的 P2 修复**，不是已冻结行为。
+- **必须函数内自检，不能只靠调用点**：评审用直接调用（无 flag、无 dev source、Control 目录已存在）复现了"先建 floor 再 `development_owner_audit_missing` 503、floor 残留"（`RV-…:31`）。冻结要求：该函数要么接收 dev 来源对象并在内部核 `type`/保留表/epoch/线程，要么至少核"本实例存在 dev 初始化审计 + 自动初始化生效位"，否则不得保持为任意调用者可调用的公开函数（可降为 `_` 私有、仅被 dev factory 调用）。归属：后端。
+- **为什么不是生产放宽**：
+  - 除 `initialize_new()`（与生产首启同一实现，`production_management.py:192-197`）外不写任何 command/receipt/binding；不写四张授权表；不产生 management capability（`install_startup_services:88` 仍要求 `registry is None`、`authorization.management is None`）；
+  - 不改变生产 floor 的 reserve→DB commit→complete、锁序、revision 与恢复语义；
+  - 只在 floor **不存在**且授权库**为空**时生效；任何已有事实的实例一律拒绝且不覆盖；
+  - 创建的是"空首启 floor"，与生产在该实例上的第一次管理动作会创建的内容逐字相同（`minimum_revision=0`、`pending=None`）。
+- **生产路径不可达（三重 + 补充）**：
+  1. **生产 parser 无该 flag**：`--development-auto-owner-init` 只存在于 `cli/development_host.py:76,91`；`cli/main.py:117-161` 的 `serve`/`worker`/`mcp-stdio` 均无此参数，也无 `serve-dev`/`worker-dev` 命令；
+  2. **非 dev 进程无调用点**：全仓 `create_development_production_control` 只有 `cli/development_host.py:40` 的 import 与 `:473` 的调用；生产模块不 import 该模块（§10 第 3/4 条的 grep 断言同样适用）；
+  3. **frozen 不可用**：wrapper 与 factory 第一道 `getattr(sys,'frozen',False)` 拒绝（`development_host.py:336-338,411-414`），`development_owner_initialization_source` 在 frozen 时也拒绝（§2.2 步骤 2），因此构造不出 dev 来源 → 调用点 gate 不可能成立；
+  4. **补充**：即使有人把 Control 目录搬到生产实例，函数也只在"floor 不存在 + 四表全空"时动作——那已是一个空实例，创建空 floor 与生产首启等价，不新增任何权限事实。
+
+### 13.3 P2：`ManagementPrincipal.authentication_source` 第三值的生产可读性
+
+- **事实**：`production_management.py:23-31` 追加 `'development_owner_initialization'`（§2.4 已批准，为诚实记录来源所必需）。其余 model 仍两值：`domain/production_authorization.py:155`（`AuthorizationActionReceipt`）、`domain/daily_project_authorization.py:157`、`domain/local_copy_input_scope.py:247`、`domain/native_execution_registration.py:193`；`domain/owner_setup.py:249` 只允许 `native_owner_session`。
+- **读取现状**：`OwnerBootstrapStore._decode`（`owner_bootstrap.py:78-95`）与 `current()`（`:124-134`）**不**按来源拒绝，因此任何读到该 data-dir 的代码都会接受并看到 dev 来源的 binding；评审据此记为 P2（"生产可读取/使用 dev Owner binding"）。
+- **为什么当前不是 capability 绕过（逐条）**：
+  1. **写入点唯一且不可伪造**：只有 `change()` 的 dev 分支写该值（`owner_bootstrap.py:198,209,244,277`），前置是真实 `DevelopmentOwnerInitializationSource`（`_FACTORY`+保留表+epoch+线程+调用栈+真实 `DevelopmentInstallationAuthority`+注册文件实算 SHA+ADR0077 三重条件）。生产 `owner-init` 不带 `confirmation_source`，走 TTY 分支写 `headless_administrator`。
+  2. **生产入口不读 binding 也能干活，读到了也不够**：生产 `serve` 不注入 installed factory，`assemble_owner_services` 不被调用、`engine.production_admissions is None` → 任何执行 `production_authorization_unconfigured` 403；Owner 管理路径虽读到 binding，但每次变更仍需 `registry.authenticate`（Owner secret 句柄）+ `confirm_local_action` 的真实 TTY 确认。
+  3. **执行登记不接受 dev 来源**：`execution_registration.py:456-457` 要求安装动作的来源与 principal 逐字相等，而安装动作 receipt 只有两值（`domain/native_execution_registration.py:193`）→ dev principal 永远对不上，登记被拒。
+  4. **native setup 不接受**：`owner_setup_service` 要求 `native_owner_session`（§0 已列），dev binding 进不去。
+  5. 结论：第三值让 binding 的来源不再等于"真人 TTY"，但**不能**让持有该 data-dir 的一方获得超出"能读写该 data-dir 且持有 Owner secret 的本机主体"的能力。
+- **残余风险与收口（需要后继收口，不得视为已关闭）**：
+  a. 任何依赖"来源=真人确认"的读者必须**正向匹配**它接受的字面量，禁止"不等于其它值"的负向判断；当前只有 `owner_setup_service` 做正向匹配。新增此类读者必须显式枚举三值。
+  b. `daily_projects.py:377` 与 `local_copy_input_service.py:221` 会把 principal 来源透传进两值模型，理论上对 dev principal 会 `ValidationError`；当前路径不可达（dev 拒绝 Goal 创建、execution-only 无 management capability），应以后继卡加显式拒绝代替"意外抛错"。
+  c. 后继卡至少加两条断言：①生产 `serve` 在 dev data-dir 上启动后仍 `production_authorization_unconfigured`、不产生执行身份；②`owner-execution install` 对 dev binding 仍 403。
+  d. 退役按 §8 第 3 条：先清点含该值的 data-dir，再移除字面量。
+
+### 13.4 与既有章节的关系
+
+- §3 的 7 条接受条件、§4 写入顺序、§5 审计字段（本节只追加 `production_control_created` 一个键）、§7 失败码（已补 `development_control_state_denied` 行）、§10 评审断言**全部继续有效**；§13 只追加两项新对象与一条顺序要求。
+- §6 生产不可达清单追加 §13.2 末尾三条（生产 parser 无 flag、函数只有 dev 调用点、frozen 下无法构造来源）。
+- §10 评审断言追加：控制面引导的顺序（先审计后 floor、失败不留"已创建"）、函数内自检、§13.3 的 ①②两条。新增码不得加入 `RESOURCE_WAIT_CODES`。
