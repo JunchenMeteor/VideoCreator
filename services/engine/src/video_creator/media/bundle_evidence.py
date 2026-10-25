@@ -1,6 +1,7 @@
 """Real installed clock/frame authorities for registered immutable bundle media."""
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import subprocess
@@ -19,6 +20,23 @@ class BundleMediaEvidence:
         self.python, self.root = Path(python).resolve(strict=True), Path(storage_root).resolve(strict=True)
         self.worker = Path(__file__).with_name("bundle_probe_worker.py")
         self.execution_records = []
+        # Measured identities of the actual observer process, never constants.
+        self.tool_versions = []
+
+    @property
+    def observed_tool_version(self) -> str | None:
+        """The single version the actual isolated observer reported, or None.
+
+        None means no real observation has completed yet; callers must not
+        substitute a profile constant for the measured library identity.
+        """
+        versions = set(self.tool_versions)
+        return versions.pop() if len(versions) == 1 else None
+
+    @property
+    def observer_sha256(self) -> str:
+        """sha256 of the actual fixed observer source this instance launches."""
+        return hashlib.sha256(self.worker.read_bytes()).hexdigest()
 
     def _observe(self, path: Path, sha: str, mode: str, at_us: int = 0, exact_frame: dict | None = None):
         path = Path(path)
@@ -97,6 +115,9 @@ class BundleMediaEvidence:
                 raise ValueError("invalid observation")
         except (ValueError, TypeError):
             raise EngineError("media_evidence_invalid", "Actual media evidence is invalid.", 422) from None
+        reported = result.get("tool_version")
+        if type(reported) is str and reported:
+            self.tool_versions.append(reported)
         return result
 
     def clock(self, asset: c.AssetRecord, path: Path):

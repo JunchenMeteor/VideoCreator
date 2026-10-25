@@ -160,3 +160,58 @@ must-4 的字面要求未达成；当前只能给具名 blocker。交接 §6-6 �
 - **仅执行**：4 文件 ruff/AST、HEAD↔工作树的调用逐字比较、`_validate_outputs` 的只读直接调用、零 cue 的 `validate_text` 回解、filter graph 四组等价比较、自测产物/日志核对。
 - **未覆盖**：并行角色的 API/application/cli/docs 改动（含 `local_bundle_assembly.py`）；`docs/task-board/LocalChainEndToEndTest.md`；真实安装环境的解释器身份；外部并发/崩溃注入；任何“可发布”或“已验收”结论。
 - 本文不关闭任何 P1；P1-1/P1-2 修复后仍需按 P2-1/P2-3/P2-4 决定 Backend 接口与 local 恢复/发布语义，再由 Test 角色补整链正例与失败负例。
+
+---
+
+# 复审（2026-10-25，窄复审）
+
+复审结论：**PASS（仅就三个 P1；整体仍非可发布，P2-1/P2-3/P2-4 未修）**。上一轮 P1-1/P1-2/P1-3 均已在源码层闭环，未发现新 P1。原结论保留，不修改上文；上文 §2 P1-3、§3 P2-2/P2-5、§4 P3-1 的旧代码状态以本节为准。
+
+复审版本：HEAD `fb68343` + 未提交修复（`bundle_producer.py`、`bundle_evidence.py`、`local_bundle_inputs.py`、`local_bundle_producer.py`、`local_material_edit.py`）。我自跑 `ruff check` 5 文件通过、`ast.parse` 5 文件通过；以下“已实测”均为导入级/构造对象级测试，**仍未运行整链**。
+
+## R1. P1-1：时间戳已排除、身份差异仍 409 — PASS
+
+- 新实现：`admission_identity`（`local_bundle_inputs.py:33-53`）、`rights_identity`（`:55-69`）、`require_held_final_facts`（`:76-86`）；`read_local_final_inputs` 改用身份比较（`:101-108`）；生产者入口调用 `require_held_final_facts`（`local_bundle_producer.py:357-360`）。
+- 实测（构造 `CurrentProductionAdmission` / `ProductionRightsFact`，仅改 `checked_at_us=1500, valid_until_us=3000`）：
+  - 两个事实对象 `A == B` 为 `False`，但 `admission_identity(A)==admission_identity(B)`、`rights_identity` 同理为 `True`；`require_held_final_facts` **不报错**。
+  - 改 `target_sha256`、`fencing_token`、`declaration_sha256`、`rights` 内容 → 分别 `local_final_facts_conflict` 409。
+  - 传入非 `CurrentProductionAdmission`/非 `ProductionRightsFact` → `local_final_facts_invalid` 409（不是 AttributeError）。
+- DB 规范编码往返：`canonical(fact)` → `model_validate_json` 后身份相等（admission/rights 各测一次），即“隔一次 DB 读写仍相等”成立。
+- 备注：`admission_identity` 保留 `admission_ref`/`human_approval_ref`/`policy_ref` 的 canonical 值，这些由持久化事实导出，不随实时时钟变化；正确。
+
+## R2. P1-2：只对真实媒体角色放开 — PASS
+
+- 新实现：`_validate_outputs(documents, outputs, *, masters, assets)`（`local_bundle_producer.py:240-268`），`produced` 仅由 `DOCUMENT_PATHS` 文档与实际存在的 `ROLE_PATHS[role]`（`role in assets`）组成（`:248-249`）；调用点传 `masters=selection.master_roles, assets=assets`（`:407`）。
+- 实测原反例 `outputs=('video','approved_script','semantic_manifest','rag_chunks')`、`masters=('video','cover')`、`assets` 含 video/cover 键 → **PASS**。
+- 反例：`masters=('cover',)` 却请求 video；`masters=('video',)` 但 `assets` 无 video；请求 `narration_audio` 而无对应 master/asset → 均 `local_output_not_applicable` 422。
+- 注入式反例：把 `Text/subtitles.srt|vtt`、`Text/actual-transcript.json` 塞进 `documents` 后仍 422（`DOCUMENT_PATHS` 不含这些路径，且 `SPOKEN_OUTPUTS` 分支给明确消息）。
+- 备注：媒体放开依据 `assets` 而非“路径存在”；与 `selection.master_roles` 顺序由 `:361-363` 与 `read_local_composition` 保证。
+
+## R3. P1-3：零 cue 已删除/不可达，无声具名拒绝 — PASS
+
+- `zero_cue_subtitle_materials` 已从生产模块删除（`hasattr(...) is False`）；全仓 grep 仅剩 `local_bundle_inputs.zero_cue_subtitle_bytes` 定义，无生产调用者。
+- `zero_cue_subtitle_bytes(transcript)` 的 `transcript` 必填并强制 `validate_no_speech_coverage`（`local_bundle_inputs.py:236-256`）：无参 → `TypeError: missing 1 required positional argument: 'transcript'`；`None` → `local_no_speech_unconfirmed` 409。不能自由取得空字幕。
+- 无声请求 `subtitles`/`actual_transcript`：`_validate_outputs` 走 `SPOKEN_OUTPUTS` 分支（`:257-266`），`local_output_not_applicable` 422，消息明确“零 cue 分支未实现，请去掉该输出”；实测两种输出均如此。任务卡 `LocalFinalProducerBundleV04.md:28` 的 2026-10-25 统筹裁定已把 must-4 明确改为“不实现、具名拒绝”，与代码一致。
+- 有声仍具名：`_speech_error`（`:93-98`）对 `actual_transcript`/`subtitles` 返回 `local_speech_observation_required` 503，其余有声输出返回 `local_speech_evidence_unavailable` 503；实测均命中。
+- 说明：真实链的 selection 层（`select_local_masters`）会先用同一 `local_output_not_applicable` 422 拒绝无声 `subtitles`，消息较泛；生产者层的“零 cue 未实现”消息只有在直接调用生产者时可见。这是可达层次差异，不是误导码。
+
+## R4. P2-2：method 版本改为实测 — PASS（保留 1 个 P3）
+
+- `_tool_identities`（`local_bundle_producer.py:163-182`）：EDIT 版本取 `asset.probe.tool_version`（注册母版实际 probe 的 ffmpeg 版本），DECODER 版本取 `media.observed_tool_version`；`_methods`（`:185-202`）的 `config_sha256` 分别为 `production_services.registration_sha256`、`media.observer_sha256`、plan `content_sha256`，不再是常量。
+- `BundleMediaEvidence` 新增实测收集：`tool_versions`/`observed_tool_version`/`observer_sha256`（`media/bundle_evidence.py:24-40`），worker 返回的 `av.__version__` 在 `_observe` 中记录（`:118-120`）。构造验证 `_methods` 输出 `ffmpeg version 7.1` / `av 14.0.0`；两个 helper 的 `config_sha256` 分别为调用方传入的 `registration_sha256`、观察器源文件 sha 与 plan `content_sha256`；local 生产者的 DECODER config 不再使用原常量（该常量仍保留在未改的 v2/v3 路径 `bundle_producer.py:593`）。
+- 反例：母版 probe 版本不一致 → `local_method_identity_unavailable` 503；观察器尚未产生版本（None）→ 同名 503。
+- 残留 P3：EDIT 的 `tool_version` 是 probe 报告的 ffmpeg 版本，`config_sha256=registration_sha256` 只“钉住”注册中的 ffmpeg/ffprobe 哈希，生产者未自行重算二进制；方法 limitations 已如实写明，解释器 hash 注册仍待 Backend 安装项。
+
+## R5. P3-1：漏参仍 TypeError — PASS
+
+- `_REQUIRED` 哨兵与 `_require_v2v3_arguments`（`bundle_producer.py:637-652`），`produce` 形参默认哨兵（`:684-687`），v2/v3 分支调用前检查（`:707-712`）。
+- 实测：v2/v3 漏 `asr_route_id` / `cover_asset_id` → `TypeError: produce() missing required keyword argument(s) ...: asr_route_id`（含准确参数名）；v2/v3 传 `selection` → 403 `local_material_context_required`；local 漏 `asr_route_id` **不**抛 TypeError（该参数对 local 无意义），继续到 `local_final_services_invalid` 503；local 传 v2/v3 master 参数 → 422 `local_final_producer_arguments_invalid`。
+- 备注：local 分支不把 `asr_route_id` 纳入拒绝列表，允许透传/省略；`_produce_local` 不使用它，符合“local 不加载 ASR”的意图。
+
+## R6. 复审后剩余问题（不阻断本轮 P1 关闭）
+
+- **P2-1（保留）**：标准 null-ASR local 配置在 `media_registration._final_producer` 先抛 `production_asr_resource_required` 503（在 `RESOURCE_WAIT_CODES`，会 park），生产者 `local_speech_*` 可能不可达；非 null ASR 配置会由 `_require_selected_asr` 真正加载 ASR，需裁定 local 是否允许。
+- **P2-3（保留）**：生产者仍不持久化 local assembly；`verify`/`publish` 依赖内存 `_local_preparation_contexts`/`_verified_local_contexts`，重启后 409 `local_preparation_context_missing`；崩溃恢复语义未定。
+- **P2-4（保留）**：unattended 发布的 `_finalize_bundle_current` 仍要求完整 8 输出（`production_admissions.py:853-856`），与 local 适用子集冲突；若 local 仅 interactive，应在卡片/ADR 写明。
+- **P3（保留/新增）**：`_document_artifacts` 对 `Checks/local-speech-evidence.json`、`Semantics/shots.jsonl`、`Semantics/visual-mapping.json` 仍无条件 `_lineage(video)`（`local_bundle_producer.py:301,313-314`），音频路径将来放开会先 409（当前被 `_speech_error` 挡住）；`_methods` 在 `prepare_local`/`stage_material` 之后才执行（`:419-443`），方法身份 503 会留下未发布 preparation；证据文件 CP936/CRLF 与 selfcheck 只到服务类型检查的问题仍在。
+- 本轮未改代码、未提交 git；未运行整链。

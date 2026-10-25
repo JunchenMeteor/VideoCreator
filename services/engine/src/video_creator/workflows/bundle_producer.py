@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import sys
 from dataclasses import dataclass
 from decimal import Decimal
 from fractions import Fraction
@@ -633,19 +634,82 @@ def _local_fact(binding, fact):
     return local_fact_id(binding, fact)
 
 
-def create_registered_media_producer(*, engine, bundle, executor, resource_manifest_path: Path,
-                                     resource_manifest_sha256: str, runtime_manifest_sha256: str,
+_REQUIRED = object()
+
+
+def _require_v2v3_arguments(values):
+    """Keep the original v0.2/v0.3 call-site TypeError for an omitted master.
+
+    The sole `produce` entry serves both dispatches, so the v2/v3 arguments
+    cannot stay positional-without-default. A private sentinel keeps them
+    semantically required: an omitted argument fails here with the same
+    TypeError class and the exact argument name instead of silently reaching
+    `produce_bundle` as `None`.
+    """
+    missing = [name for name, value in values if value is _REQUIRED]
+    if missing:
+        raise TypeError('produce() missing required keyword argument(s) for the v0.2/v0.3 '
+                        'consumer: ' + ', '.join(missing))
+
+
+def create_registered_media_producer(*, engine, bundle, executor, resource_manifest_path: Path | None,
+                                     resource_manifest_sha256: str | None, runtime_manifest_sha256: str | None,
                                      storage_root: Path, runtime_root: Path, final_evidence_ports=None,
-                                     production_services=None):
+                                     production_services=None, local_material_context=None):
     """Trusted backend factory: fixed code/resources, no caller-selected module."""
-    from video_creator.providers.asr_resources import load_asr_resources
+    if local_material_context is None:
+        # The original v0.2/v0.3 source path keeps loading its exact ASR
+        # resources and behaviour unchanged.
+        from video_creator.providers.asr_resources import load_asr_resources
 
-    resources = load_asr_resources(resource_manifest_path, resource_manifest_sha256, runtime_manifest_sha256)
-    media = BundleMediaEvidence(resources.python, storage_root)
+        resources = load_asr_resources(resource_manifest_path, resource_manifest_sha256, runtime_manifest_sha256)
+        media = BundleMediaEvidence(resources.python, storage_root)
+    else:
+        # A local 0.4 work never loads ASR resources; its zero-null ASR
+        # registration is a real absence, and speech evidence is a named
+        # blocker rather than a resource the factory silently installs.
+        resources = None
+        # The observer launches this interpreter with `-I -B -X utf8` and imports
+        # PyAV, so it must be the actual protected CPython of this Engine, not a
+        # frozen sidecar or an unrelated executable. Full interpreter hash
+        # registration stays a Backend installation item (Handoff A-7); the
+        # measured library version comes from the real worker observation.
+        interpreter = Path(sys.executable)
+        if (not interpreter.is_absolute() or not interpreter.is_file()
+                or sys.implementation.name != 'cpython'):
+            raise EngineError("local_media_interpreter_unavailable",
+                "Local media evidence needs the actual protected CPython interpreter.", 503)
+        media = BundleMediaEvidence(interpreter, storage_root)
 
-    def produce(lease, *, video_asset_id, narration_asset_id, mixed_asset_id,
-                cover_asset_id, asr_route_id, reference_evidence=None, plan_admission=None,
-                production_rights_fact=None, cancel=None, deadline_monotonic=None):
+    def produce(lease, *, video_asset_id=_REQUIRED, narration_asset_id=_REQUIRED, mixed_asset_id=_REQUIRED,
+                cover_asset_id=_REQUIRED, asr_route_id=_REQUIRED, reference_evidence=None, plan_admission=None,
+                production_rights_fact=None, cancel=None, deadline_monotonic=None,
+                selection=_REQUIRED, media_roles=_REQUIRED):
+        if local_material_context is not None:
+            if (any(value is not _REQUIRED for value in (video_asset_id, narration_asset_id,
+                    mixed_asset_id, cover_asset_id))
+                    or reference_evidence is not None
+                    or selection is _REQUIRED or media_roles is _REQUIRED
+                    or selection is None or media_roles is None):
+                raise EngineError("local_final_producer_arguments_invalid",
+                    "The local producer consumes its selection and applicable masters only.", 422)
+            from video_creator.workflows.local_bundle_producer import (
+                produce_local_bundle,
+            )
+
+            return produce_local_bundle(engine, bundle, executor, media, lease,
+                        production_services=production_services,
+                        local_material_context=local_material_context, selection=selection,
+                        media_roles=media_roles, asr_route_id=asr_route_id,
+                        plan_admission=plan_admission, production_rights_fact=production_rights_fact,
+                        final_evidence_ports=final_evidence_ports,
+                        cancel=cancel, deadline_monotonic=deadline_monotonic)
+        if selection is not _REQUIRED or media_roles is not _REQUIRED:
+            raise EngineError("local_material_context_required",
+                "Applicable local masters need the original held local context at this factory.", 403)
+        _require_v2v3_arguments((('video_asset_id', video_asset_id),
+                    ('narration_asset_id', narration_asset_id), ('mixed_asset_id', mixed_asset_id),
+                    ('cover_asset_id', cover_asset_id), ('asr_route_id', asr_route_id)))
         return produce_bundle(engine, bundle, executor, resources, media, lease,
                     video_asset_id=video_asset_id, narration_asset_id=narration_asset_id,
                     mixed_asset_id=mixed_asset_id, cover_asset_id=cover_asset_id,

@@ -14,6 +14,10 @@ from video_creator.domain.local_bundle import (
     ShotEvidenceLocalV1,
     local_shot_revision_id,
 )
+from video_creator.domain.production_authorization import (
+    CurrentProductionAdmission,
+    ProductionRightsFact,
+)
 from video_creator.media.local_frame_grid import frame_index, frame_time_us
 from video_creator.providers.production_resources import file_sha256
 from video_creator.workflows.local_material_composition import (
@@ -26,6 +30,62 @@ from video_creator.workflows.local_material_production import (
 )
 
 
+def admission_identity(admission):
+    """Immutable identity of one admission decision, never its live clock.
+
+    `CurrentProductionAdmission` carries the live observation interval
+    (`checked_at_us`/`valid_until_us`) that the ports recompute on every real
+    read. Those two fields are when the decision was observed, not what was
+    decided: comparing them across a database round-trip or a later clock would
+    reject the same stored decision. Everything else (instance/run/request
+    binding, phase/action, target revision and fence, source branch and its
+    committed refs) is the actual held decision identity.
+    """
+    if type(admission) is not CurrentProductionAdmission:
+        raise EngineError('local_final_facts_invalid',
+                          'Use the original typed production admission, not a projection.', 409)
+    return (admission.state, admission.phase, admission.action,
+            admission.instance_id, admission.production_id, admission.run_id,
+            admission.request_revision_id, admission.request_sha256, admission.registration_sha256,
+            admission.target_id, admission.target_sha256, admission.fencing_token, admission.source,
+            _ref(admission.human_approval_ref), _ref(admission.policy_ref),
+            _ref(admission.owner_action_ref), _ref(admission.admission_ref), admission.blocker_code)
+
+
+def rights_identity(fact):
+    """Immutable identity of the rights decision, never its live clock.
+
+    Same rule as `admission_identity`: the declaration id/sha, policy/action
+    refs, fencing token and the actual `RightsSnapshot` tuple are the decision;
+    `checked_at_us`/`valid_until_us` are only when it was observed.
+    """
+    if type(fact) is not ProductionRightsFact:
+        raise EngineError('local_final_facts_invalid',
+                          'Use the original typed production rights fact, not a projection.', 409)
+    return (fact.instance_id, fact.production_id, fact.run_id, fact.request_revision_id,
+            fact.request_sha256, fact.plan_revision_id, fact.declaring_subject, fact.declaration_id,
+            fact.declaration_sha256, tuple(canonical(right) for right in fact.rights),
+            fact.source, _ref(fact.human_approval_ref), _ref(fact.policy_ref),
+            _ref(fact.owner_action_ref), fact.fencing_token)
+
+
+def _ref(value):
+    return None if value is None else canonical(value)
+
+
+def require_held_final_facts(context, *, plan_admission, production_rights_fact):
+    """409 unless the caller facts are the same immutable held decisions.
+
+    Callers build their plan/rights facts independently of the held context, so
+    two real reads of the same stored decision differ only in the observed
+    validity clock. Compare identities, never the live timestamped objects.
+    """
+    if (admission_identity(plan_admission) != admission_identity(context.plan_admission)
+            or rights_identity(production_rights_fact) != rights_identity(context.production_rights_fact)):
+        raise EngineError('local_final_facts_conflict',
+                          'Caller plan/rights facts must be the actual held current decisions.', 409)
+
+
 def read_local_final_inputs(services, ordinary_lease, *, local_material_context, media_roles):
     """Re-read the seven actual held facts on the original current lease."""
     if (type(services) not in {LocalMaterialServices, LocalMaterialPolicyServices}
@@ -33,9 +93,19 @@ def read_local_final_inputs(services, ordinary_lease, *, local_material_context,
         raise EngineError('local_final_context_denied', 'Use the actual registered local services and sole held final context.', 403)
     ports = services.production_ports if type(services) is LocalMaterialServices else services.policy_execution_ports
     current = ports.local_material_final_context(ordinary_lease)
-    # Equality checks an immutable projection AFTER the real current reader.
-    # It is not an identity grant or an authority reconstructed from JSON.
-    if type(current) is not LocalMaterialFinalContext or current != local_material_context:
+    # Compare the actual re-read facts after a real current read: persisted
+    # revisions and sources are immutable values, while the three live
+    # admission/rights facts are compared by their held-decision identity only.
+    # The held context is frozen and eq=False, so object equality would always
+    # fail and timestamp equality would always fail for a second real read.
+    if (type(current) is not LocalMaterialFinalContext
+            or current.sources != local_material_context.sources
+            or current.plan != local_material_context.plan
+            or current.plan_revision != local_material_context.plan_revision
+            or current.quality_revision != local_material_context.quality_revision
+            or admission_identity(current.plan_admission) != admission_identity(local_material_context.plan_admission)
+            or admission_identity(current.quality_admission) != admission_identity(local_material_context.quality_admission)
+            or rights_identity(current.production_rights_fact) != rights_identity(local_material_context.production_rights_fact)):
         raise EngineError('local_final_context_changed', 'Original current source/admission facts changed before assembly.', 409)
     if (current.plan_revision[0].kind != 'plan'
             or current.plan_revision[0].revision_id != current.plan_revision[1].revision_id
@@ -164,6 +234,23 @@ def validate_no_speech_coverage(transcript):
 
 
 def zero_cue_subtitle_bytes(transcript):
-    """Serialization only; publication still requires verified observer proof."""
+    """Serialize the two actual zero-cue materials for one admitted absence.
+
+    `transcript` is a required argument, not an option: the bytes exist only
+    AFTER a complete real no-speech `ActualTranscriptRevision` covers the whole
+    audio (`validate_no_speech_coverage`). Local 0.4 has no zero-cue branch
+    (统筹裁定 2026-10-25) and no production caller of this serializer, so there
+    is deliberately no way to obtain empty subtitle documents for an
+    unobserved or unadmitted work.
+    """
+    from video_creator.application.bundles import validate_text
+
     validate_no_speech_coverage(transcript)
-    return b'', b'WEBVTT\n\n'
+    # An SRT without cues has no header, so its complete document is one LF;
+    # the VTT keeps its required header. Both parse under the sole grammar.
+    srt, vtt = b'\n', b'WEBVTT\n\n'
+    if (validate_text(srt, 'srt_local', 'text/srt') != '\n'
+            or validate_text(vtt, 'vtt_local', 'text/vtt') != 'WEBVTT\n\n'):
+        raise EngineError('local_empty_subtitles_invalid',
+                          'Zero-cue subtitle materials must parse as the sole admitted local grammar.', 422)
+    return srt, vtt

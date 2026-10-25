@@ -117,6 +117,27 @@ def _input(runtime, argv, path):
     argv.extend([*runtime._input_args(runtime._input_format(path)), '-i', str(path)])
 
 
+def visual_filter_graph(timeline, shot, *, still):
+    """Sole integer-frame graph for one approved shot; timing only.
+
+    A static source holds its single decoded frame for the exact planned frame
+    count; a video source is trimmed to its approved intrinsic source range.
+    Both keep playback speed and are scaled by the approved contain/cover fit.
+    """
+    count = range_frame_count(shot.timeline_range, timeline)
+    rate = f'{timeline.fps_num}/{timeline.fps_den}'
+    fit = _fit(timeline.width, timeline.height, shot.fit)
+    if still:
+        graph = (f'loop=loop=-1:size=1:start=0,{fit},setsar=1,'
+                 f'fps={rate}:start_time=0,'
+                 f'trim=end_frame={count},setpts=PTS-STARTPTS,format=yuv420p')
+    else:
+        graph = (f'setpts=PTS-STARTPTS,trim=start={seconds(shot.source_range.start_us)}:end={seconds(shot.source_range.end_us)},'
+                 f'setpts=PTS-STARTPTS,fps={rate}:start_time=0,{fit},setsar=1,'
+                 f'trim=end_frame={count},format=yuv420p')
+    return graph, count, rate
+
+
 def _audio_filter(index, track, label):
     length = samples(track.timeline_range.end_us - track.timeline_range.start_us)
     # The original approved microsecond range is used before resampling. The
@@ -231,9 +252,6 @@ class LocalVisualMaterialDriver(_LocalDriver):
                     or (not still and (binding.media_type != 'video/mp4' or not probe.has_video))):
                 raise EngineError('local_visual_source_invalid', 'Use the actual decoded static-image or video stream evidence, without an invented image duration.', 422)
             duration = self.shot.timeline_range.end_us - self.shot.timeline_range.start_us
-            count = range_frame_count(self.shot.timeline_range, self.timeline)
-            rate = f'{self.timeline.fps_num}/{self.timeline.fps_den}'
-            fit = _fit(self.timeline.width, self.timeline.height, self.shot.fit)
             if still:
                 if (probe.duration_us is not None or probe.has_audio or self.shot.source_range.start_us != 0
                         or self.shot.source_range.end_us != duration):
@@ -241,17 +259,12 @@ class LocalVisualMaterialDriver(_LocalDriver):
                 # source_range in the approved still plan is a DISPLAY HOLD
                 # extent, never the source image's measured duration. The result
                 # preserves source_media_range=None and the actual static probe.
-                graph = (f'loop=loop=-1:size=1:start=0,{fit},setsar=1,'
-                         f'fps={rate}:start_time=0,'
-                         f'trim=end_frame={count},setpts=PTS-STARTPTS,format=yuv420p')
                 source_media_range = None
             else:
                 if binding.media_type != 'video/mp4' or probe.duration_us is None or self.shot.source_range.end_us > probe.duration_us:
                     raise EngineError('local_video_source_invalid', 'The actual source video must cover the complete approved range.', 422)
-                graph = (f'setpts=PTS-STARTPTS,trim=start={seconds(self.shot.source_range.start_us)}:end={seconds(self.shot.source_range.end_us)},'
-                         f'setpts=PTS-STARTPTS,fps={rate}:start_time=0,{fit},setsar=1,'
-                         f'trim=end_frame={count},format=yuv420p')
                 source_media_range = self.shot.source_range.model_dump(mode='json')
+            graph, count, rate = visual_filter_graph(self.timeline, self.shot, still=still)
             argv = ['-nostdin', '-v', 'error', '-n']
             _input(self.runtime, argv, path)
             argv.extend(['-map', '0:v:0', '-an', '-vf', graph, '-frames:v', str(count),
