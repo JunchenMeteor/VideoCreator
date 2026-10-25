@@ -32,7 +32,8 @@ def contained_file(root: Path, name: str):
         if candidate.is_relative_to(root) and (candidate.is_symlink() or candidate.is_junction()):
             raise EngineError("production_resource_denied", "Resource links are not admitted.", 403)
     if not path.is_file() or not path.resolve(strict=True).is_relative_to(root):
-        raise EngineError("production_resource_missing", "Exact installed resource is unavailable.", 503)
+        raise EngineError("production_resource_missing",
+                          f"Exact installed resource is unavailable: root={root}; name={name}", 503)
     return path
 
 

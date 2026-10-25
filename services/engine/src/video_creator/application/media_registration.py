@@ -106,7 +106,8 @@ def _local_file(root, relative):
         if parent.is_symlink() or parent.is_junction():
             raise EngineError("production_resource_denied", "Trusted resources cannot cross links or junctions", 403)
     if not target.is_file() or not target.resolve().is_relative_to(root):
-        raise EngineError("production_resource_missing", "Required installed production resource is unavailable", 503)
+        raise EngineError("production_resource_missing",
+                              f"Required installed production resource is unavailable: root={root}; relative={relative}", 503)
     return target
 
 
@@ -1214,9 +1215,20 @@ def run_registered_worker(runtime: RegisteredMediaRuntime, *, control, on_ready:
                         # The original operation guard already suspended and
                         # released; do not create or clear a second journal.
                     elif error.code in AUTHORIZATION_WAIT_CODES or error.code in RESOURCE_WAIT_CODES:
-                        blocked = CurrentProductionUpstreamResult(run_id=lease.run_id, fencing_token=lease.fencing_token,
-                            state="waiting_authorization" if error.code in AUTHORIZATION_WAIT_CODES else "resource_not_ready",
-                            media_roles={}, blocker_code=error.code)
+                        state = "waiting_authorization" if error.code in AUTHORIZATION_WAIT_CODES else "resource_not_ready"
+                        if type(runtime.config) is RegistrationConfigLocalV1:
+                            from video_creator.domain.local_bundle import (
+                                CurrentProductionUpstreamResultV2,
+                            )
+                            blocked = CurrentProductionUpstreamResultV2(run_id=lease.run_id,
+                                fencing_token=lease.fencing_token, state=state, selection=None,
+                                media_roles={}, blocker_code=error.code)
+                        else:
+                            blocked = CurrentProductionUpstreamResult(run_id=lease.run_id, fencing_token=lease.fencing_token,
+                                state=state, media_roles={}, blocker_code=error.code)
+                        sys_event('worker_resource_wait', run_id=lease.run_id,
+                                  production_id=current['production_id'], code=error.code,
+                                  detail=str(error.message)[:300])
                         runtime.park_current_upstream(lease, blocked)
                     else:
                         if current["worker_id"] == worker_id:
