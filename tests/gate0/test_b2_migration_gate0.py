@@ -10,6 +10,7 @@ import threading
 from pathlib import Path
 
 import pytest
+from schema_contract import CURRENT_SCHEMA_VERSION, assert_migration_catalog_matches_engine
 from video_creator.application.engine import EngineService, digest
 from video_creator.domain.contracts import (
     CapabilityRoute,
@@ -57,10 +58,21 @@ def snapshot(data_dir):
 
 
 def assert_preserved(original, after):
+    """Every original row survives with identical values and order.
+
+    Later migrations legitimately append rows (for example new metadata keys),
+    so the projection of an original table must contain its original rows as an
+    ordered subsequence: a changed, removed, reordered or duplicated row fails.
+    """
     for table, record in original.items():
         indexes = [after[table]["columns"].index(column) for column in record["columns"]]
         projected = [tuple(row[index] for index in indexes) for row in after[table]["rows"]]
-        assert projected == record["rows"], f"Persistent rows changed during migration: {table}"
+        position = 0
+        for row in record["rows"]:
+            while position < len(projected) and projected[position] != row:
+                position += 1
+            assert position < len(projected), f"Persistent rows changed during migration: {table}: {row!r}"
+            position += 1
 
 
 def seed_v1(data_dir):
@@ -112,7 +124,8 @@ def test_first_two_process_initialization_never_downgrades_schema(tmp_path):
             final_version=version, cancellation_columns=column_count, provider_calls=0)
         save(tmp_path, "TwoProcessReceipt.json", receipt)
         assert first.returncode == contender.returncode == 0, receipt
-        assert version == 2 and column_count == 1
+        assert_migration_catalog_matches_engine()
+        assert version == CURRENT_SCHEMA_VERSION and column_count == 1
     finally:
         for process in [first, contender]:
             if process is not None and process.poll() is None:
@@ -142,12 +155,12 @@ def test_actual_kill_rolls_back_whole_migration_and_preserves_rows(tmp_path, ver
     assert before_restart == original
     restarted = Database(data_dir)
     with restarted.connect() as connection:
-        assert connection.execute("PRAGMA user_version").fetchone()[0] == 2
+        assert connection.execute("PRAGMA user_version").fetchone()[0] == CURRENT_SCHEMA_VERSION
     assert_preserved(original, snapshot(data_dir))
     save(tmp_path, "MigrationKillReceipt.json", {"version_before": version, "boundary": boundary,
         "actual_child_killed": True, "child_exit": process.returncode, "stderr": stderr,
         "rolled_back_version": rolled_back_version, "original_rows_preserved": True,
-        "restart_version": 2, "provider_calls": 0})
+        "restart_version": CURRENT_SCHEMA_VERSION, "provider_calls": 0})
 
 
 def test_v1_unknown_operation_and_reservations_survive_upgrade(tmp_path):
@@ -159,7 +172,8 @@ def test_v1_unknown_operation_and_reservations_survive_upgrade(tmp_path):
         operation = connection.execute("SELECT * FROM operations WHERE id='unknown-operation'").fetchone()
         assert operation["actual_units"] is None and operation["reserved_units"] == 200000
         assert operation["cost_evidence"] == "unknown" and operation["settled"] == 0
-    # A second initialization must preserve all v2 rows exactly, including the unknown operation.
+    # A second initialization must preserve every current-schema row exactly,
+    # including the unknown operation.
     upgraded = snapshot(data_dir)
     Database(data_dir)
     assert snapshot(data_dir) == upgraded

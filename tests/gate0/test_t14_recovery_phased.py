@@ -7,11 +7,19 @@ import sqlite3
 import time
 import urllib.request
 from pathlib import Path
+
+import pytest
+
 from t14_evidence import Journal
 from t14_process_helpers import force_owned, launch, metadata, ready, read_rows, safe_env, save_process, tree, wait_for
 from t14_phased_assertions import assert_K, assert_R, assert_N
 
 REPO = Path(__file__).resolve().parents[2]
+
+# Real K/R/N evidence needs approved freezes, real media and fresh output dirs.
+REQUIRED_ENVIRONMENT = ("VIDEO_CREATOR_T14_SOURCE_FREEZE", "VIDEO_CREATOR_T14_CASES",
+                        "VIDEO_CREATOR_T14_MANIFEST", "VIDEO_CREATOR_T14_AUDIO",
+                        "VIDEO_CREATOR_T14_RUNTIME")
 
 
 def sha(path):
@@ -41,6 +49,11 @@ def flow_rows(data):
 
 
 def test_real_kill_original_effect_reconciliation_and_normal_quality_phased_v1():
+    missing = [name for name in REQUIRED_ENVIRONMENT if not os.environ.get(name)]
+    if missing:
+        pytest.skip("T14 real K/R/N evidence is not configured; missing: " + ", ".join(missing)
+                    + ". Set the variables and rerun (see docs/acceptance/criteria/COMMANDS.md, section "
+                      "\"Gate0 drift repair\"); an approved source freeze and fresh output dirs are required.")
     freeze_path = Path(os.environ["VIDEO_CREATOR_T14_SOURCE_FREEZE"])
     freeze = json.loads(freeze_path.read_text("utf8"))
     assert freeze["root_launch_authorized"] and freeze["independent_criteria_approved"]

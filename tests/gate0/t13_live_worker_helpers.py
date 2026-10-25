@@ -1,6 +1,21 @@
 """Independent exact-PID and owned CLI observations; no production patches."""
 import json,os,queue,sqlite3,subprocess,threading,time,urllib.request,urllib.error
 from pathlib import Path
+import pytest
+
+def require_environment(*names):
+ """Bind real T13 inputs, or skip the module explicitly when they are absent.
+
+ These cases need real on-disk media, a resource manifest and a fresh output
+ directory. Missing inputs must be a visible skip with a reason, never a
+ collection error and never a fabricated value.
+ """
+ missing=[name for name in names if not os.environ.get(name)]
+ if missing:
+  pytest.skip('T13 real-process environment not configured; missing: '+', '.join(missing)
+              +'. Set the variables and rerun (see docs/acceptance/criteria/COMMANDS.md, section "Gate0 drift repair").',
+              allow_module_level=True)
+ return tuple(Path(os.environ[name]) for name in names)
 
 def safe_env(repo,token=None):
  env={name:os.environ[name] for name in ['SystemRoot','WINDIR','ComSpec','PATH','PATHEXT','TEMP','TMP','PSModulePath','LOCALAPPDATA','APPDATA'] if name in os.environ}

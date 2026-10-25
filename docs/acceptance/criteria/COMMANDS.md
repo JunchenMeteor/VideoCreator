@@ -1096,3 +1096,97 @@ $env:PYTHONPATH = 'G:/开发测试/Projects/VideoCreator/services/engine/src'
 3. **ADR0077 §6 的 `owner_not_initialized`** 在本实例实测为 `owner_restore_refresh_required`（缺 `Control/` 目录），与本切片交接稿 §5 一致。
 4. **`_assert_media_tools` 只比较 `resolve()` 后的路径、不检查文件存在**：草稿期把工具参数指向不存在的临时路径时该检查通过，随后仅出现 `{"event": "media_unavailable", "code": "media_validator_missing"}` 警告；正式用例因此使用真实的 FFmpeg 目录副本。建议后续在 dev factory 内补存在性检查（产品源码，未改）。
 5. **`api/development_marker.py` 是无保护模块全局**（评审 P3-4 已记录）：进程内 health 用例只能证明"标记后出现且请求头不可伪造"，不能证明"只有 dev 宿主会标记"。
+
+
+## Gate0 drift repair（2026-10-25）
+
+`tests/gate0` 的测试漂移修复：断言停在旧 schema/旧契约规模（`user_version == 2`、`len(schemas) == 43`），
+代码已前进到 schema 11 / 168 个 public schema。未改产品源码，未改 `tests/development/`，未放宽阈值、
+未删除断言、未新增 xfail。逐项依据见 `Codex/VideoCreatorImplementation/Test/Gate0DriftRepair/Handoff.md`。
+
+### C1 全量 Gate0（默认入口，无需外部输入）
+
+```powershell
+cd 'G:/开发测试/Projects/VideoCreator'
+& '.venv/Scripts/python.exe' -m pytest tests/gate0 -q --no-header -p no:cacheprovider
+```
+
+| commit | exit | passed | failed | error | skipped | 耗时 |
+| --- | --- | --- | --- | --- | --- | --- |
+| 修复前 `9ec2ba9`（加 `--continue-on-collection-errors` 才能跑完） | 1 | 162 | 8 | 3 | 0 | 98.16s |
+| 修复后（工作树，未提交） | **0** | **169** | **0** | **0** | **4** | 97.23s |
+
+原始输出尾部（修复后）：
+
+```
+SKIPPED [2] tests\gate0\t13_live_worker_helpers.py:15: T13 real-process environment not configured; missing: VIDEO_CREATOR_T13_CASES, VIDEO_CREATOR_T13_MANIFEST, VIDEO_CREATOR_T13_AUDIO, VIDEO_CREATOR_T13_RUNTIME. Set the variables and rerun (see docs/acceptance/criteria/COMMANDS.md, section "Gate0 drift repair").
+SKIPPED [1] tests\gate0\t13_live_worker_helpers.py:15: T13 real-process environment not configured; missing: VIDEO_CREATOR_T13_OBSERVATION, VIDEO_CREATOR_T13_OLD_CASE, VIDEO_CREATOR_T13_RUNTIME, VIDEO_CREATOR_T13_MANIFEST. Set the variables and rerun (see docs/acceptance/criteria/COMMANDS.md, section "Gate0 drift repair").
+SKIPPED [1] tests\gate0\test_t14_recovery_phased.py:54: T14 real K/R/N evidence is not configured; missing: VIDEO_CREATOR_T14_SOURCE_FREEZE, VIDEO_CREATOR_T14_CASES, VIDEO_CREATOR_T14_MANIFEST, VIDEO_CREATOR_T14_AUDIO, VIDEO_CREATOR_T14_RUNTIME. Set the variables and rerun (see docs/acceptance/criteria/COMMANDS.md, section "Gate0 drift repair"); an approved source freeze and fresh output dirs are required.
+169 passed, 4 skipped, 112 warnings in 97.23s (0:01:37)
+```
+
+无 `-rs` 时三个 T13 模块会以 collect 阶段错误中断整轮（`KeyError: 'VIDEO_CREATOR_T13_CASES'`），
+已改为模块级显式 skip；**不要**为了消错去伪造路径变量。
+
+### C2 4 个 skip 的原因与真实运行所需变量
+
+这 4 例需要真实外部输入（真实媒体、已批准冻结、全新输出目录），默认入口下必然 skip。
+下面给出**真实运行**所需的变量与命令；变量值全部是非凭证的本地路径，取值形态沿用本文件
+“T13 B6/W6”（第 312 行起）与“T14 revision2”（第 349 行起）两节的既有绑定。
+
+| skip | 用例 | 缺失变量 | 真实运行所需 |
+| --- | --- | --- | --- |
+| 2 | `test_t13_kill_window.py::test_completed_file_before_observation_kill_reconciles_without_rerender`、`test_t13_live_worker.py::test_same_live_nononce_worker_releases_quality_slot_and_second_run_survives_api_close` | `VIDEO_CREATOR_T13_CASES`、`_MANIFEST`、`_AUDIO`、`_RUNTIME` | 真实 FFmpeg/ffprobe manifest、真实 wav、runtime pin 清单、**全新**cases 目录（`kill_window` 用 `exist_ok=False`） |
+| 1 | `test_t13_postrun_observer.py::test_postrun_objects_decode_and_actual_children_terminal` | `VIDEO_CREATOR_T13_OBSERVATION`、`_OLD_CASE`、`_RUNTIME`、`_MANIFEST` | 一轮已完成的 T13 旧 case 目录（含 `Receipt.json`、`Api/Worker/Sibling/ChildReceipt.json`、`Instance/`）、全新观察目录 |
+| 1 | `test_t14_recovery_phased.py::test_real_kill_original_effect_reconciliation_and_normal_quality_phased_v1` | `VIDEO_CREATOR_T14_SOURCE_FREEZE`、`_CASES`、`_MANIFEST`、`_AUDIO`、`_RUNTIME` | RV14 已批准 source freeze（含 `root_launch_authorized`、`independent_criteria_approved`、`criteria_revision == 2`、`criteria_review_id == "RV14"`、production/fixture 哈希）、全新 cases 目录（`exist_ok=False`） |
+
+T13 kill-window / live-worker 真实命令：
+
+```powershell
+cd 'G:/开发测试/Projects/VideoCreator'
+$env:VIDEO_CREATOR_T13_CASES="G:/开发测试/Codex/VideoCreatorImplementation/TestDevelopment/T13KillWindowCasesDriftRepair"
+$env:VIDEO_CREATOR_T13_MANIFEST="G:/开发测试/Codex/VideoCreatorImplementation/Integration/Evidence/MediaRuntimeManifest.json"
+$env:VIDEO_CREATOR_T13_AUDIO="G:/开发测试/Codex/VideoCreatorImplementation/AgentMedia/W1Samples/ChineseSpeech.wav"
+$env:VIDEO_CREATOR_T13_RUNTIME="G:/开发测试/Codex/VideoCreatorImplementation/TestDevelopment/T13RuntimeInputs.json"
+& '.venv/Scripts/python.exe' -X utf8 -m pytest tests/gate0/test_t13_kill_window.py -q --no-header -p no:cacheprovider
+# 同变量下换用例：test_t13_live_worker.py（需另建空 CASE 目录，两例共享同一 CASES 会撞 exist_ok）
+```
+
+T13 post-run observer 真实命令（`OLD_CASE` 必须是已完成的一轮，本轮未产出）：
+
+```powershell
+$env:VIDEO_CREATOR_T13_OBSERVATION="G:/开发测试/Codex/VideoCreatorImplementation/TestDevelopment/T13ObjectObservationCasesDriftRepair"
+$env:VIDEO_CREATOR_T13_OLD_CASE="G:/开发测试/Codex/VideoCreatorImplementation/TestDevelopment/T13LiveCasesRoundThree"
+$env:VIDEO_CREATOR_T13_RUNTIME="G:/开发测试/Codex/VideoCreatorImplementation/TestDevelopment/T13RuntimeInputs.json"
+$env:VIDEO_CREATOR_T13_MANIFEST="G:/开发测试/Codex/VideoCreatorImplementation/Integration/Evidence/MediaRuntimeManifest.json"
+& '.venv/Scripts/python.exe' -X utf8 -m pytest tests/gate0/test_t13_postrun_observer.py -q --no-header -p no:cacheprovider
+```
+
+T14 真实命令（需另批准入 + 新 freeze + 新目录，不能复用 RoundOne 输入冒充）：
+
+```powershell
+$env:VIDEO_CREATOR_T14_SOURCE_FREEZE="G:/开发测试/Codex/VideoCreatorImplementation/TestDevelopment/T14RealApprovedInputRoundOne.json"
+$env:VIDEO_CREATOR_T14_CASES="G:/开发测试/Codex/VideoCreatorImplementation/TestDevelopment/T14RealCasesDriftRepair"
+$env:VIDEO_CREATOR_T14_MANIFEST="G:/开发测试/Codex/VideoCreatorImplementation/Integration/Evidence/MediaRuntimeManifest.json"
+$env:VIDEO_CREATOR_T14_AUDIO="G:/开发测试/Codex/VideoCreatorImplementation/AgentMedia/W1Samples/ChineseSpeech.wav"
+$env:VIDEO_CREATOR_T14_RUNTIME="G:/开发测试/Codex/VideoCreatorImplementation/TestDevelopment/T14RealRuntimeInputsRoundOne.json"
+& '.venv/Scripts/python.exe' -X utf8 -m pytest tests/gate0/test_t14_recovery_phased.py -q --no-header -p no:cacheprovider
+```
+
+上述 4 例本轮**未执行**（缺外部输入/缺已批准冻结/缺已完成旧轮），其真实运行状态为
+`NOT_EXECUTED`，不计入通过；本节的通过计数只含 C1 的 169 passed。
+
+### C3 迁移数/版本与 public schema 数的现算来源（不再写死）
+
+| 量 | 旧值（写死） | 现算来源 |
+| --- | --- | --- |
+| `PRAGMA user_version` / 重启后版本 / 迁移数 | `2` | `video_creator.infrastructure.database.CURRENT_SCHEMA_VERSION`（当前 11）+ `tests/gate0/schema_contract.py` 现读 `services/engine/migrations/*.sql` 并断言编号 == `1..CURRENT_SCHEMA_VERSION` |
+| public schema 数 | `43` | `packages/contracts/schemas.json` 现算（当前 168），并断言 `export-contracts` 产出名集合与该文件完全一致 |
+
+### C4 复核观察（未改，供统筹/集成判责）
+
+`packages/contracts/schemas.json` 与 HEAD 代码正文不一致：现场 `export-contracts` 的 168 个
+schema 名字集合与已提交文件完全相同，但 `CapabilityRoute`、`ExecutionPermit` 的能力枚举多一项
+`media_diagnosis`（`services/engine/src/video_creator/domain/contracts.py:295`）。该产物最后一次
+重新生成 `b06d731` 晚于加入枚举的 `823991e`，即产物陈旧。`packages/contracts/` 属集成/发布角色，
+本轮只记录未修；建议集成重新生成，之后可把 `test_t6_http_media.py` 的表面断言收紧为正文一致。

@@ -168,8 +168,14 @@ def test_actual_cli_export_declares_415_without_public_schema_drift(tmp_path):
                 assert operation["responses"][status]["content"]["application/json"]["schema"] == {"$ref": "#/components/schemas/ErrorEnvelope"}
     assert "HTTPValidationError" not in openapi["components"]["schemas"]
     schemas = json.loads((output / "schemas.json").read_text(encoding="utf-8"))
-    assert len(schemas["schemas"]) == 43
+    # Count the public surface from the published contract artifact instead of a
+    # frozen literal, and require the exporter to reproduce exactly that surface.
+    published = json.loads((ROOT / "packages/contracts/schemas.json").read_text(encoding="utf-8"))
+    public_schema_count = len(published["schemas"])
+    assert len(schemas["schemas"]) == public_schema_count
+    assert set(schemas["schemas"]) == set(published["schemas"])
+    assert schemas["schema_version"] == published["schema_version"]
     write_receipt(tmp_path / "ActualContractExportReceipt.json", {"command": command, "exit_code": result.returncode,
                   "openapi_sha256": sha((output / "openapi.json").read_bytes()),
                   "schemas_sha256": sha((output / "schemas.json").read_bytes()),
-                  "public_schema_count": 43, "all_domain_415_reference": "#/components/schemas/ErrorEnvelope"})
+                  "public_schema_count": public_schema_count, "all_domain_415_reference": "#/components/schemas/ErrorEnvelope"})

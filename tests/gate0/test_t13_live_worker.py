@@ -5,9 +5,9 @@ from video_creator.application.assets import AssetService
 from video_creator.application.engine import EngineService
 from video_creator.cli.main import configured_media_validator
 from video_creator.domain.contracts import AssetCandidate,Automation,CapabilityRoute,CreativeBriefInput,ExecutionPolicy,Money,ProductionInputs,ProductionRequest,SourceBinding
-from t13_live_worker_helpers import force_owned,http_json,launch,metadata,read_rows,ready,safe_env,save_process,stop_api,tree,wait_for
+from t13_live_worker_helpers import force_owned,http_json,launch,metadata,read_rows,ready,require_environment,safe_env,save_process,stop_api,tree,wait_for
 
-ROOT=Path(os.environ['VIDEO_CREATOR_T13_CASES']);REPO=Path(__file__).resolve().parents[2];PYTHON=REPO/'.venv/Scripts/python.exe';MANIFEST=Path(os.environ['VIDEO_CREATOR_T13_MANIFEST']);INPUT=Path(os.environ['VIDEO_CREATOR_T13_AUDIO']);RUNTIME=Path(os.environ['VIDEO_CREATOR_T13_RUNTIME'])
+ROOT,MANIFEST,INPUT,RUNTIME=require_environment('VIDEO_CREATOR_T13_CASES','VIDEO_CREATOR_T13_MANIFEST','VIDEO_CREATOR_T13_AUDIO','VIDEO_CREATOR_T13_RUNTIME');REPO=Path(__file__).resolve().parents[2];PYTHON=REPO/'.venv/Scripts/python.exe'
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def pin():return {p:sha(Path(p)) for p in json.loads(RUNTIME.read_text('utf8'))['paths']}
 def write(p,v):p.write_bytes((json.dumps(v,ensure_ascii=False,indent=2)+'\n').encode('utf8'))

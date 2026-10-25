@@ -6,8 +6,8 @@ from video_creator.application.assets import AssetService
 from video_creator.application.engine import EngineService
 from video_creator.cli.main import configured_media_validator
 from video_creator.domain.contracts import AssetCandidate,Automation,CapabilityRoute,CreativeBriefInput,ExecutionPolicy,Money,ProductionInputs,ProductionRequest,SourceBinding
-from t13_live_worker_helpers import force_owned,launch,metadata,ready,safe_env,save_process,tree
-ROOT=Path(os.environ['VIDEO_CREATOR_T13_CASES']);REPO=Path(__file__).resolve().parents[2];PYTHON=REPO/'.venv/Scripts/python.exe';MANIFEST=Path(os.environ['VIDEO_CREATOR_T13_MANIFEST']);INPUT=Path(os.environ['VIDEO_CREATOR_T13_AUDIO']);RUNTIME=Path(os.environ['VIDEO_CREATOR_T13_RUNTIME'])
+from t13_live_worker_helpers import force_owned,launch,metadata,ready,require_environment,safe_env,save_process,tree
+ROOT,MANIFEST,INPUT,RUNTIME=require_environment('VIDEO_CREATOR_T13_CASES','VIDEO_CREATOR_T13_MANIFEST','VIDEO_CREATOR_T13_AUDIO','VIDEO_CREATOR_T13_RUNTIME');REPO=Path(__file__).resolve().parents[2];PYTHON=REPO/'.venv/Scripts/python.exe'
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def write(p,v):p.write_bytes((json.dumps(v,ensure_ascii=False,indent=2)+'\n').encode('utf8'))
 def rows(data,table):

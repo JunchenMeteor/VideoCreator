@@ -6,6 +6,7 @@ from decimal import Decimal
 from pathlib import Path
 
 import pytest
+from schema_contract import CURRENT_SCHEMA_VERSION, assert_migration_catalog_matches_engine
 from video_creator.application.engine import EngineService, digest
 from video_creator.application.executor import OperationExecutor
 from video_creator.application.pricing import (
@@ -131,8 +132,9 @@ def test_schema_one_upgrade_preserves_instance_budget_and_rows(tmp_path):
     assert migrated.instance_id == "preserved-instance"
     assert migrated.budget_status("shared-20")["spent"]["amount"] == "0.1"
     assert migrated.budget_status("shared-20")["reserved"]["amount"] == "0.2"
+    assert_migration_catalog_matches_engine()
     with migrated.db.connect() as connection:
-        assert connection.execute("PRAGMA user_version").fetchone()[0] == 2
+        assert connection.execute("PRAGMA user_version").fetchone()[0] == CURRENT_SCHEMA_VERSION
         assert "cancellation_requested" in {row["name"] for row in connection.execute("PRAGMA table_info(runs)")}
 
 

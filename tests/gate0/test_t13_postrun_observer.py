@@ -3,8 +3,8 @@ import hashlib,json,os,socket,sqlite3
 from datetime import UTC,datetime
 from pathlib import Path
 from video_creator.media.ffmpeg import FFmpegRuntime
-from t13_live_worker_helpers import metadata
-ROOT=Path(os.environ['VIDEO_CREATOR_T13_OBSERVATION']);OLD=Path(os.environ['VIDEO_CREATOR_T13_OLD_CASE']);INPUTS=Path(os.environ['VIDEO_CREATOR_T13_RUNTIME']);MANIFEST=Path(os.environ['VIDEO_CREATOR_T13_MANIFEST'])
+from t13_live_worker_helpers import metadata,require_environment
+ROOT,OLD,INPUTS,MANIFEST=require_environment('VIDEO_CREATOR_T13_OBSERVATION','VIDEO_CREATOR_T13_OLD_CASE','VIDEO_CREATOR_T13_RUNTIME','VIDEO_CREATOR_T13_MANIFEST')
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def write(p,value):p.write_bytes((json.dumps(value,ensure_ascii=False,indent=2)+'\n').encode('utf8'))
 def test_postrun_objects_decode_and_actual_children_terminal():
