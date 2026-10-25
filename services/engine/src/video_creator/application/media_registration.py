@@ -2,8 +2,8 @@
 
 import hashlib
 import json
-import time
 import threading
+import time
 from collections.abc import Callable
 from pathlib import Path, PurePosixPath
 from typing import Literal
@@ -15,21 +15,24 @@ from video_creator.application.asr_result_journal import (
     RegisteredOperationExecutor,
 )
 from video_creator.application.bundles import BundleService, strict_json
-from video_creator.application.engine import EngineService, canonical, digest, identity
-from video_creator.application.current_final_evidence_runtime import CurrentFinalEvidenceRuntime
+from video_creator.application.current_final_evidence_runtime import (
+    CurrentFinalEvidenceRuntime,
+)
 from video_creator.application.current_production_blockers import bound_context
+from video_creator.application.engine import EngineService, canonical, digest, identity
 from video_creator.application.worker import (
     HEARTBEAT_SECONDS,
     RUN_LEASE_SECONDS,
     WorkerService,
 )
 from video_creator.domain import contracts as c
-from video_creator.domain.bundle import TrustedBundleValidators
 from video_creator.domain.affected_repair import ForcedAlignmentRegistration
+from video_creator.domain.bundle import TrustedBundleValidators
 from video_creator.domain.errors import EngineError
 from video_creator.domain.local_material_production import (
-    RegistrationConfigLocalV1, parse_local_registration_config,
+    RegistrationConfigLocalV1,
     parse_local_material_resources,
+    parse_local_registration_config,
 )
 from video_creator.domain.registered_production import (
     AutonomousRegistration,
@@ -200,6 +203,7 @@ class RegisteredMediaRuntime(CurrentFinalEvidenceRuntime):
     def _initialize_local_runtime(self, root):
         """Build actual local services without importing/loading ASR model resources."""
         import sys
+
         from video_creator.media.bundle_evidence import BundleMediaEvidence
         from video_creator.media.ffmpeg import FFmpegRuntime
 
@@ -223,9 +227,13 @@ class RegisteredMediaRuntime(CurrentFinalEvidenceRuntime):
                     or not route.destination.startswith('local:')):
                 raise EngineError('production_local_route_invalid', 'Local material routes are credentialless, zero cost and have no remote destination', 503)
         engine = self.engine
-        staging = engine.db.data_dir / 'Staging'
-        staging.mkdir(exist_ok=True)
-        decoder = FFmpegRuntime(*tools, staging)
+        # Local registered drivers consume the instance's actual Objects/ bytes
+        # directly (`assets.content_path`), so the decoder root is the instance
+        # data directory: absolute, inside this instance, still rejecting UNC,
+        # links and every path outside. The v2/v3 path below keeps its narrower
+        # Staging root because it first copies its inputs into Staging.
+        decoder_root = engine.db.data_dir
+        decoder = FFmpegRuntime(*tools, decoder_root)
         self.decoder = lambda file, mime: decoder.probe(file, decode=True)
         # This is the same already-launched protected Engine interpreter. The
         # actual native full-map observation covers it; not an ASR Python/model.
@@ -250,7 +258,9 @@ class RegisteredMediaRuntime(CurrentFinalEvidenceRuntime):
         self.bundle._affected_execution_held = {}
         self.bundle._affected_observation_held = {}
         self.produce = None  # The actual final factory is invoked only after real upstream masters.
-        from video_creator.application.local_material_sources import LocalMaterialSourceService
+        from video_creator.application.local_material_sources import (
+            LocalMaterialSourceService,
+        )
         self.local_plan_sources = LocalMaterialSourceService(self)
         self.engine._local_material_plan_source = self.local_plan_sources
 
@@ -273,7 +283,9 @@ class RegisteredMediaRuntime(CurrentFinalEvidenceRuntime):
             raise EngineError('production_configuration_changed', 'Original local registration changed', 503)
         if _hash(self.production_manifest) != self.config.production_resource_manifest_sha256:
             raise EngineError('production_resource_changed', 'Original local resource manifest changed', 503)
-        from video_creator.providers.local_material_resources import LocalMaterialResources
+        from video_creator.providers.local_material_resources import (
+            LocalMaterialResources,
+        )
         resources = LocalMaterialResources(manifest_path=self.production_manifest,
             manifest_sha256=self.config.production_resource_manifest_sha256,
             runtime_manifest_sha256=self.config.production_runtime_manifest_sha256)
@@ -302,9 +314,13 @@ class RegisteredMediaRuntime(CurrentFinalEvidenceRuntime):
         with self.bundle._lock:
             values = [value for value in self.bundle._production_services_held.values()
                 if value[1] is execution_ports and value[2] == lease]
-        if (len(values) != 1 or values[0][3] != threading.get_ident() or values[0][5] != policy
+        # Flow steps run inside CrewAI's ThreadPoolExecutor, so the creating
+        # thread id is not a security boundary. The retained boundary is the
+        # exact same-process service/port objects, the same lease/fence, the
+        # same human/policy mode and the same registration/resource identity.
+        if (len(values) != 1 or values[0][5] != policy
                 or values[0][6:] != self.installation_resource_identity[1:]):
-            raise EngineError('local_final_services_denied', 'Original held same-fence/thread/mode services required.', 403)
+            raise EngineError('local_final_services_denied', 'Original held same-fence/mode/identity services required.', 403)
         with self.engine.db.connect_readonly() as connection:
             self.engine._lease(connection, lease)
             _run, _production, _request, binding = bound_context(self.engine, connection, lease.run_id, self.sha256)
@@ -423,12 +439,14 @@ class RegisteredMediaRuntime(CurrentFinalEvidenceRuntime):
             raise EngineError("production_resource_changed", "Original registered upstream resources changed", 503)
         local = type(self.config) is RegistrationConfigLocalV1
         registration = self.config.local_registration if local else self.config.autonomous_registration
-        arguments = dict(engine=self.engine, worker=self.worker, bundle=self.bundle,
-            executor=self.executor, registration=registration, subject=production["owner"],
-            storage_root=self.engine.db.data_dir, runtime_root=self.runtime_root,
-            decoder=self.decoder, resource_manifest_path=self.production_manifest,
-            resource_manifest_sha256=self.config.production_resource_manifest_sha256,
-            runtime_manifest_sha256=self.config.production_runtime_manifest_sha256)
+        arguments = {
+            'engine': self.engine, 'worker': self.worker, 'bundle': self.bundle,
+            'executor': self.executor, 'registration': registration, 'subject': production["owner"],
+            'storage_root': self.engine.db.data_dir, 'runtime_root': self.runtime_root,
+            'decoder': self.decoder, 'resource_manifest_path': self.production_manifest,
+            'resource_manifest_sha256': self.config.production_resource_manifest_sha256,
+            'runtime_manifest_sha256': self.config.production_runtime_manifest_sha256,
+        }
         if not local:
             arguments['prepare_plan_repair_targets'] = self.bundle.prepare_plan_repair_targets
         if isinstance(self.config, (RegistrationConfigV3, RegistrationConfigLocalV1)):
@@ -445,11 +463,17 @@ class RegisteredMediaRuntime(CurrentFinalEvidenceRuntime):
                 if local:
                     from video_creator.workflows.local_material_production import (
                         create_local_policy_engine_services as create_current_policy_engine_services,
+                    )
+                    from video_creator.workflows.local_material_production import (
                         run_local_material_policy_upstream as run_current_policy_upstream,
                     )
                 else:
-                    from video_creator.workflows.current_engine_production import create_current_policy_engine_services
-                    from video_creator.workflows.autonomous_production import run_current_policy_upstream
+                    from video_creator.workflows.autonomous_production import (
+                        run_current_policy_upstream,
+                    )
+                    from video_creator.workflows.current_engine_production import (
+                        create_current_policy_engine_services,
+                    )
             except ImportError:
                 raise EngineError("production_current_policy_consumer_missing", "The fixed current policy Media consumer is not installed", 503) from None
             services = create_current_policy_engine_services(policy_execution_ports=ports, **arguments)
@@ -460,11 +484,17 @@ class RegisteredMediaRuntime(CurrentFinalEvidenceRuntime):
         if local:
             from video_creator.workflows.local_material_production import (
                 create_local_engine_services as create_current_engine_services,
+            )
+            from video_creator.workflows.local_material_production import (
                 run_local_material_upstream as run_autonomous_upstream,
             )
         else:
-            from video_creator.workflows.current_engine_production import create_current_engine_services
-            from video_creator.workflows.autonomous_production import run_autonomous_upstream
+            from video_creator.workflows.autonomous_production import (
+                run_autonomous_upstream,
+            )
+            from video_creator.workflows.current_engine_production import (
+                create_current_engine_services,
+            )
 
         services = create_current_engine_services(production_ports=ports, **arguments)
         self._remember_current_services(lease, services, ports, False)
@@ -472,11 +502,17 @@ class RegisteredMediaRuntime(CurrentFinalEvidenceRuntime):
 
     def _remember_current_services(self, lease, services, ports, policy):
         """Only the immediately preceding original fixed factories call this source boundary."""
-        from video_creator.workflows.autonomous_production import AutonomousServices, CurrentPolicyServices
+        from video_creator.workflows.autonomous_production import (
+            AutonomousServices,
+            CurrentPolicyServices,
+        )
         expected_type = CurrentPolicyServices if policy else AutonomousServices
         local = type(self.config) is RegistrationConfigLocalV1
         if local:
-            from video_creator.workflows.local_material_production import LocalMaterialServices, LocalMaterialPolicyServices
+            from video_creator.workflows.local_material_production import (
+                LocalMaterialPolicyServices,
+                LocalMaterialServices,
+            )
             expected_type = LocalMaterialPolicyServices if policy else LocalMaterialServices
         if (type(services) is not expected_type or services.engine is not self.engine
                 or services.worker is not self.worker or services.bundle is not self.bundle
@@ -489,7 +525,7 @@ class RegisteredMediaRuntime(CurrentFinalEvidenceRuntime):
             _run, production, request, binding = bound_context(self.engine, connection, lease.run_id, self.sha256)
         registered = self.engine._authorization_identity(production['owner'])
         issuer = self.engine.production_admissions
-        with issuer.current_guard(registered) as guard:
+        with issuer.current_guard(registered) as guard:  # noqa: SIM117 -- retained original nesting
             with self.engine.db.connect_readonly() as connection:
                 issuer._guard(connection, guard)
                 issuer._request(connection, production, run, registered)
@@ -502,7 +538,9 @@ class RegisteredMediaRuntime(CurrentFinalEvidenceRuntime):
 
     def _checked_upstream_result(self, lease, result, *, policy):
         if type(self.config) is RegistrationConfigLocalV1:
-            from video_creator.domain.local_bundle import CurrentProductionUpstreamResultV2
+            from video_creator.domain.local_bundle import (
+                CurrentProductionUpstreamResultV2,
+            )
             if type(result) is not CurrentProductionUpstreamResultV2:
                 raise EngineError('production_upstream_result_invalid', 'Local runner must return the sole versioned applicable-master result.', 422)
             checked = result
@@ -511,7 +549,9 @@ class RegisteredMediaRuntime(CurrentFinalEvidenceRuntime):
                 raise EngineError("production_upstream_result_invalid", "Current policy runner must return the sole typed Backend result", 422)
             checked = result
         else:
-            from video_creator.workflows.autonomous_production import AutonomousUpstreamResult
+            from video_creator.workflows.autonomous_production import (
+                AutonomousUpstreamResult,
+            )
 
             if type(result) is not AutonomousUpstreamResult or result.state not in {"masters_ready", "waiting_user", "needs_reconciliation"}:
                 raise EngineError("production_upstream_result_invalid", "Original human runner returned an unsupported result", 422)
@@ -632,7 +672,11 @@ class RegisteredMediaRuntime(CurrentFinalEvidenceRuntime):
 
     def park_current_upstream(self, ordinary_lease, result):
         from video_creator.application.current_production_blockers import (
-            PREFIX, bound_context, parse_journal, require_settled, require_wait,
+            PREFIX,
+            bound_context,
+            parse_journal,
+            require_settled,
+            require_wait,
         )
 
         lease = ordinary_lease
@@ -650,7 +694,9 @@ class RegisteredMediaRuntime(CurrentFinalEvidenceRuntime):
             self.engine._lease(connection, lease)
             require_settled(connection, lease.run_id)
             if type(self.config) is RegistrationConfigLocalV1:
-                from video_creator.domain.local_bundle import CurrentProductionBlockerJournalV2
+                from video_creator.domain.local_bundle import (
+                    CurrentProductionBlockerJournalV2,
+                )
                 journal = CurrentProductionBlockerJournalV2(binding=binding, result=result, blocked_at_us=self.engine.clock())
             else:
                 journal = CurrentProductionBlockerJournal(format="current-production-blocker-v1", binding=binding,
@@ -662,7 +708,10 @@ class RegisteredMediaRuntime(CurrentFinalEvidenceRuntime):
             self.engine._event(connection, self.engine._run(connection, lease.run_id), "production.capability_blocked", digest(body))
 
     def finish_current_upstream_denied(self, ordinary_lease, result):
-        from video_creator.application.current_production_blockers import bound_context, require_settled
+        from video_creator.application.current_production_blockers import (
+            bound_context,
+            require_settled,
+        )
 
         lease = ordinary_lease
         self._current_stop_result(lease, result, {"denied"})
@@ -699,8 +748,14 @@ class RegisteredMediaRuntime(CurrentFinalEvidenceRuntime):
         if type(self.config) is RegistrationConfigLocalV1:
             return self._preflight_local_resources(request)
         from video_creator.providers.production_resources import ProductionResources
-        from video_creator.providers.wan_video import SYNTHESIS_PATH, download_hosts, endpoint
-        from video_creator.workflows.production_drivers import create_registered_production_drivers
+        from video_creator.providers.wan_video import (
+            SYNTHESIS_PATH,
+            download_hosts,
+            endpoint,
+        )
+        from video_creator.workflows.production_drivers import (
+            create_registered_production_drivers,
+        )
 
         if self.production_manifest is None or _hash(self.path) != self.sha256:
             raise EngineError("production_configuration_changed", "Original installed v2 registration changed", 503)
@@ -754,7 +809,12 @@ class RegisteredMediaRuntime(CurrentFinalEvidenceRuntime):
             edit_route_id=registration.edit_route_id)
 
     def resume_current_blocker(self, run_id):
-        from video_creator.application.current_production_blockers import PREFIX, bound_context, parse_journal, require_wait
+        from video_creator.application.current_production_blockers import (
+            PREFIX,
+            bound_context,
+            parse_journal,
+            require_wait,
+        )
 
         c.SourceBinding(system=run_id, namespace="current-production-resume")
         if not isinstance(self.config, (RegistrationConfigV2, RegistrationConfigLocalV1)):
@@ -796,7 +856,13 @@ class RegisteredMediaRuntime(CurrentFinalEvidenceRuntime):
             return "still_blocked", "production_resource_missing"
 
     def _resume_current_writer(self, issuer, guard, run_id, raw):
-        from video_creator.application.current_production_blockers import PREFIX, bound_context, parse_journal, require_wait, unsettled
+        from video_creator.application.current_production_blockers import (
+            PREFIX,
+            bound_context,
+            parse_journal,
+            require_wait,
+            unsettled,
+        )
 
         with self.engine.db.transaction() as connection:
             current = connection.execute("SELECT value FROM metadata WHERE key=?", (PREFIX + run_id,)).fetchone()
@@ -852,9 +918,19 @@ def run_registered_worker(runtime: RegisteredMediaRuntime, *, control, on_ready:
                         reported_reconciliation.add(row[0])
                         sys_event("worker_reconciliation_pending", run_id=row[0], code="registered_provider_reconciliation_missing")
             if isinstance(runtime.config, (RegistrationConfigV2, RegistrationConfigLocalV1)) and not control.stop_requested and time.monotonic() - last_blocker_probe >= 5:
-                from video_creator.application.current_production_blockers import PREFIX, parse_journal
-                from video_creator.application.current_final_evidence_journal import PREFIX as FINAL_PREFIX, parse_journal as parse_final_journal
-                from video_creator.application.production_probe_presence import hold_probe_presence
+                from video_creator.application.current_final_evidence_journal import (
+                    PREFIX as FINAL_PREFIX,
+                )
+                from video_creator.application.current_final_evidence_journal import (
+                    parse_journal as parse_final_journal,
+                )
+                from video_creator.application.current_production_blockers import (
+                    PREFIX,
+                    parse_journal,
+                )
+                from video_creator.application.production_probe_presence import (
+                    hold_probe_presence,
+                )
                 from video_creator.workflows.attempt_control import attempt_control
 
                 with engine.db.connect_readonly() as connection:
@@ -871,7 +947,7 @@ def run_registered_worker(runtime: RegisteredMediaRuntime, *, control, on_ready:
                     if journal.binding.registration_sha256 == runtime.sha256:
                         try:
                             probe_deadline = time.monotonic() + max_seconds
-                            with hold_probe_presence(worker, worker_id, control, probe_deadline) as probe_cancelled:
+                            with hold_probe_presence(worker, worker_id, control, probe_deadline) as probe_cancelled:  # noqa: SIM117 -- retained original nesting
                                 with attempt_control(probe_cancelled, probe_deadline).activate():
                                     resumed, reason = (runtime.resume_current_final_evidence if final_probe else runtime.resume_current_blocker)(journal.binding.run_id)
                             if reason:
@@ -967,7 +1043,11 @@ def run_registered_worker(runtime: RegisteredMediaRuntime, *, control, on_ready:
                         # dispatch or silently turn a known failure into retries.
                         raise
                 elif isinstance(runtime.config, (RegistrationConfigV2, RegistrationConfigLocalV1)):
-                    from video_creator.application.production_reauthorization import AUTHORIZATION_WAIT_CODES, WAIT_PREFIX, AuthorizationWait
+                    from video_creator.application.production_reauthorization import (
+                        AUTHORIZATION_WAIT_CODES,
+                        WAIT_PREFIX,
+                        AuthorizationWait,
+                    )
 
                     if (current["status"] == "waiting_user" and current["worker_id"] is None
                             and current["lease_until_us"] == 0):

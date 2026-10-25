@@ -34,12 +34,20 @@ from video_creator.application.development_installation import (
     indexed_resource_facts,
     launch_context,
 )
+from video_creator.application.development_owner_initialization import (
+    DEVELOPMENT_AUTHENTICATION_SOURCE,
+    assert_development_owner_audit,
+    create_development_production_control,
+    development_owner_initialization_source,
+)
 from video_creator.domain.errors import EngineError
 
 PROFILE = 'registered-media-config-local-v1'
 SHA256 = re.compile('[0-9a-f]{64}')
 _EPOCH = datetime(1970, 1, 1, tzinfo=UTC)
 _MAX_IDENTITY_LIFETIME_US = 7 * 86400_000_000
+_DEVELOPMENT_ARGUMENTS = ('--development-registration', '--development-registration-sha256',
+                          '--development-expires-at')
 
 
 @dataclass(frozen=True)
@@ -49,6 +57,8 @@ class DevelopmentStart:
     registration_sha256: str
     expires_at_us: int
     data_dir: Path
+    auto_owner_init: bool = False
+    raw_arguments: tuple[tuple[str, str], ...] = ()
     ffmpeg: Path | None = None
     ffprobe: Path | None = None
 
@@ -63,6 +73,8 @@ def parser() -> argparse.ArgumentParser:
                        help='Pinned SHA256 of that exact registration file')
     serve.add_argument('--development-expires-at', required=True,
                        help='Timezone-aware ISO8601 end of this development identity')
+    serve.add_argument('--development-auto-owner-init', action='store_true',
+                       help='Initialize the first Owner binding automatically; development only')
     serve.add_argument('--data-dir', required=True, type=Path)
     serve.add_argument('--host', default='127.0.0.1')
     serve.add_argument('--port', default=0, type=int)
@@ -76,6 +88,8 @@ def parser() -> argparse.ArgumentParser:
     worker.add_argument('--development-registration', required=True, type=Path)
     worker.add_argument('--development-registration-sha256', required=True)
     worker.add_argument('--development-expires-at', required=True)
+    worker.add_argument('--development-auto-owner-init', action='store_true',
+                        help='Initialize the first Owner binding automatically; development only')
     worker.add_argument('--data-dir', required=True, type=Path)
     worker.add_argument('--max-seconds', default=300, type=int)
     worker.add_argument('--once', action='store_true')
@@ -100,7 +114,35 @@ def _expiry_microseconds(text: str) -> int:
     return microseconds
 
 
-def _start(args) -> DevelopmentStart:
+def _raw_development_arguments(argv) -> tuple[tuple[str, str], ...]:
+    """The three development arguments exactly as written before the argv rewrite.
+
+    `DevelopmentStart` keeps their original text so the Owner factory can prove
+    it was enabled by this exact command line; `--flag value` and `--flag=value`
+    are both preserved verbatim.
+    """
+    values = {}
+    index = 0
+    while index < len(argv):
+        item = argv[index]
+        for name in _DEVELOPMENT_ARGUMENTS:
+            if item == name:
+                if index + 1 < len(argv):
+                    values[name] = argv[index + 1]
+                index += 2
+                break
+            if item.startswith(name + '='):
+                values[name] = item[len(name) + 1:]
+                index += 1
+                break
+        else:
+            index += 1
+    if not all(name in values for name in _DEVELOPMENT_ARGUMENTS):
+        return ()
+    return tuple((name, values[name]) for name in _DEVELOPMENT_ARGUMENTS)
+
+
+def _start(args, raw_arguments) -> DevelopmentStart:
     sha256 = args.development_registration_sha256
     if type(sha256) is not str or not SHA256.fullmatch(sha256):
         raise EngineError('development_registration_invalid',
@@ -108,6 +150,8 @@ def _start(args) -> DevelopmentStart:
     return DevelopmentStart(registration=args.development_registration, registration_sha256=sha256,
                             expires_at_us=_expiry_microseconds(args.development_expires_at),
                             data_dir=args.data_dir,
+                            auto_owner_init=bool(getattr(args, 'development_auto_owner_init', False)),
+                            raw_arguments=raw_arguments,
                             ffmpeg=getattr(args, 'ffmpeg', None), ffprobe=getattr(args, 'ffprobe', None))
 
 
@@ -307,14 +351,49 @@ def _assert_media_tools(start: DevelopmentStart, config, root: Path) -> None:
                           'serve-dev media tools must be the exact resources this registration names', 403)
 
 
-def _active_owner(engine):
-    """Owner binding is read once per process; revocation needs a restart."""
+def _assert_owner_audit(engine, record) -> None:
+    """ADR0079 section 5.3: a development-initialized binding always keeps its audit."""
+    principal = record.principal
+    if principal.authentication_source != DEVELOPMENT_AUTHENTICATION_SOURCE:
+        return
+    assert_development_owner_audit(
+        engine, action_id=record.action_id, authentication_source=principal.authentication_source,
+        instance_id=principal.instance_id, owner_subject=principal.owner_subject,
+        project_ids=tuple(principal.project_ids), expires_at_us=principal.expires_at_us)
+
+
+def _owner_binding(start: DevelopmentStart, *, engine, authority, config, bundle, role,
+                   registration_path, registration_sha256):
+    """Owner gate: an active binding is read once; only a true first start initializes.
+
+    Any Owner state other than `owner_restore_refresh_required` (no `Control/`
+    directory) propagates unchanged. A development-initialized binding is
+    re-checked against its retained audit before it authorizes this process.
+    """
     from video_creator.application.owner_bootstrap import OwnerBootstrapStore
 
     store = OwnerBootstrapStore(engine)
+    try:
+        with store.current(allow_inactive=False) as record:
+            _assert_owner_audit(engine, record)
+            principal = record.principal
+            return (principal.owner_subject, tuple(principal.project_ids), principal.expires_at_us,
+                    principal.authentication_source)
+    except EngineError as error:
+        if not start.auto_owner_init or error.code != 'owner_restore_refresh_required':
+            raise
+    source = development_owner_initialization_source(
+        engine=engine, registration_path=registration_path, registration_sha256=registration_sha256,
+        expires_at_us=start.expires_at_us, data_dir=start.data_dir, role=role, bundle=bundle,
+        authority=authority, config=config, raw_arguments=start.raw_arguments)
+    store.change(action='initialize', action_key=source.action_key,
+                 owner_subject=source.owner_subject, project_ids=source.project_ids,
+                 expires_at_us=source.expires_at_us, confirmation_source=source)
     with store.current(allow_inactive=False) as record:
+        _assert_owner_audit(engine, record)
         principal = record.principal
-        return principal.owner_subject, tuple(principal.project_ids), principal.expires_at_us
+        return (principal.owner_subject, tuple(principal.project_ids), principal.expires_at_us,
+                principal.authentication_source)
 
 
 def _expiry(start: DevelopmentStart, engine, owner_expires_at_us: int) -> int:
@@ -368,7 +447,9 @@ def _factory(start: DevelopmentStart):
             authority = DevelopmentInstallationAuthority(
                 engine, config, registration_path=registration_path,
                 registration_sha256=registration_sha256, root=root, connection=connection)
-            owner, project_ids, owner_expires_at_us = _active_owner(engine)
+            owner, project_ids, owner_expires_at_us, owner_authentication_source = _owner_binding(
+                start, engine=engine, authority=authority, config=config, bundle=bundle, role=role,
+                registration_path=registration_path, registration_sha256=registration_sha256)
             if owner != bundle.principals.owner_subject:
                 raise EngineError('development_installation_denied',
                                   'The active Owner binding differs from the registered Bundle Owner', 403)
@@ -380,6 +461,16 @@ def _factory(start: DevelopmentStart):
                 'allowed_source_namespaces': (),
                 'expires_at_us': _expiry(start, engine, owner_expires_at_us),
             }
+            if (start.auto_owner_init
+                    and owner_authentication_source == DEVELOPMENT_AUTHENTICATION_SOURCE):
+                # Development bootstrap gap: production installs the retained
+                # production authorization floor inside an authenticated
+                # management/execution-registration action, which a development
+                # instance never runs. The dev host creates only the empty first
+                # floor, only for a development-initialized binding, only with
+                # the explicit development flag and only while the four
+                # authorization tables are provably empty.
+                create_development_production_control(engine)
             services = assemble_owner_services(
                 engine, owner, bundle=bundle, for_management=False,
                 installation_authority=authority, installation_session_guard=authority,
@@ -411,8 +502,9 @@ def main(argv: list[str] | None = None) -> int:
         if getattr(sys, 'frozen', False):
             raise EngineError('development_installation_unavailable',
                               'A frozen artifact cannot host a development installation', 503)
-        args = parser().parse_args(sys.argv[1:] if argv is None else argv)
-        start = _start(args)
+        raw_argv = list(sys.argv[1:] if argv is None else argv)
+        args = parser().parse_args(raw_argv)
+        start = _start(args, _raw_development_arguments(raw_argv))
         if args.command == 'worker-dev':
             # ADR0077 section 2 keeps the environment condition before the
             # registration file and before any Engine/assembly. The existing

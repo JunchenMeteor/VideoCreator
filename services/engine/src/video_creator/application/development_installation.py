@@ -23,6 +23,7 @@ from video_creator.application.media_registration import (
 from video_creator.application.production_admissions import InstalledProductionEvidence
 from video_creator.domain.errors import EngineError
 from video_creator.domain.local_material_production import (
+    RegistrationConfigLocalV1,
     parse_local_material_resources,
 )
 from video_creator.infrastructure.held_authority import (
@@ -197,6 +198,13 @@ class DevelopmentInstallationAuthority:
         self._originals = {}
         self._retired = False
         self._closed = False
+        if type(config) is RegistrationConfigLocalV1:
+            # ADR0077 section 8.5: the API role deliberately owns no second
+            # `RegisteredMediaRuntime`, so it has no `_local_material_plan_source`.
+            # This parsed, real local-v1 registration is the equivalent in-process
+            # signal that the instance is configured for local production. Only
+            # this development authority sets it; production never constructs it.
+            engine._development_local_registration = config
 
     @property
     def connection(self) -> DevelopmentLaunchConnection:

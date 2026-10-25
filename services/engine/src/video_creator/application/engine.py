@@ -39,6 +39,13 @@ from video_creator.domain.contracts import (
 from video_creator.domain.errors import EngineError
 from video_creator.infrastructure.database import Database
 
+# The complete declared output role set, and the subset that needs real speech
+# evidence (transcript/alignment/subtitles). Both are contract constants, never
+# request-controlled.
+_OUTPUT_ROLES = frozenset({"video", "narration_audio", "mixed_audio", "approved_script",
+                           "actual_transcript", "subtitles", "semantic_manifest", "rag_chunks"})
+_SPEECH_OUTPUT_ROLES = frozenset({"narration_audio", "mixed_audio", "actual_transcript", "subtitles"})
+
 
 def identity(prefix: str) -> str:
     return f"{prefix}-{uuid.uuid4().hex}"
@@ -235,7 +242,9 @@ class EngineService:
         return self._create_project(subject, project, idempotency_key)
 
     def _create_project_for_setup(self, subject, project, idempotency_key, *, initialization_source):
-        from video_creator.infrastructure.native_instance_source import _NativeInstanceSource
+        from video_creator.infrastructure.native_instance_source import (
+            _NativeInstanceSource,
+        )
 
         if type(initialization_source) is not _NativeInstanceSource:
             raise EngineError('owner_instance_source_denied', 'Original concrete setup source is required', 403)
@@ -244,7 +253,9 @@ class EngineService:
 
     def _create_project(self, subject, project, idempotency_key, *, initialization_source=None):
         if initialization_source is not None:
-            from video_creator.infrastructure.native_instance_source import _NativeInstanceSource
+            from video_creator.infrastructure.native_instance_source import (
+                _NativeInstanceSource,
+            )
 
             if type(initialization_source) is not _NativeInstanceSource:
                 raise EngineError('owner_instance_source_denied', 'Original concrete setup source is required', 403)
@@ -398,12 +409,17 @@ class EngineService:
             return repeated
         blocker_code = None
         if isinstance(request, ProductionRequestV03):
-            try:
-                request = self._resolve_v03_request(connection, subject, request)
-            except EngineError as error:
-                if error.code not in {"alignment_required", "evidence_authority_unconfigured", "evidence_admission_inactive", "evidence_restore_refresh_required"}:
-                    raise
-                blocker_code = "alignment_required"
+            if self._local_skips_evidence_policy(request) and request.delivery_requirements is None:
+                # A local instance with no speech output has nothing to align;
+                # the local producer still validates real applicable facts.
+                pass
+            else:
+                try:
+                    request = self._resolve_v03_request(connection, subject, request)
+                except EngineError as error:
+                    if error.code not in {"alignment_required", "evidence_authority_unconfigured", "evidence_admission_inactive", "evidence_restore_refresh_required"}:
+                        raise
+                    blocker_code = "alignment_required"
         else:
             request = self._resolve_request(request)
         body, request_hash = canonical(request), digest(canonical(request))
@@ -471,9 +487,32 @@ class EngineService:
         return request.model_copy(update={"request_format_version": SCHEMA_VERSION,
                                           "delivery_requirements": request.delivery_requirements or DeliveryRequirements()})
 
-    @staticmethod
-    def _full_output_profile(request: ProductionRequest) -> bool:
-        return set(request.outputs) == {"video", "narration_audio", "mixed_audio", "approved_script", "actual_transcript", "subtitles", "semantic_manifest", "rag_chunks"}
+    def _local_material_profile(self) -> bool:
+        """Whether this instance is configured for local material production.
+
+        The worker side is marked by the real installed local source service.
+        The development API role deliberately never builds a second
+        `RegisteredMediaRuntime` (ADR0077 section 8.5), so its development
+        authority records the parsed real local-v1 registration instead.
+        Production never sets either signal.
+        """
+        return (getattr(self, "_local_material_plan_source", None) is not None
+                or getattr(self, "_development_local_registration", None) is not None)
+
+    def _local_skips_evidence_policy(self, request: ProductionRequest) -> bool:
+        """Local requests without any speech output have no evidence to resolve."""
+        return (self._local_material_profile()
+                and not (set(request.outputs) & _SPEECH_OUTPUT_ROLES))
+
+    def _full_output_profile(self, request: ProductionRequest) -> bool:
+        if self._local_material_profile():
+            # Local production consumes the actually applicable subset; empty,
+            # duplicate or undeclared roles remain structurally impossible and
+            # the local producer still refuses inapplicable outputs by name.
+            outputs = tuple(request.outputs)
+            return (bool(outputs) and len(set(outputs)) == len(outputs)
+                    and set(outputs) <= _OUTPUT_ROLES)
+        return set(request.outputs) == _OUTPUT_ROLES
 
     def _resolve_v03_request(self, connection, subject, request):
         ref = request.delivery_requirements.evidence_policy_revision_ref if request.delivery_requirements else None
@@ -486,6 +525,8 @@ class EngineService:
 
     def _evidence_execution_guard(self, connection, production, request):
         if isinstance(request, ProductionRequestV03):
+            if self._local_skips_evidence_policy(request) and request.delivery_requirements is None:
+                return
             if not request.delivery_requirements:
                 raise EngineError("alignment_required", "Request has no resolved trusted evidence policy", 409)
             self.evidence_registry.resolve(production["owner"], production["project_id"], request.delivery_requirements.evidence_policy_revision_ref, connection=connection)
@@ -561,7 +602,10 @@ class EngineService:
                 checkpoint = connection.execute('SELECT value FROM metadata WHERE key=?',
                     ('current_production_final_evidence:' + run['id'],)).fetchone()
                 if checkpoint is not None:
-                    from video_creator.application.current_final_evidence_journal import parse_journal, prepared_current
+                    from video_creator.application.current_final_evidence_journal import (
+                        parse_journal,
+                        prepared_current,
+                    )
                     final = parse_journal(checkpoint[0], now=self.clock())
                     prepared_current(self, connection, final)
                     if final.control.phase == 'waiting':
@@ -590,7 +634,9 @@ class EngineService:
     def begin_step(self, lease: LeaseGrant, step_key: str, input_sha256: str) -> dict:
         with self._initial_alignment_step_context(lease, step_key) as alignment_guard, self.db.transaction() as connection:
             run = self._lease(connection, lease)
-            from video_creator.application.affected_step_guard import assert_affected_step
+            from video_creator.application.affected_step_guard import (
+                assert_affected_step,
+            )
             assert_affected_step(connection, self, lease, step_key, input_sha256, authorization_guard=alignment_guard)
             production = self._production(connection, run["production_id"])
             request = parse_production_request(production["request_json"])
@@ -663,7 +709,9 @@ class EngineService:
                 return dict(existing)
             if run["paused"]:
                 raise EngineError("run_paused", "New operations are paused")
-            from video_creator.application.affected_step_guard import assert_affected_step
+            from video_creator.application.affected_step_guard import (
+                assert_affected_step,
+            )
             assert_affected_step(connection, self, lease, intent.step_key, intent.input_sha256, intent=intent, authorization_guard=authorization_guard)
             step = connection.execute("SELECT status FROM steps WHERE run_id=? AND step_key=?", (lease.run_id, intent.step_key)).fetchone()
             if not step or step["status"] != "running":
@@ -719,7 +767,9 @@ class EngineService:
                 self.production_admissions.require_operation_current(connection, authorization_guard, lease)
             # Revalidate current allowed configuration before the irreversible boundary.
             intent = OperationIntent(step_key=operation["step_key"], dedupe_key=operation["dedupe_key"], input_sha256=operation["input_sha256"], route_id=CapabilityRoute.model_validate_json(operation["route_json"]).route_id, reserved_cost=Money.from_units(operation["reserved_units"]))
-            from video_creator.application.affected_step_guard import assert_affected_step
+            from video_creator.application.affected_step_guard import (
+                assert_affected_step,
+            )
             assert_affected_step(connection, self, lease, intent.step_key, intent.input_sha256, intent=intent, authorization_guard=authorization_guard)
             current_route = self._route_guard(connection, production, intent)
             if canonical(current_route) != operation["route_json"]:

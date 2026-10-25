@@ -165,9 +165,21 @@ class OwnerBootstrapStore:
             'directory_device': self.os_identity.directory_device, 'directory_inode': self.os_identity.directory_inode}
         body = json.dumps(proposal, ensure_ascii=False, sort_keys=True, separators=(',', ':'), allow_nan=False)
         request_sha = digest(body)
+        development = None
+        if confirmation_source is not None:
+            from video_creator.application import (
+                development_owner_initialization as development,
+            )
         if confirmation_source is None:
             confirm_local_action(self.engine.instance_id, action, proposal)
             authentication_source = 'headless_administrator'
+        elif type(confirmation_source) is development.DevelopmentOwnerInitializationSource:
+            # ADR0079: the only automatic Owner write; the exact retained
+            # development source is re-bound to this Engine, proposal and OS
+            # directory before the Control lock is taken.
+            development.assert_development_owner_source(confirmation_source, engine=self.engine,
+                                                        proposal=proposal, os_identity=self.os_identity)
+            authentication_source = development.DEVELOPMENT_AUTHENTICATION_SOURCE
         else:
             from video_creator.application.owner_setup_service import OwnerSetupService
             from video_creator.application.owner_setup_sources import (
@@ -183,12 +195,27 @@ class OwnerBootstrapStore:
         self.assert_current_directory(require_control=self._control_identity is not None)
         if self._control_identity is None and action != 'initialize':
             raise EngineError('owner_restore_refresh_required', 'An existing Owner action requires its original Control directory', 503)
+        if (development is not None and authentication_source == development.DEVELOPMENT_AUTHENTICATION_SOURCE
+                and (self._control_identity is not None or self.control.path.parent.exists())):
+            raise EngineError('development_owner_state_denied',
+                              'Development Owner initialization requires an instance with no Control state', 503)
         folder = self.control.path.parent
         folder.mkdir(mode=0o700, exist_ok=True)
         inspect_owner_directory(folder)
         pending_path = folder / 'OwnerManagementPending.json'
         scope = 'owner.bootstrap.' + action
+        audit_sha256 = None
         with self.control.locked():
+            if development is not None and authentication_source == development.DEVELOPMENT_AUTHENTICATION_SOURCE:
+                with self.engine.db.connect() as connection:
+                    binding_row = connection.execute('SELECT 1 FROM metadata WHERE key=?', (KEY,)).fetchone()
+                    if binding_row is not None:
+                        replay = connection.execute(
+                            'SELECT request_sha256 FROM commands WHERE owner=? AND scope=? AND idempotency_key=?',
+                            (owner_subject, scope, action_key)).fetchone()
+                        if replay is None or replay['request_sha256'] != request_sha:
+                            raise EngineError('development_owner_existing_denied',
+                                              'A development Owner initialization never replaces an existing binding', 409)
             if self._control_identity is None:
                 # Only explicit first initialization may establish the first
                 # Control identity; never refresh a replaced existing baseline.
@@ -214,6 +241,14 @@ class OwnerBootstrapStore:
                         pending = self._pending(pending_path)
                         if pending == {'request_sha256': request_sha, 'record': canonical(original)}:
                             pending_path.unlink()
+                    if development is not None and authentication_source == development.DEVELOPMENT_AUTHENTICATION_SOURCE:
+                        development.assert_development_owner_audit(
+                            self.engine, action_id=original.action_id,
+                            authentication_source=authentication_source,
+                            instance_id=original.principal.instance_id,
+                            owner_subject=original.principal.owner_subject,
+                            project_ids=tuple(original.principal.project_ids),
+                            expires_at_us=original.principal.expires_at_us)
                     return original
                 if old and old.principal.owner_subject != owner_subject:
                     raise EngineError('owner_binding_denied', 'This installation already belongs to a different domain Owner', 403)
@@ -239,6 +274,10 @@ class OwnerBootstrapStore:
                         raise EngineError('owner_pending_invalid', 'Pending binding differs from the complete confirmed Owner scope', 422)
                     if not record.revoked:
                         self.secrets.resolve(record.principal.authentication_binding_id)
+                    if development is not None and authentication_source == development.DEVELOPMENT_AUTHENTICATION_SOURCE:
+                        audit_sha256 = development.write_development_owner_audit(
+                            confirmation_source, action_id=record.action_id, generation=record.generation,
+                            authorized_at_us=record.authorized_at_us, request_sha256=request_sha, engine=self.engine)
                 else:
                     if action != 'revoke' and expires_at_us <= self.engine.clock():
                         raise EngineError('production_management_denied', 'New management scope requires an explicit future expiry', 403)
@@ -255,6 +294,10 @@ class OwnerBootstrapStore:
                         directory_device=self.os_identity.directory_device, directory_inode=self.os_identity.directory_inode,
                         generation=revision + 1, action_id=identity('owner-action'), authorized_at_us=self.engine.clock(),
                         revoked=action == 'revoke')
+                    if development is not None and authentication_source == development.DEVELOPMENT_AUTHENTICATION_SOURCE:
+                        audit_sha256 = development.write_development_owner_audit(
+                            confirmation_source, action_id=record.action_id, generation=record.generation,
+                            authorized_at_us=record.authorized_at_us, request_sha256=request_sha, engine=self.engine)
                     data = json.dumps({'request_sha256': request_sha, 'record': canonical(record)},
                         ensure_ascii=False, sort_keys=True, separators=(',', ':')).encode('utf-8') + b'\n'
                     with pending_path.open('xb') as stream:
@@ -265,7 +308,8 @@ class OwnerBootstrapStore:
             if generation != record.generation:
                 raise EngineError('owner_binding_conflict', 'Owner floor and confirmed generation disagree', 409)
             with self.engine.db.transaction() as connection:
-                if confirmation_source is not None:
+                if (confirmation_source is not None
+                        and type(confirmation_source) is not development.DevelopmentOwnerInitializationSource):
                     confirmation_source._service.assert_bootstrap_action_local(confirmation_source, self, proposal, connection)
                 self.assert_current_directory()
                 current = self._read(connection)
@@ -276,10 +320,14 @@ class OwnerBootstrapStore:
                 for project in projects:
                     if not connection.execute('SELECT id FROM projects WHERE id=? AND owner=?', (project, owner_subject)).fetchone():
                         raise EngineError('production_management_project_denied', 'Confirmed project ownership changed', 403)
+                if audit_sha256 is not None:
+                    connection.execute('INSERT INTO metadata VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value',
+                                       (development.AUDIT_METADATA_KEY, audit_sha256))
                 connection.execute('INSERT INTO metadata VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value', (KEY, canonical(record)))
                 connection.execute('INSERT INTO commands VALUES(?,?,?,?,?)', (owner_subject, scope, action_key, request_sha, canonical(record)))
                 self.assert_current_directory()
-                if confirmation_source is not None:
+                if (confirmation_source is not None
+                        and type(confirmation_source) is not development.DevelopmentOwnerInitializationSource):
                     confirmation_source._service.assert_bootstrap_action_local(confirmation_source, self, proposal, connection)
             self.control.complete(generation, request_sha)
             pending_path.unlink()

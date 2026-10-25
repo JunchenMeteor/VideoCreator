@@ -1,7 +1,7 @@
 """Candidate Gate0 contracts; generated clients must consume these definitions."""
 
 import re
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from enum import StrEnum
 from math import gcd
 from typing import Annotated, Literal
@@ -49,6 +49,14 @@ class Money(Contract):
         if isinstance(value, (float, bool)):
             # Pydantic converts ValueError into a safe validation failure; TypeError would escape.
             raise ValueError("money requires a decimal string, Decimal, or integer")  # noqa: TRY004
+        if isinstance(value, str):
+            try:
+                parsed = Decimal(value)
+            except InvalidOperation:
+                raise ValueError("money requires an exact decimal string") from None
+            if not parsed.is_finite():
+                raise ValueError("money must be a finite decimal")
+            return parsed
         return value
 
     def units(self) -> int:

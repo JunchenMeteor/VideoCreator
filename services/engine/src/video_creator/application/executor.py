@@ -51,7 +51,14 @@ class OperationExecutor:
             observation = driver(permit, secret)
             if not isinstance(observation, OperationObservation):
                 raise TypeError("Driver must return OperationObservation")
-        except Exception:  # noqa: BLE001 - any driver failure after dispatch may represent an accepted charge.
+        except Exception:  # any driver failure after dispatch may represent an accepted charge.
+            if permit.route.max_operation_cost.units() == 0:
+                # An owned-local zero-cost route cannot have an accepted charge;
+                # a swallowed failure would turn the real error into `unknown`
+                # and manufacture a reconciliation. Re-raise the original error
+                # (same code and stack) instead. Non-zero-cost routes keep the
+                # unknown observation below.
+                raise
             # A callback may have transmitted the request. No retry and no raw exception body.
             observation = OperationObservation(status="unknown")
         try:

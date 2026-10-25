@@ -76,7 +76,14 @@ def _windows_owner(path):
         size = AclSize()
         if not advapi.GetAclInformation(dacl, ctypes.byref(size), ctypes.sizeof(size), 2):
             raise EngineError('owner_directory_identity_unavailable', 'Directory access control is unavailable', 503)
-        trusted = {current_sid, 'S-1-5-18', 'S-1-5-32-544'}
+        # OWNER RIGHTS (S-1-3-4) is not another principal: an ACE carrying it
+        # applies only to the object's owner, and this function has already
+        # proven the object owner is exactly the current SID above. It grants
+        # nothing to a third party, so refusing it would reject the owner-only
+        # DACL Windows itself writes for a private directory (for example the
+        # explicit DACL produced by os.mkdir(mode=0o700) on this interpreter).
+        # Every other non-trusted SID is still refused below.
+        trusted = {current_sid, 'S-1-5-18', 'S-1-5-32-544', 'S-1-3-4'}
         unsafe = 0x10000000 | 0x40000000 | 0x00080000 | 0x00040000 | 0x00010000 | 0x100 | 0x40 | 0x10 | 0x4 | 0x2
         for index in range(size.count):
             ace = pointer()
