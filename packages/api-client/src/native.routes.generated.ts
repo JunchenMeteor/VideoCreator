@@ -1,5 +1,5 @@
 /* Generated only from the unique OpenAPI transport declaration. Do not edit. */
-export const NATIVE_ROUTE_MANIFEST_SHA256 = "dda0e91565aecbbbbc9f278b7a8549d66479d57176375435385e1c5b5c3e7f3c" as const;
+export const NATIVE_ROUTE_MANIFEST_SHA256 = "d36b2774117876f51b469730c495dd835de0342e7778b6c92ba70bfc255363fc" as const;
 export const NATIVE_CONTRACT_VERSION = "0.3.0-candidate" as const;
 export const NATIVE_TRANSPORT_FORMAT = "native-ipc-v1-candidate" as const;
 export const NATIVE_CONSTRAINTS = {
@@ -1698,7 +1698,8 @@ export const NATIVE_COMPONENTS = {
         "type": "string",
         "enum": [
           "embedded_full_report",
-          "provenance_reference"
+          "provenance_reference",
+          "embedded_self_issued"
         ],
         "title": "Benchmark Binding"
       },
@@ -2616,7 +2617,8 @@ export const NATIVE_COMPONENTS = {
         "enum": [
           "capability_benchmark",
           "work_runtime_validation",
-          "per_work_reference_measurement"
+          "per_work_reference_measurement",
+          "capability_benchmark_not_performed"
         ],
         "title": "Evaluation Scope"
       },

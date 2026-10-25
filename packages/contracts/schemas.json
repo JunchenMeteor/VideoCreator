@@ -1314,7 +1314,8 @@
               "enum": [
                 "capability_benchmark",
                 "work_runtime_validation",
-                "per_work_reference_measurement"
+                "per_work_reference_measurement",
+                "capability_benchmark_not_performed"
               ],
               "title": "Evaluation Scope",
               "type": "string"
@@ -2781,7 +2782,8 @@
               "enum": [
                 "capability_benchmark",
                 "work_runtime_validation",
-                "per_work_reference_measurement"
+                "per_work_reference_measurement",
+                "capability_benchmark_not_performed"
               ],
               "title": "Evaluation Scope",
               "type": "string"
@@ -8033,7 +8035,8 @@
               "enum": [
                 "capability_benchmark",
                 "work_runtime_validation",
-                "per_work_reference_measurement"
+                "per_work_reference_measurement",
+                "capability_benchmark_not_performed"
               ],
               "title": "Evaluation Scope",
               "type": "string"
@@ -8766,7 +8769,8 @@
         "benchmark_binding": {
           "enum": [
             "embedded_full_report",
-            "provenance_reference"
+            "provenance_reference",
+            "embedded_self_issued"
           ],
           "title": "Benchmark Binding",
           "type": "string"
@@ -9344,7 +9348,8 @@
               "enum": [
                 "capability_benchmark",
                 "work_runtime_validation",
-                "per_work_reference_measurement"
+                "per_work_reference_measurement",
+                "capability_benchmark_not_performed"
               ],
               "title": "Evaluation Scope",
               "type": "string"
@@ -12426,7 +12431,8 @@
               "enum": [
                 "capability_benchmark",
                 "work_runtime_validation",
-                "per_work_reference_measurement"
+                "per_work_reference_measurement",
+                "capability_benchmark_not_performed"
               ],
               "title": "Evaluation Scope",
               "type": "string"
@@ -12721,7 +12727,8 @@
           "enum": [
             "capability_benchmark",
             "work_runtime_validation",
-            "per_work_reference_measurement"
+            "per_work_reference_measurement",
+            "capability_benchmark_not_performed"
           ],
           "title": "Evaluation Scope",
           "type": "string"
@@ -13852,6 +13859,235 @@
       "title": "LocalImportExportSource",
       "type": "object"
     },
+    "LocalSelfIssuedBenchmarkV1": {
+      "$defs": {
+        "AlignmentApplicability": {
+          "additionalProperties": false,
+          "properties": {
+            "languages": {
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "title": "Languages",
+              "type": "array"
+            },
+            "input_media_types": {
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "title": "Input Media Types",
+              "type": "array"
+            },
+            "transformations": {
+              "items": {
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9_.:-]+$",
+                "type": "string"
+              },
+              "minItems": 1,
+              "title": "Transformations",
+              "type": "array"
+            },
+            "maximum_duration_us": {
+              "exclusiveMinimum": 0,
+              "title": "Maximum Duration Us",
+              "type": "integer"
+            },
+            "units": {
+              "enum": [
+                "utterance",
+                "word"
+              ],
+              "title": "Units",
+              "type": "string"
+            }
+          },
+          "required": [
+            "languages",
+            "input_media_types",
+            "transformations",
+            "maximum_duration_us",
+            "units"
+          ],
+          "title": "AlignmentApplicability",
+          "type": "object"
+        },
+        "AlignmentExecutionIdentity": {
+          "additionalProperties": false,
+          "properties": {
+            "method_id": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "title": "Method Id",
+              "type": "string"
+            },
+            "tool": {
+              "maxLength": 200,
+              "minLength": 1,
+              "title": "Tool",
+              "type": "string"
+            },
+            "tool_version": {
+              "maxLength": 200,
+              "minLength": 1,
+              "title": "Tool Version",
+              "type": "string"
+            },
+            "model_id": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "title": "Model Id",
+              "type": "string"
+            },
+            "model_file_sha256": {
+              "patternProperties": {
+                "^[A-Za-z0-9_.:-]+$": {
+                  "pattern": "^[a-f0-9]{64}$",
+                  "type": "string"
+                }
+              },
+              "propertyNames": {
+                "maxLength": 128,
+                "minLength": 1
+              },
+              "title": "Model File Sha256",
+              "type": "object"
+            },
+            "resource_manifest_sha256": {
+              "pattern": "^[a-f0-9]{64}$",
+              "title": "Resource Manifest Sha256",
+              "type": "string"
+            },
+            "configuration_sha256": {
+              "pattern": "^[a-f0-9]{64}$",
+              "title": "Configuration Sha256",
+              "type": "string"
+            },
+            "compute_type": {
+              "maxLength": 100,
+              "minLength": 1,
+              "title": "Compute Type",
+              "type": "string"
+            },
+            "device": {
+              "maxLength": 100,
+              "minLength": 1,
+              "title": "Device",
+              "type": "string"
+            },
+            "operating_system": {
+              "maxLength": 100,
+              "minLength": 1,
+              "title": "Operating System",
+              "type": "string"
+            },
+            "architecture": {
+              "maxLength": 100,
+              "minLength": 1,
+              "title": "Architecture",
+              "type": "string"
+            }
+          },
+          "required": [
+            "method_id",
+            "tool",
+            "tool_version",
+            "model_id",
+            "model_file_sha256",
+            "resource_manifest_sha256",
+            "configuration_sha256",
+            "compute_type",
+            "device",
+            "operating_system",
+            "architecture"
+          ],
+          "title": "AlignmentExecutionIdentity",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "ADR0082 section 3.4: a declaration that no benchmark was performed.\n\nIt has no corpus, sample count, P95, listener or arbitration field at all, so\nit cannot be rendered as a measurement. It is admitted only for a local\nself-issued authority and always carries the fixed limitations.",
+      "properties": {
+        "schema_version": {
+          "const": "0.3.0-candidate",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "evaluation_scope": {
+          "const": "capability_benchmark_not_performed",
+          "title": "Evaluation Scope",
+          "type": "string"
+        },
+        "report_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Report Id",
+          "type": "string"
+        },
+        "execution_identity": {
+          "$ref": "#/$defs/AlignmentExecutionIdentity"
+        },
+        "applicability": {
+          "$ref": "#/$defs/AlignmentApplicability"
+        },
+        "authority_ref": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Authority Ref",
+          "type": "string"
+        },
+        "precision_claim": {
+          "const": "not_measured",
+          "title": "Precision Claim",
+          "type": "string"
+        },
+        "independent_reference": {
+          "const": "none",
+          "title": "Independent Reference",
+          "type": "string"
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 4,
+          "title": "Limitations",
+          "type": "array"
+        },
+        "disclosure_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Disclosure Sha256",
+          "type": "string"
+        },
+        "content_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Content Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "evaluation_scope",
+        "report_id",
+        "execution_identity",
+        "applicability",
+        "authority_ref",
+        "precision_claim",
+        "independent_reference",
+        "limitations",
+        "disclosure_sha256",
+        "content_sha256"
+      ],
+      "title": "LocalSelfIssuedBenchmarkV1",
+      "type": "object"
+    },
     "MediaProbe": {
       "additionalProperties": false,
       "properties": {
@@ -14115,7 +14351,8 @@
               "enum": [
                 "capability_benchmark",
                 "work_runtime_validation",
-                "per_work_reference_measurement"
+                "per_work_reference_measurement",
+                "capability_benchmark_not_performed"
               ],
               "title": "Evaluation Scope",
               "type": "string"
@@ -15016,7 +15253,8 @@
               "enum": [
                 "capability_benchmark",
                 "work_runtime_validation",
-                "per_work_reference_measurement"
+                "per_work_reference_measurement",
+                "capability_benchmark_not_performed"
               ],
               "title": "Evaluation Scope",
               "type": "string"
@@ -15840,7 +16078,8 @@
               "enum": [
                 "capability_benchmark",
                 "work_runtime_validation",
-                "per_work_reference_measurement"
+                "per_work_reference_measurement",
+                "capability_benchmark_not_performed"
               ],
               "title": "Evaluation Scope",
               "type": "string"
@@ -16285,7 +16524,8 @@
               "enum": [
                 "capability_benchmark",
                 "work_runtime_validation",
-                "per_work_reference_measurement"
+                "per_work_reference_measurement",
+                "capability_benchmark_not_performed"
               ],
               "title": "Evaluation Scope",
               "type": "string"
@@ -23496,7 +23736,8 @@
               "enum": [
                 "capability_benchmark",
                 "work_runtime_validation",
-                "per_work_reference_measurement"
+                "per_work_reference_measurement",
+                "capability_benchmark_not_performed"
               ],
               "title": "Evaluation Scope",
               "type": "string"

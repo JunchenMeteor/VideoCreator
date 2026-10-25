@@ -30,13 +30,13 @@
     "video_creator.cli.main": {
       "before_source_read": {
         "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/cli/main.py",
-        "bytes": 23550,
-        "sha256": "482d87de04e9fe54fa2b4ced7a65110116a3964eb8007fbae2f8de3983bb9e39"
+        "bytes": 28781,
+        "sha256": "a5656e6573f0f77b98865e9009642f07a488ebb157372cdc0674ebef9bbb1bbb"
       },
       "after_export": {
         "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/cli/main.py",
-        "bytes": 23550,
-        "sha256": "482d87de04e9fe54fa2b4ced7a65110116a3964eb8007fbae2f8de3983bb9e39"
+        "bytes": 28781,
+        "sha256": "a5656e6573f0f77b98865e9009642f07a488ebb157372cdc0674ebef9bbb1bbb"
       },
       "changed": false
     },
@@ -56,13 +56,13 @@
     "video_creator.api.app": {
       "before_source_read": {
         "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/api/app.py",
-        "bytes": 31430,
-        "sha256": "2d3aaf929a24191f3849eb273c63d60c2188a29b9a2bdaddb5a266675a4d1d4d"
+        "bytes": 38184,
+        "sha256": "ba32d9873d00b770423f7cfb509ff82253a799c828937eeeb3570f2ca78dad65"
       },
       "after_export": {
         "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/api/app.py",
-        "bytes": 31430,
-        "sha256": "2d3aaf929a24191f3849eb273c63d60c2188a29b9a2bdaddb5a266675a4d1d4d"
+        "bytes": 38184,
+        "sha256": "ba32d9873d00b770423f7cfb509ff82253a799c828937eeeb3570f2ca78dad65"
       },
       "changed": false
     },
@@ -108,13 +108,13 @@
     "video_creator.domain.contracts": {
       "before_source_read": {
         "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/contracts.py",
-        "bytes": 65340,
-        "sha256": "d306bd5b91806da0300d32cfb3aeab83c35d42c6b0f754a3e4668bf614ff1566"
+        "bytes": 67825,
+        "sha256": "604a60f71ac4adb01783f9a4a8338983f3bad58be7524c533bc523b0b042b969"
       },
       "after_export": {
         "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/contracts.py",
-        "bytes": 65340,
-        "sha256": "d306bd5b91806da0300d32cfb3aeab83c35d42c6b0f754a3e4668bf614ff1566"
+        "bytes": 67825,
+        "sha256": "604a60f71ac4adb01783f9a4a8338983f3bad58be7524c533bc523b0b042b969"
       },
       "changed": false
     },
@@ -147,13 +147,13 @@
     "video_creator.application.engine": {
       "before_source_read": {
         "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/engine.py",
-        "bytes": 73825,
-        "sha256": "e6d0d39730907b4ac9ccb93072aa4412bb918c49f3a50bfacdef66f6b07600b6"
+        "bytes": 76987,
+        "sha256": "5f738d68a0c6e3d3d1b551ffcb2010f2d7a4a80ecb70256ac3af5694e6de5574"
       },
       "after_export": {
         "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/engine.py",
-        "bytes": 73825,
-        "sha256": "e6d0d39730907b4ac9ccb93072aa4412bb918c49f3a50bfacdef66f6b07600b6"
+        "bytes": 76987,
+        "sha256": "5f738d68a0c6e3d3d1b551ffcb2010f2d7a4a80ecb70256ac3af5694e6de5574"
       },
       "changed": false
     },
@@ -212,13 +212,13 @@
     "video_creator.application.bundles": {
       "before_source_read": {
         "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/bundles.py",
-        "bytes": 249599,
-        "sha256": "1c173d80dcbd6782dde1fb2bd44f011e8fec1b761619c6ab4ad8f88908af0183"
+        "bytes": 253835,
+        "sha256": "e2cfb95d3962edeb49df48c773caad2a0b4794416d94ecfe15171e6954970e3b"
       },
       "after_export": {
         "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/bundles.py",
-        "bytes": 249599,
-        "sha256": "1c173d80dcbd6782dde1fb2bd44f011e8fec1b761619c6ab4ad8f88908af0183"
+        "bytes": 253835,
+        "sha256": "e2cfb95d3962edeb49df48c773caad2a0b4794416d94ecfe15171e6954970e3b"
       },
       "changed": false
     },
@@ -264,13 +264,13 @@
     "video_creator.domain.bundle": {
       "before_source_read": {
         "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/bundle.py",
-        "bytes": 5667,
-        "sha256": "415db5b7ccc1994bd29185d96fe01452c536e65632c47009913daa775d756fb7"
+        "bytes": 5699,
+        "sha256": "72c4aad698b9c551dbd7f08bd6f15d6f0a15508d222fa7f73523e64799acc215"
       },
       "after_export": {
         "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/bundle.py",
-        "bytes": 5667,
-        "sha256": "415db5b7ccc1994bd29185d96fe01452c536e65632c47009913daa775d756fb7"
+        "bytes": 5699,
+        "sha256": "72c4aad698b9c551dbd7f08bd6f15d6f0a15508d222fa7f73523e64799acc215"
       },
       "changed": false
     },
@@ -342,13 +342,13 @@
     "video_creator.infrastructure.owner_identity": {
       "before_source_read": {
         "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/infrastructure/owner_identity.py",
-        "bytes": 6449,
-        "sha256": "58eea3fe521060d215e6f3d7fc494b6998330c6a093c5a47d80c8583b8d2db79"
+        "bytes": 6990,
+        "sha256": "cedf49c5f77c888348d6fd9fc53668cc55c88cbf57cf09b818117dcf75fe3a0b"
       },
       "after_export": {
         "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/infrastructure/owner_identity.py",
-        "bytes": 6449,
-        "sha256": "58eea3fe521060d215e6f3d7fc494b6998330c6a093c5a47d80c8583b8d2db79"
+        "bytes": 6990,
+        "sha256": "cedf49c5f77c888348d6fd9fc53668cc55c88cbf57cf09b818117dcf75fe3a0b"
       },
       "changed": false
     },
@@ -394,26 +394,26 @@
     "video_creator.domain.current_final_evidence": {
       "before_source_read": {
         "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/current_final_evidence.py",
-        "bytes": 9493,
-        "sha256": "7f9e99b42a39ca6a14119ab13be1134235034e884107245aefed243f0a116932"
+        "bytes": 9554,
+        "sha256": "e3ee6f4bb5add649e2442e0d0575d7e0fe6c3a0799a7ef44b8cc9f7d30cdcab4"
       },
       "after_export": {
         "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/current_final_evidence.py",
-        "bytes": 9493,
-        "sha256": "7f9e99b42a39ca6a14119ab13be1134235034e884107245aefed243f0a116932"
+        "bytes": 9554,
+        "sha256": "e3ee6f4bb5add649e2442e0d0575d7e0fe6c3a0799a7ef44b8cc9f7d30cdcab4"
       },
       "changed": false
     },
     "video_creator.domain.evidence": {
       "before_source_read": {
         "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/evidence.py",
-        "bytes": 2620,
-        "sha256": "877a87a1579712a3cc802fdb4100b26872cab57d0d610e9e3d52799494c789c2"
+        "bytes": 2681,
+        "sha256": "29907082006ac4ebff25064bc2ff45ba728a86791ba5d47941ba1cbc42d523ec"
       },
       "after_export": {
         "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/evidence.py",
-        "bytes": 2620,
-        "sha256": "877a87a1579712a3cc802fdb4100b26872cab57d0d610e9e3d52799494c789c2"
+        "bytes": 2681,
+        "sha256": "29907082006ac4ebff25064bc2ff45ba728a86791ba5d47941ba1cbc42d523ec"
       },
       "changed": false
     },
@@ -472,13 +472,13 @@
     "video_creator.application.current_final_evidence_recovery": {
       "before_source_read": {
         "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/current_final_evidence_recovery.py",
-        "bytes": 36722,
-        "sha256": "1e3a6ca73ec3ebfd44fe280f620ad0a8c7b175721c16c88b5eaef18d1d698a15"
+        "bytes": 40805,
+        "sha256": "01e4b266823da5c01b1aea30cc1916a1b9069de29100b50d687a27a5a2f1b0f7"
       },
       "after_export": {
         "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/current_final_evidence_recovery.py",
-        "bytes": 36722,
-        "sha256": "1e3a6ca73ec3ebfd44fe280f620ad0a8c7b175721c16c88b5eaef18d1d698a15"
+        "bytes": 40805,
+        "sha256": "01e4b266823da5c01b1aea30cc1916a1b9069de29100b50d687a27a5a2f1b0f7"
       },
       "changed": false
     },
@@ -667,13 +667,52 @@
     "video_creator.application.evidence": {
       "before_source_read": {
         "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/evidence.py",
-        "bytes": 30441,
-        "sha256": "47c265be2425ce26ba1688f0e8b90514e1982741353a278c04ea65ed3bee6942"
+        "bytes": 32114,
+        "sha256": "88bba27c256d59c072f4a49e7dd3e034db40a34e34c412799a97703ad5b820c5"
       },
       "after_export": {
         "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/evidence.py",
-        "bytes": 30441,
-        "sha256": "47c265be2425ce26ba1688f0e8b90514e1982741353a278c04ea65ed3bee6942"
+        "bytes": 32114,
+        "sha256": "88bba27c256d59c072f4a49e7dd3e034db40a34e34c412799a97703ad5b820c5"
+      },
+      "changed": false
+    },
+    "video_creator.application.product_authorization": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/product_authorization.py",
+        "bytes": 55424,
+        "sha256": "92f23aabb1e695956c11fb26be5693c3eb45c2f5dae34595b22cd12942f2aa14"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/product_authorization.py",
+        "bytes": 55424,
+        "sha256": "92f23aabb1e695956c11fb26be5693c3eb45c2f5dae34595b22cd12942f2aa14"
+      },
+      "changed": false
+    },
+    "video_creator.application.local_evidence": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/local_evidence.py",
+        "bytes": 38080,
+        "sha256": "4381ae4a778286fd8c8d9d0d28e7b0e8986b9a74b1cac8873ce351e44e1e3ce7"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/local_evidence.py",
+        "bytes": 38080,
+        "sha256": "4381ae4a778286fd8c8d9d0d28e7b0e8986b9a74b1cac8873ce351e44e1e3ce7"
+      },
+      "changed": false
+    },
+    "video_creator.infrastructure.credentials": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/infrastructure/credentials.py",
+        "bytes": 5133,
+        "sha256": "bf38c0afe101ac5f47ff24e57f9d0d46ceb7910abf377bb10cbf44da9d60b255"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/infrastructure/credentials.py",
+        "bytes": 5133,
+        "sha256": "bf38c0afe101ac5f47ff24e57f9d0d46ceb7910abf377bb10cbf44da9d60b255"
       },
       "changed": false
     },
@@ -739,19 +778,6 @@
         "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/cli/startup_services.py",
         "bytes": 6966,
         "sha256": "143a8484c61474866b8bc6423cdf9d50313f213aaa07b2aea73d60c1cc056cc7"
-      },
-      "changed": false
-    },
-    "video_creator.infrastructure.credentials": {
-      "before_source_read": {
-        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/infrastructure/credentials.py",
-        "bytes": 2812,
-        "sha256": "a7895c401874344a784b7b2d75dc4a1bbd05d585b0fe8359e84aefc2a0f5bdd0"
-      },
-      "after_export": {
-        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/infrastructure/credentials.py",
-        "bytes": 2812,
-        "sha256": "a7895c401874344a784b7b2d75dc4a1bbd05d585b0fe8359e84aefc2a0f5bdd0"
       },
       "changed": false
     },
@@ -1910,6 +1936,10 @@
       "version": "26.1.0"
     },
     {
+      "name": "av",
+      "version": "18.1.0"
+    },
+    {
       "name": "backoff",
       "version": "2.2.1"
     },
@@ -1966,6 +1996,10 @@
       "version": "50.0.2"
     },
     {
+      "name": "ctranslate2",
+      "version": "4.8.3"
+    },
+    {
       "name": "deprecation",
       "version": "2.1.0"
     },
@@ -1988,6 +2022,10 @@
     {
       "name": "fastapi",
       "version": "0.142.2"
+    },
+    {
+      "name": "faster-whisper",
+      "version": "1.2.1"
     },
     {
       "name": "filelock",
@@ -2546,15 +2584,15 @@
       "bytes": 1399656,
       "sha256": "dedb7611e1abc1ff3852dcac3d4c93a048d729e25b061973b9969f22698f14ca"
     },
-    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\VCRUNTIME140.dll": {
-      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/vcruntime140.dll",
-      "bytes": 124544,
-      "sha256": "d5e4d9a3e835fa679450145d6a7d94e36573a509317111904d9b3712c30d9066"
-    },
     "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\python313.dll": {
       "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/python313.dll",
       "bytes": 6157824,
       "sha256": "a129035421817c4306a092911a01587a7918d7ea00497fb01b303d7c5dca1f42"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\VCRUNTIME140.dll": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/vcruntime140.dll",
+      "bytes": 124544,
+      "sha256": "d5e4d9a3e835fa679450145d6a7d94e36573a509317111904d9b3712c30d9066"
     },
     "C:\\WINDOWS\\System32\\WS2_32.dll": {
       "path": "C:/Windows/System32/ws2_32.dll",

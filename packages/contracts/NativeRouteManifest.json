@@ -2,7 +2,7 @@
   "format": "native-route-manifest-v1-candidate",
   "contract_version": "0.3.0-candidate",
   "transport_format": "native-ipc-v1-candidate",
-  "openapi_sha256": "e1f4011cbd16e9524c80696a070cf948f1459978d55530ae2b02dec16cc6e270",
+  "openapi_sha256": "c7ed6246e1480064bbc16556b17599cef93140dfb1037ae2aecee226fc9b79d1",
   "engine_transport": {
     "format": "engine-http-transport-v1-candidate",
     "contract_set_version": "0.3.0-candidate",
@@ -1728,7 +1728,8 @@
           "type": "string",
           "enum": [
             "embedded_full_report",
-            "provenance_reference"
+            "provenance_reference",
+            "embedded_self_issued"
           ],
           "title": "Benchmark Binding"
         },
@@ -2646,7 +2647,8 @@
           "enum": [
             "capability_benchmark",
             "work_runtime_validation",
-            "per_work_reference_measurement"
+            "per_work_reference_measurement",
+            "capability_benchmark_not_performed"
           ],
           "title": "Evaluation Scope"
         },

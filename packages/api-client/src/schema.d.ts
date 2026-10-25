@@ -1298,7 +1298,7 @@ export interface components {
              * Benchmark Binding
              * @enum {string}
              */
-            benchmark_binding: "embedded_full_report" | "provenance_reference";
+            benchmark_binding: "embedded_full_report" | "provenance_reference" | "embedded_self_issued";
             /** Benchmark Document Artifact Id */
             benchmark_document_artifact_id: string;
             /** Policy Document Artifact Id */
@@ -1596,7 +1596,7 @@ export interface components {
              * Evaluation Scope
              * @enum {string}
              */
-            evaluation_scope: "capability_benchmark" | "work_runtime_validation" | "per_work_reference_measurement";
+            evaluation_scope: "capability_benchmark" | "work_runtime_validation" | "per_work_reference_measurement" | "capability_benchmark_not_performed";
             /** Content Sha256 */
             content_sha256: string;
         };
