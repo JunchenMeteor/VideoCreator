@@ -55,3 +55,15 @@
 
 - 若发现必须修改 `ProductionAdmissions` 的正式校验语义才能跑通，停止并回报统筹，不得自行放宽。
 - 若 203 资源包与本机 ffmpeg 版本不一致导致真实渲染失败，保留原始失败并回报，不得换成系统 ffmpeg 冒充同一注册。
+
+
+## 2026-10-26 02:50 新增两张卡（R1 收尾前置）
+
+### 卡 A：installer-admin provision（供给实现）
+按 ADR0083 实现 `installer-admin provision`：一次性、无监听、不装配 OwnerServices、不建 management secret；从已落盘字节实算注册并逐件写清单；写实例 ACL、迁移、Owner 项目、**空 production floor**、五条路由行、`InstallationProvisioning.json`。
+验收：V1–V11（ADR0083 §验证）在真实安装实例全绿，并把命令与输出登记到 `docs/acceptance/criteria/COMMANDS.md`。
+
+### 卡 B：ProductTrustedStartupAuthority（产品受信启动权威）
+背景：frozen 引擎无 factory ⇒ `install_startup_services(None, …)` ⇒ 制作 403 `production_authorization_unconfigured`，工作台只能浏览。R1 需要产品形态的执行权威。
+要求：由**安装记录 + 实例 ACL + 注册钉定（registration sha / 资源清单 sha）**构造；禁用 dev 三重条件、禁用环境变量/配置文件直接构成 authority；失败具名；与 ADR0081 的重启语义配合。
+先由架构出窄设计，再由后端实现，测试在真实安装实例验证"可制作/不可越权"两侧。
