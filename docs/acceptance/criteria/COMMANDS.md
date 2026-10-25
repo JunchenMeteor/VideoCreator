@@ -985,3 +985,114 @@ Actual command: system pwsh -NoProfile -NonInteractive -File G:/开发测试/Cod
 
 - 2026-10-12, `C:/Program Files/nodejs/node.exe G:/开发测试/Codex/VideoCreatorImplementation/Test/WorkbenchPreviewBrowserSmoke/Smoke.mjs`, cwd `G:/开发测试`, `PLAYWRIGHT_BROWSERS_PATH=G:/开发测试/.sharedDependencies/playwright-browsers`: actual exit1 before navigation because `@playwright/test` 1.63.0 requires absent `chromium_headless_shell-1243`. Raw failure retained in this task's `Evidence/BrowserSmokeDefaultMissing1243.json`; no browser downloaded.
 - Same command with explicit existing `PLAYWRIGHT_EXECUTABLE_PATH=G:/开发测试/.sharedDependencies/playwright-browsers/chromium_headless_shell-1234/chrome-headless-shell-win64/chrome-headless-shell.exe`: actual exit0, browser version `151.0.7922.34`, root and `/workbench.html` HTTP200 plus visible DOM/screenshots, pageerrors/console/failed requests/bad responses all zero, browser closed. Screenshots and full requests/DOM in `G:/开发测试/Codex/VideoCreatorImplementation/Test/WorkbenchPreviewBrowserSmoke/Evidence/`. This is a fallback version, not a locked-version Playwright pass, and the in-app browser Transport closed issue remains unverified. Static preview only, no product/R1 claim.
+
+## LocalChainEndToEndTest — 开发宿主拒绝语义实跑；正向链 NOT_EXECUTED（2026-10-25）
+
+角色：测试开发。范围：`tests/development/`、`tools/testing/RunLocalChainE2E.ps1`、`tools/testing/local_chain_probes.py`、本节。未改产品源码、未调用模型、未联网、未用系统 ffmpeg、未 git commit。原始字节与 argv 全部保存在 `G:/开发测试/Codex/VideoCreatorImplementation/Test/LocalChainEndToEnd/`（下称过程目录）。
+
+### 环境（实际观测）
+
+- 分支 `recovery/local-chain-20261025`，HEAD `f3a1c639e6cafe226c26c190b9acad4a4804dedc`；`git status --porcelain` 当时仅本任务新增（`?? tests/development/`、`?? tools/testing/RunLocalChainE2E.ps1`、`?? tools/testing/local_chain_probes.py`），原文见证据 `git-status.stdout.bin`。
+- Python `3.13.16 (main, Oct  1 2026, 20:59:40) [MSC v.1944 64 bit (AMD64)]`（仓库 `.venv`）；pytest `9.1.1`。
+- 包内 ffmpeg/ffprobe（非系统 ffmpeg）：
+  - `ffmpeg version n9.0.2-22-g46d8f462ee-20261007 Copyright (c) 2000-2026 the FFmpeg developers`
+  - `ffprobe version n9.0.2-22-g46d8f462ee-20261007 Copyright (c) 2007-2026 the FFmpeg developers`
+  - 两者 `-version` 实际 exit 0；版本行原文见证据 `version-ffmpeg.stdout.bin` / `version-ffprobe.stdout.bin`。
+- 注册切片以当时 `Receipt.json`（`built_at 2026-10-25T07:00:36Z`，`ok=true`，`verification.ok=true`，`source_stability.stable=true`，188 源文件）与实际文件为准；**`Handoff.md` §0/§2 的 `640aae…` SHA 表已过期**（其 freeze 清单最后一步未替换），测试与脚本一律运行时读取 SHA，不写死：
+
+| 产物 | 实际 SHA256 |
+| --- | --- |
+| `Registration.json`（22,067 B） | `3d3abaa6b56c2cdcb482e787483df3c017e05fd93e5d47652a238415237705d0` |
+| `Package/RuntimeFileManifest.json` | `8a760a1aa5d7c25c8da5afbdb34bb7bca5dfa1327e4e6d586aa1cd82b5518425` |
+| `Package/LocalMaterialResources.json` | `66c5021da3d3518434def0e9a5247293fa90c49e9378523e3ff18d0bf60be47a` |
+| `Package/Media/FFmpeg/bin/ffmpeg.exe` | `67ad2d9d72e3ef08503a3df5fdc8a583af8b25abf265ba964889831b5a6c54f4` |
+| `Package/Media/FFmpeg/bin/ffprobe.exe` | `71166bf3222c2ca3a6d15755549e66b75b3a5b22611a8e299ff3c960d8eb8b19` |
+| `Routes/input_audio.json` | `3a6f637739b193a8f7ab1c4bcb39118d49c4d276f5c31bdfe13c81f7a85a3f9c` |
+| `Routes/input_visual.json` | `7069a5c6cec88fa77b0754780a0c4dc00b64015917687c25fc17c2696b7f8376` |
+| `Routes/edit.json` | `9c08945b5537e8091c943e3e9e19c101a118873c3ba7459fa00be6077c129a64` |
+| `Routes/master_index.json` | `1ba3b5cd38b82cc023acd74006b4883ed660e201dbdd09f80bf274f234e44e9c` |
+
+- 实例 `Instance/ChainInstance`，`instance_id=instance-fedc0b2abdcd4da386ceb690a4fe897a`，项目 `project-f6a84d4cd08c4415bbfbb12e73a1d68b`（owner `local-user`）；ACL 实测仅 `NT AUTHORITY\SYSTEM` 与当前 SID（`icacls` 原文 `instance-acl.stdout.bin`）；四条 local route 已在实例库注册；**无 Owner binding**，实测码 `owner_restore_refresh_required`（`owner_initialized=false`、`owner_active=false`）。
+
+### 实际命令与 exit
+
+```powershell
+# 一键（负例 + 健康可见性；Owner binding 存在时才跑正向链）
+pwsh -NoProfile -File 'G:/开发测试/Projects/VideoCreator/tools/testing/RunLocalChainE2E.ps1'
+# 实测 exit 0：18 tests / 0 failures / 0 errors / 1 skipped（serve-dev 健康头用例待 Owner 绑定）
+# 正向链文件 test_local_chain_end_to_end.py 未执行 → 记录为 NOT_EXECUTED（非通过）
+
+# 门禁模式（Owner 缺失即视为未验收，exit 2）
+pwsh -NoProfile -File 'G:/开发测试/Projects/VideoCreator/tools/testing/RunLocalChainE2E.ps1' -RequirePositive
+# 实测 exit 2，原因同上；RunSummary.ok=true 且 not_executed 明确登记
+
+# 单独复跑任一用例（脚本内部同一条 pytest 入口）
+G:/开发测试/Projects/VideoCreator/.venv/Scripts/python.exe -m pytest tests/development/test_development_host_negatives.py -q -rs
+```
+
+规范证据目录 `G:/开发测试/Codex/VideoCreatorImplementation/Test/LocalChainEndToEnd/Evidence/20261025-152012-e2e/`：`RunSummary.json`（SHA256 `ff345f28c2f0c82e70c6a27b2299cff7a841097fd3b5f2a53d1f252ca1c8179c`，11,784 B）、`pytest-negatives.xml`（SHA256 `34050aea9e6dd8ccbb2bd5991367abce33cce1e79f6eb59a857f80f220dff454`）、`pytest-negatives.stdout.bin`（1,062 B，完整 pytest 输出；SHA256 `8e78dfb0…`）、`pytest-negatives.stderr.bin`（0 B）、`EvidenceInventory.json`、`owner-init-command.ps1`。每个子进程另有 `<case>.stdout.bin` / `<case>.stderr.bin` / `<case>.result.json`（argv、cwd、exit、时间、子集环境；token 记为 `<redacted len=64>`）于同一运行目录下的 `20261025T072016Z-pytest-52500/`。门禁运行 `-RequirePositive` 的证据目录为 `.../20261025-152041-e2e/`（exit 2）。
+
+### 负例实际结果（真实子进程，逐字拒绝码）
+
+| 用例（pytest 节点） | exit | 实测 code | 原始 stderr |
+| --- | --- | --- | --- |
+| missing-argument-registration | 2 | —（argparse usage） | `error: the following arguments are required: --development-registration` |
+| missing-argument-registration-sha256 | 2 | —（argparse usage） | `... required: --development-registration-sha256` |
+| missing-argument-expires | 2 | —（argparse usage） | `... required: --development-expires-at` |
+| environment-missing | 1 | `development_installation_denied` | `{"code": "development_installation_denied", "message": "VIDEO_CREATOR_DEVELOPMENT_INSTALLATION must equal this instance identity"}` |
+| environment-mismatch | 1 | `development_installation_denied` | 同上（env 值为 `<instance>-wrong`） |
+| frozen-simulated（`sys.frozen=True`，参数齐全） | 1 | `development_installation_unavailable` | `{"code": "development_installation_unavailable", "message": "A frozen artifact cannot host a development installation"}` |
+| registration-pinned-sha-mismatch | 1 | `development_registration_changed` | `{"code": "development_registration_changed", "message": "The development registration differs from the pinned SHA256"}` |
+| registration-v2-profile（format=v2） | 1 | `development_registration_profile_unsupported` | `{"code": "development_registration_profile_unsupported", "message": "Only the registered-media-config-local-v1 profile is supported"}` |
+| engine-drift-serve-dev（scratch engine 副本改 1 个 `.py`，checkout 未动） | 1 | `development_code_changed` | `{"code": "development_code_changed", "message": "Engine code differs from the development registration; regenerate it after every edit"}` |
+| engine-drift-worker-dev（同上，worker-dev） | 1 | `production_code_changed` | `{"code": "production_code_changed", "message": "Installed engine code differs from the trusted registration"}` |
+| serve-dev-without-owner-binding | 1 | `owner_restore_refresh_required` | `{"code": "owner_restore_refresh_required", "message": "The original protected Owner Control directory is required"}` |
+| worker-dev-without-owner-binding | 1 | `owner_restore_refresh_required` | 同上 |
+| worker-dev-missing-instance | 1 | `development_installation_denied` | `{"code": "development_installation_denied", "message": "worker-dev requires an existing data directory instance identity"}`；且未创建 `Metadata.sqlite` |
+| owner-init-without-tty（stdin 关闭，不预写确认） | 1 | `owner_interactive_confirmation_required` | `{"code": "owner_interactive_confirmation_required", "message": "Use an authenticated local Owner terminal with explicit confirmation"}`；事后复读 binding 仍为未初始化 |
+| unattended-guards（进程内 seam，非 HTTP） | 0（探针） | 4× `development_mode_unsupported`（422） | `require_interactive`、`_guard_acceptance`、`_guard_execution`、`_guard_goal_creation` 均在原函数调用前拒绝，原函数调用计数 0 |
+| 生产 `serve` 健康可见性（真实进程，隔离 sqlite 副本） | 200 | 无 `X-VideoCreator-Installation` 头 | 请求头伪造值未被反射；body `mode=local`；ready 行无 `principal_id` |
+| development marker（进程内 `create_app`，非 serve-dev） | 200 | 未标记：无头；标记后：`local-development` | 请求头伪造无效；`openapi.json` 未声明该头 |
+| serve-dev health header（真实 dev 进程） | — | **NOT_EXECUTED** | 无 Owner binding，`serve-dev` 在 listener 前以 `owner_restore_refresh_required` 拒绝 |
+
+所有被拒绝的启动均未输出 `ready`、未开端口（断言原文见各用例证据）。`worker-dev` 的 engine 漂移用例同时断言输出中不含 `resource_not_ready` 与 `worker_ready`。
+
+### 正向链：NOT_EXECUTED 及原因
+
+`tests/development/test_local_chain_end_to_end.py::test_local_chain_produces_a_verifiable_0_4_bundle` 未执行。原因：Owner binding 缺失，而 `serve-dev`/`worker-dev` 在真实 TTY `owner-init` 之前一律以 `owner_restore_refresh_required` 拒绝；本任务禁止伪造 binding、patch `isatty` 或预写确认，因此没有任何可用入口。脚本已打印并保存逐字人工命令（`owner-init-command.ps1`）：
+
+```powershell
+$env:PYTHONPATH = 'G:/开发测试/Projects/VideoCreator/services/engine/src'
+& 'G:/开发测试/Projects/VideoCreator/.venv/Scripts/python.exe' -m video_creator.cli.main owner-init `
+  --data-dir 'G:/开发测试/Codex/VideoCreatorImplementation/Integration/LocalInstallationRegistrationBuild/Instance/ChainInstance' `
+  --action initialize --action-key 'chain-owner-init-1' `
+  --owner-subject 'local-user' `
+  --project-id 'project-f6a84d4cd08c4415bbfbb12e73a1d68b' `
+  --expires-at '<当前时间 + 6 天，Z 时区>'
+# 终端会要求逐字输入 AUTHORIZE instance-fedc0b2abdcd4da386ceb690a4fe897a initialize
+```
+
+该用例在 Owner 存在后经 `serve-dev` 上传真实 PNG → `POST /productions`（`interactive`、`outputs=["video"]`、四条 route、`max_cost=0`）→ `worker-dev` → `plan`/`quality` 各 `approve` → 断言 `bundle_ref`、manifest `0.4.0-candidate`、包内 ffprobe（编码/时长/帧数对 `LocalVisualMappingDocumentV1` 帧界）、事件序列、账本无 unknown、`VerifyPersistedAssembly.py` 读回。上述断言本次**未获得任何执行证据**。
+
+### ffprobe 输出
+
+- 已实际执行的只有工具版本探测（包内 ffprobe，exit 0）：
+  `ffprobe version n9.0.2-22-g46d8f462ee-20261007 Copyright (c) 2007-2026 the FFmpeg developers`
+- **没有成片 mp4 的 ffprobe 结果**：正向链 NOT_EXECUTED，没有产生任何作品包或 mp4。本节不伪造 ffprobe 媒体输出；后续真实运行会把 `ffprobe-master.stdout.bin`（`-v error -print_format json -show_format -show_streams -count_frames`）、`chain/ffprobe.json` 写入同一证据布局。
+
+### NOT_EXECUTED 清单
+
+| 项 | 原因 |
+| --- | --- |
+| 正向主链（含 bundle、mp4、事件、账本、assembly 读回） | 无真实 Owner binding（`owner_initialized=false`，`owner_restore_refresh_required`）；需真人在真实终端执行上面的 `owner-init` |
+| `serve-dev` 的 `/health` 返回 `local-development` | 同上（该头已由进程内 marker 用例证明仅标记后出现，但不是 dev 进程证据） |
+| 正向链内的 ffprobe 编码/时长/帧数校验 | 依赖正向链，未执行 |
+| `VerifyPersistedAssembly.py` 读回 | 依赖正向链产生 `current_final_assembly:*`，未执行 |
+
+### 复核观察（不改产品，供评审/统筹）
+
+1. **worker 侧漂移码与 ADR0077 §2 表不一致**：任务卡要求"改动任一 engine `.py` 后启动 worker-dev 必须 `development_code_changed`"；实测 `production_code_changed`（`RegisteredMediaRuntime` 在 dev factory 之前校验 engine 全集）。两者都是不重试的硬失败，未被 park 成 `resource_not_ready`；若要 `development_code_changed`，需要调整 worker 分支顺序或修订 ADR/任务卡，属后端决定。
+2. **"注册文件哈希不符（development_code_changed）"混称**：注册文件与固定 SHA 不符实测为 `development_registration_changed`；`development_code_changed` 是注册文件内 **engine 源哈希**与实际字节不符。两条都有真实负例（见上表）。
+3. **ADR0077 §6 的 `owner_not_initialized`** 在本实例实测为 `owner_restore_refresh_required`（缺 `Control/` 目录），与本切片交接稿 §5 一致。
+4. **`_assert_media_tools` 只比较 `resolve()` 后的路径、不检查文件存在**：草稿期把工具参数指向不存在的临时路径时该检查通过，随后仅出现 `{"event": "media_unavailable", "code": "media_validator_missing"}` 警告；正式用例因此使用真实的 FFmpeg 目录副本。建议后续在 dev factory 内补存在性检查（产品源码，未改）。
+5. **`api/development_marker.py` 是无保护模块全局**（评审 P3-4 已记录）：进程内 health 用例只能证明"标记后出现且请求头不可伪造"，不能证明"只有 dev 宿主会标记"。
