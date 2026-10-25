@@ -106,9 +106,16 @@ class CurrentFinalEvidenceRuntime(DiagnosticResumeRuntime):
         with self.engine.db.connect_readonly() as connection:
             self.engine._lease(connection, lease)
             _run, _production, _request, binding = bound_context(self.engine, connection, lease.run_id, self.sha256)
+        import time
+
+        from video_creator.application.media_registration import sys_event
+        started = time.monotonic()
+        sys_event('final_ports_creating', run_id=lease.run_id)
         ports = self.bundle.current_final_evidence_ports(lease, binding)
+        sys_event('final_ports_created', run_id=lease.run_id, elapsed_seconds=round(time.monotonic() - started, 3))
         try:
             ports.assert_production_services(lease, production_services, execution_ports)
+            sys_event('final_producer_creating', run_id=lease.run_id)
             produce = create_registered_media_producer(engine=self.engine, bundle=self.bundle, executor=self.executor,
                 resource_manifest_path=self.path.parent / self.config.asr_resource_manifest if self.config.asr_resource_manifest is not None else None,
                 resource_manifest_sha256=self.config.asr_resource_manifest_sha256,
@@ -118,6 +125,8 @@ class CurrentFinalEvidenceRuntime(DiagnosticResumeRuntime):
         except BaseException:
             ports.close()
             raise
+        sys_event('final_producer_created', run_id=lease.run_id,
+                  elapsed_seconds=round(time.monotonic() - started, 3))
         return produce, ports
 
     def park_current_final_evidence(self, ordinary_lease, assessment):

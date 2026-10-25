@@ -327,16 +327,35 @@ class RegisteredMediaRuntime(CurrentFinalEvidenceRuntime):
                 raise EngineError('production_route_scope_denied', 'Actual request must include original zero-cost local route', 403)
 
     def _final_producer(self, lease, *, production_services, execution_ports):
+        started = time.monotonic()
         sys_event('final_producer_started', run_id=lease.run_id, local=type(self.config) is RegistrationConfigLocalV1)
+        sys_event('final_services_ready', run_id=lease.run_id,
+                  production_services=type(production_services).__name__,
+                  execution_ports=type(execution_ports).__name__, elapsed_seconds=0.0)
         if type(self.config) is RegistrationConfigLocalV1:
             context = self.local_plan_sources.final_context(lease, execution_ports,
                 policy=self.engine.get_request(lease).automation.mode == 'unattended')
-            sys_event('final_producer_context_ready', run_id=lease.run_id,
-                      roles=sorted(context.selection.master_roles))
+            roles = sorted(context.selection.master_roles)
+            sys_event('final_producer_context_ready', run_id=lease.run_id, roles=roles,
+                      elapsed_seconds=round(time.monotonic() - started, 3))
+            sys_event('final_masters_checked', run_id=lease.run_id, roles=roles,
+                      assets=len(getattr(context, 'original_assets', ())))
+            sys_event('final_asr_required', run_id=lease.run_id,
+                      asr_manifest_is_none=self.config.asr_resource_manifest is None,
+                      asr_route_id=self.config.asr_route_id,
+                      mixed='mixed_audio' in context.selection.master_roles)
             if 'mixed_audio' in context.selection.master_roles:
+                sys_event('final_asr_check_started', run_id=lease.run_id)
                 self._require_selected_asr()
-            return super()._final_producer(lease, production_services=production_services,
+                sys_event('final_asr_check_done', run_id=lease.run_id,
+                          elapsed_seconds=round(time.monotonic() - started, 3))
+            sys_event('final_services_creating', run_id=lease.run_id)
+            result = super()._final_producer(lease, production_services=production_services,
                 execution_ports=execution_ports, local_material_context=context)
+            sys_event('final_services_created', run_id=lease.run_id,
+                      produce=type(result[0]).__name__ if result else None,
+                      elapsed_seconds=round(time.monotonic() - started, 3))
+            return result
         return super()._final_producer(lease, production_services=production_services, execution_ports=execution_ports)
 
     def _remember_current_services_check(self, lease, execution_ports, policy):
