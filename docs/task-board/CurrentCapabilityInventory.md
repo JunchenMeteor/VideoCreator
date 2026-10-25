@@ -79,3 +79,22 @@
 
 ### MCP 路径（新发现，进行中）
 MCP `production_create` 可创建 production，但实测发现：① MCP 启动时 `media_validator_missing`（同样的 ffmpeg 路径在 serve-dev 下可用）；② 该 production 直接出现 quality 版本、无 plan 步骤；③ MCP 没有暴露"列出待审版本"的工具，客户端无法取得 revision id 去 decide。已列为 R1 缺口并派给后端。
+
+
+## 2026-10-26 02:32 MCP 单次交付闭环（真实 JSON-RPC）
+
+| 步骤 | 真实结果 |
+| --- | --- |
+| `initialize` / `tools/list` | 15 个工具（含新增 `production_revisions`） |
+| `production_create` | `production-579acf93…` / `run-9d72ecc0dec34cfe8cc6c030fa56708b` |
+| `production_revisions` | 发现 `script`、`plan`、随后 `quality` |
+| `production_decide`（plan） | 同意成功 |
+| `production_decide`（quality） | 同意成功（另有一次对已消费版本的重复决定被 `revision_conflict` 正确拒绝） |
+| `production_get` | `succeeded`，bundle `local-bundle-revision-bc6b34ea…` |
+| `bundle_get` | `0.4.0-candidate`，输出 video/mixed_audio/actual_transcript/subtitles/semantic_manifest/rag_chunks |
+| 产物复核 | 视频 h264 + **aac** 音轨、6.280 s |
+
+原始 JSON-RPC：`Dsh/MediaOsContext-20261025/mcp/delivery-rpc.jsonl`。
+
+### 同时确认的设计事实
+新装实例经产品内授权后仍无 ffmpeg/ASR 路由（`route_unavailable`）——**注册路由是管理动作，产品内授权刻意不授予**。因此安装器/受信启动必须先完成一次"管理性供给"，之后用户只需在产品内确认 Owner。这条需要单独立卡（安装器供给），并影响 R1 的安装包设计。
