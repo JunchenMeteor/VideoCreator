@@ -1068,6 +1068,26 @@ class BundleService(CurrentFinalEvidenceService):
                 raise EngineError("evidence_policy_unavailable", "Only an explicit 0.3 fixed policy has an automatic evidence scope", 409)
             return self.engine.evidence_registry.resolve(production["owner"], production["project_id"], request.delivery_requirements.evidence_policy_revision_ref, connection=connection)
 
+    def local_evidence_policy(self, lease: c.LeaseGrant):
+        """ADR0082 product ruling: auto-resolve the installed local self-issued policy.
+
+        Only for a local work whose request has no explicit 0.3 delivery
+        requirements. It reads the durable `preauthorize` selection and re-verifies
+        it through the registry; no config/request/environment value selects it.
+        Returns None when no verified local self-issued policy is installed.
+        """
+        from video_creator.application.local_evidence import (
+            local_evidence_selected_policy,
+        )
+
+        with self.engine.db.connect() as connection:
+            _run, production, request = self._scope(connection, lease)
+            if (request.request_format_version == c.V03_SCHEMA_VERSION
+                    and request.delivery_requirements is not None):
+                return None
+            return local_evidence_selected_policy(self.engine, production["owner"],
+                                                  production["project_id"], connection=connection)
+
     def benchmark_reference(self, lease: c.LeaseGrant) -> c.MethodBenchmarkReference:
         resolved = self.evidence_policy(lease)
         return self.engine.evidence_registry.benchmark_reference(resolved.qualification.benchmark_report_ref)
@@ -3004,8 +3024,48 @@ class BundleService(CurrentFinalEvidenceService):
                 raise EngineError('work_evidence_material_missing', 'Exact typed unique report roles are required.', 422)
             check_record(value)
             reports[role] = value
+        # ADR0082 method dispatch: only a real registered initial CTC needs a
+        # work report. The local self-issued whisper estimate method has no CTC
+        # lineage; it proves the installed policy plus its own actual settled
+        # ASR/transcript/subtitle/not-measured alignment evidence instead.
+        registered_ctc = self._registered_initial_alignment(lease, preparation_id)
+        if not registered_ctc:
+            from video_creator.application.local_evidence import (
+                local_evidence_selected_policy,
+            )
+
+            with self.engine.db.connect_readonly() as connection:
+                run = self.engine._lease(connection, lease)
+                production = self.engine._production(connection, run['production_id'])
+                resolved = local_evidence_selected_policy(
+                    self.engine, production['owner'], production['project_id'], connection=connection)
+            if resolved is None:
+                raise EngineError('alignment_required',
+                                  'Local whisper publication requires an installed and verified self-issued policy.', 409)
+            if resolved.policy.alignment_evidence_policy != 'qualified_method_runtime_v1':
+                raise EngineError('alignment_required',
+                                  'Local whisper evidence requires the qualified method runtime policy.', 409)
+            self._assert_whisper_not_measured(actual.alignment.precision)
+            if (actual.transcript.method_ref != resolved.qualification.execution_identity.method_id
+                    or actual.alignment.timestamp_method != 'whisper_word_estimate_not_forced_alignment'):
+                raise EngineError('work_execution_identity_mismatch',
+                                  'Alignment method differs from its admitted whisper estimate identity.', 409)
+            # If a producer also staged its evidence documents, they must be the
+            # exact admitted source; absence is fine because the registry row is
+            # authoritative and already signature/expiry/scope verified.
+            if 'evidence_policy' in reports and reports['evidence_policy'] != resolved.policy:
+                raise EngineError('work_qualification_conflict', 'Staged policy differs from its admitted source.', 409)
+            if 'method_qualification' in reports and reports['method_qualification'] != resolved.qualification:
+                raise EngineError('work_qualification_conflict', 'Staged qualification differs from its admitted source.', 409)
+            if 'method_benchmark_self_issued' in reports:
+                validate_self_issued_benchmark(reports['method_benchmark_self_issued'])
+                if reports['method_benchmark_self_issued'] != resolved.benchmark:
+                    raise EngineError('benchmark_binding_invalid',
+                                      'Staged self-issued declaration differs from its admitted source.', 422)
+            return resolved
         if not {'evidence_policy', 'method_qualification', 'work_alignment_validation'} <= set(reports):
-            raise EngineError('work_evidence_material_missing', 'Actual policy, qualification and runtime reports are required.', 422)
+            raise EngineError('work_evidence_material_missing',
+                              'Actual policy, qualification and runtime reports are required for registered CTC.', 422)
         resolved = self._validate_work_runtime(lease, preparation_id, actual,
             reports['work_alignment_validation'], manifest.audio_mappings)
         if reports['evidence_policy'] != resolved.policy or reports['method_qualification'] != resolved.qualification:
@@ -3025,7 +3085,7 @@ class BundleService(CurrentFinalEvidenceService):
             if self_issued != resolved.benchmark:
                 raise EngineError('benchmark_binding_invalid',
                                   'Self-issued not-performed declaration differs from its admitted source.', 422)
-            if request.delivery_requirements.alignment_evidence_policy == 'strict_reference_v1':
+            if resolved.policy.alignment_evidence_policy == 'strict_reference_v1':
                 raise EngineError('alignment_required',
                                   'Strict reference policy cannot use a not-performed local declaration.', 409)
         elif (reference != self.engine.evidence_registry.benchmark_reference(resolved.qualification.benchmark_report_ref)
@@ -3033,10 +3093,26 @@ class BundleService(CurrentFinalEvidenceService):
             raise EngineError('benchmark_disclosure_approval_invalid', 'Original licensed benchmark disclosure is required.', 403)
         if actual.alignment.precision.status == 'measured':
             self._verify_per_work_precision(manifest, documents, actual, lease=lease, preparation_id=preparation_id)
-        elif request.delivery_requirements.alignment_evidence_policy == 'strict_reference_v1':
+        elif resolved.policy.alignment_evidence_policy == 'strict_reference_v1':
             raise EngineError('alignment_required', 'Strict reference policy requires original independent actual measurement.', 409)
         elif any(isinstance(value, c.PrecisionEvaluationReportV03) for value in documents.values()):
             raise EngineError('precision_evidence_conflict', 'Unmeasured work cannot hide actual measured evidence.', 422)
+        return resolved
+
+    @staticmethod
+    def _local_v03_required_roles(registered_ctc: bool) -> set[str]:
+        """Method dispatch: only registered CTC requires a work report."""
+        if not registered_ctc:
+            return set()
+        return {'evidence_policy', 'method_qualification', 'work_alignment_validation'}
+
+    @staticmethod
+    def _assert_whisper_not_measured(precision):
+        if (precision.status != 'not_measured' or precision.sample_count is not None
+                or precision.p95_error_us is not None or precision.reference_ref is not None
+                or precision.measurement_report_locator is not None):
+            raise EngineError('work_precision_claim_invalid',
+                              'Whisper word estimate cannot claim a measured precision.', 422)
 
     @staticmethod
     def _check_mapping_piece(piece):

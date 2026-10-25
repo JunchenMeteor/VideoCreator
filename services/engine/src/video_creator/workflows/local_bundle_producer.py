@@ -139,19 +139,25 @@ def _identity(prefix, *parts):
 def _evidence_gate(bundle, lease, request, speech_bundle):
     """Real admitted evidence policy before any speech Bundle may verify.
 
-    Media never installs or fabricates a policy, qualification, benchmark or
-    work report. Until the local self-issued installation exists, this is the
-    documented stopping point: the real registry resolve decides, and a silent
-    work is unaffected.
+    ADR0082 product ruling: a local work whose request predates the explicit 0.3
+    evidence grammar (0.2, no delivery_requirements) automatically uses the
+    installation's own **installed and verified** local self-issued policy. The
+    selection is the durable `preauthorize` record; it is re-verified through the
+    registry (signature/expiry/scope/cross-binding), never read from config, the
+    request or the environment. No installed/valid policy keeps today's
+    `alignment_required`; a silent work is unaffected.
     """
     if request.request_format_version != c.V03_SCHEMA_VERSION or request.delivery_requirements is None:
-        raise EngineError('alignment_required',
-                          'Speech publication needs an explicit 0.3 evidence request with admitted requirements.', 409)
-    try:
-        resolved = bundle.evidence_policy(lease)
-    except EngineError as error:
-        raise EngineError('alignment_required',
-                          f'Admitted local evidence policy is required before speech publication ({error.code}).', 409) from error
+        resolved = bundle.local_evidence_policy(lease)
+        if resolved is None:
+            raise EngineError('alignment_required',
+                              'Speech publication needs an installed and verified local self-issued evidence policy.', 409)
+    else:
+        try:
+            resolved = bundle.evidence_policy(lease)
+        except EngineError as error:
+            raise EngineError('alignment_required',
+                              f'Admitted local evidence policy is required before speech publication ({error.code}).', 409) from error
     if resolved.policy.alignment_evidence_policy == 'strict_reference_v1':
         raise EngineError('alignment_required',
                           'Local self-issued whisper evidence cannot satisfy strict reference policy.', 409)

@@ -1,24 +1,30 @@
 """Original held sources, immutable alignment registration and JSON Step commit."""
 
 import hashlib
-import threading
 
 from pydantic import ValidationError
 
-from video_creator.application.engine import canonical, digest, identity
 from video_creator.application.affected_repair_service import canonical_body
+from video_creator.application.committed_alignment_read import (
+    CommittedAlignmentReadService,
+)
+from video_creator.application.engine import canonical, digest, identity
 from video_creator.domain import contracts as c
 from video_creator.domain import local_bundle as local
-from video_creator.domain.current_final_evidence import CurrentFinalAssemblyContextV2
 from video_creator.domain.affected_repair import AlignmentResourceSection
-from video_creator.domain.registered_alignment import (
-    AffectedAlignmentRequest, InitialAlignmentRequest, AlignmentAsrSource,
-    AlignmentAudioSource, AlignmentRegistrationSource, AlignmentTranscriptSource,
-    ReadyAlignmentTranscriptSource, AlignmentUnitSource, alignment_request_bytes,
-)
 from video_creator.domain.errors import EngineError
+from video_creator.domain.registered_alignment import (
+    AffectedAlignmentRequest,
+    AlignmentAsrSource,
+    AlignmentAudioSource,
+    AlignmentRegistrationSource,
+    AlignmentTranscriptSource,
+    AlignmentUnitSource,
+    InitialAlignmentRequest,
+    ReadyAlignmentTranscriptSource,
+    alignment_request_bytes,
+)
 from video_creator.domain.worker import GeneratedFileManifest
-from video_creator.application.committed_alignment_read import CommittedAlignmentReadService
 
 INITIAL_PREFIX = 'current_initial_alignment:'
 AFFECTED_PREFIX = 'current_affected_alignment:'
@@ -101,7 +107,9 @@ class RegisteredAlignmentService(CommittedAlignmentReadService):
         late = {'transcript', 'srt', 'vtt', 'segments', 'rag', 'quality', 'audit',
                 'work_validation', 'measurement', 'reference', 'policy', 'qualification', 'benchmark'}
         for role, artifact_id in context.document_artifact_ids.items():
-            from video_creator.application.current_final_evidence_recovery import DOCUMENT_PATHS
+            from video_creator.application.current_final_evidence_recovery import (
+                DOCUMENT_PATHS,
+            )
             slot = slots[artifact_id]
             if role in DOCUMENT_PATHS and slot.relative_path != DOCUMENT_PATHS[role]:
                 raise EngineError('final_assembly_document_invalid', 'Original initial document path changed', 422)
@@ -449,6 +457,16 @@ class RegisteredAlignmentService(CommittedAlignmentReadService):
             return None
         return self._validate_composed_ctc_work_source(lease, preparation_id, actual, report)
 
+    def _registered_initial_alignment(self, lease, preparation_id):
+        """True only when a real registered initial CTC source exists for this preparation."""
+        with self.engine.db.connect_readonly() as connection:
+            self.engine._lease(connection, lease)
+            return bool(
+                connection.execute('SELECT 1 FROM metadata WHERE key=?',
+                                   (INITIAL_PREFIX + preparation_id,)).fetchone()
+                or connection.execute('SELECT 1 FROM metadata WHERE key=?',
+                                      ('current_final_evidence_lineage:' + preparation_id,)).fetchone())
+
     @staticmethod
     def assert_registered_ctc_work_writer(connection, expected):
         if expected is None:
@@ -475,7 +493,6 @@ class RegisteredAlignmentService(CommittedAlignmentReadService):
                 raise EngineError('work_ctc_source_changed', 'Original CTC/ASR/child source changed at writer boundary', 409)
 
     def registered_ctc_work_manifest_source(self, lease, preparation_id, manifest):
-        from video_creator.application.bundles import validate_text
         if not isinstance(manifest, (c.BundleManifestV03, local.BundleManifestLocalV1)):
             return None
         prepared = self.recover_preparation(lease, preparation_id)
@@ -492,6 +509,13 @@ class RegisteredAlignmentService(CommittedAlignmentReadService):
             reports = [documents.get(indexed[identifier].relative_path) for identifier in quality.alignment_report_artifact_ids if identifier in indexed]
             matched = [item for item in reports if isinstance(item, c.WorkAlignmentValidationReport)]
             if isinstance(actual, local.LocalActualTranscriptDocumentV1) and isinstance(actual.alignment, c.AlignmentRevisionV03):
+                if not self._registered_initial_alignment(lease, preparation_id):
+                    # ADR0082: the local whisper estimate method has no CTC
+                    # lineage and must not be required to fabricate a CTC work
+                    # report. Its own evidence is validated by the local V03
+                    # branch (policy/qualification/benchmark evidence +
+                    # not_measured AlignmentRevisionV03).
+                    return None
                 if len(matched) != 1:
                     raise EngineError('work_evidence_material_missing', 'Local verified CTC requires exactly one actual work report.', 422)
                 report = matched[0]
@@ -700,7 +724,10 @@ class RegisteredAlignmentService(CommittedAlignmentReadService):
                 raise EngineError('alignment_binding_invalid', 'Original main command SHA changed', 422)
             if execution is not None:
                 self._affected_execution(connection, lease, execution)
-            from video_creator.application.current_final_evidence_journal import PREFIX, parse_journal
+            from video_creator.application.current_final_evidence_journal import (
+                PREFIX,
+                parse_journal,
+            )
             stored = connection.execute('SELECT value FROM metadata WHERE key=?', (PREFIX + lease.run_id,)).fetchone()
             journal = parse_journal(stored[0], now=self.engine.clock()) if stored else None
             if (journal is None or journal.binding != binding or journal.control.phase != 'executing'
@@ -803,29 +830,28 @@ class RegisteredAlignmentService(CommittedAlignmentReadService):
             raise EngineError('alignment_source_invalid', 'Original saved plan and quality source required', 422)
         creative = canonical_body({'plan_ref': refs['plan'], 'quality_ref': refs['quality']})
         issuer = self._production_authorization.issuer()
-        with issuer.current_guard(self._production_authorization.registered(lease)) as guard:
-            with self.engine.db.transaction() as connection:
-                current, run, _production, _request = self._preparation(connection, lease, preparation_id)
-                issuer._guard(connection, guard)
-                if current['intent_json'] != row['intent_json'] or self._final_binding(lease, connection) != binding:
-                    raise EngineError('initial_alignment_conflict', 'Original same preparation/source changed', 409)
-                exists = connection.execute('SELECT value FROM metadata WHERE key=?', (INITIAL_PREFIX + preparation_id,)).fetchone()
-                if exists is None:
-                    final_ready = connection.execute("SELECT 1 FROM bundle_items WHERE preparation_id=? AND status='ready' AND relative_path IN (?,?,?,?,?)",
-                        (preparation_id, 'Text/actual-transcript.json', 'Text/subtitles.srt', 'Text/subtitles.vtt',
-                         'Semantics/semantic-segments.jsonl', 'Semantics/rag-chunks.jsonl')).fetchone()
-                    if final_ready is not None:
-                        raise EngineError('initial_alignment_source_denied', 'First CTC registration cannot follow final speech READY', 403)
-                for key, text in ((INITIAL_PREFIX + preparation_id, canonical_body(body)),
-                        ('current_initial_alignment_sources:' + preparation_id, creative)):
-                    old = connection.execute('SELECT value FROM metadata WHERE key=?', (key,)).fetchone()
-                    if old is not None and old[0] != text:
-                        raise EngineError('initial_alignment_conflict', 'Original initial input and IDs are immutable', 409)
-                    if old is None:
-                        connection.execute('INSERT INTO metadata(key,value) VALUES(?,?)', (key, text))
-                self.assert_alignment_writer(connection, lease, preparation_id, initial=True, guard=guard)
-                self.engine._event(connection, run, 'production.initial_alignment_registered', body['request_sha256'])
-                self.assert_alignment_writer(connection, lease, preparation_id, initial=True, guard=guard)
+        with issuer.current_guard(self._production_authorization.registered(lease)) as guard, self.engine.db.transaction() as connection:
+            current, run, _production, _request = self._preparation(connection, lease, preparation_id)
+            issuer._guard(connection, guard)
+            if current['intent_json'] != row['intent_json'] or self._final_binding(lease, connection) != binding:
+                raise EngineError('initial_alignment_conflict', 'Original same preparation/source changed', 409)
+            exists = connection.execute('SELECT value FROM metadata WHERE key=?', (INITIAL_PREFIX + preparation_id,)).fetchone()
+            if exists is None:
+                final_ready = connection.execute("SELECT 1 FROM bundle_items WHERE preparation_id=? AND status='ready' AND relative_path IN (?,?,?,?,?)",
+                    (preparation_id, 'Text/actual-transcript.json', 'Text/subtitles.srt', 'Text/subtitles.vtt',
+                     'Semantics/semantic-segments.jsonl', 'Semantics/rag-chunks.jsonl')).fetchone()
+                if final_ready is not None:
+                    raise EngineError('initial_alignment_source_denied', 'First CTC registration cannot follow final speech READY', 403)
+            for key, text in ((INITIAL_PREFIX + preparation_id, canonical_body(body)),
+                    ('current_initial_alignment_sources:' + preparation_id, creative)):
+                old = connection.execute('SELECT value FROM metadata WHERE key=?', (key,)).fetchone()
+                if old is not None and old[0] != text:
+                    raise EngineError('initial_alignment_conflict', 'Original initial input and IDs are immutable', 409)
+                if old is None:
+                    connection.execute('INSERT INTO metadata(key,value) VALUES(?,?)', (key, text))
+            self.assert_alignment_writer(connection, lease, preparation_id, initial=True, guard=guard)
+            self.engine._event(connection, run, 'production.initial_alignment_registered', body['request_sha256'])
+            self.assert_alignment_writer(connection, lease, preparation_id, initial=True, guard=guard)
         return self._alignment_intent(body)
 
     def prepare_affected_alignment(self, lease, parent, source, command_sha):
@@ -965,23 +991,22 @@ class RegisteredAlignmentService(CommittedAlignmentReadService):
 
     def _commit_alignment(self, lease, locator, *, files, initial, execution=None):
         facts = self._alignment_result_facts(lease, locator, initial=initial, execution=execution, files=files)
-        body, _request, alignment, manifest, observation, operation, allocation, signature = facts
+        body, _request, alignment, manifest, _observation, operation, allocation, signature = facts
         result = {'request_sha256': body['request_sha256'], 'generated_files': [manifest.model_dump(mode='json')],
             'alignment_content_sha256': alignment.content_sha256, 'operation_id': operation['id']}
         issuer = self._production_authorization.issuer()
-        with issuer.current_guard(self._production_authorization.registered(lease)) as guard:
-            with self.engine.db.transaction() as connection:
-                self.assert_alignment_writer(connection, lease, locator, initial=initial, guard=guard, execution=execution)
-                run = self.engine._lease(connection, lease)
-                current = dict(self.engine._operation(connection, run, operation['id']))
-                actual = dict(self._production_services_runtime.worker._generated(connection, lease, manifest.attempt_id))
-                if current != operation or actual != allocation:
-                    raise EngineError('alignment_result_changed', 'Actual settled operation/allocation changed before commit', 409)
-                stat = self.assets._path('Staging', manifest.candidate.staging_id).stat()
-                if (stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns, stat.st_ino) != signature:
-                    raise EngineError('alignment_result_changed', 'Original allocated JSON changed before Step commit', 409, 'reconcile')
-                self.engine._complete_step(connection, lease, body['descriptor']['step_key'], (), result)
-                self.assert_alignment_writer(connection, lease, locator, initial=initial, guard=guard, execution=execution)
+        with issuer.current_guard(self._production_authorization.registered(lease)) as guard, self.engine.db.transaction() as connection:
+            self.assert_alignment_writer(connection, lease, locator, initial=initial, guard=guard, execution=execution)
+            run = self.engine._lease(connection, lease)
+            current = dict(self.engine._operation(connection, run, operation['id']))
+            actual = dict(self._production_services_runtime.worker._generated(connection, lease, manifest.attempt_id))
+            if current != operation or actual != allocation:
+                raise EngineError('alignment_result_changed', 'Actual settled operation/allocation changed before commit', 409)
+            stat = self.assets._path('Staging', manifest.candidate.staging_id).stat()
+            if (stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns, stat.st_ino) != signature:
+                raise EngineError('alignment_result_changed', 'Original allocated JSON changed before Step commit', 409, 'reconcile')
+            self.engine._complete_step(connection, lease, body['descriptor']['step_key'], (), result)
+            self.assert_alignment_writer(connection, lease, locator, initial=initial, guard=guard, execution=execution)
         return alignment
 
     def _read_alignment(self, lease, locator, *, initial, execution=None):

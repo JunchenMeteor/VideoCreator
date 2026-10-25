@@ -1,5 +1,6 @@
 """Local 0.4 actual material relations. Uses the original service and authorities."""
-from video_creator.domain import contracts as c, local_bundle as local
+from video_creator.domain import contracts as c
+from video_creator.domain import local_bundle as local
 from video_creator.domain.errors import EngineError
 
 
@@ -10,7 +11,10 @@ def _require(condition, code, message):
 
 def validate_local_relations(service, lease, preparation_id, manifest, documents, request, context):
     from video_creator.application.bundles import (
-        check_record, matches_actual_asr, serialize_subtitles, strict_json, local_fact_id,
+        check_record,
+        local_fact_id,
+        matches_actual_asr,
+        serialize_subtitles,
     )
     indexed = {value.artifact_id: value for value in manifest.artifacts}
     paths = {value.relative_path: value for value in manifest.artifacts}
@@ -158,7 +162,7 @@ def validate_local_relations(service, lease, preparation_id, manifest, documents
                 service._verify_strict_precision(lease, manifest, documents, actual, quality, request.delivery_requirements or c.DeliveryRequirements())
             srt,vtt,quantization=serialize_subtitles(actual.subtitles)
             _require(documents.get('Text/subtitles.srt')==srt.decode() and documents.get('Text/subtitles.vtt')==vtt.decode()
-                     and actual.subtitles.quantization==quantization,'subtitle_quantization_invalid','Actual subtitle bytes and quantization differ.')
+                     and actual.subtitles.quantization_errors==tuple(quantization),'subtitle_quantization_invalid','Actual subtitle bytes and quantization differ.')
             _require(actual.subtitles.actual_transcript_revision_id==transcript.transcript_revision_id
                      and actual.subtitles.alignment_revision_id==alignment.alignment_revision_id
                      and actual.subtitles.timeline_duration_us==manifest.timeline_duration_us,

@@ -255,6 +255,30 @@ def local_evidence_resource_manifest_hashes(engine: EngineService) -> frozenset[
 # ------------------------------------------------------------------ receipt / completion
 
 
+def local_evidence_selected_policy(engine: EngineService, owner_subject: str, project_id: str,
+                                   *, connection=None):
+    """The installed, verified local self-issued policy selected for this work.
+
+    Only the durable local selection written by `preauthorize` is read (metadata);
+    the policy is re-loaded through the registry's signature/expiry/scope and
+    cross-binding checks. Missing, expired, revoked or non-local-self-issued
+    policies return None so the caller keeps the default `alignment_required`.
+    """
+    registry = engine.evidence_registry
+    try:
+        resolved = registry.resolve(owner_subject, project_id, None, connection=connection)
+    except EngineError:
+        return None
+    benchmark = resolved.benchmark
+    if (not resolved.policy.issuer.startswith(ISSUER_PREFIX)
+            or not resolved.qualification.authority_ref.startswith(AUTHORITY_PREFIX)
+            or type(benchmark) is not c.LocalSelfIssuedBenchmarkV1
+            or benchmark.evaluation_scope != 'capability_benchmark_not_performed'
+            or resolved.policy.alignment_evidence_policy != 'qualified_method_runtime_v1'):
+        return None
+    return resolved
+
+
 def _control_folder(engine: EngineService) -> Path:
     folder = Path(engine.db.data_dir) / 'Control'
     if folder.is_symlink() or folder.is_junction() or not folder.is_dir():

@@ -127,6 +127,25 @@ def observe_local_speech_frames(composition, bundle, lease, media, *, speech, do
     return frames
 
 
+def chunk_text(chunk_type, segment):
+    """One text source per chunk: a speech chunk is exactly its utterance text."""
+    return segment.speech_text if chunk_type == 'speech_segment' else segment.retrieval_text
+
+
+def require_rag_speech(chunks, segments, speech):
+    """Observed speech only, with the chunk text equal to its segment text."""
+    known = {value.segment_id: value for value in segments}
+    for chunk in chunks:
+        if chunk.chunk_type != 'speech_segment':
+            continue
+        linked = [known[key] for key in chunk.segment_ids if key in known]
+        if (speech.state != 'speech_observed' or len(linked) != len(chunk.segment_ids)
+                or chunk.text != ''.join(value.speech_text for value in linked)):
+            raise EngineError('local_rag_speech_invalid',
+                              'Only actual observed speech may enter speech chunks.', 422)
+    return chunks
+
+
 def build_local_semantics(composition, *, bundle_revision_id, access_scope_ref, right,
         speech, shots, transcript_document=None, mapping=None, speech_frames=None):
     """Create sole typed documents from actually observed inputs, without staging.
@@ -197,10 +216,13 @@ def build_local_semantics(composition, *, bundle_revision_id, access_scope_ref, 
     for number, segment in enumerate(segments):
         chunk_type = 'speech_segment' if segment.speech_text else 'visual_segment' if video is not None else 'audio_segment'
         chunks.append(record(RagChunkLocalV2(chunk_id=f'local-chunk-{number}', chunk_type=chunk_type,
-            bundle_revision_id=bundle_revision_id, segment_ids=(segment.segment_id,), text=segment.retrieval_text,
+            bundle_revision_id=bundle_revision_id, segment_ids=(segment.segment_id,),
+            text=chunk_text(chunk_type, segment),
             source_refs=source_refs, video_ranges=(segment.video_range,) if segment.video_range is not None else (),
             audio_spans=segment.audio_spans, language=transcript_document.transcript.language
             if transcript_document is not None else 'und', rights_ref=right.rights_id, access_scope_ref=access_scope_ref,
-            valid_until_us=expiry, field_provenance={'text': 'derived'},
+            valid_until_us=expiry,
+            field_provenance={'text': 'observed' if chunk_type == 'speech_segment' else 'derived'},
             method_refs=tuple(dict.fromkeys((*speech.method_refs, 'actual-decoder'))), content_sha256='0' * 64)))
+    require_rag_speech(chunks, segments, speech)
     return {'summary': summary, 'sources': sources, 'shots': shots, 'segments': tuple(segments), 'rag': tuple(chunks)}
