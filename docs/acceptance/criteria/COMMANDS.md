@@ -1274,3 +1274,45 @@ G:/开发测试/Projects/VideoCreator/.venv/Scripts/python.exe -m pytest tests/d
 1. `owner_bootstrap.change()` 在 dev 来源下会先创建/锁定 `Control/`，再在锁内发现已有 binding 并报 `development_owner_existing_denied`；因此“被拒绝的再启动”会留下 `OwnerManagementControl.lock`。测试已按实际语义断言（binding/审计/控制面均未写），但这是可记录的副作用。
 2. 并行开发期间产品文件会被其他角色修改：本轮复跑时工作树含后端未提交的 `media_registration.py`/`cli/development_host.py`。`RunSummary.product_file_sha256` 逐一记录被测文件字节；若构建后源码再变，dev 主机会按设计报 `development_code_changed`（失败而非放行）。
 3. 本批不为测试添加任何产品钩子；零成本 executor 与媒体请求形状用进程内真实对象验证（不联网、不调用模型）。
+
+## ADR0083 V1–V11：真实安装实例供给与首启（2026-10-26）
+
+角色：测试开发。产品：`installer-admin provision`（后端实现，未改动）。验证对象不是安装包，而是**真实安装目录 + 真实空实例**：安装目录 `Codex/VideoCreatorImplementation/TestDevelopment/InstallerProvisioning/Install/`（`Registration.json` + `Package/` + `AsrPackage/` + `Routes/`，资源与既有 delivery 同字节，硬链接），实例目录 `.../InstallerProvisioning/Instance/`（每次运行前删除重建）。引擎以**源码树**运行（未构建 frozen onedir），因此 V9/V10 无包内引擎/工作台可测。
+
+注册：`.../InstallerProvisioning/make_registration.py` 用产品自己的 `_package_sources`/`_hash` 从当前 checkout 重算 `engine_source_sha256`（base 为 `Integration/LocalInstallationRegistrationBuild/Registration.ProvisionTest.json`），本次 194 源、`registration_sha256=00c476ce…`（实时值见结果 JSON）。
+
+```bash
+# 1) 供给（幂等；同参重跑返回 already_provisioned）
+.venv/Scripts/python.exe -m video_creator.cli.main installer-admin provision \
+  --install-dir Codex/VideoCreatorImplementation/TestDevelopment/InstallerProvisioning/Install \
+  --data-dir   Codex/VideoCreatorImplementation/TestDevelopment/InstallerProvisioning/Instance \
+  --registration Codex/VideoCreatorImplementation/TestDevelopment/InstallerProvisioning/Install/Registration.json
+# 2) V1–V11 逐条观测（真实 serve / 产品内授权 / 重启 / 管理面负例）
+.venv/Scripts/python.exe tests/acceptance/adr0083_provisioning_v1_v11.py \
+  --install-dir Codex/VideoCreatorImplementation/TestDevelopment/InstallerProvisioning/Install \
+  --data-dir   Codex/VideoCreatorImplementation/TestDevelopment/InstallerProvisioning/Instance \
+  --out Codex/VideoCreatorImplementation/TestDevelopment/InstallerProvisioning/V1-V11-results.json
+```
+
+期望摘要：provision 输出 `status=provisioned`、五个 route id、`checks` 四项 `ok`；runner 输出 8 条 PASS（V2–V8）、V11 为 `403 production_authorization_unconfigured`；V1/V11 之外不写产品文件。
+
+| # | 命令 | 期望 | 实际 | 判定 |
+| --- | --- | --- | --- | --- |
+| V1 | 读 `Control/InstallationProvisioning.json` 并与实例/注册/SHA 比对 | 记录自洽，且 `items` 覆盖 A1–A8+B1–B6 | `format/complete/instance_id/project_id/registration_sha256` 全部自洽；`items` 仅 8 条（`registration`/`project`/`production_floor`/5×`route:*`），无 A1–A8、无 ACL/migrations/install_root/OS 锚点 | **FAIL（覆盖）**：自洽通过，`adr_item_coverage` 缺失 |
+| V2 | `check_local_registration.py --runtime`（六项，含真实 `RegisteredMediaRuntime`） | exit 0、`ok:true`、六项全真 | 六项全 `ok`（schema/engine_source/material_resources/routes/tools_version/media_runtime） | **PASS** |
+| V3 | `SELECT id FROM routes ORDER BY id`（只读连接） | 恰好五条且等于注册 | 五条逐字相等（含 `local.asr.faster-whisper-small-cpu-int8`） | **PASS** |
+| V4 | 读 floor + SHA256 + 四表计数 | `minimum_revision=0`、`pending=null`、SHA 等于 V1 item、四表 0 | 全部成立（`sha256` 与记录内 `production_floor.sha256` 相同） | **PASS** |
+| V5 | `Get-Acl <Data>` | 恰 2 条、`FullControl`、`IsInherited=False`、无 Users/Everyone | 2 条：`NT AUTHORITY\SYSTEM`、`METEOR-PC\Meteorshower`；均 `FullControl`(2032127)、非继承 | **PASS** |
+| V6 | 受限 `serve`：`GET /projects`、`GET /health` | 403 `owner_authorization_required`；200 且头 `pending` | 403 + 该码；200 + `X-VideoCreator-Authorization: pending` | **PASS** |
+| V7 | pending→approve→重启→`/health`,`/projects`；`owner-status`；审计文件与 metadata SHA | `complete`+`restart_required`；重启后 `none`+200；审计 `kind=owner_initialize`/`decision=approve` 且 metadata SHA 相同 | 全部成立；`owner_initialized=true` | **PASS** |
+| V8 | keyring 取 `owner-<instance>-<binding>`；管理端点带安装 token | keyring `None`；403 `production_management_denied` | `None`；403 该码（`POST /api/v1/local-copy-input-scopes/install`） | **PASS** |
+| V9 | 扫描 `Install/*.json,*.cmd` 的 dev 标记；`<Engine> serve-dev` | 无标记；打包引擎 argparse exit 2 | 无 dev 标记；**无打包引擎**，frozen 拒绝半个断言无对象 | **NOT_EXECUTED** |
+| V10 | `GET /`、`GET /api/v1/health`、页面源码查 token | 200 含 `<div id="root">`，无 token 片段 | 无 `Workbench/`、无启动器，无页面/同源代理可观测 | **NOT_EXECUTED** |
+| V11 | `POST /api/v1/productions`（最小合法请求） | R1 现状 403 `production_authorization_unconfigured` | **202 受理**，production `queued`（`production-…`），无 403 | **FAIL（产品差异）** |
+
+产物：`InstallerProvisioning/V1-V11-results.json`（逐条 command/expected/actual/evidence）、`provision.json`（原始 stdout）、`run.log`、`V2-registration-runtime.json`、`Instance/Control/InstallationProvisioning.json`、`Instance/Control/ProductionAuthorization.json`。
+
+### 本次两条失败（不改判据）
+
+1. **V1 记录覆盖不足**：`installer-admin provision` 只审计 B 组子集（registration/project/floor/5 routes），ADR0083 §2.1/§2.2 要求 A1–A8 文件项与 B1/B2/B6 锚点（`install_root`、`os_subject`、`administrator_id`、`instance_device/inode`、`resource_manifest_sha256`、`expected_files`、`dacl_summary_sha256`）。记录本身自洽，但不满足 ADR 的“items 覆盖”期望，且 ADR0084 启动器钉定所需的权威锚点缺失。
+2. **V11 执行权威未阻断受理**：ADR0083 V11 期望 `403 production_authorization_unconfigured`，实测 `POST /api/v1/productions` 返回 **202** 且 production 进入 `queued`。即“无 factory 的产品 serve”在受理阶段没有执行身份检查，与 ADR0083 §0.3-2/§7-6 描述的“制作 403”不一致（可能只在执行/派发阶段失败）。此差异需后端/架构确认是判据过时还是实现缺口，本批不改产品。

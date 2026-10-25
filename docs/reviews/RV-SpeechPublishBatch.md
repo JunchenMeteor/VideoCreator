@@ -1,6 +1,6 @@
 # 语音发布链与 P1 修复复验（RV-SpeechPublishBatch）
 
-**结论：OPEN_P1_BLOCKED。** 上一轮三个 P1 中，P1-1（product approve 产生 management secret）与 P1-2（helper 信任伪造 admission）已实质修复；P1-3 **只修到“空 journal 的伪造 operation 行”**，完整伪造 journal staging/context/binding 仍可通过，我实测它接受了一条伪造转写。因而对核心问题仍然是：**有路径能让未被真实观测支撑的语音证据/作品成立**；正常 HTTP 四要素没有发现绕过。
+**结论：PASS（P1-3 复验已闭合；P2/P3 保留）。** P1-1（product approve 产生 management secret）与 P1-2（helper 信任伪造 admission）已实质修复；P1-3 的 `asr_observation_signature` 已在 §10 复验：完整伪造 operation/staging/context/transcript 无签名时被 `asr_observation_signature_missing` 拒绝，改承诺/改签名/删签名均具名拒绝；只有持有 OS-vault 密钥才能重签。签名读路径、密钥自动重建和测试缺口仍为 P2/P3。
 
 ## 0 输入与实测
 
@@ -81,4 +81,4 @@
 
 ## 9 最终
 
-**OPEN_P1_BLOCKED。** P1-1/P1-2 已修复；P1-3 的 journal 事实仍是无 key 的 DB/文件，完整伪造 staging/context/transcript 可被接受并签成证据。**对核心问题的直答：有——完整伪造 journal staging 的路径仍能生成未经真实 ASR 观测支撑的自签证据；正常 HTTP 四要素和真实语音包本身没有发现“未测量却 measured”的放行。**
+**PASS（P1-3 复验闭合；P2/P3 保留）。** P1-1/P1-2 已修复；§10 的签名复验表明上一轮完整伪造 journal staging/context/transcript 在**无签名**时被 `asr_observation_signature_missing` 拒绝，改承诺/改签名/删签名均被拒；只有 OS-vault 密钥持有者可重签。P2/P3 为签名验证的读路径、密钥自动重建、跨实例错误码和测试缺口。**对核心问题的直答：在“只有 DB/文件写权限”的威胁模型下，没有路径能让未经真实 ASR 观测的语音证据通过 `_settled_observation`；正常 HTTP 四要素和真实语音包本身也没有发现“未测量却 measured”的放行。**

@@ -98,3 +98,11 @@ MCP `production_create` 可创建 production，但实测发现：① MCP 启动�
 
 ### 同时确认的设计事实
 新装实例经产品内授权后仍无 ffmpeg/ASR 路由（`route_unavailable`）——**注册路由是管理动作，产品内授权刻意不授予**。因此安装器/受信启动必须先完成一次"管理性供给"，之后用户只需在产品内确认 Owner。这条需要单独立卡（安装器供给），并影响 R1 的安装包设计。
+
+
+## 2026-10-26 03:00 语音签名回归 + 安装器 V1–V11 实测
+
+- **签名回归（我实跑）**：重建注册（194 源、含 `asr_observation_signature`）后跑真实语音请求 → `production-b8a935af421348438b4078f10d26cf48` **succeeded**，bundle `local-bundle-revision-98286d89…`。说明"签名只在 ASR settle 写、发布不验签"确实没有打断 happy path。
+- **安装器 V1–V11（测试角色真跑，约 6 分钟）**：V2–V8 PASS（注册/运行时、五条路由、空 floor+四表 0、ACL、授权前 403、授权后 200+审计 SHA 匹配、keyring None+管理面 403）；**V1 FAIL**（供给记录只有 8 条 B 组项，缺 A 组与 ADR0084 锚点）；**V11 FAIL**（无 factory 的 `serve` 受理返回 202 而非 403）；V9/V10 因尚无打包引擎与启动器而 NOT_EXECUTED。
+- 可复跑入口：`python tests/acceptance/adr0083_provisioning_v1_v11.py --install-dir … --data-dir … --out …`，已登记 `COMMANDS.md`。
+- 两条 FAIL 已派后端修（记录补齐 + 受理阶段校验执行权威，dev 路径不受影响）。
