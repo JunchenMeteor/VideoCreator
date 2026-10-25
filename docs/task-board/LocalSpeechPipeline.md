@@ -37,3 +37,27 @@
 - 不实现 Piper 旁白（缺 voice 模型，记 BLOCKED）；
 - 不启用付费/远程 ASR；
 - 不降低对齐与质量门。
+
+
+## ADR0080 裁定后的修订（2026-10-25 22:00）
+
+架构裁定见 `docs/decisions/0080-local-speech-evidence-minimum.md`。要点：
+
+1. `utterance_verified` **不要求** `precision.measured`、**不要求** CTC；要独立测量的是 0.3 的 `alignment_evidence_policy`（`qualified_method_runtime_v1` 允许 `not_measured`，`strict_reference_v1` 强制每片 reference）。
+2. 本地语音**必须** `AlignmentRevisionV03`；旧 `AlignmentRevision` 必落"必须 measured"硬门。
+3. **R1 仍强制注册 CTC**（ADR0075:43 已冻结），whisper 时间戳只能作单位来源并诚实标注，单独不可发布。→ **需要 torch/whisperx 运行时与 `alignment`/`qualified_local_forced_alignment` 资源段**（`providers/local_alignment.py:79-118`）。
+4. 字幕不额外强制 CTC/measured，只受 alignment 门与精确序列化字节约束。
+5. **真正的总阻断：evidence policy/qualification/benchmark 准入缺失** —— 无 policy 即 `alignment_required` 409（`evidence.py:373`）；`install` 需 `EvidenceAdminCapability` 且要 `EvidenceApproval` 签名（`evidence.py:101-141`），仓库无任何准入入口与可信 issuer。**准入前 whisper 与 CTC 都无法发布语音作品。**
+
+### 修订后的缺口（按归属）
+
+| 角色 | 缺口 |
+| --- | --- |
+| 集成 | ① ASR 资源包（已有模型，需清单/route）；② 锁 `faster-whisper==1.2.1`/`ctranslate2==4.8.3`/`av==18.1.0`；③ **CTC 运行时（torch/whisperx）** 与 `alignment` 资源段 |
+| 后端 | ① dev 放开 ASR 四字段（已实现，待真实清单验证）；② `delivery_requirements=None` 的 AttributeError 具名化；③ **evidence 准入入口**（可信 issuer + policy/qualification/benchmark 安装），这是发布总开关 |
+| 媒体 | ① `_speech_error` → 真实路径；② 三份新材料槽 `actual_transcript_local`/`srt_local`/`vtt_local`；③ 真实 `audio_mappings` 与 `asr_operation_id`；④ `alignment_registration` **不可为空**（R1） |
+| 测试 | 按 ADR0080 §6 正负例；缺资源记 BLOCKED，不得 mock 通过 |
+
+### 明确后继（不做）
+
+零 cue、no_speech 发布、audio-only、Piper 旁白、`word_verified`、whisper 方法资格。
