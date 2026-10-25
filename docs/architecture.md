@@ -74,3 +74,7 @@ ADR0042固定新的私有indexed initialize_and_bind入口，先用原held OS pe
 ## 真实安装资格注入
 
 ADR0043固定唯一qualified私有wire v2/同原Engine和held peer的具体issuer，保旧v1仅facts-only；原Daily装配不另造。真实完整资源测验、许可/构建/ABI和独立接受报告形成离线资格pack，发布/本机受保护verifier来源各自验证，免产品账号。Owner接纳镜像、JSON、SHA或编译0不能qualify；current撤销/期限/升级floor/原对象与短writer本地hook都必核。现有源仅有portNone且v1永远not_ready，producer/wire/实际资格suite与三个平台尚未实现或运行。
+
+## 开发安装资格宿主
+
+ADR0077批准一条显式、非生产的本地安装资格路径，使native宿主尚未编译的开发检出也能跑通local-v1本地素材制作到0.4作品包。边界：`ProductionAdmissions`的`_identity`/`_installation`/`_guard`、`register_execution_identity`前置、`install_startup_services`的type校验、native路径及`serve`/`worker`/`mcp-stdio`入口一律原样；dev对象只由`cli/development_host.py`的`serve-dev`/`worker-dev`在"CLI注册文件参数+`VIDEO_CREATOR_DEVELOPMENT_INSTALLATION`等于实例id+非frozen产物"三重条件下构造，且必须复用`NativeOwnerServices`（其类型硬校验不放宽）。证据由真实磁盘哈希与真实时钟得出，但来源是checkout而非受保护安装，不构成安装、发布或Gate0/R1证据。`/health`以`X-VideoCreator-Installation: local-development`响应头标出，`InstanceHealth.mode`、OpenAPI与`packages/contracts`字节不变。第一版仅human(interactive)模式，不支持v2/v3、ASR与unattended；dev身份以Owner binding有效期加7天上限自我终止，退役以Rust native宿主可编译并具备真实安装记录与资格为前提。
