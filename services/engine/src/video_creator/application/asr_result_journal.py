@@ -165,7 +165,12 @@ class AsrResultJournal(OriginalAsrValidationContext):
         reservation = OutputReservation(attempt_id=handle.allocation.attempt_id, staging_id=handle.allocation.staging_id,
             run_id=lease.run_id, step_key=handle.allocation.step_key, input_sha256=handle.allocation.input_sha256,
             partial_path=partial, completed_path=path)
-        return self.worker.finish_output(lease, reservation)
+        receipt = self.worker.finish_output(lease, reservation)
+        from video_creator.application.asr_observation_signature import sign_observation
+        sign_observation(self.engine, allocation=handle.allocation,
+                         staging_sha256=hashlib.sha256(data).hexdigest(), staging_size=len(data),
+                         observation=observation)
+        return receipt
 
     def _scope(self, connection, invocation):
         presence = self.worker._presence(connection, invocation.lease.worker_id)

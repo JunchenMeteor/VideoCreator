@@ -175,6 +175,14 @@ def parser() -> argparse.ArgumentParser:
     evidence_install.add_argument("--data-dir", required=True, type=Path)
     evidence_install.add_argument("--receipt", required=True, type=Path,
                                   help="The one-shot receipt issued by the approved product authorization")
+    installer = commands.add_parser("installer-admin",
+                                    help="ADR0083 one-shot installer provisioning; never starts a listener")
+    installer_commands = installer.add_subparsers(dest="installer_command", required=True)
+    provision = installer_commands.add_parser("provision")
+    provision.add_argument("--install-dir", required=True, type=Path)
+    provision.add_argument("--data-dir", required=True, type=Path)
+    provision.add_argument("--registration", required=True, type=Path,
+                           help="The already generated trusted local registration")
     mcp = commands.add_parser("mcp-stdio")
     mcp.add_argument("--data-dir", required=True, type=Path)
     mcp.add_argument("--ffmpeg", type=Path)
@@ -356,6 +364,13 @@ def main(*, installed_service_factory: InstalledServiceFactory | None = None,
                                   "Only the one-shot evidence-admin install is supported", 400)
             print(json.dumps(evidence_admin_install(data_dir=args.data_dir, receipt=args.receipt),
                              ensure_ascii=False))
+        elif args.command == "installer-admin":
+            if args.installer_command != "provision":
+                raise EngineError("installer_admin_command_invalid",
+                                  "Only the one-shot installer-admin provision is supported", 400)
+            from video_creator.application.installer_provisioning import provision
+            print(json.dumps(provision(install_dir=args.install_dir, data_dir=args.data_dir,
+                                       registration=args.registration), ensure_ascii=False))
         elif args.command == "mcp-stdio":
             from video_creator.integrations.mcp_stdio import run_mcp_stdio
             token = os.environ.get("VIDEO_CREATOR_MCP_TOKEN", "")
