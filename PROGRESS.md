@@ -4810,3 +4810,13 @@ Backend bc3d67自然0/RoleSourceBridgeGap该slice释放；Root039c8c全文Gap.md
 - 产品内授权的后端与前端实现已开工（ADR0081）。
 - ASR 资源包由集成交付：4,644 文件 / 989 MB，隔离 Python + whisper 模型；`load_asr_resources` exit 0；包内真实转写成功；依赖锁定 `faster-whisper 1.2.1 / ctranslate2 4.8.3 / av 18.1.0`。
 - 仍未完成：带语音的作品包（待产品内授权 + evidence-admin 安装入口 + 媒体真实路径）、模型设置、安装形态、R2。
+
+
+## 2026-10-25 24:00 前后：产品内授权验收、语音路径与自签证据落地
+
+- **产品内授权已真实验收**（全新空实例，`serve` 真实进程）：受限启动 `/projects` 403、`/health: pending`；无 secret 取 pending 403、有 secret 返回含 `nonce` 的视图；approve 得 `complete`+`restart_required`；不重启仍 403；重启后 `/health: none`、`/projects` 200。审计 `Control/ProductAuthorization.json` 1416 B，metadata 摘要与文件 SHA 一致，只存 secret/nonce 指纹；deny 同样落审计。
+- 前端授权页 + 仓库内 vitest（4 文件 / 11 passed / 1 skipped）；`pytest tests/development` **35 passed / 1 skipped / 0 errors**（含产品通道端到端用例）。
+- **媒体语音路径实现**：注册 ASR operation（settled 才能继续）→ 转写 → `AlignmentRevisionV03`（units=utterance、not_measured、whisper 标注、无 CTC lineage）→ srt/vtt 同源序列化 → 真实 mix→encoded 映射 → 五份材料入包；真实 17.77 s 中文语音得到 5 段 66 字。发布停在 `alignment_required`（等待自签 policy）。
+- **后端自签证据 B′**：`kind=local_evidence_policy` 授权 + 一次性 `evidence-admin` 安装 policy/qualification/"未执行基准"；契约新增 `LocalSelfIssuedBenchmarkV1`、`capability_benchmark_not_performed`、`embedded_self_issued`；契约按官方命令重生成（schema 169）。
+- ASR 包修正：模型目录恰好 4 文件（README 移出并列入 `model_excluded_files`），真实 `LocalAsrDriver` 转写 exit 0。
+- 仍缺：worker 侧 evidence validator 接入（语音发布最后一道门）、renew/revoke UI、P1 management 通道。
