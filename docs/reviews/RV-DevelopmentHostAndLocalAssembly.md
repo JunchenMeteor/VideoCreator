@@ -91,3 +91,58 @@
 - 任务 A：源码层面 **PASS**（三重条件、pre-bind、真实证据、零 qualification、生产契约不变、禁止清单未动），但只到“负例 + 进程内接线”证据，正向路径仍待测试角色。
 - 任务 B：**OPEN_P1_BLOCKED**（P1-1）。在 P1-1 修复并补真实 local fixture 之前，`validate_local_assembly` 不能算“已实现并可用”；P2-1..3 是修 P1 后必须一起处理的契约问题。
 - 本评审只读实现；没有改代码、没有提交、没有把 `docs/reviews/` 之外的任何文件写回工作树。
+
+## 7 收口窄复审（HEAD `213fa61`，2026-10-25 14:49 后）
+
+**窄复审结论：PASS（无剩余 P1）。** 原 `OPEN_P1_BLOCKED` 保留为上一轮历史结论；本节只复核 A1–A5、残留 1–3 与 B1/B2 是否闭合。基线：上一轮评审提交 `80c548e` → 后端收口 `831e2cf` → 媒体收口 `213fa61`；工作树 clean，上一轮 5 个后端对象已包含在 `831e2cf`，媒体 producer 已包含在 `213fa61`。我独立执行：7 文件 `ruff/ast`（exit 0）、`ExportContracts.py` 到临时目录（`openapi.json` SHA `e1f4011…` 仍与 committed 相同）、`ClosureProbe.py`（**67 PASS / 3 FAIL**，见 P2-3）、以及自写的 `has_original_masters`/2 母版 service/空 `_contexts` resolver/空 `_contexts` `_masters`/`_assembly_context`/A4/A5 探针（均在 `/tmp`，未写仓库）。
+
+### 7.1 P1-1：2 母版越过旧四母版门——已闭合
+
+| 核验 | 结论 | 证据与我的实际调用 |
+| --- | --- | --- |
+| 2 母版本地装配进入真实 `validate_local_assembly` | **PASS（方法级）** | `current_final_evidence_service.py:210-218` 先读已提交 assembly，`assembly is None` 才保留旧 4 母版门（`:211-213`），否则 `has_original_masters`（`:214`），并把 `assembly.selection` 传给 resolver（`:216-218`）。我实际调用 `_resolve_current_final_inputs`（本地 2 母版、空 `_contexts`）：返回 `CurrentFinalEvidenceInputs`，resolver 收到同一 selection，`_validate_final_assembly_facts` 收到同一 local context；未抛 `production_media_capability_missing`。`ClosureProbe` T2 实际跑 `verify_current_final_evidence`，栈进入 `local_bundle_assembly._scope`，失败码是 `local_assembly_binding_invalid` 409（不是旧 503）。 |
+| 旧格式（含 `None`）仍要求 4 | **PASS** | `current_final_evidence_recovery.py:53-68` 的 `has_original_masters` 对非 local/`None` 返回 `len(intent.media_asset_ids)==4`；`current_final_evidence_runtime.py:285-299` 同样是“assembly 为 None 才旧门 / 否则按版本”。我自测：V2 0..6 个 id 只在 4 时为 True；`None` + 2 为 False、4 为 True。实际 service 调用：legacy V2 2 母版 → 503 `production_media_capability_missing`；legacy V2 4 母版 → 进入原校验；无 assembly 2 → 503；无 assembly 4 → 503 `final_assembly_unavailable`。旧 `verify(..., manifest)` 仍走原 `verify`（T3 以 sentinel 验证）。 |
+| `resolve_preparation_masters` 的 local 判据可靠 | **PASS** | `affected_repair_service.py:693-696` 的判据是 `slot.schema_kind.endswith('_local') or in {'local_master_selection','local_speech_evidence'}`，与 `bundles.py:972-973` 的 `has_local` **逐字同义**；本地 `LOCAL_REQUIRED_FILES`（`domain/local_bundle.py:17-22`）与 producer `DOCUMENT_KINDS` 均含这两个 kind，旧 0.2/0.3 kind 无 `_local`。我实际调用 resolver（空 `_contexts`、无 selection）：本地 2 母版返回 `('video','cover')` 且顺序等于 `selection.master_roles`，legacy 返回 `('video','narration_audio','mixed_audio','cover')`；显式 selection 不读 assembly；`_local_source` 0 次。 |
+| 跨进程 `_masters` 不再依赖 held context | **PASS（方法级）** | `local_bundle_assembly.py:175-222` 的 `_committed_masters` 直接读已提交 `media-master` Step + operations，不再调 `master_assets(selection=...)`；`:224-241` 仍逐项核 selection/intent/context，`:243-263` 仍核 Asset 字节/真实 decoder。我在空 `_contexts`、`_local_source` 设为“调用即失败”的对象上实际执行 `_masters()`：成功返回 `{'video':'asset-video','cover':'asset-cover'}`，`_local_source` 0 次。`ClosureProbe` T4 同样通过。 |
+| 残留限制 | **PARTIAL** | 以上是方法/分派级，不是真实 Run/DB 的 `verify_current_final_evidence` 或 `read_continuation_inputs` 全链；真实 DB/port 需要 Owner/authority，本轮没有伪造。 |
+
+### 7.2 P1-2：producer 在 prepare 与 verify 之间持久化——源码闭合，E2E 未证
+
+| 核验 | 结论 | 证据 |
+| --- | --- | --- |
+| 确实在 prepare 与 verify 之间 persist | **PASS（源码）** | `workflows/local_bundle_producer.py:484` `prepare_local` → `:514-525` 构造并 `:518` `persist_assembly_context(lease, preparation_id, assembly)` → `:528` `verify_local` → `:530` `publish`。`ASSEMBLY_DOCUMENT_ROLES`（`:83-95`）与 Backend `DOCUMENT_PATHS` 的路径→角色逐条一致（我独立 import 比较，含 `LOCAL_REQUIRED_FILES` 全覆盖）；`ContractCheck.py` 输出 `prepare_at=28753 < persist_at=31265 < verify_at=31913`。 |
+| 字段来自真实 Manifest/selection/binding | **PASS（源码+构造探针）** | `_assembly_context`（`:357-397`）：`binding` 来自 `bound_context`（`:375-377`），`preparation_id/intent sha/fence` 来自实际 preparation/intent/lease（`:381-383`），`manifest_created_at_us/timeline/creative refs/approval/feedback/source/outputs/methods/rights/quality_ref` 全部取自实际 `BundleManifestLocalV1`（`:384-391`），`media_artifacts` 来自真实 `_media_artifacts`（`:300-316`，按 selection 顺序），`document_artifact_ids` 来自 manifest artifact（`:372-374`），`audio_mappings=()`、`asr_operation_id=None`（`:390-392`）且 `mixed_audio`/非空映射先 409（`:369-371`）。我用真实 `BundleManifestLocalV1` 字段形状的 manifest + 真实 `LocalMasterSelectionV1`/`BundleArtifact` 调 `_assembly_context`：media artifacts、selection、binding、documents、`asr=None`、空 mappings 全部一致；`mixed_audio` 选择得到 `local_assembly_audio_mapping_unexpected` 409。 |
+| 失败具名、不静默 | **PASS（源码）** | 端口缺失 `require_final_port(None)` → 503 `current_final_evidence_port_required`（我实跑）；`LocalFinalAssemblyContextV1` 模型失败捕获为 422 `local_assembly_context_invalid`（`:393-397`）；persist 返回 ref 逐项核对失败 409 `local_assembly_commit_invalid`（`:520-525`）；缺文档/角色/资产/ASR 由 Backend `local_bundle_assembly` 给具名码。没有宽 `except`/静默跳过：`require_final_port` 在 `prepare_local` 之前（`:406,421`），不再允许无 port。 |
+| 真实读回 | **未证（P2）** | 媒体交接稿 §3.4/§4 明确真实 `prepare_local→persist→verify_local→publish` 未跑（Owner TTY 阻塞，`owner_init` 返回 `owner_interactive_confirmation_required`），`VerifyPersistedAssembly.py` 只得到 `no_persisted_assembly`；我复核了该原始日志与实例：无 `current_final_assembly:*` 行。故“源码实现”闭合，“真实落盘/读回”仍是测试角色或 TTY 后的 P2，不是代码 P1。 |
+
+### 7.3 新引入风险复核
+
+- **`affected_repair_service.py` 227 行 diff 除分派外无业务语义变化（PASS，P3 细节）。** 函数级 AST 对比 `80c548e..213fa61` 只显示 5 个函数变化：`_affected_execution`、`observe_current_affected_masters`（仅未用变量改 `_journal/_request`）、`authorize_current_affected_execution`、`assert_current_production_services`（仅合并嵌套 `with` 与 import 重排）、`resolve_preparation_masters`（本卡分派）。旧四角色默认值、`_master_roles_from_step`、非 local lineage 分支未改；我实际测 legacy 4 角色仍成功、本地 2 角色成功。
+- **`current_final_evidence_service.py` 329 行 diff 是 lint + A1（PASS，P3 错误优先级）。** 函数级 AST 只变 `_current_repair_scope`（合并 `with`）、`_resolve_current_final_inputs`（A1）、`revise_current_final_preparation`（import/未用变量改名）；无其他语义。唯一可见行为差：assembly 现在在旧 4 母版门之前读取（`:210`），已存在的坏 assembly 会先报 `final_assembly_invalid` 而不是旧 503；两者都 fail-closed。
+- **`runtime.py` 的 ASR 跳过条件不会误跳过非 local（PASS）。** `:301-303` 条件严格为 `type(assembly) is local.LocalFinalAssemblyContextV1 and operation_id is None`；非 local（含 `CurrentFinalAssemblyContext`/V2）仍走原 `_probe_waiting_original_asr`；local 有 ASR 仍 probe。`ClosureProbe` T9 与我的 A3 探针（`final_read_set_asr(local) → None`，非 local 原样返回）一致；`CurrentFinalEvidenceReadSet.asr` 注解仍是 `CurrentFinalAsrRead | None`。
+- **A4/A5（PASS，P3 运维面）。** 我在临时目录实测：`_existing_instance_id` 对中文路径的已有实例返回相同 id；无 env 的 `worker-dev` exit 1 且**不创建** data-dir；`sys.frozen=True` 时缺参也返回 1 `development_installation_unavailable`（不再 exit 2）。A4 的 `create_production(interactive)` 通过、`unattended` 422 `development_mode_unsupported`、Goal 入口 422 且原函数未调用；生产 `BundleService` 类未被 patch。Goal 创建在 dev 被整体拒绝，意味着 dev 端不能用 Goal 建项目（符合 ADR0077 §7，但运行手册要写明）。
+
+### 7.4 剩余 P2 / P3
+
+**P2**
+1. **B1/B2 真实落盘/读回仍未执行**：无 Owner/TTY + 注册包 `production_code_changed`；只证到源码/契约/构造器。需要测试角色在真实 dev host 上跑 `prepare_local→persist→verify_local→publish` 并用 `VerifyPersistedAssembly.py` 读回。
+2. **跨进程 recovery 只到方法级**：我证明空 `_contexts` 的 resolver/`_masters`/2 母版 service gate 不再 409/422，但没有真实 `current_production_final_evidence:*` journal + Run/DB 的 `read_continuation_inputs` 全链。
+3. **`ClosureProbe.py` 在 HEAD `213fa61` 为 67 PASS / 3 FAIL**：3 个 T8 “pre-fix”检查用 `git show HEAD:...` 当旧代码，HEAD 已是修复版，故必然失败；后端交接的“70 PASS / 0 FAIL”是 `4f6ea4b` 时结果，当前不可复跑为 70。产品断言（T2/T4/T8 fixed/T9/T10）均 PASS，但证据需改为固定 `80c548e:` 或记录基线。
+
+**P3**
+1. `has_original_masters` 对“local 但 media_artifacts 角色/顺序/资产不符”的 assembly 在 service/runtime 返回通用 503 “All four original masters required”，而不是 `local_assembly_*`；仍是 fail-closed，但错误信息误导。
+2. service 先读 assembly（`:210`）改变旧坏 assembly 的错误优先级（`final_assembly_invalid` 先于旧 503），交接已记录。
+3. `resolve_preparation_masters` 的 held 分支仍用 `master_assets(selection=...)` 的 step `media_roles` 顺序返回，未按 `selection.master_roles` 重排；非 held 分支最后重排（`:743-744`）。当前 local publish 不走该 held 分支，但两分支顺序不一致是未来漂移点。
+4. `resolve_preparation_masters` 对非 local 且调用方误传 selection 时静默 `selection=None`（`:711-712`），不拒绝；当前唯一调用方只对 local 传。
+5. `final_read_set_asr` 对 local 一律返回 `None`，local 若有真实 ASR（本 profile 不实现）会丢 speech read；类型契约正确，语义面需未来 local speech 卡重审。
+6. `ASSEMBLY_DOCUMENT_ROLES` 用 dict 按 path 覆盖，manifest 同路径重复 artifact 时后者覆盖前者；Backend 只查 required 覆盖，不查文档重复路径，靠 manifest verify 兜底。
+7. `persist` 在 `verify_local` 之前写 assembly；若 verify 失败，assembly 已不可变落盘（媒体交接 §6.5 已记录），重试同字节可过、不同字节 409。
+8. A4 用实例属性 monkeypatch（`bundle.create_production`、`runtime.invoke`、`bundle.create_project_goal`）只在 dev factory 返回的同一对象上；我用替身验证入口，但未用真实 `create_app`/HTTP 跑；生产不受影响需靠 factory 不安装。
+9. `_existing_instance_id` 用 `mode=ro` 打开 WAL 数据库，若 live worker 持有 `-shm` 且只读打开失败会返回 None（403），不会创建；这是可用性边界，不是绕过。
+10. `_committed_masters` 与 `media_registration.master_assets` 的 Step/Operation 校验重复（交接 §7.1 已记录），后续媒体角色语义需双向锁定。
+
+### 7.5 窄复审结论
+
+- **P1-1 闭合**：旧四母版门只在无 assembly/非 local 保留；2 母版本地装配以实际 service 方法进入 `validate_local_assembly`，旧格式仍 4；resolver 判据与既有 `has_local` 同义，空 `_contexts` 不再 409/422。
+- **P1-2 源码闭合**：persist 位于 prepare 与 verify 之间，字段来自真实 manifest/selection/binding，失败具名；真实读回仍待 Owner/TTY 与测试角色（P2）。
+- **无剩余 P1**；结论 **PASS（窄复审）**。原 `OPEN_P1_BLOCKED` 只作为上一轮历史，不覆盖本节。
