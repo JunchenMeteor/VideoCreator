@@ -18,6 +18,7 @@ writing empty documents or fabricating speech evidence.
 from __future__ import annotations
 
 import hashlib
+import json
 
 from pydantic import ValidationError
 
@@ -45,8 +46,10 @@ from video_creator.workflows.local_bundle_inputs import (
 )
 from video_creator.workflows.local_material_composition import (
     observe_local_audio_coordinates,
+    ordered_media_roles,
 )
 from video_creator.workflows.local_semantics import build_local_semantics
+from video_creator.workflows.production_json import json_body
 
 EDIT_METHOD = 'local-owned-assets-v1'
 DECODER_METHOD = 'actual-decoder'
@@ -108,8 +111,25 @@ def _record(model):
     return model.model_copy(update={'content_sha256': record_sha(model)})
 
 
+def _selection_part(selection):
+    """Stable string identity of an actual selection for `_identity`."""
+    return json.dumps(json_body(selection.model_dump(mode='json')), ensure_ascii=False,
+                      sort_keys=True, separators=(',', ':'))
+
+
 def _identity(prefix, *parts):
-    return prefix + '-' + digest(canonical(list(parts)))[:40]
+    """Deterministic id from the exact JSON bytes of its string parts.
+
+    `canonical()` only accepts pydantic models, so an identity hash never uses
+    it: every part is a declared string and its ordered JSON byte sequence is
+    the sole input, keeping ids stable across runs, processes and platforms.
+    """
+    if (type(prefix) is not str or not prefix
+            or any(type(part) is not str or not part for part in parts)):
+        raise EngineError('local_identity_invalid',
+            'A local identity requires one prefix and non-empty string parts only.', 422)
+    raw = json.dumps(list(parts), ensure_ascii=False, separators=(',', ':')).encode('utf-8')
+    return prefix + '-' + hashlib.sha256(raw).hexdigest()[:40]
 
 
 def _speech_error(request):
@@ -256,7 +276,7 @@ def _documents(composition, bundle, lease, *, selection, speech, shots, visuals,
 
 def _bundle_revision_id(composition, selection):
     return _identity('local-bundle-revision', composition['request_sha256'],
-                     selection.model_dump(mode='json'))
+                     _selection_part(selection))
 
 
 def _validate_outputs(documents, outputs, *, masters, assets):
@@ -355,7 +375,7 @@ def _request_version(request):
 
 
 def _assembly_context(*, engine, lease, preparation, intent, manifest, selection,
-                      media_artifacts, registration_sha256):
+                      media_artifacts, registration_sha256, authored_fence=None):
     """Committed local assembly for the Manifest this preparation will verify.
 
     Every value is copied from the already built actual Manifest, the held
@@ -380,7 +400,8 @@ def _assembly_context(*, engine, lease, preparation, intent, manifest, selection
             corrected_from=None, correction_reason=None,
             binding=binding, preparation_id=preparation.preparation_id,
             preparation_intent_sha256=digest(canonical(intent)),
-            authored_fence=lease.fencing_token,
+            authored_fence=(lease.fencing_token if authored_fence is None
+                            else authored_fence),
             manifest_created_at_us=manifest.created_at_us,
             timeline_duration_us=manifest.timeline_duration_us,
             creative_revision_refs=manifest.creative_revision_refs,
@@ -395,6 +416,75 @@ def _assembly_context(*, engine, lease, preparation, intent, manifest, selection
         # uncaught Pydantic error escaping the worker as a 500.
         raise EngineError('local_assembly_context_invalid',
                           'The actual local assembly values do not satisfy the committed local contract.', 422) from error
+
+
+def _persisted_assembly_context(*, engine, bundle, lease, preparation, intent,
+                                registration_sha256):
+    """The committed assembly for this exact run/preparation/intent, if any.
+
+    Its `authored_fence` and `manifest_created_at_us` are the two values that
+    legitimately differ between attempts; everything else is still taken from
+    the current real construction and compared strictly by persist.
+    """
+    from video_creator.application.current_production_blockers import bound_context
+
+    with engine.db.connect_readonly() as connection:
+        _run, _production, _request, binding = bound_context(
+            engine, connection, lease.run_id, registration_sha256)
+    row = {'id': preparation.preparation_id, 'intent_json': canonical(intent)}
+    return bundle._read_final_assembly(row, binding)
+
+
+def _publication_right(composition):
+    """The declared right bound to this work's approved quality revision.
+
+    The installed Owner declaration carries no work-scoped `approval_ref`, while
+    Bundle publication requires the approved revision whose body holds the exact
+    declaration. The flow therefore commits the same declaration (unchanged
+    except this identifier) into the quality revision body; here it is re-read
+    from that committed body and compared exactly, never re-invented.
+    """
+    declared = composition['rights_fact'].rights
+    if len(declared) != 1:
+        raise EngineError('local_rights_declaration_ambiguous',
+                          'This local profile consumes exactly one actual declaration per work.', 409)
+    quality_ref = composition['creative_revision_refs'][2]
+    quality = composition['quality_revision']
+    if (quality_ref.kind != 'quality' or quality_ref.revision_id != quality.revision_id
+            or quality.kind != 'quality'):
+        raise EngineError('local_quality_revision_conflict',
+                          'Only the committed same-Run quality revision can authorize local publication.', 409)
+    expected = tuple(right.model_copy(update={'approval_ref': quality_ref.revision_id})
+                     for right in declared)
+    body_rights = quality.body.get('rights') if isinstance(quality.body, dict) else None
+    if not isinstance(body_rights, list) or len(body_rights) != len(expected):
+        raise EngineError('local_quality_rights_missing',
+            'This quality revision has no committed publication rights assertion; start a new Run.', 409)
+    try:
+        committed = tuple(c.RightsSnapshot.model_validate(value) for value in body_rights)
+    except ValidationError as error:
+        raise EngineError('local_quality_rights_invalid',
+                          'The committed quality rights assertion is not a valid declaration.', 422) from error
+    if committed != expected:
+        raise EngineError('local_quality_rights_conflict',
+                          'The committed quality rights assertion differs from the installed declaration.', 409)
+    approvals = tuple(ref for ref in composition['approval_refs']
+                      if ref.target_revision_id == quality_ref.revision_id)
+    if not approvals:
+        raise EngineError('local_quality_approval_missing',
+            'The actual quality revision has no current approval decision; publication cannot invent one.', 409)
+    return committed[0]
+
+
+def _publication_composition(composition, right):
+    """The same held facts with only the rights assertion rebound.
+
+    Semantics, media documents, the Manifest and the assembly all consume this
+    one mapping, so no consumer sees a different declaration; every other held
+    field keeps its original checked value.
+    """
+    return {**composition, 'rights_fact': composition['rights_fact'].model_copy(
+        update={'rights': (right,)})}
 
 
 def _produce_local(engine, bundle, executor, media, lease, *, production_services,
@@ -423,9 +513,7 @@ def _produce_local(engine, bundle, executor, media, lease, *, production_service
     # their observation clock, never in identity.
     require_held_final_facts(local_material_context,
         plan_admission=plan_admission, production_rights_fact=production_rights_fact)
-    if type(media_roles) is not dict or tuple(media_roles) != selection.master_roles:
-        raise EngineError('local_master_roles_invalid',
-                          'Caller masters must equal the ordered applicable selection.', 409)
+    media_roles = ordered_media_roles(media_roles, selection)
     composition = read_local_final_inputs(production_services, lease,
         local_material_context=local_material_context, media_roles=media_roles)
     control.check()
@@ -440,7 +528,12 @@ def _produce_local(engine, bundle, executor, media, lease, *, production_service
     if len(rights) != 1:
         raise EngineError('local_rights_declaration_ambiguous',
                           'This local profile consumes exactly one actual declaration per work.', 409)
-    right = rights[0]
+    right = _publication_right(composition)
+    # One publication right threads through every consumer (semantics, media
+    # documents, Manifest and assembly). Only the rights assertion is rebound to
+    # the approved quality revision; every other held fact keeps its original
+    # checked value.
+    composition = _publication_composition(composition, right)
     assets = composition['media_assets']
     tracks = observe_local_audio_coordinates(composition, bundle, lease, media)
     if 'video' in assets:
@@ -473,7 +566,7 @@ def _produce_local(engine, bundle, executor, media, lease, *, production_service
     slots = _slots(documents, video=selection.content_kind == 'video')
     context = bundle.context(lease)
     bundle_id = _identity('local-bundle', composition['request_sha256'],
-                          selection.model_dump(mode='json'))
+                          _selection_part(selection))
     revision_id = _bundle_revision_id(composition, selection)
     intent = BundlePreparationIntent(bundle_id=bundle_id, bundle_revision_id=revision_id,
         request_revision_id=context.request_revision_id,
@@ -492,13 +585,20 @@ def _produce_local(engine, bundle, executor, media, lease, *, production_service
         artifact_ids=artifact_ids, media_artifacts=media_artifacts, right=right)
     outputs = tuple(c.BundleOutput(role=role, artifact_ids=tuple(
         artifact_ids[path] for path in OUTPUT_PATHS[role])) for role in request.outputs)
+    persisted_assembly = _persisted_assembly_context(
+        engine=engine, bundle=bundle, lease=lease, preparation=preparation,
+        intent=intent, registration_sha256=production_services.registration_sha256)
+    persisted_created_at = (None if persisted_assembly is None
+                            else persisted_assembly.manifest_created_at_us)
     manifest = BundleManifestLocalV1(
         request_format_version=_request_version(request),
         instance_id=engine.instance_id, bundle_id=bundle_id, bundle_revision_id=revision_id,
         project_id=context.project_id, production_id=context.production_id, run_id=lease.run_id,
         request_revision_id=context.request_revision_id,
         request_sha256=composition['request_sha256'], workflow_version=PROFILE,
-        created_at_us=engine.clock(), timeline_duration_us=plan.timeline.duration_us,
+        created_at_us=(persisted_created_at if persisted_created_at is not None
+                       else engine.clock()),
+        timeline_duration_us=plan.timeline.duration_us,
         creative_revision_refs=composition['creative_revision_refs'],
         approval_refs=composition['approval_refs'], feedback_revision_refs=composition['feedback_refs'],
         source_refs=_source_refs(composition), requested_outputs=request.outputs, outputs=outputs,
@@ -514,10 +614,15 @@ def _produce_local(engine, bundle, executor, media, lease, *, production_service
     assembly = _assembly_context(engine=engine, lease=lease, preparation=preparation,
         intent=intent, manifest=manifest, selection=selection,
         media_artifacts=media_artifacts,
-        registration_sha256=production_services.registration_sha256)
+        registration_sha256=production_services.registration_sha256,
+        authored_fence=(None if persisted_assembly is None
+                        else persisted_assembly.authored_fence))
     commit = require_final_port(final_evidence_ports).persist_assembly_context(
         lease, preparation.preparation_id, assembly)
-    raw = (canonical(assembly) + '\n').encode('utf-8')
+    # On re-entry the committed bytes, not the rebuilt object, are the byte
+    # authority; persist still compares every current field strictly.
+    raw_context = assembly if persisted_assembly is None else persisted_assembly
+    raw = (canonical(raw_context) + '\n').encode('utf-8')
     if (type(commit) is not AssemblyContextRef
             or commit.preparation_id != preparation.preparation_id
             or commit.preparation_intent_sha256 != assembly.preparation_intent_sha256

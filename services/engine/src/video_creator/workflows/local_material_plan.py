@@ -21,7 +21,7 @@ from video_creator.domain.local_material_production import (
     validate_local_material_plan_sources,
 )
 from video_creator.media.local_material_edit import validate_timeline
-from video_creator.workflows.production_json import canonical_object
+from video_creator.workflows.production_json import canonical_object, json_body
 
 
 def revision_ref(revision):
@@ -163,7 +163,7 @@ def restore_local_plan(revision, *, request, request_ref, accepted_goal,
     if type(revision) is not c.CreativeRevision or revision.kind != 'plan':
         raise EngineError('local_plan_invalid', 'Restore only the actual immutable plan revision.', 409)
     # Parse original body, not a reconstruction with new rights/fence/Goal refs.
-    plan = parse_local_material_plan(canonical_object(revision.body).encode('utf-8'))
+    plan = parse_local_material_plan(canonical_object(json_body(revision.body, path='plan.body')).encode('utf-8'))
     validate_local_material_plan_sources(plan, request=request, request_ref=request_ref,
         accepted_goal=accepted_goal, original_assets=original_assets,
         original_script=original_script, original_routes=original_routes)
@@ -181,19 +181,23 @@ def selected_output_variant(plan):
 
 
 def source_timeline_records(plan):
-    """Original source and display coordinates remain separately attributable."""
+    """Original source and display coordinates remain separately attributable.
+
+    Returns the sole JSON body form, so a provenance record can enter a
+    CreativeRevision body or a canonical hash without a second projection.
+    """
     by_id = {b.binding_id: b for b in plan.input_bindings}
-    visuals = tuple({'shot_id': shot.shot_id, 'input_binding': by_id[shot.input_binding_id].model_dump(mode='json'),
+    visuals = [{'shot_id': shot.shot_id, 'input_binding': by_id[shot.input_binding_id].model_dump(mode='json'),
         'source_media_range': None if by_id[shot.input_binding_id].media_type.startswith('image/') else shot.source_range.model_dump(mode='json'),
         'planned_source_range': shot.source_range.model_dump(mode='json'),
         'display_range': shot.timeline_range.model_dump(mode='json'), 'fit': shot.fit,
-        'model_generated': False} for shot in plan.timeline.shots)
-    tracks = tuple({'track_id': track.track_id, 'input_binding': by_id[track.input_binding_id].model_dump(mode='json'),
+        'model_generated': False} for shot in plan.timeline.shots]
+    tracks = [{'track_id': track.track_id, 'input_binding': by_id[track.input_binding_id].model_dump(mode='json'),
         'source_media_range': track.source_range.model_dump(mode='json'),
         'timeline_range': track.timeline_range.model_dump(mode='json'), 'gain': track.gain,
         'playback_rate': str(Fraction(track.source_range.end_us - track.source_range.start_us,
-            track.timeline_range.end_us - track.timeline_range.start_us))} for track in plan.timeline.audio_tracks)
-    return {'format': 'local-material-provenance-v1', 'request_ref': plan.request_ref.model_dump(mode='json'),
+            track.timeline_range.end_us - track.timeline_range.start_us))} for track in plan.timeline.audio_tracks]
+    return json_body({'format': 'local-material-provenance-v1', 'request_ref': plan.request_ref.model_dump(mode='json'),
         'goal_ref': None if plan.goal_ref is None else plan.goal_ref.model_dump(mode='json'),
         'script_ref': plan.source_script_revision_ref.model_dump(mode='json'),
-        'script_origin': plan.source_script_origin, 'visual_sources': visuals, 'audio_sources': tracks}
+        'script_origin': plan.source_script_origin, 'visual_sources': visuals, 'audio_sources': tracks})

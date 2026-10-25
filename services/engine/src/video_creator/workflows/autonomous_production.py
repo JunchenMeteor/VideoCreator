@@ -33,7 +33,7 @@ from video_creator.workflows.current_policy_evidence import (
     require_proposal,
     stored_proposal,
 )
-from video_creator.workflows.production_json import canonical_object
+from video_creator.workflows.production_json import canonical_object, json_body
 
 MASTER_INDEX_DESTINATION = "local:registered-master-index-v1"
 
@@ -145,7 +145,7 @@ class AutonomousProductionFlow(Flow[dict]):
 
     def _revision(self, kind, body, inputs=()):
         revision = c.CreativeRevision(revision_id="autonomous." + kind + "." + self._lease.run_id,
-                    kind=kind, input_revision_refs=inputs, body=body)
+                    kind=kind, input_revision_refs=inputs, body=json_body(body, path="revision.body"))
         saved = self._services.engine.commit_creative_revision(self._lease, revision)
         self._revisions[kind] = saved
         return saved

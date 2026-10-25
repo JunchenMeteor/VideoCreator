@@ -1,6 +1,8 @@
 """Controlled original assembly persistence and same-claim pure recovery reads."""
 
 import hashlib
+import json
+import sys
 
 from pydantic import ValidationError
 
@@ -142,8 +144,10 @@ class CurrentFinalEvidenceRecovery(DiagnosticSelectionService, ComponentDiagnosi
             model = (local.LocalFinalAssemblyContextV1 if data.get('format') == 'local-final-assembly-context-v1'
                      else CurrentFinalAssemblyContextV2 if data.get('format') == 'current-final-assembly-context-v2'
                      else CurrentFinalAssemblyContext)
-            context = model.model_validate(data)
-        except ValidationError:
+            # Committed bytes are JSON; a strict dict parse would reject their
+            # arrays for every tuple field. Read through the JSON entry point.
+            context = model.model_validate_json(raw)
+        except (ValidationError, EngineError, TypeError, ValueError):
             raise EngineError('final_assembly_invalid', 'Original assembly schema damaged', 422) from None
         if raw != (canonical(context) + '\n').encode() or context.binding != binding or context.preparation_id != row['id'] or context.preparation_intent_sha256 != ref.preparation_intent_sha256:
             raise EngineError('final_assembly_invalid', 'Original assembly bytes and scope differ', 422)
@@ -261,6 +265,40 @@ class CurrentFinalEvidenceRecovery(DiagnosticSelectionService, ComponentDiagnosi
         self.assert_current_correction_pair(lease, row['id'], context=context)
         return asr
 
+    @staticmethod
+    def _same_assembly_newer_fence(actual, context, lease) -> bool:
+        """The same immutable authoring context re-entered under a later lease.
+
+        Only `authored_fence` may differ; the persisted fence must belong to an
+        earlier attempt of this exact run (`<=` current fence), and every other
+        field is compared exactly. This is attempt re-entry evidence, never a
+        new authored context.
+        """
+        return (type(actual) is type(context)
+                and actual.binding == context.binding
+                and actual.binding.run_id == lease.run_id
+                and actual.authored_fence <= lease.fencing_token
+                and actual.model_copy(update={'authored_fence': context.authored_fence}) == context)
+
+    @staticmethod
+    def _context_field_diff(actual, context):
+        """Field-level, bounded diagnostic; it never widens the refusal."""
+        def bounded(value):
+            text = repr(value)
+            return text if len(text) <= 120 else text[:117] + '...'
+
+        names = sorted(set(actual.model_fields) | set(context.model_fields))
+        differences = {}
+        for name in names:
+            left = getattr(actual, name, None)
+            right = getattr(context, name, None)
+            if left != right or type(left) is not type(right):
+                differences[name] = {
+                    'actual_type': type(left).__name__, 'expected_type': type(right).__name__,
+                    'actual': bounded(left), 'expected': bounded(right),
+                }
+        return differences
+
     def assert_current_correction_pair(self, lease, preparation_id, *, context=None):
         """One current immutable v2 author/READY measurement rule, including publish."""
         from video_creator.application.bundles import validate_text
@@ -271,8 +309,19 @@ class CurrentFinalEvidenceRecovery(DiagnosticSelectionService, ComponentDiagnosi
                 (preparation_id, 'Checks/precision-evaluation.json', 'ready')).fetchall()
             binding = self._final_binding(lease, connection) if saved is not None else None
         actual = self._read_final_assembly(row, binding) if saved is not None else None
-        if actual is not None and context is not None and actual != context:
-            raise EngineError('correction_context_conflict', 'Original immutable author context differs', 422)
+        if (actual is not None and context is not None and actual != context
+                and not self._same_assembly_newer_fence(actual, context, lease)):
+            differences = self._context_field_diff(actual, context)
+            names = list(differences)[:5]
+            print(json.dumps({
+                'event': 'correction_context_diff',
+                'preparation_id': preparation_id, 'run_id': lease.run_id,
+                'actual_fence': actual.authored_fence,
+                'expected_fence': context.authored_fence,
+                'fields': dict(list(differences.items())[:20]),
+            }, ensure_ascii=False, sort_keys=True), file=sys.stderr, flush=True)
+            raise EngineError('correction_context_conflict',
+                              'Original immutable author context differs; differs=' + ','.join(names), 422)
         authored = actual if actual is not None else context
         if len(reports) > 1:
             raise EngineError('correction_context_conflict', 'One original current measurement required', 422)
@@ -335,9 +384,31 @@ class CurrentFinalEvidenceRecovery(DiagnosticSelectionService, ComponentDiagnosi
                 raise EngineError('local_preparation_context_missing', 'Original controlled local preparation is required.', 409)
             local_snapshot = self._local_source().context_snapshot(lease, held_context)
         row, _production, _request, binding, _prepared, intent, _items = self._final_prepared(lease, preparation_id)
-        self._validate_final_assembly_facts(lease, row, intent, binding, context, author=True)
+        # The author check is about this attempt's current writer lease; a
+        # re-entry deliberately keeps the committed earlier fence for byte
+        # identity, while every other context field is still current.
+        author_context = context.model_copy(update={'authored_fence': lease.fencing_token})
+        self._validate_final_assembly_facts(lease, row, intent, binding, author_context, author=True)
         correction_context = self._assembly_correction_context(lease, preparation_id, context)
         correction_pair = self.assert_current_correction_pair(lease, preparation_id, context=context)
+        saved_context = self._read_final_assembly(row, binding)
+        if saved_context is not None and self._same_assembly_newer_fence(saved_context, context, lease):
+            # The same immutable assembly was committed by an earlier attempt
+            # of this run before its journal; a later lease re-enters it. Keep
+            # the committed bytes untouched and return their original Ref.
+            saved_raw = (canonical(saved_context) + '\n').encode('utf-8')
+            ref = AssemblyContextRef(preparation_id=preparation_id,
+                preparation_intent_sha256=digest(row['intent_json']),
+                content_sha256=hashlib.sha256(saved_raw).hexdigest(), size=len(saved_raw))
+            with self.engine.db.transaction() as connection:
+                self.engine._lease(connection, lease)
+                if self._final_binding(lease, connection) != binding:
+                    raise EngineError('final_assembly_binding_invalid',
+                                      'Original assembly author binding changed during re-entry', 409)
+                run = self.engine._run(connection, lease.run_id)
+                self.engine._event(connection, run, 'production.final_assembly_reentry',
+                                   ref.content_sha256)
+            return ref
         raw = (canonical(context) + '\n').encode('utf-8')
         ref = AssemblyContextRef(preparation_id=preparation_id, preparation_intent_sha256=digest(row['intent_json']),
             content_sha256=hashlib.sha256(raw).hexdigest(), size=len(raw))

@@ -33,6 +33,7 @@ from video_creator.domain.local_bundle import (
 )
 from video_creator.domain.local_material_production import (
     LocalAcceptedGoalRef,
+    LocalMaterialPlanV1,
     LocalRegistrationV1,
     parse_local_material_plan,
 )
@@ -61,9 +62,44 @@ from video_creator.workflows.local_material_plan import (
     source_timeline_records,
 )
 from video_creator.workflows.local_material_rights import require_local_plan_rights
-from video_creator.workflows.production_json import canonical_object
+from video_creator.workflows.production_json import (
+    canonical_object,
+    json_body,
+    require_body,
+)
 
 MASTER_INDEX_DESTINATION = 'local:registered-master-index-v1'
+
+
+def checked_revision(revision_id, kind, input_revision_refs, body):
+    """Build one CreativeRevision from the sole normalized, pre-checked body.
+
+    `body: JsonValue` rejects tuples at construction (the third failure of this
+    class); normalizing first and validating the whole revision before commit
+    turns any remaining shape error into a named `media_body_invalid` with its
+    first failing path.
+    """
+    payload = json_body({'revision_id': revision_id, 'kind': kind,
+        'input_revision_refs': list(input_revision_refs), 'body': body}, path='revision')
+    return c.CreativeRevision.model_validate(require_body(c.CreativeRevision, payload, path='revision'))
+
+
+def publication_rights(plan, quality_revision_id):
+    """Declared rights tied to this Run's quality revision.
+
+    The installed Owner declaration has no work-scoped `approval_ref`; Bundle
+    publication requires the approved revision whose body holds the exact
+    declaration, so the quality body carries it bound to this Run's quality
+    revision. Only that identifier is added; every declared field is kept.
+    """
+    if type(quality_revision_id) is not str or not quality_revision_id:
+        raise EngineError('local_quality_revision_invalid',
+                          'A publication rights assertion needs the actual quality revision identity.', 422)
+    declared = plan.rights_proposal.rights
+    if not declared:
+        raise EngineError('local_rights_declaration_ambiguous',
+                          'This local profile consumes exactly one actual declaration per work.', 409)
+    return tuple(right.model_copy(update={'approval_ref': quality_revision_id}) for right in declared)
 
 
 def derivative_input_sha(*, request, plan_revision_ref, key, body, route_id):
@@ -77,10 +113,10 @@ def derivative_input_sha(*, request, plan_revision_ref, key, body, route_id):
         raise EngineError('local_builder_input_invalid',
             'A derivative Step and route identity are strings.', 422)
     projection = derivative_body(body)
-    return digest(canonical_object({'profile': 'local-owned-assets-v1',
+    return digest(canonical_object(json_body({'profile': 'local-owned-assets-v1',
         'request': request.model_dump(mode='json'),
         'plan_revision_ref': plan_revision_ref.model_dump(mode='json'),
-        'step': key, 'body': projection, 'route_id': route_id})), projection
+        'step': key, 'body': projection, 'route_id': route_id}))), projection
 
 
 @dataclass(frozen=True)
@@ -112,8 +148,9 @@ class _LocalServices:
         # Original declaration admission namespace; sole local format is explicit.
         # Backend must specialize the local plan source check, not add a twelfth
         # field or accept this method as a human/policy execution approval.
-        revision = c.CreativeRevision(revision_id='autonomous.plan.' + ordinary_lease.run_id,
-            kind='plan', input_revision_refs=(original_script[0].revision_id,), body=plan.model_dump(mode='json'))
+        body = require_body(LocalMaterialPlanV1, plan.model_dump(mode='json'))
+        revision = checked_revision('autonomous.plan.' + ordinary_lease.run_id,
+            'plan', (original_script[0].revision_id,), body)
         return self.engine.commit_creative_revision(ordinary_lease, revision)
 
 
@@ -279,9 +316,9 @@ class LocalMaterialFlow(Flow[dict]):
             script = revisions.get(script_id)
             if script is None:
                 source_text = self._request.inputs.source_text or self._request.goal
-                script = services.engine.commit_creative_revision(self._lease, c.CreativeRevision(
-                    revision_id=script_id, kind='script', body={'text': source_text,
-                    'source_origin': 'user_provided', 'source_kind': 'request_source_text' if self._request.inputs.source_text else 'request_goal',
+                script = services.engine.commit_creative_revision(self._lease, checked_revision(script_id,
+                    'script', (), {'text': source_text, 'source_origin': 'user_provided',
+                    'source_kind': 'request_source_text' if self._request.inputs.source_text else 'request_goal',
                     'actual_transcript': False}))
             origin = script.body.get('source_origin') if type(script.body) is dict else None
             if origin not in {'user_provided', 'model_inference', 'input_audio_transcript'}:
@@ -315,7 +352,7 @@ class LocalMaterialFlow(Flow[dict]):
             revisions[script.revision_id] = script
         if revision.kind != 'plan':
             raise EngineError('local_plan_invalid', 'Original target must be an actual saved plan.', 409)
-        initial = parse_local_material_plan(canonical_object(revision.body).encode('utf-8'))
+        initial = parse_local_material_plan(canonical_object(json_body(revision.body, path='plan.body')).encode('utf-8'))
         ports = services.production_ports if type(services) is LocalMaterialServices else services.policy_execution_ports
         sources = ports.local_material_plan_sources(self._lease,
             script_revision_id=initial.source_script_revision_ref.revision_id,
@@ -397,10 +434,10 @@ class LocalMaterialFlow(Flow[dict]):
         files = tuple(GeneratedFileManifest.model_validate(v) for v in observation.result_json.get('generated_files', ()))
         if tuple(f.attempt_id for f in files) != tuple(o.attempt_id for o in outputs):
             raise EngineError('local_output_manifest_invalid', 'All original ordered allocation manifests must be complete before commit.', 409, 'reconcile')
-        result = {'roles': [r for r, _ in roles], 'provider_observation_sha256': digest(canonical(observation)),
+        result = json_body({'roles': [r for r, _ in roles], 'provider_observation_sha256': digest(canonical(observation)),
             'local_plan_revision_ref': revision_ref(self._revision).model_dump(mode='json'),
             'source_bindings': [b.model_dump(mode='json') for b in self._plan.input_bindings],
-            'source_provenance': source_timeline_records(self._plan)}
+            'source_provenance': source_timeline_records(self._plan)}, path='result')
         if masters:
             committed = services.worker.commit_generated_media_step(lease, key, input_sha, files,
                 {r: o.attempt_id for (r, _), o in zip(roles, outputs, strict=True)}, result, services.media_validator)
@@ -447,11 +484,13 @@ class LocalMaterialFlow(Flow[dict]):
             return None
         self._recheck()
         services, lease, plan = self._services, self._lease, self._plan
-        if tuple(self._roles) != self._selection.master_roles or len(set(self._roles.values())) != len(self._roles):
+        if (set(self._roles) != set(self._selection.master_roles)
+                or len(set(self._roles.values())) != len(self._roles)):
             raise EngineError('local_master_roles_invalid', 'Only the actual ordered distinct applicable masters may be indexed.', 409)
         key = 'media-master'
-        input_sha = digest(canonical_object({'profile': 'local-owned-assets-v1', 'roles': self._roles,
-            'source_steps': self.state['source_steps'], 'plan_revision_ref': revision_ref(self._revision).model_dump(mode='json')}))
+        input_sha = digest(canonical_object(json_body({'profile': 'local-owned-assets-v1', 'roles': self._roles,
+            'source_steps': self.state['source_steps'],
+            'plan_revision_ref': revision_ref(self._revision).model_dump(mode='json')})))
         step = services.engine.begin_step(lease, key, input_sha)
         saved = _completed(step)
         route = services.engine.configured_route(services.registration.master_index_route_id)
@@ -477,7 +516,7 @@ class LocalMaterialFlow(Flow[dict]):
             if 'video' in observed and observed['video']['probe']['has_audio'] != bool(plan.timeline.audio_tracks):
                 raise EngineError('local_master_audio_conflict', 'Final video has exactly the explicitly planned audio, never an implicit source stream.', 422)
             return c.OperationObservation(status='succeeded', actual_cost=c.Money(amount='0'), cost_evidence='confirmed_no_charge',
-                result_json={'observed_masters': observed, 'scope': 'actual local derivative master indexing'})
+                result_json=json_body({'observed_masters': observed, 'scope': 'actual local derivative master indexing'}))
 
         intent = c.OperationIntent(step_key=key, dedupe_key='local.master-index.' + input_sha[:40], input_sha256=input_sha,
             route_id=services.registration.master_index_route_id, reserved_cost=c.Money(amount='0'))
@@ -488,17 +527,25 @@ class LocalMaterialFlow(Flow[dict]):
             raise EngineError('local_master_index_pending', 'Original indexing must be reconciled without re-rendering.', 409, 'reconcile')
         if saved is None:
             services.engine.complete_step(lease, key, asset_ids=tuple(self._roles.values()),
-                result_json={'media_roles': self._roles, 'source_steps': self.state['source_steps'],
-                    'local_plan_revision_ref': revision_ref(self._revision).model_dump(mode='json')})
+                result_json=json_body({'media_roles': self._roles, 'source_steps': self.state['source_steps'],
+                    'local_plan_revision_ref': revision_ref(self._revision).model_dump(mode='json')}, path='result'))
         elif saved['result'].get('media_roles') != self._roles or saved['result'].get('source_steps') != self.state['source_steps']:
             raise EngineError('local_master_step_conflict', 'Restore only the original indexed source lineage.', 409)
-        quality = services.engine.commit_creative_revision(lease, c.CreativeRevision(
-            revision_id='autonomous.quality.' + lease.run_id, kind='quality',
-            input_revision_refs=(self._script.revision_id, self._revision.revision_id),
-            body={'format': 'local-material-quality-v1', 'observed_masters': observation.result_json['observed_masters'],
+        quality_id = 'autonomous.quality.' + lease.run_id
+        # The publication rights assertion is this Run's quality version: the
+        # installed Owner declaration carries no work-scoped approval_ref, while
+        # the Bundle publisher requires the approved revision whose body holds
+        # the exact declaration. Only that identifier is added; every declared
+        # field stays as installed, and the real decision is still required.
+        publication = publication_rights(plan, quality_id)
+        quality = services.engine.commit_creative_revision(lease, checked_revision(
+            quality_id, 'quality',
+            (self._script.revision_id, self._revision.revision_id),
+            json_body({'format': 'local-material-quality-v1', 'observed_masters': observation.result_json['observed_masters'],
                 'local_plan_revision_ref': revision_ref(self._revision).model_dump(mode='json'),
-                'source_provenance': source_timeline_records(plan), 'precision': 'not_measured', 'rights': 'not_measured',
-                'asr_status': 'not_measured', 'release_evidence': 'Actual final Bundle validation remains required'}))
+                'source_provenance': source_timeline_records(plan), 'precision': 'not_measured',
+                'rights': [right.model_dump(mode='json') for right in publication],
+                'asr_status': 'not_measured', 'release_evidence': 'Actual final Bundle validation remains required'})))
         self.state['quality_revision_id'] = quality.revision_id
         self._save('local_masters_and_actual_quality_committed')
         if not self._admit(quality):

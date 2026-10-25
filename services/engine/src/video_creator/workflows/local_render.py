@@ -32,6 +32,7 @@ from video_creator.domain.worker import (
 )
 from video_creator.media.ffmpeg import FFmpegRuntime
 from video_creator.media.local_render import LocalTemplateRenderer
+from video_creator.workflows.production_json import json_body
 
 SOURCE = "gate0-local-render-v1: deterministic experiment template, not model creation"
 RIGHTS = "Local experimental derivative of this production's authorized input; no distribution grant added"
@@ -207,7 +208,8 @@ class LocalRenderFlow(Flow[dict]):
             parent = self._feedback.target_revision_id
         revision_id = "local-plan." + self._invocation.lease.run_id
         revision = CreativeRevision(
-            revision_id=revision_id, kind="plan", parent_revision_id=parent, body=plan
+            revision_id=revision_id, kind="plan", parent_revision_id=parent,
+            body=json_body(plan, path="revision.body"),
         )
         self._services.engine.commit_creative_revision(self._invocation.lease, revision)
         saved = self._finish_plain(
@@ -486,7 +488,7 @@ class LocalRenderFlow(Flow[dict]):
                 revision_id=revision_id,
                 kind="quality",
                 input_revision_refs=(self.state["plan_revision_id"],),
-                body=body,
+                body=json_body(body, path="revision.body"),
             ),
         )
         decision = engine.read_review_decision(lease, revision_id)

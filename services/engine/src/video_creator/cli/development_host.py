@@ -470,7 +470,7 @@ def _factory(start: DevelopmentStart):
                 # floor, only for a development-initialized binding, only with
                 # the explicit development flag and only while the four
                 # authorization tables are provably empty.
-                create_development_production_control(engine)
+                create_development_production_control(engine, auto_owner_init=start.auto_owner_init)
             services = assemble_owner_services(
                 engine, owner, bundle=bundle, for_management=False,
                 installation_authority=authority, installation_session_guard=authority,

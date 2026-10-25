@@ -20,7 +20,31 @@ from video_creator.workflows.local_material_production import (
     _completed,
 )
 from video_creator.workflows.local_material_rights import require_local_plan_rights
-from video_creator.workflows.production_json import canonical_object
+from video_creator.workflows.production_json import canonical_object, json_body
+
+
+def ordered_media_roles(media_roles, selection):
+    """Applicable master mapping in `selection.master_roles` order.
+
+    A Step result is persisted as canonical JSON (keys sorted), so a read-back
+    role mapping has alphabetical insertion order, never the approved master
+    order. Only the selection defines order; this validates exact membership,
+    one distinct actual Asset per role, and returns a fresh ordered mapping.
+    """
+    expected = tuple(selection.master_roles)
+    if type(media_roles) is not dict:
+        raise EngineError('local_master_roles_invalid',
+            'Caller masters must be an actual role mapping.', 409)
+    if set(media_roles) != set(expected):
+        missing = sorted(set(expected) - set(media_roles))
+        extra = sorted(set(media_roles) - set(expected))
+        raise EngineError('local_master_roles_invalid',
+            f'Caller masters must exactly match the applicable selection (missing={missing}, extra={extra}).', 409)
+    values = [media_roles[role] for role in expected]
+    if any(type(value) is not str or not value for value in values) or len(set(values)) != len(values):
+        raise EngineError('local_master_roles_invalid',
+            'Each applicable master must be one distinct actual Asset identity.', 409)
+    return {role: media_roles[role] for role in expected}
 
 
 def read_local_composition(services, ordinary_lease, *, media_roles, plan_admission, production_rights_fact):
@@ -37,7 +61,7 @@ def read_local_composition(services, ordinary_lease, *, media_roles, plan_admiss
         raise EngineError('local_composition_revisions_missing', 'Local composition retains actual script, plan and quality, without fabricated extra versions.', 409)
     from video_creator.domain.local_material_production import parse_local_material_plan
 
-    body = parse_local_material_plan(canonical_object(plan_revision.body).encode('utf-8'))
+    body = parse_local_material_plan(canonical_object(json_body(plan_revision.body, path='plan.body')).encode('utf-8'))
     sources = ports.local_material_plan_sources(ordinary_lease,
         script_revision_id=body.source_script_revision_ref.revision_id,
         source_script_origin=body.source_script_origin,
@@ -49,10 +73,10 @@ def read_local_composition(services, ordinary_lease, *, media_roles, plan_admiss
     if (type(selection) is not LocalMasterSelectionV1 or selection.plan_revision_ref != revision_ref(plan_revision)
             or selection.request_ref != plan.request_ref or selection.outputs != request.outputs):
         raise EngineError('local_composition_selection_invalid', 'Use the actual current same-plan applicable selection.', 409)
+    media_roles = ordered_media_roles(media_roles, selection)
     master = _completed(engine.read_step(ordinary_lease, 'media-master'))
     if (master is None or master['result'].get('media_roles') != media_roles
-            or tuple(media_roles) != selection.master_roles
-            or len(set(media_roles.values())) != len(media_roles) or set(master.get('asset_ids', ())) != set(media_roles.values())):
+            or set(master.get('asset_ids', ())) != set(media_roles.values())):
         raise EngineError('local_composition_masters_missing', 'Caller IDs alone cannot replace the successful applicable master Step.', 409)
     narration_steps = [('production-narration', ('narration_audio',))] if 'narration_audio' in selection.master_roles else []
     visual_steps = [('production-' + s.shot_id, (s.shot_id,)) for s in plan.timeline.shots] if selection.content_kind == 'video' else []

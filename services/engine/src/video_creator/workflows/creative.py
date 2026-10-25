@@ -23,6 +23,7 @@ from video_creator.workflows.delegation_audit import (
     successful_production_reuse,
     successful_reuse,
 )
+from video_creator.workflows.production_json import json_body
 
 _ACTIVE_TASK: contextvars.ContextVar[Task | None] = contextvars.ContextVar(
     "creative_task", default=None
@@ -254,8 +255,10 @@ class CreativeCrew:
             CreativeRevision(
                 revision_id=revision_id,
                 kind="plan",
-                body={"proposal": proposal.model_dump(mode="json"), "production_delegation_audit": self.delegations}
-                     if self.production_roles else proposal.model_dump(mode="json"),
+                body=json_body({"proposal": proposal.model_dump(mode="json"),
+                                "production_delegation_audit": self.delegations}
+                               if self.production_roles else proposal.model_dump(mode="json"),
+                               path="revision.body"),
             ),
         )
         result = {"revision_id": revision.revision_id}

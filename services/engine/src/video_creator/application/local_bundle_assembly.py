@@ -196,7 +196,12 @@ class _LocalAssemblyCheck:
                 or len(set(roles.values())) != len(required)):
             raise _invalid('local_assembly_master_conflict',
                            'Committed media-master roles differ from the applicable selection', 409)
-        committed = result.get('asset_ids')
+        # The committed Step body keeps `asset_ids` at the top level (the media
+        # side's `_outputs()` reads `saved['asset_ids']` there); only the role
+        # map lives under `result`. A Step row may also carry `asset_ids`.
+        committed = body.get('asset_ids') if isinstance(body, dict) else None
+        if committed is None:
+            committed = step.get('asset_ids')
         if (not isinstance(committed, list) or len(set(committed)) != len(committed)
                 or set(committed) != set(roles.values())):
             raise _invalid('local_assembly_master_conflict',
@@ -219,7 +224,7 @@ class _LocalAssemblyCheck:
                     or role == 'cover' and not record.media_type.startswith('image/')):
                 raise _invalid('local_assembly_master_changed',
                                'Committed media does not satisfy its original output role')
-        return roles
+        return {role: roles[role] for role in selection.master_roles}
 
     def _masters(self):
         selection = self.selection

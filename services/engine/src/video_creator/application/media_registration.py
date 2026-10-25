@@ -335,6 +335,20 @@ class RegisteredMediaRuntime(CurrentFinalEvidenceRuntime):
         return (self.sha256, self.config.asr_resource_manifest_sha256,
                 self.config.asr_runtime_manifest_sha256)
 
+    def _stale_registration_binding(self, previous_body, binding) -> bool:
+        """A prior binding differs only by the engine registration identity.
+
+        Such a Run belongs to an older registration build and needs human
+        reconciliation; every other difference stays a genuine conflict.
+        """
+        try:
+            previous = ProductionBinding.model_validate_json(previous_body)
+        except (ValueError, TypeError):
+            return False
+        return (previous.registration_sha256 != binding.registration_sha256
+                and previous.model_copy(update={
+                    'registration_sha256': binding.registration_sha256}) == binding)
+
     def bind(self, lease, worker):
         if _hash(self.path) != self.sha256:
             raise EngineError("production_configuration_changed", "Trusted registration changed after Worker startup", 503)
@@ -354,6 +368,9 @@ class RegisteredMediaRuntime(CurrentFinalEvidenceRuntime):
             self.engine._lease(connection, lease)
             previous = connection.execute("SELECT * FROM execution_bindings WHERE run_id=?", (lease.run_id,)).fetchone()
             if previous and (previous["body"] != body or previous["content_sha256"] != digest(body)):
+                if self._stale_registration_binding(previous["body"], binding):
+                    raise EngineError("registered_run_stale_registration",
+                        "This Run was bound to a previous engine registration and requires manual reconciliation", 409)
                 raise EngineError("execution_binding_conflict", "Run retains a different original workflow or resource binding", 409)
             connection.execute("INSERT OR IGNORE INTO execution_bindings VALUES(?,?,?)", (lease.run_id, body, digest(body)))
             connection.execute("UPDATE worker_presence SET state='executing',active_run_id=? WHERE worker_id=?", (lease.run_id, lease.worker_id))
@@ -901,6 +918,7 @@ def run_registered_worker(runtime: RegisteredMediaRuntime, *, control, on_ready:
     worker_id = worker.register_presence(runtime.sha256)
     failed = False
     reported_reconciliation = set()
+    pending_reconciliation: dict[str, str] = {}
     last_blocker_probe, blocker_cursor = float("-inf"), 0
     try:
         worker.heartbeat_presence(worker_id)
@@ -916,7 +934,21 @@ def run_registered_worker(runtime: RegisteredMediaRuntime, *, control, on_ready:
                     binding = connection.execute("SELECT body FROM execution_bindings WHERE run_id=?", (row[0],)).fetchone()
                     if strict_json(binding[0].encode()).get("workflow_version") == PROFILE and row[0] not in reported_reconciliation:
                         reported_reconciliation.add(row[0])
+                        pending_reconciliation[row[0]] = "registered_provider_reconciliation_missing"
                         sys_event("worker_reconciliation_pending", run_id=row[0], code="registered_provider_reconciliation_missing")
+                # Runs left in evidence-reconciliation by an older registration
+                # build have no unknown Operation, so report them here too and
+                # keep them out of the runnable queue.
+                stale = connection.execute("SELECT r.id,b.body FROM runs r JOIN execution_bindings b ON b.run_id=r.id WHERE r.status='needs_reconciliation'").fetchall()
+                for row in stale:
+                    try:
+                        prior = ProductionBinding.model_validate_json(row[1])
+                    except (ValueError, TypeError):
+                        continue
+                    if prior.registration_sha256 != runtime.sha256 and row[0] not in reported_reconciliation:
+                        reported_reconciliation.add(row[0])
+                        pending_reconciliation[row[0]] = "registered_run_stale_registration"
+                        sys_event("worker_reconciliation_pending", run_id=row[0], code="registered_run_stale_registration")
             if isinstance(runtime.config, (RegistrationConfigV2, RegistrationConfigLocalV1)) and not control.stop_requested and time.monotonic() - last_blocker_probe >= 5:
                 from video_creator.application.current_final_evidence_journal import (
                     PREFIX as FINAL_PREFIX,
@@ -966,6 +998,10 @@ def run_registered_worker(runtime: RegisteredMediaRuntime, *, control, on_ready:
                 break
             lease = engine.acquire_run(worker_id, lease_seconds=RUN_LEASE_SECONDS, run_id=run_id)
             if lease is None:
+                if pending_reconciliation:
+                    raise EngineError('worker_reconciliation_pending',
+                        'No runnable production remains; manual reconciliation is required for: '
+                        + ', '.join(sorted(pending_reconciliation)), 503)
                 if once:
                     break
                 control.wait(0.25)
@@ -1020,8 +1056,12 @@ def run_registered_worker(runtime: RegisteredMediaRuntime, *, control, on_ready:
                     # Selection, effective finite cap and final live checks
                     # belong to the original atomic park, never a pre-read.
                     runtime.park_current_final_evidence(lease, assessment)
-                elif result.state == "waiting_user" and not isinstance(runtime.config, (RegistrationConfigV2, RegistrationConfigLocalV1)):
-                    runtime.park(lease, result.blocker_code or "production_evidence_missing")
+                elif result.state == "waiting_user":
+                    # The trusted local/current adapters persist and release a
+                    # review wait before returning; only the legacy registered
+                    # profile still needs the extra park here.
+                    if not isinstance(runtime.config, (RegistrationConfigV2, RegistrationConfigLocalV1)):
+                        runtime.park(lease, result.blocker_code or "production_evidence_missing")
                 elif result.state != "published" or result.bundle_ref is None:
                     raise EngineError("worker_outcome_invalid", "Only actual BundleService publication is production success", 503)
                 else:
@@ -1031,6 +1071,18 @@ def run_registered_worker(runtime: RegisteredMediaRuntime, *, control, on_ready:
                 if errors or time.monotonic() >= deadline:
                     raise EngineError("worker_attempt_deadline", "Production attempt exceeded its bounded execution window", 503)
             except EngineError as error:
+                if error.code == 'registered_run_stale_registration':
+                    engine.release_run(lease)
+                    with engine.db.transaction() as connection:
+                        current = engine._run(connection, lease.run_id)
+                        connection.execute("UPDATE runs SET status='needs_reconciliation' WHERE id=?", (lease.run_id,))
+                        connection.execute("UPDATE productions SET status='needs_reconciliation' WHERE id=?", (current["production_id"],))
+                        engine._event(connection, engine._run(connection, lease.run_id),
+                                      "production.reconciliation_required", "registered_run_stale_registration")
+                    pending_reconciliation[lease.run_id] = error.code
+                    reported_reconciliation.add(lease.run_id)
+                    sys_event("worker_reconciliation_pending", run_id=lease.run_id, code=error.code)
+                    continue
                 with engine.db.connect() as connection:
                     current = engine._run(connection, lease.run_id)
                 if current["status"] == "needs_reconciliation" or error.retryability == "reconcile":
