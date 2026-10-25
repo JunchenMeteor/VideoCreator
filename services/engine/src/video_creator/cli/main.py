@@ -183,6 +183,15 @@ def parser() -> argparse.ArgumentParser:
     provision.add_argument("--data-dir", required=True, type=Path)
     provision.add_argument("--registration", required=True, type=Path,
                            help="The already generated trusted local registration")
+    for product_command in ("product-serve", "product-worker"):
+        product = commands.add_parser(product_command)
+        product.add_argument("--data-dir", required=True, type=Path)
+        product.add_argument("--install-root", required=True, type=Path)
+        product.add_argument("--installation-record", required=True, type=Path)
+        product.add_argument("--installation-record-sha256", required=True)
+        product.add_argument("--production-config", required=True, type=Path)
+        product.add_argument("--production-config-sha256", required=True)
+        product.add_argument("--native-origin", default="http://tauri.localhost")
     mcp = commands.add_parser("mcp-stdio")
     mcp.add_argument("--data-dir", required=True, type=Path)
     mcp.add_argument("--ffmpeg", type=Path)
@@ -364,6 +373,17 @@ def main(*, installed_service_factory: InstalledServiceFactory | None = None,
                                   "Only the one-shot evidence-admin install is supported", 400)
             print(json.dumps(evidence_admin_install(data_dir=args.data_dir, receipt=args.receipt),
                              ensure_ascii=False))
+        elif args.command in {"product-serve", "product-worker"}:
+            from video_creator.cli import product_host
+            return product_host.main([
+                args.command, "--data-dir", str(args.data_dir),
+                "--install-root", str(args.install_root),
+                "--installation-record", str(args.installation_record),
+                "--installation-record-sha256", args.installation_record_sha256,
+                "--production-config", str(args.production_config),
+                "--production-config-sha256", args.production_config_sha256,
+                "--native-origin", args.native_origin,
+            ])
         elif args.command == "installer-admin":
             if args.installer_command != "provision":
                 raise EngineError("installer_admin_command_invalid",
