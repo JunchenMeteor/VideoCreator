@@ -149,7 +149,9 @@ def _dacl_summary(path: Path) -> str:
     if os.name != 'nt':
         return hashlib.sha256(b'posix-0700').hexdigest()
     result = subprocess.run(['icacls', str(path)], capture_output=True, text=True, encoding='utf-8', errors='replace', check=False)
-    lines = [line.strip() for line in result.stdout.splitlines() if line.strip()]
+    lines = [line.strip() for line in result.stdout.splitlines()
+             if line.strip() and str(path) not in line]
+    lines.sort()
     return hashlib.sha256('\n'.join(lines).encode('utf-8')).hexdigest()
 
 

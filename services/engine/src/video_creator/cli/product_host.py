@@ -9,6 +9,7 @@ import sys
 from pathlib import Path
 
 from video_creator.application.engine import EngineService
+from video_creator.application.installer_provisioning import _dacl_summary
 from video_creator.application.media_registration import (
     PACKAGE_ROOT,
     _hash,
@@ -92,19 +93,18 @@ def _tree_files(base: Path):
 
 
 def _dacl(path: Path) -> str:
-    if sys.platform != 'win32':
-        return hashlib.sha256(b'posix-0700').hexdigest()
-    import subprocess
-    result = subprocess.run(['icacls', str(path)], capture_output=True, text=True, encoding='utf-8',
-                            errors='replace', check=False)
-    lines = [line.strip() for line in result.stdout.splitlines() if line.strip()]
-    return hashlib.sha256('\n'.join(lines).encode('utf-8')).hexdigest()
+    return _dacl_summary(path)
 
 
 def _factory(record_path: Path, record_sha: str, registration: Path, registration_sha: str, role: str):
     def assemble(*, engine, bundle, role, registered_runtime, for_management):
-        if for_management is not False or registered_runtime is not None:
-            _fail('trusted_startup_role_denied', 'Product startup never assembles management or an external runtime', 403)
+        if for_management is not False:
+            _fail('trusted_startup_role_denied', 'Product startup never assembles management', 403)
+        if role == 'worker':
+            if registered_runtime is None or registered_runtime.engine is not engine or registered_runtime.bundle is not bundle:
+                _fail('trusted_startup_role_denied', 'Product worker requires its exact registered runtime and Bundle', 403)
+        elif registered_runtime is not None:
+            _fail('trusted_startup_role_denied', 'Product API never accepts a worker runtime', 403)
         from video_creator.application.native_installation import NativeOwnerServices
         from video_creator.application.owner_services import assemble_owner_services
 
@@ -143,6 +143,8 @@ def main(argv=None) -> int:
     parser.add_argument('--production-config', required=True, type=Path)
     parser.add_argument('--production-config-sha256', required=True)
     parser.add_argument('--native-origin', default='http://tauri.localhost')
+    parser.add_argument('--max-seconds', type=int, default=300)
+    parser.add_argument('--control-stdin', action='store_true')
     args = parser.parse_args(argv)
     try:
         if any(part.startswith('--development-') for part in sys.argv) or 'VIDEO_CREATOR_DEVELOPMENT_INSTALLATION' in __import__('os').environ:
@@ -162,10 +164,19 @@ def main(argv=None) -> int:
         from video_creator.cli.main import main as engine_main
         previous = sys.argv
         try:
-            sys.argv = [previous[0], 'serve', '--data-dir', str(data_dir), '--host', '127.0.0.1',
-                        '--port', '0', '--native-origin', args.native_origin,
-                        '--production-config', str(args.production_config),
-                        '--production-config-sha256', registration_sha]
+            if args.command == 'product-worker':
+                forwarded = ['worker', '--workflow', 'registered-media-bundle-v1',
+                             '--data-dir', str(data_dir), '--production-config', str(args.production_config),
+                             '--production-config-sha256', registration_sha,
+                             '--max-seconds', str(args.max_seconds)]
+                if args.control_stdin:
+                    forwarded.append('--control-stdin')
+            else:
+                forwarded = ['serve', '--data-dir', str(data_dir), '--host', '127.0.0.1',
+                             '--port', '0', '--native-origin', args.native_origin,
+                             '--production-config', str(args.production_config),
+                             '--production-config-sha256', registration_sha]
+            sys.argv = [previous[0], *forwarded]
             return engine_main(installed_service_factory=factory)
         finally:
             sys.argv = previous

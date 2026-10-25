@@ -533,8 +533,8 @@ def main(argv: list[str] | None = None) -> int:
         # ADR0077 section 2 fixes the order as frozen -> dev argv. A frozen
         # artifact is refused even when its development arguments are missing.
         if getattr(sys, 'frozen', False):
-            raise EngineError('development_installation_unavailable',
-                              'A frozen artifact cannot host a development installation', 503)
+            raise EngineError('development_command_unavailable',
+                              'Development commands are not part of a product build', 403)
         raw_argv = list(sys.argv[1:] if argv is None else argv)
         args = parser().parse_args(raw_argv)
         start = _start(args, _raw_development_arguments(raw_argv))

@@ -192,6 +192,8 @@ def parser() -> argparse.ArgumentParser:
         product.add_argument("--production-config", required=True, type=Path)
         product.add_argument("--production-config-sha256", required=True)
         product.add_argument("--native-origin", default="http://tauri.localhost")
+        product.add_argument("--max-seconds", type=int, default=300)
+        product.add_argument("--control-stdin", action="store_true")
     mcp = commands.add_parser("mcp-stdio")
     mcp.add_argument("--data-dir", required=True, type=Path)
     mcp.add_argument("--ffmpeg", type=Path)
@@ -383,6 +385,8 @@ def main(*, installed_service_factory: InstalledServiceFactory | None = None,
                 "--production-config", str(args.production_config),
                 "--production-config-sha256", args.production_config_sha256,
                 "--native-origin", args.native_origin,
+                "--max-seconds", str(args.max_seconds),
+                *(["--control-stdin"] if args.control_stdin else []),
             ])
         elif args.command == "installer-admin":
             if args.installer_command != "provision":
