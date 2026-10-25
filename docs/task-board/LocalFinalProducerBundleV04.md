@@ -25,7 +25,7 @@
 1. `create_registered_media_producer` 增加 `local_material_context` 关键字参数；local 模式**不加载 ASR 资源**（不得复用 `load_asr_resources`）；v2/v3 行为逐字节不变。
 2. 新增 local produce 入口，接受调用方现有实参（`selection`、`media_roles`、`asr_route_id`、`cancel`、`deadline_monotonic`、`plan_admission`、`production_rights_fact`），返回与现有 produce 一致的 bundle 发布结果。
 3. 真实素材生成：静图按 display-hold 的整数帧映射、视频按 source_range 截取、`fit=contain|cover` 生效；音频轨按 timeline 混音；封面从视频或原图真实提取。全部使用 `media/local_material_edit.py` 与 `media/production_edit.py` 的真实 ffmpeg 路径，不新增第二个编码器。
-4. 无语音/无音轨必须走**真实**分支：请求字幕而 selection 无 narration 时，实际生成并解析两份零 cue 的 SRT/VTT 材料，绑定 hash/MIME/output，不得写空文件了事；请求转写而无语音时按合同拒绝或给具名 blocker，不许造转写。
+4. ~~无语音/无音轨必须走真实零 cue 分支~~ **统筹裁定（2026-10-25，覆盖原 must-4）**：本地 v1 配置文件要求 ASR 四字段全 null，`subtitles`/`actual_transcript` 输出在无真实语音时一律**明确拒绝**（`local_output_not_applicable` 422，语义正确），不实现零 cue 分支。理由：零 cue 需要真实 settled ASR 缺席观察，当前冻结 ASR 拒绝空文本、`local_bundle_relations.py` 又要求真实 gaps，强行实现只能造假。零 cue 另立架构卡。无音轨（纯静图/无声视频）继续走真实 `no_audio_observed` 分支，`audio_mappings=()`。
 5. 0.4 manifest 必须是 `BundleManifestLocalV1`：script/plan/quality 三份同 Run 创作版本、真实媒体资产与关系、`audio_mappings` 按 ADR0076 只用真实视频或混音资产、原子 READY 发布。
 6. 失败语义：资源缺失/输入不适用/证据不足分别给具名 `EngineError`（可恢复的用同 Run WAITING），不得静默降级、不得长期 503 当终局。
 
