@@ -26,6 +26,12 @@ from video_creator.api.transport_contract import (
 from video_creator.application.assets import AssetService
 from video_creator.application.bundles import BundleService, InstancePrincipalRegistry
 from video_creator.application.engine import EngineService, identity
+from video_creator.application.product_authorization import (
+    AUTHORIZATION_HEADER,
+    HEALTH_HEADER,
+    AuthorizationDecision,
+    ProductAuthorizationChannel,
+)
 from video_creator.application.worker import WorkerService
 from video_creator.domain import contracts as c
 from video_creator.domain import local_copy_input_scope as copy_contracts
@@ -83,9 +89,20 @@ def create_app(engine: EngineService, token: str, subject: str = "local-user",
                on_shutdown: Callable[[], None] | None = None,
                bundle_service: BundleService | None = None,
                principal_registry: InstancePrincipalRegistry | None = None,
-               copy_input_service=None) -> FastAPI:
+               copy_input_service=None,
+               authorization_channel: ProductAuthorizationChannel | None = None,
+               authorization_state: str | None = None) -> FastAPI:
     if len(token) < 32:
         raise EngineError("session_token_missing", "A session token of at least 32 characters is required", 503)
+    if authorization_channel is not None and (
+            type(authorization_channel) is not ProductAuthorizationChannel
+            or authorization_channel.engine is not engine):
+        raise EngineError('product_authorization_configuration_conflict',
+                          'The authorization channel must belong to this exact Engine instance', 503)
+    if authorization_state is not None and authorization_state != 'none':
+        raise EngineError('product_authorization_configuration_conflict',
+                          'The only externally fixed authorization state is none', 503)
+    restricted = authorization_channel is not None
     allowed_origins = startup_origins(allowed_origins)
     bundles = bundle_service or BundleService(engine, TrustedBundleValidators(media_validator=media_validator),
                       principal_registry or InstancePrincipalRegistry(engine.instance_id, subject))
@@ -97,18 +114,35 @@ def create_app(engine: EngineService, token: str, subject: str = "local-user",
         engine.configure_local_copy_inputs(copy_input_service)
     @asynccontextmanager
     async def lifespan(application: FastAPI):
-        engine.recover()
-        bundles.start_exports()
+        # A restricted process has no execution capability: it neither recovers
+        # run state nor starts bundle export work. Only the consent surface runs.
+        if not restricted:
+            engine.recover()
+            bundles.start_exports()
         if on_ready:
             on_ready()
         yield
-        bundles.stop_exports()
+        if not restricted:
+            bundles.stop_exports()
         if on_shutdown:
             # Only normal lifespan completion reaches this internal callback.
             on_shutdown()
 
     app = FastAPI(title="VideoCreator Engine", version=__version__, docs_url=None, redoc_url=None,
                   lifespan=lifespan, responses=ERROR_RESPONSES)
+    if restricted:
+        async def authorization_only(request: Request, call_next):
+            # No Owner binding yet: only health and the authorization channel are
+            # addressable. This is "not authorized" (403), not "unavailable".
+            path = request.url.path
+            if path == '/api/v1/health' or path.startswith('/api/v1/authorization/'):
+                return await call_next(request)
+            envelope = ErrorEnvelope(code='owner_authorization_required',
+                                     message='This installation has no Owner authorization yet; only health and the '
+                                             'authorization channel are available',
+                                     retryability='never', request_id=identity('request'))
+            return JSONResponse(envelope.model_dump(mode='json'), status_code=403)
+        app.middleware('http')(authorization_only)
     app.add_middleware(CORSMiddleware, allow_origins=list(allowed_origins), allow_credentials=False,
                        allow_methods=["GET", "POST", "PUT"], allow_headers=["Authorization", "Content-Type", "Idempotency-Key", "If-Match", "If-None-Match", "Range", "Last-Event-ID"],
                        expose_headers=["ETag", "Accept-Ranges", "Content-Range", "Content-Length", "Content-Disposition"])
@@ -171,8 +205,65 @@ def create_app(engine: EngineService, token: str, subject: str = "local-user",
         if is_development_host():
             # Process-internal development binding only; not declared in OpenAPI.
             response.headers[DEVELOPMENT_INSTALLATION_HEADER] = DEVELOPMENT_INSTALLATION_VALUE
+        if authorization_channel is not None:
+            # Runtime-only fact; deliberately not part of the health model or OpenAPI.
+            response.headers[HEALTH_HEADER] = authorization_channel.authorization_state
+        elif authorization_state == 'none':
+            response.headers[HEALTH_HEADER] = 'none'
         return InstanceHealth(instance_id=engine.instance_id, schema_version=c.CONTRACT_SET_VERSION, engine_version=__version__,
                               worker_connected=WorkerService(engine).connected())
+
+    if authorization_channel is not None:
+        def authorization_origin(request: Request) -> str | None:
+            origin = request.headers.get('origin')
+            if origin is not None and origin not in allowed_origins:
+                raise EngineError('origin_denied', 'Browser origin is not authorized', 403)
+            fetch_site = request.headers.get('sec-fetch-site')
+            if fetch_site is not None and fetch_site != 'same-origin':
+                raise EngineError('origin_denied', 'Authorization requires a same-origin request', 403)
+            return origin
+
+        def authorization_secret(
+                x_videocreator_authorization: str | None = Header(
+                    default=None, alias=AUTHORIZATION_HEADER)) -> str:
+            return x_videocreator_authorization or ''
+
+        secret_dependency = Depends(authorization_secret)
+
+        # Authorization routes are installation-session endpoints, not a published
+        # contract: they stay out of OpenAPI and out of the CORS allowlist. Their
+        # only decision methods are POST; no GET can decide anything.
+        @app.get('/api/v1/authorization/pending', include_in_schema=False)
+        def authorization_pending(request: Request, response: Response,
+                                  actor: str = Depends(authenticate), secret: str = secret_dependency):
+            authorization_origin(request)
+            response.headers['Cache-Control'] = 'no-store'
+            return authorization_channel.pending(secret=secret)
+
+        @app.get('/api/v1/authorization/{authorization_id}', include_in_schema=False)
+        def authorization_get(authorization_id: str, request: Request, response: Response,
+                              actor: str = Depends(authenticate), secret: str = secret_dependency):
+            authorization_origin(request)
+            response.headers['Cache-Control'] = 'no-store'
+            return authorization_channel.get(authorization_id, secret=secret)
+
+        @app.post('/api/v1/authorization/{authorization_id}/approve', include_in_schema=False)
+        def authorization_approve(authorization_id: str, body: AuthorizationDecision, request: Request,
+                                  response: Response, actor: str = Depends(authenticate),
+                                  secret: str = secret_dependency):
+            origin = authorization_origin(request)
+            response.headers['Cache-Control'] = 'no-store'
+            return authorization_channel.approve(authorization_id, body, secret=secret, origin=origin,
+                                                 fetch_site=request.headers.get('sec-fetch-site'))
+
+        @app.post('/api/v1/authorization/{authorization_id}/deny', include_in_schema=False)
+        def authorization_deny(authorization_id: str, body: AuthorizationDecision, request: Request,
+                               response: Response, actor: str = Depends(authenticate),
+                               secret: str = secret_dependency):
+            origin = authorization_origin(request)
+            response.headers['Cache-Control'] = 'no-store'
+            return authorization_channel.deny(authorization_id, body, secret=secret, origin=origin,
+                                              fetch_site=request.headers.get('sec-fetch-site'))
 
     @app.get("/api/v1/projects", response_model=list[ProjectDraft])
     def projects(actor: str = Depends(authenticate)):

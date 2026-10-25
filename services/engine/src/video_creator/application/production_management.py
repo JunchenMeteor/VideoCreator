@@ -27,7 +27,7 @@ class ManagementPrincipal(c.Contract):
     project_ids: tuple[c.Identifier, ...]
     authentication_binding_id: c.Identifier
     authentication_source: Literal['native_owner_session', 'headless_administrator',
-                                   'development_owner_initialization']
+                                   'development_owner_initialization', 'product_authorization']
     scope: Literal['production.authorization.manage']
     expires_at_us: int = Field(gt=0, strict=True)
 

@@ -166,10 +166,12 @@ class OwnerBootstrapStore:
         body = json.dumps(proposal, ensure_ascii=False, sort_keys=True, separators=(',', ':'), allow_nan=False)
         request_sha = digest(body)
         development = None
+        product = None
         if confirmation_source is not None:
             from video_creator.application import (
                 development_owner_initialization as development,
             )
+            from video_creator.application import product_authorization as product
         if confirmation_source is None:
             confirm_local_action(self.engine.instance_id, action, proposal)
             authentication_source = 'headless_administrator'
@@ -180,6 +182,13 @@ class OwnerBootstrapStore:
             development.assert_development_owner_source(confirmation_source, engine=self.engine,
                                                         proposal=proposal, os_identity=self.os_identity)
             authentication_source = development.DEVELOPMENT_AUTHENTICATION_SOURCE
+        elif type(confirmation_source) is product.ProductOwnerAuthorizationSource:
+            # ADR0081: the only in-product consent write. The issued source is
+            # bound to this Engine, proposal and OS directory, accepts first
+            # initialization only, and is consumed by exactly one Owner action.
+            product.assert_product_authorization_source(confirmation_source, engine=self.engine,
+                                                        proposal=proposal, os_identity=self.os_identity)
+            authentication_source = product.AUTHENTICATION_SOURCE
         else:
             from video_creator.application.owner_setup_service import OwnerSetupService
             from video_creator.application.owner_setup_sources import (
@@ -205,6 +214,7 @@ class OwnerBootstrapStore:
         pending_path = folder / 'OwnerManagementPending.json'
         scope = 'owner.bootstrap.' + action
         audit_sha256 = None
+        product_audit_sha256 = None
         with self.control.locked():
             if development is not None and authentication_source == development.DEVELOPMENT_AUTHENTICATION_SOURCE:
                 with self.engine.db.connect() as connection:
@@ -249,6 +259,14 @@ class OwnerBootstrapStore:
                             owner_subject=original.principal.owner_subject,
                             project_ids=tuple(original.principal.project_ids),
                             expires_at_us=original.principal.expires_at_us)
+                    if product is not None and authentication_source == product.AUTHENTICATION_SOURCE:
+                        product.assert_product_authorization_audit(
+                            confirmation_source, engine=self.engine, action_id=original.action_id,
+                            binding_generation=original.generation,
+                            instance_id=original.principal.instance_id,
+                            owner_subject=original.principal.owner_subject,
+                            project_ids=tuple(original.principal.project_ids),
+                            owner_expires_at_us=original.principal.expires_at_us)
                     return original
                 if old and old.principal.owner_subject != owner_subject:
                     raise EngineError('owner_binding_denied', 'This installation already belongs to a different domain Owner', 403)
@@ -278,6 +296,13 @@ class OwnerBootstrapStore:
                         audit_sha256 = development.write_development_owner_audit(
                             confirmation_source, action_id=record.action_id, generation=record.generation,
                             authorized_at_us=record.authorized_at_us, request_sha256=request_sha, engine=self.engine)
+                    if product is not None and authentication_source == product.AUTHENTICATION_SOURCE:
+                        product_audit_sha256 = product.write_product_authorization_audit(
+                            confirmation_source, action_id=record.action_id, generation=record.generation,
+                            authorized_at_us=record.authorized_at_us, request_sha256=request_sha,
+                            engine=self.engine,
+                            result_ref={'command_scope': scope, 'action_key': action_key,
+                                        'action_id': record.action_id, 'generation': record.generation})
                 else:
                     if action != 'revoke' and expires_at_us <= self.engine.clock():
                         raise EngineError('production_management_denied', 'New management scope requires an explicit future expiry', 403)
@@ -298,6 +323,13 @@ class OwnerBootstrapStore:
                         audit_sha256 = development.write_development_owner_audit(
                             confirmation_source, action_id=record.action_id, generation=record.generation,
                             authorized_at_us=record.authorized_at_us, request_sha256=request_sha, engine=self.engine)
+                    if product is not None and authentication_source == product.AUTHENTICATION_SOURCE:
+                        product_audit_sha256 = product.write_product_authorization_audit(
+                            confirmation_source, action_id=record.action_id, generation=record.generation,
+                            authorized_at_us=record.authorized_at_us, request_sha256=request_sha,
+                            engine=self.engine,
+                            result_ref={'command_scope': scope, 'action_key': action_key,
+                                        'action_id': record.action_id, 'generation': record.generation})
                     data = json.dumps({'request_sha256': request_sha, 'record': canonical(record)},
                         ensure_ascii=False, sort_keys=True, separators=(',', ':')).encode('utf-8') + b'\n'
                     with pending_path.open('xb') as stream:
@@ -309,7 +341,9 @@ class OwnerBootstrapStore:
                 raise EngineError('owner_binding_conflict', 'Owner floor and confirmed generation disagree', 409)
             with self.engine.db.transaction() as connection:
                 if (confirmation_source is not None
-                        and type(confirmation_source) is not development.DevelopmentOwnerInitializationSource):
+                        and type(confirmation_source) not in (
+                            development.DevelopmentOwnerInitializationSource,
+                            product.ProductOwnerAuthorizationSource)):
                     confirmation_source._service.assert_bootstrap_action_local(confirmation_source, self, proposal, connection)
                 self.assert_current_directory()
                 current = self._read(connection)
@@ -323,11 +357,16 @@ class OwnerBootstrapStore:
                 if audit_sha256 is not None:
                     connection.execute('INSERT INTO metadata VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value',
                                        (development.AUDIT_METADATA_KEY, audit_sha256))
+                if product_audit_sha256 is not None:
+                    connection.execute('INSERT INTO metadata VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value',
+                                       (product.AUDIT_METADATA_KEY, product_audit_sha256))
                 connection.execute('INSERT INTO metadata VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value', (KEY, canonical(record)))
                 connection.execute('INSERT INTO commands VALUES(?,?,?,?,?)', (owner_subject, scope, action_key, request_sha, canonical(record)))
                 self.assert_current_directory()
                 if (confirmation_source is not None
-                        and type(confirmation_source) is not development.DevelopmentOwnerInitializationSource):
+                        and type(confirmation_source) not in (
+                            development.DevelopmentOwnerInitializationSource,
+                            product.ProductOwnerAuthorizationSource)):
                     confirmation_source._service.assert_bootstrap_action_local(confirmation_source, self, proposal, connection)
             self.control.complete(generation, request_sha)
             pending_path.unlink()

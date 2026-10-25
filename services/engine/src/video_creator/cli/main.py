@@ -19,6 +19,11 @@ from pydantic import TypeAdapter, ValidationError
 from video_creator.api.app import create_app
 from video_creator.application.bundles import BundleService
 from video_creator.application.engine import EngineService
+from video_creator.application.product_authorization import (
+    ProductAuthorizationChannel,
+    authorization_session_secret_from_environment,
+    owner_binding_absent,
+)
 from video_creator.application.worker import run_local_worker
 from video_creator.cli.lifecycle import ApiLifecycle, confirm_stopped, controlled_serve
 from video_creator.cli.startup_services import (
@@ -311,13 +316,47 @@ def main(*, installed_service_factory: InstalledServiceFactory | None = None,
                 raise EngineError("native_host_denied", "Native API binds only the fixed loopback listener and hosts", 400)
             token = os.environ.get("VIDEO_CREATOR_API_TOKEN", "")
             engine = EngineService(args.data_dir)
-            media_validator = configured_media_validator(engine, args.ffmpeg, args.ffprobe)
+            session_secret = authorization_session_secret_from_environment()
+            media_validator = None
+            bundle = None
+            installed = None
+            # ADR0081 section 2: without an Owner binding the engine may listen,
+            # but only `/health` and `/api/v1/authorization/*` are addressable.
+            # The restricted branch below does not assemble Owner services, does
+            # not register an execution identity and does not read admissions.
+            restricted = (installed_service_factory is None and owner_binding_absent(engine))
+            if not restricted:
+                media_validator = configured_media_validator(engine, args.ffmpeg, args.ffprobe)
+                bundle = (BundleService(engine, TrustedBundleValidators(media_validator=media_validator))
+                          if installed_service_factory is not None else None)
+                try:
+                    installed = (install_startup_services(installed_service_factory,
+                        engine=engine, bundle=bundle, role="api") if bundle is not None else None)
+                except EngineError as error:
+                    # The development factory proves its own conditions (frozen,
+                    # environment, registration, resource identity) before its
+                    # Owner gate. Only the exact Owner refusal may fall back to
+                    # the consent surface, and only when a launcher injected the
+                    # authorization session secret: without that injection the
+                    # development host keeps ADR0077/ADR0079's fail-before-bind.
+                    if (installed_service_factory is not None
+                            and error.code in {'owner_restore_refresh_required', 'owner_not_initialized'}
+                            and session_secret is not None):
+                        restricted = True
+                        media_validator = None
+                        bundle = None
+                        installed = None
+                    else:
+                        raise
+            channel = None
+            if restricted:
+                channel = ProductAuthorizationChannel(
+                    engine, session_secret=session_secret, owner_subject="local-user",
+                    caller_module="video_creator.cli.main", origins=origins,
+                    allowed_hosts=tuple(args.allowed_host or ["127.0.0.1", "localhost"]),
+                    launcher_origin="serve-dev" if installed_service_factory is not None else "serve")
             state = ApiLifecycle()
             original_threads = set(threading.enumerate())
-            bundle = (BundleService(engine, TrustedBundleValidators(media_validator=media_validator))
-                      if installed_service_factory is not None else None)
-            installed = (install_startup_services(installed_service_factory,
-                engine=engine, bundle=bundle, role="api") if bundle is not None else None)
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
                 listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
                 listener.bind((args.host, args.port))
@@ -326,6 +365,9 @@ def main(*, installed_service_factory: InstalledServiceFactory | None = None,
 
                 def ready():
                     descriptor = {"event": "ready", "base_url": f"http://{args.host}:{actual_port}", "instance_id": engine.instance_id}
+                    if channel is not None:
+                        # No execution principal is claimed while restricted.
+                        descriptor["authorization_state"] = channel.authorization_state
                     if installed is not None:
                         descriptor['principal_id'] = installed_principal_id(installed,
                             engine=engine, bundle=bundle, role='api')
@@ -342,7 +384,9 @@ def main(*, installed_service_factory: InstalledServiceFactory | None = None,
                                  is_stopping=(lambda: server.should_exit) if args.control_stdin else None,
                                  on_shutdown=shutdown_completed if args.control_stdin or installed is not None else None,
                                  bundle_service=bundle,
-                                 copy_input_service=installed.native.services.copy_inputs if installed is not None else None)
+                                 copy_input_service=installed.native.services.copy_inputs if installed is not None else None,
+                                 authorization_channel=channel,
+                                 authorization_state='none' if channel is None else None)
                 server = uvicorn.Server(uvicorn.Config(app, log_level="warning", access_log=False,
                                                      lifespan="on" if args.control_stdin else "auto"))
                 if args.control_stdin:

@@ -40,6 +40,12 @@ from video_creator.application.development_owner_initialization import (
     create_development_production_control,
     development_owner_initialization_source,
 )
+from video_creator.application.product_authorization import (
+    AUTHENTICATION_SOURCE as PRODUCT_AUTHENTICATION_SOURCE,
+)
+from video_creator.application.product_authorization import (
+    create_product_authorization_control,
+)
 from video_creator.domain.errors import EngineError
 
 PROFILE = 'registered-media-config-local-v1'
@@ -491,6 +497,13 @@ def _factory(start: DevelopmentStart):
                 # the explicit development flag and only while the four
                 # authorization tables are provably empty.
                 create_development_production_control(engine, auto_owner_init=start.auto_owner_init)
+            elif owner_authentication_source == PRODUCT_AUTHENTICATION_SOURCE:
+                # ADR0081: the in-product consent is the explicit authorization
+                # that replaced the development flag. The same empty-first-floor
+                # bootstrap is required before this restart can assemble the
+                # execution identity; the function itself re-checks the binding
+                # source and all four empty authorization tables.
+                create_product_authorization_control(engine)
             services = assemble_owner_services(
                 engine, owner, bundle=bundle, for_management=False,
                 installation_authority=authority, installation_session_guard=authority,
@@ -525,17 +538,17 @@ def main(argv: list[str] | None = None) -> int:
         raw_argv = list(sys.argv[1:] if argv is None else argv)
         args = parser().parse_args(raw_argv)
         start = _start(args, _raw_development_arguments(raw_argv))
-        if args.command == 'worker-dev':
-            # ADR0077 section 2 keeps the environment condition before the
-            # registration file and before any Engine/assembly. The existing
-            # registered worker branch parses its runtime before the factory, so
-            # the wrapper checks the same actual instance identity here; it
-            # opens no listener, creates no data dir and does no assembly.
-            instance_id = _existing_instance_id(start.data_dir)
-            if instance_id is None:
-                raise EngineError('development_installation_denied',
-                                  'worker-dev requires an existing data directory instance identity', 403)
-            _require_environment(instance_id)
+        # ADR0077 section 2 keeps the environment condition before the
+        # registration file and before any Engine/assembly. `serve-dev` may now
+        # enter the ADR0081 restricted listener when no Owner binding exists, so
+        # its instance identity and environment are proven here rather than only
+        # inside the factory: a process that did not pass the development
+        # conditions must never expose the in-product consent surface.
+        instance_id = _existing_instance_id(start.data_dir)
+        if instance_id is None:
+            raise EngineError('development_installation_denied',
+                              args.command + ' requires an existing data directory instance identity', 403)
+        _require_environment(instance_id)
         forwarded = _serve_argv(args) if args.command == 'serve-dev' else _worker_argv(args)
         from video_creator.cli.main import main as engine_main
 
