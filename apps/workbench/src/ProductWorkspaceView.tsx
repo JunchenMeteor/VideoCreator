@@ -52,12 +52,13 @@ function StatusBadge({ status }: { status: Schemas['RunStatus'] }) {
   return <Badge color={color} variant="soft">{info.label}</Badge>;
 }
 
-function ReviewCard({ production, revision, projectName, connected, onChanged }: {
+function ReviewCard({ production, revision, projectName, connected, onChanged, onDecision }: {
   production: ProductionAccepted;
   revision: Schemas['CreativeRevision'];
   projectName?: string;
   connected: boolean;
   onChanged: () => void;
+  onDecision: (message: string) => void;
 }) {
   const reviewKind: ReviewKind | null = reviewKindOf(revision.kind) ? revision.kind : null;
   const [reason, setReason] = useState('');
@@ -94,7 +95,9 @@ function ReviewCard({ production, revision, projectName, connected, onChanged }:
         },
         headers: { 'Idempotency-Key': intentRef.current.key },
       });
-      setDone(action === 'approve' ? '已同意。制作会按这条决定继续。' : '已拒绝并保存原因。这条决定不会把内容当成通过。');
+      const message = action === 'approve' ? '已同意。制作会按这条决定继续。' : '已拒绝并保存原因。这条决定不会把内容当成通过。';
+      setDone(message);
+      onDecision(message);
       onChanged();
     } catch (error) {
       setFailure(error);
@@ -119,7 +122,6 @@ function ReviewCard({ production, revision, projectName, connected, onChanged }:
       {code ? <div><dt>检查代码</dt><dd><code>{code}</code>{codeText ? `：${codeText}` : '：实例返回的具名检查结果。'}</dd></div> : null}
     </dl>
     <details className="review-detail"><summary>查看这份产物的实际内容<ChevronRight size={13} /></summary><RevisionView revision={revision} /></details>
-    {done ? <p className="action-notice" role="status">{done}</p> : null}
     {failure ? <Callout.Root color="red" role="alert"><Callout.Text>{failureText(failure)}</Callout.Text></Callout.Root> : null}
     {!done ? <>
       <label className="field-label" htmlFor={`review-reason-${revision.revision_id}`}>拒绝原因（拒绝时必填）</label>
@@ -132,12 +134,13 @@ function ReviewCard({ production, revision, projectName, connected, onChanged }:
   </article>;
 }
 
-function ReviewQueue({ connected, productions, projects, onSelectProduction, onChanged }: {
+function ReviewQueue({ connected, productions, projects, onSelectProduction, onChanged, onDecision }: {
   connected: boolean;
   productions: readonly ProductionAccepted[];
   projects: readonly Schemas['ProjectDraft'][] | undefined;
   onSelectProduction: (production: ProductionAccepted) => void;
   onChanged: () => void;
+  onDecision: (message: string) => void;
 }) {
   const waiting = useMemo(() => waitingProductions(productions), [productions]);
   const uniqueWaiting = useMemo(() => {
@@ -164,7 +167,7 @@ function ReviewQueue({ connected, productions, projects, onSelectProduction, onC
     <div className="review-list">{items.map(({ production, revision }) => <div key={`${production.production_id}:${revision.revision_id}`}>
       <ReviewCard production={production} revision={revision} connected={connected}
         projectName={projects?.find(item => item.project_id === production.project_id)?.name}
-        onChanged={onChanged} />
+        onChanged={onChanged} onDecision={onDecision} />
       <Button size="1" variant="ghost" color="gray" onClick={() => onSelectProduction(production)}>查看这条作品状态</Button>
     </div>)}</div>
   </section>;
@@ -248,6 +251,7 @@ export function ProductWorkspaceView({ connected, instanceId, knownAssets, onReq
   const [failure, setFailure] = useState<unknown>(null);
   const [formError, setFormError] = useState('');
   const [notice, setNotice] = useState('');
+  const [reviewNotice, setReviewNotice] = useState('');
   const productionIntent = useRef<{ key: string; signature: string } | null>(null);
   const projectIntent = useRef<{ key: string; signature: string } | null>(null);
 
@@ -381,10 +385,12 @@ export function ProductWorkspaceView({ connected, instanceId, knownAssets, onReq
 
     <ReviewQueue connected={connected} productions={productions.data ?? []} projects={projects.data}
       onSelectProduction={selectProduction}
+      onDecision={setReviewNotice}
       onChanged={() => {
         void queryClient.invalidateQueries({ queryKey: ['product-productions', instanceId] });
         void queryClient.invalidateQueries({ queryKey: ['product-review-revisions'] });
       }} />
+    {reviewNotice ? <p className="action-notice" role="status">{reviewNotice}</p> : null}
 
     <section className="product-section" aria-labelledby="works-title">
       <div className="stage-heading"><span className="section-kicker">我的作品</span><h2 id="works-title">实例里的真实任务</h2><p>状态来自实例记录；没有任务时不会显示示例作品。</p></div>
