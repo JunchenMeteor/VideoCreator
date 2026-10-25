@@ -46,3 +46,19 @@
 2. worker 日志在 Windows GBK 控制台下被 CrewAI 的 emoji 事件刷屏，`'gbk' codec can't encode` 大量噪声，影响排障。
 3. 注册文件与源码哈希强绑定：任何引擎源码改动都必须重生成注册，否则 `development_code_changed`。开发期这点会反复咬人。
 4. 本地档案与云端全量档案的差异还有若干已知门（四母版、8 输出、证据策略已处理；`unattended`、`audio-only`、`zero-cue` 仍未处理）。
+
+
+## 2026-10-25 21:40 更新：静音成片已真实验收（证据）
+
+| 能力 | 证据 | 复核方式 |
+| --- | --- | --- |
+| 真实端到端成片（静音 3 秒） | `production-1d22330e09ed4557975f26f6b4a609a0` → **succeeded**；bundle `local-bundle-revision-e362c12a…`；manifest `0.4.0-candidate` / `local-material-bundle-v1`，13 个 artifact | `GET /api/v1/productions/{id}`、`GET /api/v1/bundles/{rev}/manifest` |
+| 视频真实可播放 | h264 1080×1920 / 25fps / 75 帧 / 3.000000 s / 8,316 B；磁盘对象 SHA = manifest SHA = API 下载 SHA `ae433171…`；解帧内容为上传静图 | `ffprobe`、`GET …/artifacts/{id}/content`、解帧比对 |
+| 两次人工审核真实生效 | plan 与 quality 各一次 `ReviewDecision`（经 API 提交） | 事件 `review.required/decided` |
+| 本地 ASR 运行时（链外） | faster-whisper-small 在盘；SAPI 合成 6.29 s 中文 WAV → 正确转写 | `LocalSpeechPipeline.md` 实测段 |
+
+仍未完成：带音频/字幕/转写/RAG 的作品包、Piper 旁白（缺 voice 模型）、HTTP/MCP 单次交付、安装包、发布、官方订阅、模型设置界面、CI。
+
+## 2026-10-25 21:45 评审状态
+
+`7a32420` 批次独立评审：**LIMITED_PASS_WITH_P2，无 P1**；明确结论"未发现未批准/其它 Run/篡改输入可发布作品包的路径"。P2 处理中：同 Run 审批已显式化（`bundle_approval_conflict`）；权利/重入/有序/identity 的定向回归测试随语音链补。
