@@ -62,3 +62,20 @@
 ## 2026-10-25 21:45 评审状态
 
 `7a32420` 批次独立评审：**LIMITED_PASS_WITH_P2，无 P1**；明确结论"未发现未批准/其它 Run/篡改输入可发布作品包的路径"。P2 处理中：同 Run 审批已显式化（`bundle_approval_conflict`）；权利/重入/有序/identity 的定向回归测试随语音链补。
+
+
+## 2026-10-26 02:10 真实语音作品发布（证据）
+
+| 项 | 值 |
+| --- | --- |
+| production | `production-2f621e4e2d9946a19d8f1d102e7e1953` → **succeeded** |
+| 作品包 | `local-bundle-revision-80ff2155…`，manifest `0.4.0-candidate` / `local-material-bundle-v1`，17 个 artifact |
+| 输出 | video、mixed_audio、actual_transcript、subtitles、semantic_manifest、rag_chunks |
+| 视频 | h264 1080×1920 + **aac 48 kHz**，6.280 s；`Media/mixed-audio.wav` |
+| 转写 | 1 utterance、6,280,000 µs，文本与音频一致（ASR 原样，未修改误识） |
+| 字幕 | srt/vtt 同源序列化，quantization errors 全 0 |
+| 证据诚实性 | `units=utterance`、`timestamp_method=whisper_word_estimate_not_forced_alignment`、`precision.status=not_measured`、N/P95/reference 全 null |
+| 成本 | CNY 0 |
+
+### MCP 路径（新发现，进行中）
+MCP `production_create` 可创建 production，但实测发现：① MCP 启动时 `media_validator_missing`（同样的 ffmpeg 路径在 serve-dev 下可用）；② 该 production 直接出现 quality 版本、无 plan 步骤；③ MCP 没有暴露"列出待审版本"的工具，客户端无法取得 revision id 去 decide。已列为 R1 缺口并派给后端。
