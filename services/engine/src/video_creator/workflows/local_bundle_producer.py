@@ -17,15 +17,21 @@ writing empty documents or fabricating speech evidence.
 """
 from __future__ import annotations
 
+import hashlib
+
+from pydantic import ValidationError
+
 from video_creator.application.engine import canonical, digest
 from video_creator.domain import contracts as c
 from video_creator.domain.bundle import BundlePreparationIntent, MaterialSlot
+from video_creator.domain.current_final_evidence import AssemblyContextRef
 from video_creator.domain.errors import EngineError
 from video_creator.domain.local_bundle import (
     LOCAL_REQUIRED_FILES,
     BundleManifestLocalV1,
     LocalBundleQualityEvidenceV1,
     LocalCheckApplicabilityV1,
+    LocalFinalAssemblyContextV1,
     LocalMasterSelectionV1,
     LocalSpeechEvidenceV1,
 )
@@ -71,6 +77,22 @@ VISUAL_KINDS = {'Semantics/shots.jsonl': ('shots_local', 'application/x-ndjson')
                 'Semantics/visual-mapping.json': ('visual_mapping_local', 'application/json')}
 DOCUMENT_PATHS = frozenset(DOCUMENT_KINDS) | frozenset(VISUAL_KINDS)
 SPOKEN_OUTPUTS = frozenset({'actual_transcript', 'subtitles'})
+# The committed local final-assembly context indexes these same Ready documents
+# by the role names its Backend validator admits. A path outside this table is
+# never claimed as an assembly document.
+ASSEMBLY_DOCUMENT_ROLES = {
+    'Creative/production-plan.json': 'plan',
+    'Text/approved-script.json': 'script',
+    'Checks/quality-report.json': 'quality',
+    'Checks/local-master-selection.json': 'selection',
+    'Checks/local-speech-evidence.json': 'speech',
+    'Semantics/work-summary.json': 'summary',
+    'Semantics/source-bindings.json': 'sources',
+    'Semantics/semantic-segments.jsonl': 'segments',
+    'Semantics/rag-chunks.jsonl': 'rag',
+    'Semantics/shots.jsonl': 'shots',
+    'Semantics/visual-mapping.json': 'visual',
+}
 
 
 def _json(model):
@@ -332,6 +354,49 @@ def _request_version(request):
     return None
 
 
+def _assembly_context(*, engine, lease, preparation, intent, manifest, selection,
+                      media_artifacts, registration_sha256):
+    """Committed local assembly for the Manifest this preparation will verify.
+
+    Every value is copied from the already built actual Manifest, the held
+    manifest Clock, the caller's applicable selection and the original
+    execution binding. Nothing is invented for a missing master, subtitle,
+    transcript, ASR Operation or audio mapping: the sole reachable branch is a
+    silent visual work, so the mappings stay empty and there is no ASR source.
+    """
+    from video_creator.application.current_production_blockers import bound_context
+
+    if 'mixed_audio' in selection.master_roles or manifest.audio_mappings:
+        raise EngineError('local_assembly_audio_mapping_unexpected',
+                          'This silent local consumer cannot commit an assembly with audio mappings.', 409)
+    documents = {ASSEMBLY_DOCUMENT_ROLES[artifact.relative_path]: artifact.artifact_id
+                 for artifact in manifest.artifacts
+                 if artifact.relative_path in ASSEMBLY_DOCUMENT_ROLES}
+    with engine.db.connect_readonly() as connection:
+        _run, _production, _request, binding = bound_context(
+            engine, connection, lease.run_id, registration_sha256)
+    try:
+        return LocalFinalAssemblyContextV1(
+            corrected_from=None, correction_reason=None,
+            binding=binding, preparation_id=preparation.preparation_id,
+            preparation_intent_sha256=digest(canonical(intent)),
+            authored_fence=lease.fencing_token,
+            manifest_created_at_us=manifest.created_at_us,
+            timeline_duration_us=manifest.timeline_duration_us,
+            creative_revision_refs=manifest.creative_revision_refs,
+            approval_refs=manifest.approval_refs,
+            feedback_revision_refs=manifest.feedback_revision_refs,
+            source_refs=manifest.source_refs, outputs=manifest.outputs,
+            media_artifacts=media_artifacts, audio_mappings=(),
+            methods=manifest.methods, rights=manifest.rights, quality_ref=manifest.quality_ref,
+            document_artifact_ids=documents, asr_operation_id=None, selection=selection)
+    except ValidationError as error:
+        # A shape/identity disagreement is a named terminal refusal, never an
+        # uncaught Pydantic error escaping the worker as a 500.
+        raise EngineError('local_assembly_context_invalid',
+                          'The actual local assembly values do not satisfy the committed local contract.', 422) from error
+
+
 def _produce_local(engine, bundle, executor, media, lease, *, production_services,
         local_material_context, selection, media_roles, asr_route_id,
         plan_admission, production_rights_fact, final_evidence_ports=None):
@@ -445,6 +510,20 @@ def _produce_local(engine, bundle, executor, media, lease, *, production_service
         speech_evidence_artifact_id=artifact_ids['Checks/local-speech-evidence.json'],
         visual_mapping_artifact_id=(artifact_ids['Semantics/visual-mapping.json']
                                     if selection.content_kind == 'video' else None))
+    control.check()
+    assembly = _assembly_context(engine=engine, lease=lease, preparation=preparation,
+        intent=intent, manifest=manifest, selection=selection,
+        media_artifacts=media_artifacts,
+        registration_sha256=production_services.registration_sha256)
+    commit = require_final_port(final_evidence_ports).persist_assembly_context(
+        lease, preparation.preparation_id, assembly)
+    raw = (canonical(assembly) + '\n').encode('utf-8')
+    if (type(commit) is not AssemblyContextRef
+            or commit.preparation_id != preparation.preparation_id
+            or commit.preparation_intent_sha256 != assembly.preparation_intent_sha256
+            or (commit.content_sha256, commit.size) != (hashlib.sha256(raw).hexdigest(), len(raw))):
+        raise EngineError('local_assembly_commit_invalid',
+                          'Only the actual committed local assembly reference can precede Bundle verification.', 409)
     control.check()
     verified = bundle.verify_local(lease, preparation.preparation_id, manifest)
     control.check()
