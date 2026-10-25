@@ -10,6 +10,8 @@ import { RevisionView } from './RevisionView';
 import { DeliveryView } from './DeliveryView';
 import { BundleImportView } from './BundleImportView';
 import { NativeSetupView } from './NativeSetupView';
+import { ProductAuthorizationGate, AuthorizationBooting } from './ProductAuthorizationGate';
+import { readAuthorizationChannel } from './productAuthorization';
 import { clearSubmissionIntent, readSubmissionIntent, saveSubmissionIntent, validReceiptId, verifySubmissionIntent } from './submissionIntents';
 import type { SubmissionIntent } from './submissionIntents';
 
@@ -48,12 +50,23 @@ export function Workbench() {
   const connection = useSyncExternalStore(subscribeEngineConnection, getEngineConnectionContext, () => null);
   const healthQuery = useQuery({ queryKey: ['instance-health', connection?.epoch], enabled: Boolean(connection), queryFn: async () => {
     if (!connection) throw new RequestFailure(503, 'trusted_connection_missing');
-    const value = await engineData('GET /api/v1/health', {}, connection);
+    // The authorization channel is a runtime response header (ADR0081 §9); it
+    // stays out of the generated OpenAPI contract, so read it from the response.
+    const response = await engineRequest('GET /api/v1/health', {}, connection);
     if (!isEngineConnectionCurrent(connection)) throw new RequestFailure(409, 'material_connection_changed');
-    return { value, connection };
-  }, refetchInterval: 5000 });
+    if (!response.data) throw new RequestFailure(502, 'response_unavailable');
+    return { value: response.data, authorization: readAuthorizationChannel(response.headers), connection };
+  }, refetchInterval: query => {
+    const data = query.state.data;
+    return data?.authorization === 'pending' || data?.authorization === 'complete' ? 2000 : 5000;
+  } });
   const health = { ...healthQuery, data: healthQuery.data?.connection === connection ? healthQuery.data.value : undefined };
-  const connected = Boolean(health.data) && !health.isError;
+  const authorizationChannel = healthQuery.data?.connection === connection ? healthQuery.data.authorization : undefined;
+  const authorizationRestricted = authorizationChannel === 'pending' || authorizationChannel === 'complete';
+  const reachable = Boolean(health.data) && !health.isError;
+  // Restricted processes expose only health and the authorization routes. Keep
+  // ordinary project/task queries off until a restart returns `none`.
+  const connected = reachable && !authorizationRestricted;
   const instanceId = health.data?.instance_id;
   const editor = useProjectEditor(instanceId, connected, false);
   const [preferences, setPreferences] = useState(readPreferences);
@@ -402,6 +415,20 @@ export function Workbench() {
   const saveLabel = editor.phase === 'loading' ? '载入中' : !connected && editor.dirty ? '尚未保存' : editor.phase === 'saving' || (editor.dirty && !editor.error) ? '保存中' : editor.phase === 'saved' && !editor.dirty ? '实例已保存' : editor.phase === 'conflict' ? '版本冲突' : editor.phase === 'failed' ? '保存失败' : '新项目';
   const renderReview = () => reviewRevision ? <section className="review-section">{reviewRevision.kind === 'quality' ? <RevisionView revision={reviewRevision} /> : null}<div className="review-controls"><div><span className="review-label">待审核：{KIND[reviewRevision.kind]}</span><p>确认当前版本，或用一句话指导修改。</p></div><Button disabled={!connected || actionBusy} onClick={() => void submitReview('approve')}><Check size={15} />确认{KIND[reviewRevision.kind]}</Button><Button variant="soft" disabled={!connected || actionBusy} onClick={() => setAssistantOpen(true)}>给修改意见</Button></div></section> : null;
   const latestView = (kind: CreativeRevision['kind'], empty: string) => latest(kind) ? <RevisionView revision={latest(kind)!} /> : <EmptyResult title={empty}>Agent产物实际生成并保存后显示。你不必预先编写。</EmptyResult>;
+  const checkingAuthorization = Boolean(connection) && !healthQuery.isError && healthQuery.isPending;
+
+  // ADR0081 startup gate: a restricted instance must never fall through to the
+  // project/task surface or the old "connection unavailable" dead state.
+  if (authorizationRestricted || checkingAuthorization) {
+    return <Theme appearance={appearance} accentColor="teal" grayColor="slate" radius="medium" scaling="100%"><div className="workbench is-authorization" data-appearance={appearance}>
+      <a className="skip-link" href="#authorization-main">跳到授权区</a>
+      <main id="authorization-main" className="authorization-main" tabIndex={-1}>
+        {authorizationRestricted
+          ? <ProductAuthorizationGate key={authorizationChannel} channel={authorizationChannel} reachable={reachable} instanceId={instanceId} onRecheck={() => { void healthQuery.refetch(); }} />
+          : <AuthorizationBooting />}
+      </main>
+    </div></Theme>;
+  }
 
   return <Theme appearance={appearance} accentColor="teal" grayColor="slate" radius="medium" scaling="100%"><div className="workbench" data-appearance={appearance}>
     <a className="skip-link" href="#workspace-main">跳到创作区</a>
