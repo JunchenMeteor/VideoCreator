@@ -919,6 +919,62 @@ class RegisteredMediaRuntime(CurrentFinalEvidenceRuntime):
             return "queued", None
 
 
+def _next_runnable_local(engine, runtime):
+    """First queued Run whose exact request/route/binding matches this registration.
+
+    A queued Run authored for another registration must never be leased merely
+    because it has the lowest rowid: its policy may omit this registration's
+    required local routes, and the failure would be misattributed to the later
+    Run. Such Runs are reported and skipped before any lease is taken.
+    """
+    from video_creator.domain.contracts import parse_production_request
+
+    registration = runtime.config.local_registration
+    required = {registration.input_audio_route_id, registration.input_visual_route_id,
+                registration.edit_route_id, registration.master_index_route_id}
+    with engine.db.connect_readonly() as connection:
+        rows = connection.execute(
+            "SELECT r.id,r.production_id,p.request_json FROM runs r JOIN productions p ON p.id=r.production_id "
+            "WHERE r.status='queued' AND r.lease_until_us<=? AND r.paused=0 AND r.cancellation_requested=0 "
+            "AND NOT EXISTS (SELECT 1 FROM metadata WHERE key='production_authorization_wait:'||r.id) "
+            "AND NOT EXISTS (SELECT 1 FROM metadata WHERE key='current_production_blocker:'||r.id) "
+            "ORDER BY r.rowid", (engine.clock(),)).fetchall()
+        for row in rows:
+            request = parse_production_request(row['request_json'])
+            if not required <= set(request.policy.allowed_provider_routes):
+                sys_event('worker_run_skipped', run_id=row['id'], production_id=row['production_id'],
+                          code='registered_run_policy_mismatch', required=sorted(required))
+                continue
+            binding = connection.execute('SELECT body FROM execution_bindings WHERE run_id=?',
+                                         (row['id'],)).fetchone()
+            if binding is not None:
+                try:
+                    prior = ProductionBinding.model_validate_json(binding[0])
+                except (ValueError, TypeError):
+                    prior = None
+                if prior is None or prior.registration_sha256 != runtime.sha256:
+                    sys_event('worker_run_skipped', run_id=row['id'], production_id=row['production_id'],
+                              code='registered_run_stale_registration')
+                    continue
+            invalid = None
+            for route_id in required:
+                route_row = connection.execute('SELECT body FROM routes WHERE id=?', (route_id,)).fetchone()
+                if route_row is None:
+                    invalid = 'route_missing:' + route_id
+                    break
+                route = c.CapabilityRoute.model_validate_json(route_row[0])
+                if (route.source != 'owned_local' or route.credential_ref is not None
+                        or route.max_operation_cost.units() or not route.destination.startswith('local:')):
+                    invalid = 'route_scope:' + route_id
+                    break
+            if invalid:
+                sys_event('worker_run_skipped', run_id=row['id'], production_id=row['production_id'],
+                          code=invalid)
+                continue
+            return row['id']
+    return None
+
+
 def run_registered_worker(runtime: RegisteredMediaRuntime, *, control, on_ready: Callable[[str], None],
                           run_id=None, once=False, max_seconds=300):
     """Continuously dispatch the same durable queue; each attempt remains bounded."""
@@ -1001,13 +1057,30 @@ def run_registered_worker(runtime: RegisteredMediaRuntime, *, control, on_ready:
                             if error.code == 'worker_presence_lost':
                                 raise
                             if error.status_code != 409:
-                                raise
+                                # One unrelated damaged/stale blocker journal must
+                                # not stop the whole queue before the next real Run
+                                # is even acquired. Report its owning Run and skip.
+                                sys_event("worker_blocker_skipped", run_id=journal.binding.run_id,
+                                          production_id=journal.binding.production_id, code=error.code)
+                                continue
                             # Original CAS/paused/cancelled/owned state wins;
                             # this poll never steals it or acquires a new lease.
                             sys_event("worker_capability_probe", run_id=journal.binding.run_id, state="still_blocked", code=error.code)
             if control.stop_requested:
                 break
-            lease = engine.acquire_run(worker_id, lease_seconds=RUN_LEASE_SECONDS, run_id=run_id)
+            candidate = run_id
+            if candidate is None and isinstance(runtime.config, RegistrationConfigLocalV1):
+                candidate = _next_runnable_local(engine, runtime)
+                if candidate is None:
+                    if pending_reconciliation:
+                        raise EngineError('worker_reconciliation_pending',
+                            'No runnable production remains; manual reconciliation is required for: '
+                            + ', '.join(sorted(pending_reconciliation)), 503)
+                    if once:
+                        break
+                    control.wait(0.25)
+                    continue
+            lease = engine.acquire_run(worker_id, lease_seconds=RUN_LEASE_SECONDS, run_id=candidate)
             if lease is None:
                 if pending_reconciliation:
                     raise EngineError('worker_reconciliation_pending',

@@ -1,21 +1,37 @@
 """ADR0074 same Engine original readers. Projections never grant admission."""
-from dataclasses import dataclass
 import json
+from dataclasses import dataclass
 from weakref import WeakKeyDictionary, WeakValueDictionary
+
 from pydantic import ValidationError
 
-from video_creator.application.engine import canonical, digest
 from video_creator.application.bundles import strict_json
-from video_creator.application.daily_projects import GOAL_INTENT_SCOPE, GOAL_ACCEPT_SCOPE, _parse_goal_intent
-from video_creator.application.production_authorization import ProductionAuthorizationService
+from video_creator.application.daily_projects import (
+    GOAL_ACCEPT_SCOPE,
+    GOAL_INTENT_SCOPE,
+    _parse_goal_intent,
+)
+from video_creator.application.engine import canonical, digest
+from video_creator.application.production_authorization import (
+    ProductionAuthorizationService,
+)
 from video_creator.domain import contracts as c
-from video_creator.domain.daily_project_authorization import ProjectGoalAccepted, ProjectGoalReceiptQueryV1, ProjectGoalReceiptAcceptedV1
+from video_creator.domain.daily_project_authorization import (
+    ProjectGoalAccepted,
+    ProjectGoalReceiptAcceptedV1,
+    ProjectGoalReceiptQueryV1,
+)
 from video_creator.domain.errors import EngineError
 from video_creator.domain.local_material_production import (
-    LocalProductionRequestRef, parse_local_material_plan, validate_local_material_plan_sources,
     LocalMaterialPlanV1,
+    LocalProductionRequestRef,
+    parse_local_material_plan,
+    validate_local_material_plan_sources,
 )
-from video_creator.domain.production_authorization import CurrentProductionAdmission, ProductionRightsFact
+from video_creator.domain.production_authorization import (
+    CurrentProductionAdmission,
+    ProductionRightsFact,
+)
 
 
 @dataclass(frozen=True)
@@ -189,12 +205,32 @@ class LocalMaterialSourceService:
             for identifier in selected_route_ids:
                 rows = reader.all('SELECT body FROM routes WHERE id=?', (identifier,))
                 if len(rows) != 1:
-                    raise EngineError('local_route_source_missing', 'Original selected route is absent.', 503)
+                    raise EngineError('local_route_source_missing',
+                        'Original selected route ' + identifier + ' is absent; selected='
+                        + ','.join(selected_route_ids) + '; required=' + ','.join(sorted(required)), 503)
                 route = c.CapabilityRoute.model_validate_json(rows[0][0])
-                if (identifier not in request.policy.allowed_provider_routes
-                        or identifier in required and (route.source != 'owned_local' or route.credential_ref is not None
-                            or route.max_operation_cost.units() or not route.destination.startswith('local:'))):
-                    raise EngineError('local_route_scope_denied', 'Selected actual local routes retain original request and zero-cost local scope.', 403)
+                outside = identifier not in request.policy.allowed_provider_routes
+                scope_bad = identifier in required and (
+                    route.source != 'owned_local' or route.credential_ref is not None
+                    or route.max_operation_cost.units() or not route.destination.startswith('local:'))
+                if outside or scope_bad:
+                    reasons = []
+                    if outside:
+                        reasons.append('not_in_request_policy')
+                    if scope_bad:
+                        if route.source != 'owned_local':
+                            reasons.append('source=' + str(route.source))
+                        if route.credential_ref is not None:
+                            reasons.append('credential_ref_set')
+                        if route.max_operation_cost.units():
+                            reasons.append('cost=' + str(route.max_operation_cost.units()))
+                        if not route.destination.startswith('local:'):
+                            reasons.append('destination=' + str(route.destination))
+                    raise EngineError('local_route_scope_denied',
+                        'Selected route ' + identifier + ' failed ' + ','.join(reasons or ['unknown'])
+                        + '; selected=' + ','.join(selected_route_ids)
+                        + '; required=' + ','.join(sorted(required))
+                        + '; run_id=' + lease.run_id + '; production_id=' + production['id'], 403)
                 routes.append(route)
             goal = self._goal(reader, production, lease)
             issuer._guard(connection, guard)

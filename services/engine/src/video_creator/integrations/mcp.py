@@ -17,11 +17,15 @@ from video_creator.domain import contracts as c
 from video_creator.domain.bundle import AccessContext
 from video_creator.domain.daily_project_authorization import (
     ProjectGoalAccepted,
-    ProjectGoalReceiptQueryV1,
-    ProjectGoalReceiptAssociationV1,
     ProjectGoalInput,
+    ProjectGoalReceiptAssociationV1,
+    ProjectGoalReceiptQueryV1,
 )
 from video_creator.domain.errors import EngineError
+
+
+class ProductionRevisions(BaseModel):
+    revisions: list[c.CreativeRevision]
 
 
 def _schema(fields):
@@ -49,6 +53,7 @@ def create_mcp_server(service: BundleService, context_provider: Callable[[], Acc
         "create_project_goal": ({"idempotency_key": identifier, "goal": ProjectGoalInput}, ProjectGoalAccepted),
         "production_create": ({"idempotency_key": identifier, "request": c.ProductionRequestAny}, c.ProductionAccepted),
         "production_get": ({"production_id": identifier}, c.ProductionDetail),
+        "production_revisions": ({"production_id": identifier}, ProductionRevisions),
         "production_decide": ({"run_id": identifier, "idempotency_key": identifier, "decision": c.ReviewDecision}, c.ReviewDecision | c.FeedbackRevision),
         "bundle_get": ({"revision_id": identifier}, c.BundleManifestAny),
         "bundle_semantic_list": ({"revision_id": identifier, "cursor": {"type": ["string", "null"]}, "limit": {"type": "integer", "minimum": 1, "maximum": 100}}, c.SemanticPage),
@@ -108,6 +113,8 @@ def create_mcp_server(service: BundleService, context_provider: Callable[[], Acc
                 result = service.create_production(actor, values["idempotency_key"], values["request"])
             elif name == "production_get":
                 result = service.production(actor, values["production_id"])
+            elif name == "production_revisions":
+                result = ProductionRevisions(revisions=service.production_revisions(actor, values["production_id"]))
             elif name == "production_decide":
                 result = service.decision(actor, values["run_id"], values["idempotency_key"], values["decision"])
             elif name == "bundle_get":

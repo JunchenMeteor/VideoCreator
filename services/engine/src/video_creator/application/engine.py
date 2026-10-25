@@ -511,7 +511,8 @@ class EngineService:
         Production never sets either signal.
         """
         return (getattr(self, "_local_material_plan_source", None) is not None
-                or getattr(self, "_development_local_registration", None) is not None)
+                or getattr(self, "_development_local_registration", None) is not None
+                or getattr(self, "_local_material_registration", None) is not None)
 
     def _local_skips_evidence_policy(self, request: ProductionRequest) -> bool:
         """Local requests without any speech output have no evidence to resolve."""

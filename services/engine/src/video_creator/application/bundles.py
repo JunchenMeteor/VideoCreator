@@ -1750,6 +1750,12 @@ class BundleService(CurrentFinalEvidenceService):
         self.production(actor, run["production_id"])
         return self.engine.submit_decision(actor.subject_id, run_id, key, decision)
 
+    def production_revisions(self, actor: AccessContext, production_id: str) -> list[c.CreativeRevision]:
+        """Readable pending/decided creative revisions for one authorized production."""
+        self._actor(actor, "production.read", "playback")
+        self.production(actor, production_id)
+        return self.engine.creative_revisions(actor.subject_id, production_id)
+
     def content(self, actor: AccessContext, revision_id: str, artifact_id: str, purpose: str = "playback") -> BundleContentHandle:
         return self._leaf_content_facts(actor, revision_id, artifact_id, purpose).handle
 

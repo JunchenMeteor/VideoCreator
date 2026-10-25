@@ -75,6 +75,7 @@ def configured_media_validator(engine: EngineService, ffmpeg: Path | None,
         if isinstance(error, EngineError) and error.code == "path_denied":
             raise
         print(json.dumps({"event": "media_unavailable", "code": "media_validator_missing",
+                          "reason": getattr(error, "code", None) or type(error).__name__,
                           "message": "Configured media tools are unavailable; media import remains blocked"}), file=sys.stderr)
         return None
 
@@ -138,6 +139,9 @@ def parser() -> argparse.ArgumentParser:
     serve.add_argument("--allowed-host", action="append", default=[])
     serve.add_argument("--ffmpeg", type=Path, help="Trusted launcher absolute FFmpeg resource path")
     serve.add_argument("--ffprobe", type=Path, help="Trusted launcher absolute ffprobe resource path")
+    serve.add_argument("--production-config", type=Path,
+                       help="Trusted installed complete engine/media registration")
+    serve.add_argument("--production-config-sha256", help="Installer-pinned production configuration SHA256")
     serve.add_argument("--control-stdin", action="store_true", help="Accept fixed private stop frames from a trusted launcher pipe")
     export = commands.add_parser("export-contracts")
     export.add_argument("--output-dir", required=True, type=Path)
@@ -175,7 +179,34 @@ def parser() -> argparse.ArgumentParser:
     mcp.add_argument("--data-dir", required=True, type=Path)
     mcp.add_argument("--ffmpeg", type=Path)
     mcp.add_argument("--ffprobe", type=Path)
+    mcp.add_argument("--production-config", type=Path,
+                     help="Trusted installed complete engine/media registration")
+    mcp.add_argument("--production-config-sha256", help="Installer-pinned production configuration SHA256")
     return root
+
+
+def installed_local_registration(config: Path | None, expected_sha256: str | None):
+    """Parse the launcher-pinned local registration for the API/MCP acceptance profile.
+
+    Only the launcher-owned file and hash select it; no request, config value or
+    environment flag can claim local capability on its own.
+    """
+    if config is None and expected_sha256 is None:
+        return None, None
+    if (config is None or not isinstance(expected_sha256, str)
+            or len(expected_sha256) != 64
+            or any(character not in '0123456789abcdef' for character in expected_sha256)):
+        raise EngineError("production_configuration_missing",
+                          "Local API/MCP registration requires both its fixed file and SHA256", 503)
+    raw = config.read_bytes()
+    if hashlib.sha256(raw).hexdigest() != expected_sha256:
+        raise EngineError("production_configuration_changed",
+                          "Installed local registration differs from its trusted bytes", 503)
+    from video_creator.domain.local_material_production import (
+        parse_local_registration_config,
+    )
+
+    return parse_local_registration_config(raw), config.resolve().parent
 
 
 def main(*, installed_service_factory: InstalledServiceFactory | None = None,
@@ -332,7 +363,22 @@ def main(*, installed_service_factory: InstalledServiceFactory | None = None,
                 raise EngineError("mcp_session_token_missing", "MCP requires a trusted per-session child environment token", 503)
             engine = EngineService(args.data_dir)
             install_local_evidence_trust(engine)
-            media = configured_media_validator(engine, args.ffmpeg, args.ffprobe)
+            registration, registration_root = installed_local_registration(
+                args.production_config, args.production_config_sha256)
+            ffmpeg, ffprobe = args.ffmpeg, args.ffprobe
+            if registration is not None:
+                # The same installed registration the worker uses marks this
+                # instance's acceptance profile as local and supplies the exact
+                # decoder paths; explicit CLI paths remain the launcher override.
+                engine._local_material_registration = registration
+                ffmpeg = ffmpeg or registration_root / registration.ffmpeg
+                ffprobe = ffprobe or registration_root / registration.ffprobe
+                for path, expected in ((registration_root / registration.ffmpeg, registration.ffmpeg_sha256),
+                                       (registration_root / registration.ffprobe, registration.ffprobe_sha256)):
+                    if path.is_file() and hashlib.sha256(path.read_bytes()).hexdigest() != expected:
+                        raise EngineError("media_runtime_changed",
+                                          "Installed media decoder differs from its registered bytes", 503)
+            media = configured_media_validator(engine, ffmpeg, ffprobe)
             bundle = BundleService(engine, TrustedBundleValidators(
                 media_validator=media,
                 resource_manifest_hashes=local_evidence_resource_manifest_hashes(engine)))
@@ -350,6 +396,14 @@ def main(*, installed_service_factory: InstalledServiceFactory | None = None,
             token = os.environ.get("VIDEO_CREATOR_API_TOKEN", "")
             engine = EngineService(args.data_dir)
             install_local_evidence_trust(engine)
+            registration, registration_root = installed_local_registration(
+                args.production_config, args.production_config_sha256)
+            if registration is not None:
+                engine._local_material_registration = registration
+                if args.ffmpeg is None:
+                    args.ffmpeg = registration_root / registration.ffmpeg
+                if args.ffprobe is None:
+                    args.ffprobe = registration_root / registration.ffprobe
             session_secret = authorization_session_secret_from_environment()
             media_validator = None
             bundle = None
