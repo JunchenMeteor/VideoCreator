@@ -7,6 +7,7 @@ the bounded consumer of those real objects, not a source lookup/authority.
 from __future__ import annotations
 
 import json
+import time
 from dataclasses import dataclass
 from pathlib import Path
 from uuid import NAMESPACE_URL, uuid5
@@ -593,13 +594,30 @@ def _run(services, lease, *, checkpoint_path, cancel, deadline_monotonic, policy
     with attempt_control(cancel, deadline_monotonic).activate():
         flow = LocalMaterialFlow(services, lease, SQLiteFlowPersistence(db_path=str(path)))
         flow.state['id'] = str(uuid5(NAMESPACE_URL, 'local-material-production-v1:' + lease.run_id))
+        from video_creator.application.media_registration import sys_event
+        sys_event('flow_kickoff_started', run_id=lease.run_id, checkpoint=str(path),
+                  checkpoint_exists=path.exists())
+        started = time.monotonic()
         try:
             result = flow.kickoff()
         except EngineError as error:
+            sys_event('flow_kickoff_failed', run_id=lease.run_id, type=type(error).__name__,
+                      code=error.code, message=str(error.message)[:300],
+                      elapsed_seconds=round(time.monotonic() - started, 3))
             if error.retryability != 'reconcile':
                 raise
             return CurrentProductionUpstreamResultV2(run_id=lease.run_id, fencing_token=lease.fencing_token,
                 state='needs_reconciliation', selection=flow._selection, media_roles={}, blocker_code=error.code)
+        except BaseException as error:
+            sys_event('flow_kickoff_failed', run_id=lease.run_id, type=type(error).__name__,
+                      code=None, message=str(error)[:300],
+                      elapsed_seconds=round(time.monotonic() - started, 3))
+            raise
+        sys_event('flow_kickoff_finished', run_id=lease.run_id,
+                  elapsed_seconds=round(time.monotonic() - started, 3),
+                  result_is_none=result is None, outcome=flow.state.get('outcome'),
+                  blocker_code=flow.state.get('blocker_code'),
+                  selection_present=flow._selection is not None)
         return CurrentProductionUpstreamResultV2(run_id=lease.run_id, fencing_token=lease.fencing_token,
             state='masters_ready' if result is not None else flow.state['outcome'],
             selection=flow._selection,
