@@ -706,6 +706,16 @@ class BundleService(CurrentFinalEvidenceService):
                 or (source.valid_from_us is not None and (current.valid_from_us is None or current.valid_from_us < source.valid_from_us))):
             raise EngineError("correction_rights_widened", "Copied rights validity cannot exceed the actual source permission", 403)
 
+    def _historical_copy_requires_facts(self, historical, facts) -> bool:
+        """Only correction/copy paths treat a historical identity match as a copy.
+
+        Local artifact ids are deterministic (`_identity('local-media', role,
+        asset_id)`), so an ordinary second run regenerates the same id/sha from
+        the same input masters. A true copy is distinguished by being in the
+        correction-facts path or the current-final-evidence/copy scope.
+        """
+        return bool(historical) and (bool(facts) or self._in_current_final_evidence())
+
     def _copied_rights_bindings(self, lease, preparation_id, rights, artifacts, approvals, required_uses):
         with self._lock:
             facts = self._correction_facts.get((lease.run_id, lease.worker_id, lease.fencing_token))
@@ -732,7 +742,7 @@ class BundleService(CurrentFinalEvidenceService):
                 historical = connection.execute("SELECT 1 FROM bundle_items i JOIN bundle_revisions b ON b.id=i.preparation_id WHERE i.artifact_id=? AND i.sha256=? AND i.status='ready' AND b.id!=? AND b.owner=? AND b.project_id=? AND b.manifest_json IS NOT NULL LIMIT 1", (
                     item.artifact_id, item.sha256, preparation_id, production["owner"], production["project_id"])).fetchone()
             if not candidates:
-                if historical:
+                if self._historical_copy_requires_facts(historical, facts):
                     raise EngineError("correction_evidence_required", "A historical copy needs current service-issued complete source facts", 409)
                 continue
             for source in candidates:
