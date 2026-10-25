@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+import sys
 import time
 import uuid
 from collections.abc import Callable
@@ -966,6 +967,21 @@ class EngineService:
             connection.execute("UPDATE productions SET status='waiting_user' WHERE id=?", (run["production_id"],))
             self._event(connection, self._run(connection, lease.run_id), "review.required", revision_id)
 
+    def clear_flow_checkpoints(self, run_id: str) -> list[str]:
+        """Remove this Run's CrewAI checkpoints after an accepted review decision."""
+        root = Path(self.db.data_dir) / 'ProductionRuntime'
+        prefix = 'CurrentProduction-' + digest(run_id)
+        removed = []
+        if root.is_dir():
+            for candidate in root.glob(prefix + '*'):
+                if candidate.is_file() and not candidate.is_symlink():
+                    removed.append(candidate.name)
+                    candidate.unlink()
+        print(json.dumps({'event': 'checkpoint_cleared', 'scope': 'worker', 'run_id': run_id,
+                          'trigger': 'decision', 'files': sorted(removed)}, ensure_ascii=False),
+              file=sys.stderr, flush=True)
+        return sorted(removed)
+
     def submit_decision(self, subject: str, run_id: str, key: str, decision: ReviewDecision) -> dict:
         body, decision_hash = canonical(decision), digest(canonical(decision))
         with self.db.transaction() as connection:
@@ -1002,7 +1018,8 @@ class EngineService:
             connection.execute("UPDATE runs SET status=?,waiting_revision_id=NULL WHERE id=?", (status, run_id))
             connection.execute("UPDATE productions SET status=? WHERE id=?", (status, production["id"]))
             self._event(connection, self._run(connection, run_id), "review.decided", decision.target_revision_id)
-            return decision.model_dump(mode="json")
+        self.clear_flow_checkpoints(run_id)
+        return decision.model_dump(mode="json")
 
     def cancel_production(self, subject: str, production_id: str):
         with self.db.transaction() as connection:

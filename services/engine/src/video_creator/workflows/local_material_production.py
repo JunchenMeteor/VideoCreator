@@ -566,24 +566,6 @@ class LocalMaterialFlow(Flow[dict]):
         return dict(self._roles)
 
 
-def _clear_decision_checkpoints(engine, run_id: str, runtime_root: Path) -> list[str]:
-    """Remove every CrewAI checkpoint for a Run once any review decision exists."""
-    from video_creator.application.media_registration import sys_event
-    with engine.db.connect_readonly() as connection:
-        decisions = connection.execute("SELECT COUNT(*) FROM decisions WHERE run_id=?", (run_id,)).fetchone()[0]
-    if not decisions:
-        return []
-    prefix = "CurrentProduction-" + digest(run_id)
-    removed = []
-    if runtime_root.is_dir():
-        for candidate in runtime_root.glob(prefix + "*"):
-            if candidate.is_file() and not candidate.is_symlink():
-                removed.append(candidate.name)
-                candidate.unlink()
-    sys_event('checkpoint_cleared', run_id=run_id, trigger='decision', files=sorted(removed))
-    return sorted(removed)
-
-
 def _run(services, lease, *, checkpoint_path, cancel, deadline_monotonic, policy):
     expected = LocalMaterialPolicyServices if policy else LocalMaterialServices
     if type(services) is not expected:
@@ -594,7 +576,6 @@ def _run(services, lease, *, checkpoint_path, cancel, deadline_monotonic, policy
             for p in (path, *path.parents) if p.is_relative_to(root))):
         raise EngineError('local_checkpoint_denied', 'The non-authorizing checkpoint stays in this owned instance.', 403)
     with attempt_control(cancel, deadline_monotonic).activate():
-        _clear_decision_checkpoints(services.engine, lease.run_id, path.parent)
         flow = LocalMaterialFlow(services, lease, SQLiteFlowPersistence(db_path=str(path)))
         flow.state['id'] = str(uuid5(NAMESPACE_URL, 'local-material-production-v1:' + lease.run_id))
         try:
