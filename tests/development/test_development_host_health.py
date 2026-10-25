@@ -19,7 +19,7 @@ import tempfile
 from pathlib import Path
 
 import local_chain_support as support
-from conftest import require_current_registration, require_owner_binding
+from conftest import require_current_registration
 
 HEADER = 'X-VideoCreator-Installation'
 
@@ -76,19 +76,19 @@ def test_development_header_is_process_internal_only(evidence, installation) -> 
         'the runtime development header must not enter the published OpenAPI contract')
 
 
-def test_serve_dev_health_returns_development_header(evidence, installation, owner, source_status) -> None:
-    """Real `serve-dev` process; skipped until the human TTY Owner binding exists."""
-    require_owner_binding(owner)
+def test_serve_dev_health_returns_development_header(evidence, installation, source_status,
+                                                    instance_factory) -> None:
+    """Real `serve-dev` process, initialized by its own development Owner bootstrap."""
     require_current_registration(source_status)
-    assert support.project_id() in owner.get('project_ids', []), (
-        'the Owner binding must name the registered project: ' + json.dumps(owner, ensure_ascii=False))
+    instance = instance_factory('health-header')
     token = support.new_token()
-    argv = support.dev_host_arguments('serve-dev', port=0)
-    environment = support.dev_environment(owner['instance_id'])
+    argv = support.dev_host_arguments('serve-dev', port=0, auto_owner_init=True, data_dir=instance)
+    environment = support.dev_environment(support.instance_state(evidence, instance,
+                                                                 name='health-instance-before')['instance_id'])
     environment['VIDEO_CREATOR_API_TOKEN'] = token
     with support.launch('serve-dev-health', argv, evidence, env=environment) as server:
         ready = server.wait_for_event('ready', timeout=300)
-        assert ready.get('principal_id'), (
+        assert ready.get('principal_id') == 'local-user', (
             'a real installed development start must report its principal: '
             + json.dumps(ready, ensure_ascii=False))
         status, headers, payload, raw = support.http_json(
@@ -97,5 +97,5 @@ def test_serve_dev_health_returns_development_header(evidence, installation, own
         assert headers.get(HEADER.lower()) == 'local-development', (
             'the actual serve-dev process must expose its development header, got '
             + repr(headers.get(HEADER.lower())))
-        assert payload['instance_id'] == owner['instance_id']
+        assert payload['instance_id'] == ready['instance_id']
         assert payload['mode'] == 'local'

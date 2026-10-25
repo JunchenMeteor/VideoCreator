@@ -129,7 +129,7 @@ def test_non_local_profile_registration_is_unsupported(evidence, installation, o
 
 
 @pytest.fixture(scope='session')
-def drifted_engine(evidence) -> dict:
+def drifted_engine(evidence, installation) -> dict:
     """A scratch engine package with one real byte edit; the checkout is untouched.
 
     Only the engine source is copied (into the OS temp directory, removed at the end
@@ -280,7 +280,7 @@ def test_owner_init_without_tty_is_refused_and_creates_no_binding(evidence, inst
     require_absent_owner_binding(owner)
     action_key = f'chain-owner-init-nontty-{int(time.time())}'
     argv = [str(support.PYTHON), '-m', 'video_creator.cli.main', 'owner-init',
-            '--data-dir', str(support.INSTANCE),
+            '--data-dir', str(support.instance()),
             '--action', 'initialize', '--action-key', action_key,
             '--owner-subject', 'local-user',
             '--project-id', support.project_id(),

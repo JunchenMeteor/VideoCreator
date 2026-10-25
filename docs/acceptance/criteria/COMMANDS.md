@@ -986,6 +986,8 @@ Actual command: system pwsh -NoProfile -NonInteractive -File G:/开发测试/Cod
 - 2026-10-12, `C:/Program Files/nodejs/node.exe G:/开发测试/Codex/VideoCreatorImplementation/Test/WorkbenchPreviewBrowserSmoke/Smoke.mjs`, cwd `G:/开发测试`, `PLAYWRIGHT_BROWSERS_PATH=G:/开发测试/.sharedDependencies/playwright-browsers`: actual exit1 before navigation because `@playwright/test` 1.63.0 requires absent `chromium_headless_shell-1243`. Raw failure retained in this task's `Evidence/BrowserSmokeDefaultMissing1243.json`; no browser downloaded.
 - Same command with explicit existing `PLAYWRIGHT_EXECUTABLE_PATH=G:/开发测试/.sharedDependencies/playwright-browsers/chromium_headless_shell-1234/chrome-headless-shell-win64/chrome-headless-shell.exe`: actual exit0, browser version `151.0.7922.34`, root and `/workbench.html` HTTP200 plus visible DOM/screenshots, pageerrors/console/failed requests/bad responses all zero, browser closed. Screenshots and full requests/DOM in `G:/开发测试/Codex/VideoCreatorImplementation/Test/WorkbenchPreviewBrowserSmoke/Evidence/`. This is a fallback version, not a locked-version Playwright pass, and the in-app browser Transport closed issue remains unverified. Static preview only, no product/R1 claim.
 
+> **已被 2026-10-25 第二轮复跑取代**：本节的 18 passed/1 skipped 依赖当时 commit 的注册哈希；HEAD 前进后实测 6 passed/13 errors。当前数字、根因与新增覆盖见文末“第二轮”一节。
+
 ## LocalChainEndToEndTest — 开发宿主拒绝语义实跑；正向链 NOT_EXECUTED（2026-10-25）
 
 角色：测试开发。范围：`tests/development/`、`tools/testing/RunLocalChainE2E.ps1`、`tools/testing/local_chain_probes.py`、本节。未改产品源码、未调用模型、未联网、未用系统 ffmpeg、未 git commit。原始字节与 argv 全部保存在 `G:/开发测试/Codex/VideoCreatorImplementation/Test/LocalChainEndToEnd/`（下称过程目录）。
@@ -1190,3 +1192,85 @@ schema 名字集合与已提交文件完全相同，但 `CapabilityRoute`、`Exe
 `media_diagnosis`（`services/engine/src/video_creator/domain/contracts.py:295`）。该产物最后一次
 重新生成 `b06d731` 晚于加入枚举的 `823991e`，即产物陈旧。`packages/contracts/` 属集成/发布角色，
 本轮只记录未修；建议集成重新生成，之后可把 `test_t6_http_media.py` 的表面断言收紧为正文一致。
+
+## LocalChainEndToEndTest — 2026-10-25 第二轮：修复可复跑并补本批覆盖
+
+上一节（2026-10-25 首轮）的数字与结论保留为历史，但**已被本节取代**：首轮通过依赖当时 commit 的 engine 哈希；HEAD 前进后 `pytest tests/development` 实测为 **6 passed / 13 errors**（干净 RegressionInstance 为 15 passed / 2 failed / 2 skipped），不再是 18/1。
+
+### 运行前置（必读）
+
+- 需要**真实开发注册切片**：本套件不再信任 Integration 的 `Registration.json`（它绑定生成时的 engine 字节，任何产品提交都会让它失效），而是用官方 `build_local_registration.py` / `check_local_registration.py`（从 Integration 逐字节复制并在变化时重拷）在**测试自己的过程目录** `Codex/VideoCreatorImplementation/Test/LocalChainEndToEnd/Fixture/` 生成注册切片：当前 checkout 的 189 个 engine 源 + 194 MB 包（Codex 副本、迁移、包内 FFmpeg）。
+- 需要**真实 dev 实例**：只使用干净实例的**拷贝**（默认从 `Backend/DevelopmentOwnerAutoInit/Instance/Template` 拷贝；缺失时才从 Integration `ChainInstance` 拷贝并剥离 Owner 状态），每个用例独立一份并收紧 ACL；Integration 实例与注册切片**只读**，不会被写入。
+- 同一 fixture 的 engine map 与当前 checkout 不一致时自动重建（本轮实测发生过一次自动重建，注册 SHA 变为 `95e53bf2…`；构建期间源码再变则重试一次，仍不一致则明确失败，不放行）。
+- 不需要人工 TTY：dev Owner 由 `serve-dev --development-auto-owner-init` 真实建立。唯一的人工门是正向链的两次真实审核决定（未设置 `VIDEO_CREATOR_HUMAN_APPROVAL=1` 时该用例显式 skip）。
+
+### 13 个 error 的根因归类（修复前，HEAD `73e91ed`）
+
+| # | 根因 | 影响 | 修法 |
+| --- | --- | --- | --- |
+| 1 | **fixture 假设**：`tools/testing/local_chain_probes.py` 读 `ManagementPrincipal.executing_principal_id`，该字段已被本批移除 | `session_facts`/`owner` fixture 内 AttributeError → 依赖它的用例全部 error（实测 13 个） | 探针改按当前 `ManagementPrincipal` 实际字段输出（`administrator_id`/`owner_subject`/`authentication_source`/`authentication_binding_id`/`scope`/`expires_at_us` 等）；新增 `instance-state` |
+| 2 | **注册 SHA 失效**：Integration 注册绑定旧 engine 字节，HEAD 有 4 个 engine 源不同 | 任何 `serve-dev`/`worker-dev` 先报 `development_code_changed`/`production_code_changed`；原“无 Owner”两用例失败（15/2/2 中的 2 failed） | 测试自建当前 checkout 的注册 fixture（官方 builder，不写 Integration），source 变化自动重建 |
+| 3 | **实例状态被真实 dev 初始化污染**：Integration `ChainInstance` 在工作流之外已有真实 binding + Control | 旧探针崩溃；即便修好，“无 Owner”断言按该实例也不成立 | 只用干净实例拷贝（Template 来源，逐用例独立）；Integration 实例只读 |
+| 4 | **路径/环境写死**：旧 support 在 import 期绑定 Integration instance/registration | 换实例或切片就必须改代码，无法在别的 HEAD 复跑 | 路径改为运行时解析（`VIDEO_CREATOR_LOCAL_FIXTURE`/`..._INSTANCE`/`..._CHAIN_EVIDENCE` 可覆盖） |
+
+### 真实命令与 exit
+
+```powershell
+# 一键：先确保当前 checkout 的注册 fixture，再分组跑真实测试并留原始字节
+pwsh -NoProfile -File 'G:/开发测试/Projects/VideoCreator/tools/testing/RunLocalChainE2E.ps1'
+# 实测 exit 0：pytest-negatives 18/0/0/0、pytest-new-coverage 16/0/0/0、
+#              pytest-local-chain 1 skipped（真人审核门）；总计 35 用例 / 34 passed / 1 skipped
+# HEAD 393c9b111911cedfbe88a71c9b89ba555e258a61；注册 fixture SHA 95e53bf2268ab558251e862aaa6d4374e62b9bcb9c98aade731de858ffc38479（189 源）
+
+# 门禁模式：正向链未跑即 exit 2
+pwsh -NoProfile -File '.../RunLocalChainE2E.ps1' -RequirePositive
+# 实测 exit 2（“no human reviewer”），RunSummary.ok=true 且 not_executed 登记原因
+
+# 直接 pytest（同一 fixture 自动 ensure）
+G:/开发测试/Projects/VideoCreator/.venv/Scripts/python.exe -m pytest tests/development -q -rs
+# 实测 34 passed, 1 skipped in 58.05s / 56.47s（两次）
+```
+
+证据目录（规范）`G:/开发测试/Codex/VideoCreatorImplementation/Test/LocalChainEndToEnd/Evidence/20261025-194625-e2e/`：
+
+| 产物 | 值 |
+| --- | --- |
+| `RunSummary.json` | 15,654 B，SHA256 `26c91169fe71649f7f5bf8fb3e04fa33d848c00f38eb1598eed974b6769a18b5` |
+| `pytest-negatives.xml` | SHA256 `f6dbcaea6a3fe5599beb4c8b64d657eadf1a710936e7678b8d13f6c2296e853e`（18 tests） |
+| `pytest-new-coverage.xml` | SHA256 `83bcd2e77856179bbfae2167fcbbe10aba3aa07444820781672293584041d228`（16 tests） |
+| `pytest-local-chain.xml` | SHA256 `df7ba84867070025528fc9c13f80af3ede0df5311c476bd28dde3513aab6771b`（1 skipped） |
+| fixture-ensure stdout/stderr | 原始字节；`fixture` 事实（registration SHA、189 源、builder/checker SHA、rebuilt=False）在 `RunSummary.fixture` |
+
+门禁证据目录：`.../Evidence/20261025-194756-e2e/`（`RunSummary` SHA256 `02dbc28518101a46f9dfbed91002755321d5d63c1afc1dd4983a1f3aec7f841c`，exit 2）。
+
+### 本批新增覆盖（16 用例）与实测拒绝码
+
+| 组 / 用例 | 断言要点 | 实测 |
+| --- | --- | --- |
+| dev 自动初始化 · 无 flag | 干净实例首启（无 `--development-auto-owner-init`）拒绝，不创建 `Control/`、不写 Owner metadata | exit 1，`owner_restore_refresh_required` |
+| dev 自动初始化 · 有 flag | ready 且 `principal_id=local-user`；binding `authentication_source=development_owner_initialization`；审计文件 SHA == metadata digest，含 `production_control_created`（四表计数全 0、floor 0）；`Control/` 含 `DevelopmentOwnerInitialization.json`/`OwnerManagementControl.json`/`ProductionAuthorizationControl.json`；控制面 `minimum_revision=0`、无 pending | ready + 全部断言通过 |
+| dev 自动初始化 · 已有 binding | 先真实初始化，再删 `Control/`，带 flag 再启动不得替换 binding | exit 1，`development_owner_existing_denied`；binding 行字节不变；仅残留 `OwnerManagementControl.lock`，无审计/控制面 |
+| dev 自动初始化 · 非空授权库 | 干净实例插入 1 行 `daily_project_authorizations` 后带 flag 启动 | exit 1，`development_control_state_denied`，message 含四表计数；控制面未创建 |
+| dev 自动初始化 · 删审计文件 | 真实初始化后删除 `Control/DevelopmentOwnerInitialization.json` 再启动 | exit 1，`development_owner_audit_missing`；metadata digest 仍在（失败原因是文件缺失） |
+| 受理分派 · 本地 v0.2 | 真实 `serve-dev`（auto-init）PNG→生产，`outputs=["video"]`、四条 route、`max_cost=0` | HTTP 202，production `queued`，事件仅 `production.accepted` |
+| 受理分派 · 本地 v0.3 | 同上，`request_format_version=0.3.0-candidate` | HTTP 202，`queued`，事件仅 `production.accepted` |
+| 受理分派 · 非本地 v0.2 | 真实生产 `serve`（无 dev factory）同请求 | HTTP 202，`waiting_user`，事件含 `output_profile_unavailable`（不回归） |
+| 受理分派 · 非本地 v0.3 | 同上 v0.3 | HTTP 202，`waiting_user`，事件含 `alignment_required`（不回归） |
+| 零成本 executor · 本地方向 | 唯一可证明未派发的形态（owned_local/无 credential/`local:`/0）驱动失败 | 原样重抛 `media_path_denied` 403，观测 0 行 |
+| 零成本 executor · 四个反向条件 | `owned_remote` 零成本、`owned_local` 带 credential、`owned_local` 但 https 目标、非零成本 | 均返回 `unknown` 并写 1 行观测（P1 修法生效） |
+| 媒体派生 · 唯一形态 | `clips` JSON 对；`canonical_object` 稳定；tuple 形态被拒 | JSON 对通过；tuple → `local_builder_input_invalid` 422；裸 tuple → `production_json_invalid` 422 |
+| 媒体派生 · input_sha | 同一 body 两次哈希稳定；顺序变化改变哈希；hash body 可直接交 driver 边界 | 均通过；driver 边界 `clips` 转 tuple |
+
+### skip 与 NOT_EXECUTED
+
+| 项 | 原因 | 复跑条件 |
+| --- | --- | --- |
+| `test_local_chain_produces_a_verifiable_0_4_bundle`（唯一 skip） | 正向链需要真人提交 `plan` 与 `quality` 两次真实审核决定；本套件不代批 | `VIDEO_CREATOR_HUMAN_APPROVAL=1` 且真人在 API 前提交决定；随后重新运行同一命令 |
+
+其余 34 个用例无 skip、无 NOT_EXECUTED。
+
+### 观察（不改产品，供评审）
+
+1. `owner_bootstrap.change()` 在 dev 来源下会先创建/锁定 `Control/`，再在锁内发现已有 binding 并报 `development_owner_existing_denied`；因此“被拒绝的再启动”会留下 `OwnerManagementControl.lock`。测试已按实际语义断言（binding/审计/控制面均未写），但这是可记录的副作用。
+2. 并行开发期间产品文件会被其他角色修改：本轮复跑时工作树含后端未提交的 `media_registration.py`/`cli/development_host.py`。`RunSummary.product_file_sha256` 逐一记录被测文件字节；若构建后源码再变，dev 主机会按设计报 `development_code_changed`（失败而非放行）。
+3. 本批不为测试添加任何产品钩子；零成本 executor 与媒体请求形状用进程内真实对象验证（不联网、不调用模型）。

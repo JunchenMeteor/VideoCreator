@@ -30,7 +30,7 @@ from pathlib import Path
 
 import local_chain_support as support
 import pytest
-from conftest import require_current_registration, require_owner_binding
+from conftest import require_current_registration, require_human_review_approval
 
 TERMINAL_STATUSES = {'succeeded', 'failed', 'cancelled', 'cancel_requested', 'needs_reconciliation'}
 APPROVAL_KINDS = ('plan', 'quality')
@@ -55,18 +55,15 @@ def generate_still(path: Path) -> Path:
     return path
 
 
-def require_chain_preconditions(owner: dict, source: dict, routes: dict) -> None:
-    require_owner_binding(owner)
+def require_chain_preconditions(source: dict, routes: dict) -> None:
+    require_human_review_approval()
     require_current_registration(source)
-    if support.project_id() not in owner.get('project_ids', []):
-        pytest.skip('The Owner binding does not include the registered project {}; re-run the TTY '
-                    'owner-init with --project-id {}.\n\n{}'.format(support.project_id(), support.project_id(),
-                       support.owner_init_command(owner.get('instance_id', '<instance>'))))
     if not routes.get('ok'):
         pytest.skip(f'The four local routes are not all registered; run:\n\n{support.register_route_command()}')
     projects = {item['project_id']: item['owner'] for item in routes.get('projects', [])}
     if projects.get(support.project_id()) != 'local-user':
-        pytest.skip(f'The registered project {support.project_id()} is not an existing local-user project; create it with:\n\n{support.ensure_project_command()}')
+        pytest.skip(f'The registered project {support.project_id()} is not an existing local-user project; '
+                    f'create it with:\n\n{support.ensure_project_command()}')
 
 
 def upload_still(base_url: str, token: str, evidence: Path) -> dict:
@@ -281,13 +278,13 @@ def assert_database_ledger(instance: Path) -> dict:
     return {'operations': total, 'unknown_or_unsettled': rows}
 
 
-def run_assembly_readback(evidence: Path, registration_sha256: str) -> dict:
+def run_assembly_readback(evidence: Path, registration_sha256: str, instance: Path) -> dict:
     assert support.VERIFY_ASSEMBLY.is_file(), (
         'VerifyPersistedAssembly.py is required to read the persisted local assembly back; '
         f'not found at {support.VERIFY_ASSEMBLY}')
     result = support.run_probe(
         'verify-persisted-assembly',
-        [str(support.PYTHON), str(support.VERIFY_ASSEMBLY), '--data-dir', str(support.INSTANCE),
+        [str(support.PYTHON), str(support.VERIFY_ASSEMBLY), '--data-dir', str(instance),
          '--registration-sha256', registration_sha256,
          '--out', str(Path(evidence) / 'assembly-readback.json')],
         evidence, env=support.base_environment(), timeout=300)
@@ -303,20 +300,23 @@ def run_assembly_readback(evidence: Path, registration_sha256: str) -> dict:
 
 
 def test_local_chain_produces_a_verifiable_0_4_bundle(evidence, installation, owner, source_status,
-                                                     session_facts) -> None:
+                                                     session_facts, instance_factory) -> None:
     routes = session_facts['routes_state']
-    require_chain_preconditions(owner, source_status, routes)
+    require_chain_preconditions(source_status, routes)
     registration_sha = installation['registration_sha256']
     token = support.new_token()
     timeout = 900
     run_folder = Path(evidence) / 'chain'
     run_folder.mkdir(parents=True, exist_ok=True)
+    instance = instance_factory('e2e-chain')
+    instance_id = support.instance_state(evidence, instance, name='e2e-instance-before')['instance_id']
 
-    serve_argv = support.dev_host_arguments('serve-dev', port=0)
-    serve_environment = support.dev_environment(owner['instance_id'])
+    serve_argv = support.dev_host_arguments('serve-dev', port=0, auto_owner_init=True, data_dir=instance)
+    serve_environment = support.dev_environment(instance_id)
     serve_environment['VIDEO_CREATOR_API_TOKEN'] = token
-    worker_argv = support.dev_host_arguments('worker-dev', max_seconds=timeout)
-    worker_environment = support.dev_environment(owner['instance_id'])
+    worker_argv = support.dev_host_arguments('worker-dev', max_seconds=timeout,
+                                             auto_owner_init=True, data_dir=instance)
+    worker_environment = support.dev_environment(instance_id)
     worker_environment['VIDEO_CREATOR_API_TOKEN'] = token
 
     with support.launch('serve-dev-chain', serve_argv, evidence, env=serve_environment) as server:
@@ -390,8 +390,8 @@ def test_local_chain_produces_a_verifiable_0_4_bundle(evidence, installation, ow
         master_sha = support.sha256_bytes(master_bytes)
         assert master_sha == master_artifact['sha256']
 
-    database_ledger = assert_database_ledger(support.INSTANCE)
-    readback = run_assembly_readback(run_folder, registration_sha)
+    database_ledger = assert_database_ledger(instance)
+    readback = run_assembly_readback(run_folder, registration_sha, instance)
     summary = {
         'ok': True,
         'instance_id': owner['instance_id'],

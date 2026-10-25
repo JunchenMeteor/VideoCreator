@@ -41,6 +41,18 @@ def _repo_src(repo_root: str | None) -> Path:
     return repo
 
 
+def _principal_fields(principal) -> dict:
+    """Owner/management principal fields, whatever the current exact schema name is."""
+    fields = {}
+    for name in ('instance_id', 'owner_subject', 'administrator_id', 'project_ids',
+                 'authentication_binding_id', 'authentication_source', 'scope',
+                 'expires_at_us'):
+        fields[name] = getattr(principal, name, None)
+    if type(fields['project_ids']) is tuple:
+        fields['project_ids'] = list(fields['project_ids'])
+    return fields
+
+
 def owner_state(arguments) -> int:
     """Report the real Owner binding without ever creating or confirming one."""
     _repo_src(arguments.repo)
@@ -62,12 +74,13 @@ def owner_state(arguments) -> int:
             principal = record.principal
             result.update({
                 'owner_initialized': True,
+                'principal': _principal_fields(principal),
                 'owner_subject': principal.owner_subject,
-                'executing_principal_id': principal.executing_principal_id,
                 'project_ids': list(principal.project_ids),
                 'expires_at_us': principal.expires_at_us,
                 'revoked': record.revoked,
                 'generation': record.generation,
+                'action_id': record.action_id,
             })
             if arguments.project_id:
                 result['project_in_binding'] = arguments.project_id in principal.project_ids
@@ -138,6 +151,111 @@ def routes_state(arguments) -> int:
     return 0
 
 
+def _control_state(engine) -> dict:
+    """Control directory inventory, production floor record and audit digest match."""
+    from video_creator.application import (
+        development_owner_initialization as development,
+    )
+    from video_creator.domain.errors import EngineError
+
+    root = Path(engine.db.data_dir) / 'Control'
+    files = sorted(path.name for path in root.iterdir() if path.is_file()) if root.is_dir() else []
+    state = {
+        'control_dir': str(root),
+        'control_dir_exists': root.is_dir(),
+        'control_files': files,
+        'audit_file': str(root / development.AUDIT_FILENAME),
+        'audit_file_exists': (root / development.AUDIT_FILENAME).is_file(),
+        'production_control_file': str(root / development._PRODUCTION_CONTROL_FILENAME),
+        'production_control_exists': (root / development._PRODUCTION_CONTROL_FILENAME).is_file(),
+        'authorization_counts': None,
+        'production_control': None,
+        'audit_sha256': None,
+        'audit_metadata_digest': None,
+        'audit_digest_matches': None,
+        'audit': None,
+        'audit_error': None,
+    }
+    try:
+        state['authorization_counts'] = development._authorization_counts(engine)
+    except EngineError as error:
+        state['authorization_error'] = {'code': error.code, 'message': error.message}
+    control_file = root / development._PRODUCTION_CONTROL_FILENAME
+    if control_file.is_file():
+        try:
+            state['production_control'] = json.loads(control_file.read_text(encoding='utf-8'))
+        except ValueError:
+            state['production_control'] = '<invalid json>'
+    audit_file = root / development.AUDIT_FILENAME
+    if audit_file.is_file():
+        state['audit_sha256'] = _sha256(audit_file)
+    with engine.db.connect() as connection:
+        row = connection.execute('SELECT value FROM metadata WHERE key=?',
+                                 (development.AUDIT_METADATA_KEY,)).fetchone()
+    state['audit_metadata_digest'] = row[0] if row is not None else None
+    state['audit_digest_matches'] = (state['audit_sha256'] is not None
+                                     and state['audit_sha256'] == state['audit_metadata_digest'])
+    try:
+        state['audit'] = development._parse_audit(engine)
+    except EngineError as error:
+        state['audit_error'] = {'code': error.code, 'message': error.message}
+    return state
+
+
+def _owner_snapshot(engine) -> dict:
+    from video_creator.application.owner_bootstrap import OwnerBootstrapStore
+    from video_creator.domain.errors import EngineError
+
+    store = OwnerBootstrapStore(engine)
+    snapshot = {'initialized': False, 'active': False}
+    try:
+        with store.current(allow_inactive=True) as record:
+            snapshot.update({
+                'initialized': True,
+                'principal': _principal_fields(record.principal),
+                'owner_subject': record.principal.owner_subject,
+                'project_ids': list(record.principal.project_ids),
+                'expires_at_us': record.principal.expires_at_us,
+                'revoked': record.revoked,
+                'generation': record.generation,
+                'action_id': record.action_id,
+            })
+    except EngineError as error:
+        snapshot.update({'error_code': error.code, 'message': error.message})
+    try:
+        with store.current(allow_inactive=False):
+            snapshot['active'] = True
+    except EngineError as error:
+        snapshot.setdefault('active_error_code', error.code)
+    return snapshot
+
+
+def instance_state(arguments) -> int:
+    """Everything a test needs to assert about one instance's Owner/control state."""
+    _repo_src(arguments.repo)
+    from video_creator.application.engine import EngineService
+
+    engine = EngineService(Path(arguments.data_dir).resolve())
+    with engine.db.connect_readonly() as connection:
+        metadata_keys = sorted(row['key'] for row in connection.execute('SELECT key FROM metadata'))
+        command_scopes = sorted(row['scope'] for row in connection.execute('SELECT DISTINCT scope FROM commands'))
+        projects = [{'project_id': row['id'], 'owner': row['owner']}
+                    for row in connection.execute('SELECT id, owner FROM projects ORDER BY rowid')]
+    payload = {
+        'ok': True,
+        'instance_id': engine.instance_id,
+        'data_dir': str(engine.db.data_dir),
+        'metadata_keys': metadata_keys,
+        'command_scopes': command_scopes,
+        'projects': projects,
+        'owner': _owner_snapshot(engine),
+    }
+    for key, value in _control_state(engine).items():
+        payload[key] = value
+    _emit(payload)
+    return 0
+
+
 def marker_health(arguments) -> int:
     """Exercise the in-process /health development marker on a throwaway instance.
 
@@ -184,7 +302,7 @@ def unattended_guards(arguments) -> int:
     """Run the development host's own unattended refusals on inert stubs.
 
     Process-internal seam: proof that the dev host refuses unattended before the
-    policy branch, not an HTTP end-to-end observation (that needs a real Owner).
+    policy branch, not an HTTP end-to-end observation.
     """
     _repo_src(arguments.repo)
     from video_creator.cli import development_host as dev
@@ -274,6 +392,10 @@ def main(argv: list[str] | None = None) -> int:
     routes.add_argument('--data-dir', required=True)
     routes.add_argument('--registration', required=True)
     routes.set_defaults(handler=routes_state)
+
+    instance = commands.add_parser('instance-state')
+    instance.add_argument('--data-dir', required=True)
+    instance.set_defaults(handler=instance_state)
 
     marker = commands.add_parser('marker-health')
     marker.add_argument('--scratch-dir', required=True)

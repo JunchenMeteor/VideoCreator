@@ -6,9 +6,12 @@ stdout/stderr bytes plus argv and exit code are written under the evidence
 directory. Product imports happen only inside `tools/testing/local_chain_probes.py`
 child processes.
 
-Paths default to this workspace's frozen registration slice; override with:
+Paths default to this suite's own current-checkout registration fixture and a
+copy of a clean instance (`tools/testing/local_chain_fixture.py`); the integration
+hand-off directory is read only to byte-copy its builder. Override with:
 
-    VIDEO_CREATOR_LOCAL_INSTALLATION   integration hand-off directory
+    VIDEO_CREATOR_LOCAL_FIXTURE        registration fixture root (Registration.json + Package)
+    VIDEO_CREATOR_LOCAL_INSTALLATION   alternative registration slice root
     VIDEO_CREATOR_LOCAL_INSTANCE       chain instance data dir
     VIDEO_CREATOR_LOCAL_CHAIN_EVIDENCE evidence root (raw logs live here)
     VIDEO_CREATOR_PYTHON               interpreter used for product entry points
@@ -33,27 +36,95 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 ENGINE_SRC = REPO_ROOT / 'services' / 'engine' / 'src'
 PROBES = REPO_ROOT / 'tools' / 'testing' / 'local_chain_probes.py'
+FIXTURE_TOOL = REPO_ROOT / 'tools' / 'testing' / 'local_chain_fixture.py'
 
 DEFAULT_PYTHON = REPO_ROOT / '.venv' / ('Scripts/python.exe' if os.name == 'nt' else 'bin/python')
 PYTHON = Path(os.environ.get('VIDEO_CREATOR_PYTHON') or DEFAULT_PYTHON)
 
-INSTALLATION = Path(os.environ.get('VIDEO_CREATOR_LOCAL_INSTALLATION')
-                    or r'G:/开发测试/Codex/VideoCreatorImplementation/Integration/LocalInstallationRegistrationBuild')
-INSTANCE = Path(os.environ.get('VIDEO_CREATOR_LOCAL_INSTANCE') or INSTALLATION / 'Instance' / 'ChainInstance')
-REGISTRATION = INSTALLATION / 'Registration.json'
-ROUTES = INSTALLATION / 'Routes'
-PACKAGE = INSTALLATION / 'Package'
-FFMPEG = PACKAGE / 'Media' / 'FFmpeg' / 'bin' / 'ffmpeg.exe'
-FFPROBE = PACKAGE / 'Media' / 'FFmpeg' / 'bin' / 'ffprobe.exe'
-
-EVIDENCE_ROOT = Path(os.environ.get('VIDEO_CREATOR_LOCAL_CHAIN_EVIDENCE')
-                     or r'G:/开发测试/Codex/VideoCreatorImplementation/Test/LocalChainEndToEnd/Evidence')
+DEFAULT_FIXTURE = Path(os.environ.get('VIDEO_CREATOR_LOCAL_FIXTURE')
+                       or r'G:/开发测试/Codex/VideoCreatorImplementation/Test/LocalChainEndToEnd/Fixture')
+DEFAULT_EVIDENCE = Path(os.environ.get('VIDEO_CREATOR_LOCAL_CHAIN_EVIDENCE')
+                        or r'G:/开发测试/Codex/VideoCreatorImplementation/Test/LocalChainEndToEnd/Evidence')
 
 VERIFY_ASSEMBLY = Path(os.environ.get('VIDEO_CREATOR_VERIFY_ASSEMBLY')
                        or r'G:/开发测试/Codex/VideoCreatorImplementation/AgentMedia/LocalAssemblyClosure/VerifyPersistedAssembly.py')
 
 DEV_ENVIRONMENT = 'VIDEO_CREATOR_DEVELOPMENT_INSTALLATION'
 BASE_EXECUTION_SOURCE = 'tests/development'
+
+_OVERRIDES: dict[str, Path] = {}
+
+
+def configure(**values) -> None:
+    """Point the helpers at this session's real registration slice and instance.
+
+    The suite builds its own current registration fixture (see
+    `tools/testing/local_chain_fixture.py`) and uses copies of a clean instance,
+    so the integration hand-off directory and its instance are never written.
+    """
+    for name in ('installation', 'instance', 'evidence_root', 'fixture'):
+        value = values.get(name)
+        if value is not None:
+            _OVERRIDES[name] = Path(value)
+
+
+def installation() -> Path:
+    if 'installation' in _OVERRIDES:
+        return _OVERRIDES['installation']
+    override = os.environ.get('VIDEO_CREATOR_LOCAL_INSTALLATION')
+    return Path(override) if override else DEFAULT_FIXTURE
+
+
+def instance() -> Path:
+    if 'instance' in _OVERRIDES:
+        return _OVERRIDES['instance']
+    override = os.environ.get('VIDEO_CREATOR_LOCAL_INSTANCE')
+    return Path(override) if override else installation() / 'Instances' / 'Primary'
+
+
+def registration() -> Path:
+    return installation() / 'Registration.json'
+
+
+def package() -> Path:
+    return installation() / 'Package'
+
+
+def ffmpeg_binary() -> Path:
+    return package() / 'Media' / 'FFmpeg' / 'bin' / 'ffmpeg.exe'
+
+
+def ffprobe_binary() -> Path:
+    return package() / 'Media' / 'FFmpeg' / 'bin' / 'ffprobe.exe'
+
+
+def routes() -> Path:
+    return installation() / 'Routes'
+
+
+def evidence_root() -> Path:
+    override = os.environ.get('VIDEO_CREATOR_LOCAL_CHAIN_EVIDENCE')
+    return (_OVERRIDES.get('evidence_root') or (Path(override) if override else DEFAULT_EVIDENCE))
+
+
+_DYNAMIC = {
+    'INSTALLATION': installation,
+    'INSTANCE': instance,
+    'REGISTRATION': registration,
+    'ROUTES': routes,
+    'PACKAGE': package,
+    'FFMPEG': ffmpeg_binary,
+    'FFPROBE': ffprobe_binary,
+    'EVIDENCE_ROOT': evidence_root,
+}
+
+
+def __getattr__(name):
+    """Backwards-compatible module attributes resolved at access time."""
+    resolver = _DYNAMIC.get(name)
+    if resolver is None:
+        raise AttributeError(name)
+    return resolver()
 
 
 # --------------------------------------------------------------------------- first principles
@@ -90,11 +161,11 @@ def write_json(path: Path, payload) -> None:
 
 
 def registration_payload() -> dict:
-    return read_json(REGISTRATION)
+    return read_json(registration())
 
 
 def registration_sha256() -> str:
-    return sha256_file(REGISTRATION)
+    return sha256_file(registration())
 
 
 def route_ids() -> list[str]:
@@ -238,7 +309,7 @@ def run_probe_module(name: str, arguments: list[str], evidence: Path, *,
 # --------------------------------------------------------------------------- product observations
 
 def owner_state(evidence: Path, *, name: str = 'owner-state') -> dict:
-    result = run_probe_module(name, ['owner-state', '--data-dir', str(INSTANCE),
+    result = run_probe_module(name, ['owner-state', '--data-dir', str(instance()),
                                      '--project-id', project_id()], evidence)
     assert result.exit_code == 0, (
         f'{name} failed with exit {result.exit_code}\n'
@@ -249,7 +320,7 @@ def owner_state(evidence: Path, *, name: str = 'owner-state') -> dict:
 
 
 def source_status(evidence: Path, *, name: str = 'source-status') -> dict:
-    result = run_probe_module(name, ['source-status', '--registration', str(REGISTRATION)], evidence)
+    result = run_probe_module(name, ['source-status', '--registration', str(registration())], evidence)
     assert result.exit_code == 0, (
         f'{name} failed with exit {result.exit_code}\nstdout={result.stdout_text()}\nstderr={result.stderr_text()}')
     payload = result.json_payloads()[-1]
@@ -258,8 +329,8 @@ def source_status(evidence: Path, *, name: str = 'source-status') -> dict:
 
 
 def routes_state(evidence: Path, *, name: str = 'routes-state') -> dict:
-    result = run_probe_module(name, ['routes-state', '--data-dir', str(INSTANCE),
-                                     '--registration', str(REGISTRATION)], evidence)
+    result = run_probe_module(name, ['routes-state', '--data-dir', str(instance()),
+                                     '--registration', str(registration())], evidence)
     assert result.exit_code == 0, (
         f'{name} failed with exit {result.exit_code}\nstdout={result.stdout_text()}\nstderr={result.stderr_text()}')
     payload = result.json_payloads()[-1]
@@ -267,12 +338,76 @@ def routes_state(evidence: Path, *, name: str = 'routes-state') -> dict:
     return payload
 
 
+def instance_state(evidence: Path, data_dir: Path | None = None, *,
+                   name: str = 'instance-state') -> dict:
+    """Owner/control/audit facts of one instance copy, read through product code."""
+    result = run_probe_module(name, ['instance-state', '--data-dir', str(data_dir or instance())], evidence)
+    assert result.exit_code == 0, (
+        f'{name} failed with exit {result.exit_code}\n'
+        f'argv={result.argv}\nstdout={result.stdout_text()}\nstderr={result.stderr_text()}')
+    payload = result.json_payloads()[-1]
+    payload['_record'] = str(result.record_path)
+    return payload
+
+
+def metadata_value(data_dir: Path, key: str):
+    import sqlite3
+
+    connection = sqlite3.connect(Path(data_dir) / 'Metadata.sqlite', timeout=30)
+    try:
+        row = connection.execute('SELECT value FROM metadata WHERE key=?', (key,)).fetchone()
+    finally:
+        connection.close()
+    return None if row is None else row[0]
+
+
+def sqlite_rows(data_dir: Path, query: str, parameters: tuple = ()) -> list[dict]:
+    import sqlite3
+
+    connection = sqlite3.connect(Path(data_dir) / 'Metadata.sqlite', timeout=30)
+    connection.row_factory = sqlite3.Row
+    try:
+        return [dict(row) for row in connection.execute(query, parameters)]
+    finally:
+        connection.close()
+
+
+def sqlite_execute(data_dir: Path, statement: str, parameters: tuple = ()) -> None:
+    import sqlite3
+
+    connection = sqlite3.connect(Path(data_dir) / 'Metadata.sqlite', timeout=30)
+    try:
+        connection.execute(statement, parameters)
+        connection.commit()
+    finally:
+        connection.close()
+
+
+def insert_daily_authorization(data_dir: Path, *, instance_id: str, owner: str = 'local-user') -> None:
+    """Fixture row making the authorization registry provably non-empty.
+
+    It is inserted only into a throwaway instance copy, and only to prove the
+    development control bootstrap refuses a non-empty registry.
+    """
+    digest = 'a' * 64
+    sqlite_execute(
+        data_dir,
+        'INSERT INTO daily_project_authorizations '
+        '(authorization_id, revision, instance_id, owner, body, content_sha256, '
+        ' creation_action_json, creation_action_sha256, current, revoked, '
+        ' created_projects, registry_revision) '
+        'VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
+        ('authorization-fixture-local-chain', 1, instance_id, owner, '{}', digest,
+         '{}', digest, 1, 0, 0, 1),
+    )
+
+
 def owner_init_command(instance_id: str) -> str:
     """The one human TTY action this suite can never take."""
     return (
         f'$env:PYTHONPATH = \'{ENGINE_SRC}\'\n'
         f"& '{PYTHON}' -m video_creator.cli.main owner-init `\n"
-        f"  --data-dir '{INSTANCE}' `\n"
+        f"  --data-dir '{instance()}' `\n"
         "  --action initialize --action-key 'chain-owner-init-1' `\n"
         "  --owner-subject 'local-user' `\n"
         f"  --project-id '{project_id()}' `\n"
@@ -289,31 +424,39 @@ def owner_skip_reason(state: dict) -> str:
 
 
 def build_command() -> str:
-    return ('$env:PYTHONPATH = \'{}\'\n& \'{}\' \'{}\'\n# registration must be regenerated from the '
-            'current checkout before any serve-dev/worker-dev run').format(ENGINE_SRC, PYTHON,
-                                                                       INSTALLATION / 'build_local_registration.py')
+    """Rebuild this suite's current-checkout registration fixture."""
+    return (f"& '{PYTHON}' '{FIXTURE_TOOL}' ensure --fixture-root '{installation()}'\n"
+            '# the fixture rebuilds itself when the checkout bytes move; the integration '
+            'hand-off slice is never written')
 
 
 def register_route_command() -> str:
     return '\n'.join(
-        f"& '{PYTHON}' -m video_creator.cli.main register-route --data-dir '{INSTANCE}' --route-file '{path}'" for path in sorted(ROUTES.glob('*.json')))
+        f"& '{PYTHON}' -m video_creator.cli.main register-route --data-dir '{instance()}' --route-file '{path}'"
+        for path in sorted(routes().glob('*.json')))
 
 
 def ensure_project_command() -> str:
-    helper = INSTALLATION / 'PrepareLocalChain.py'
-    return (f"$env:PYTHONPATH = '{ENGINE_SRC}'\n& '{PYTHON}' '{helper}' --repo '{REPO_ROOT}' ensure-project --data-dir '{INSTANCE}' "
-            "--name 'VideoCreator Local Chain' --owner 'local-user'")
+    helper = Path(r'G:/开发测试/Codex/VideoCreatorImplementation/Integration/LocalInstallationRegistrationBuild') / 'PrepareLocalChain.py'
+    return (f"$env:PYTHONPATH = '{ENGINE_SRC}'\n"
+            f"& '{PYTHON}' '{helper}' --repo '{REPO_ROOT}' ensure-project "
+            f"--data-dir '{instance()}' --name 'VideoCreator Local Chain' --owner 'local-user'")
 
 
 # --------------------------------------------------------------------------- dev host argv
 
-def dev_host_arguments(command: str, *, registration: Path = REGISTRATION,
+def dev_host_arguments(command: str, *, registration: Path | None = None,
                        registration_sha256: str | None = None, expires: str | None = None,
-                       data_dir: Path = INSTANCE, host: str = '127.0.0.1', port: int = 0,
-                       ffmpeg: Path | None = FFMPEG, ffprobe: Path | None = FFPROBE,
+                       data_dir: Path | None = None, host: str = '127.0.0.1', port: int = 0,
+                       ffmpeg: Path | None = None, ffprobe: Path | None = None,
                        max_seconds: int = 300, omit: tuple[str, ...] = (),
+                       auto_owner_init: bool = False,
                        extra: tuple[str, ...] = ()) -> list[str]:
     """Build the exact documented serve-dev / worker-dev command line."""
+    registration = registration if registration is not None else globals()['registration']()
+    data_dir = data_dir if data_dir is not None else instance()
+    ffmpeg = ffmpeg if ffmpeg is not None else ffmpeg_binary()
+    ffprobe = ffprobe if ffprobe is not None else ffprobe_binary()
     pinned = registration_sha256 if registration_sha256 is not None else sha256_file(registration)
     expiry = expires if expires is not None else expires_at()
     flags = {
@@ -325,6 +468,8 @@ def dev_host_arguments(command: str, *, registration: Path = REGISTRATION,
     for key in ('registration', 'registration-sha256', 'expires'):
         if key not in omit:
             argv += flags[key]
+    if auto_owner_init:
+        argv.append('--development-auto-owner-init')
     argv += ['--data-dir', str(data_dir)]
     if command == 'serve-dev':
         argv += ['--host', host, '--port', str(port)]
@@ -534,7 +679,7 @@ def http_bytes(base_url: str, path: str, *, token: str, method: str = 'GET', bod
 
 def ffprobe(path: Path, *, evidence: Path, name: str) -> dict:
     """Probe with the registration's bundled ffprobe, never a system binary."""
-    result = run_probe(name, [str(FFPROBE), '-v', 'error', '-print_format', 'json',
+    result = run_probe(name, [str(ffprobe_binary()), '-v', 'error', '-print_format', 'json',
                               '-show_format', '-show_streams', '-count_frames', str(path)],
                        evidence, timeout=180)
     assert result.exit_code == 0, (
@@ -546,13 +691,13 @@ def ffprobe(path: Path, *, evidence: Path, name: str) -> dict:
 
 def tool_versions(evidence: Path) -> dict:
     python = run_probe('version-python', [str(PYTHON), '-VV'], evidence, timeout=60)
-    ffmpeg = run_probe('version-ffmpeg', [str(FFMPEG), '-version'], evidence, timeout=60)
-    ffprobe_result = run_probe('version-ffprobe', [str(FFPROBE), '-version'], evidence, timeout=60)
+    ffmpeg_run = run_probe('version-ffmpeg', [str(ffmpeg_binary()), '-version'], evidence, timeout=60)
+    ffprobe_result = run_probe('version-ffprobe', [str(ffprobe_binary()), '-version'], evidence, timeout=60)
     return {
         'python': python.stdout_text().strip(),
         'python_exit': python.exit_code,
-        'ffmpeg': ffmpeg.stdout_text().splitlines()[0] if ffmpeg.stdout_text() else '',
-        'ffmpeg_exit': ffmpeg.exit_code,
+        'ffmpeg': ffmpeg_run.stdout_text().splitlines()[0] if ffmpeg_run.stdout_text() else '',
+        'ffmpeg_exit': ffmpeg_run.exit_code,
         'ffprobe': ffprobe_result.stdout_text().splitlines()[0] if ffprobe_result.stdout_text() else '',
         'ffprobe_exit': ffprobe_result.exit_code,
     }
@@ -578,6 +723,6 @@ def copy_instance_for_serve(evidence: Path, name: str = 'isolated-instance') -> 
     if destination.exists():
         shutil.rmtree(destination)
     destination.mkdir(parents=True)
-    for path in sorted(INSTANCE.glob('Metadata.sqlite*')):
+    for path in sorted(instance().glob('Metadata.sqlite*')):
         shutil.copy2(path, destination / path.name)
     return destination
