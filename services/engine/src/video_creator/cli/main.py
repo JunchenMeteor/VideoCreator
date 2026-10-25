@@ -19,6 +19,11 @@ from pydantic import TypeAdapter, ValidationError
 from video_creator.api.app import create_app
 from video_creator.application.bundles import BundleService
 from video_creator.application.engine import EngineService
+from video_creator.application.local_evidence import (
+    evidence_admin_install,
+    install_local_evidence_trust,
+    local_evidence_resource_manifest_hashes,
+)
 from video_creator.application.product_authorization import (
     ProductAuthorizationChannel,
     authorization_session_secret_from_environment,
@@ -159,6 +164,13 @@ def parser() -> argparse.ArgumentParser:
     worker.add_argument("--production-config", type=Path, help="Trusted installed complete engine/media registration")
     worker.add_argument("--production-config-sha256", help="Installer-pinned production configuration SHA256")
     worker.add_argument("--control-stdin", action="store_true", help="Opt-in private bounded quiesce pipe; EOF does not cancel tasks")
+    evidence = commands.add_parser("evidence-admin",
+                                   help="One-shot local self-issued evidence install; never starts a listener")
+    evidence_commands = evidence.add_subparsers(dest="evidence_command", required=True)
+    evidence_install = evidence_commands.add_parser("install")
+    evidence_install.add_argument("--data-dir", required=True, type=Path)
+    evidence_install.add_argument("--receipt", required=True, type=Path,
+                                  help="The one-shot receipt issued by the approved product authorization")
     mcp = commands.add_parser("mcp-stdio")
     mcp.add_argument("--data-dir", required=True, type=Path)
     mcp.add_argument("--ffmpeg", type=Path)
@@ -213,6 +225,7 @@ def main(*, installed_service_factory: InstalledServiceFactory | None = None,
                     run_registered_worker,
                 )
                 engine = EngineService(args.data_dir)
+                install_local_evidence_trust(engine)
                 runtime = RegisteredMediaRuntime(engine, args.production_config, args.production_config_sha256)
                 installed = install_startup_services(installed_service_factory,
                     engine=engine, bundle=runtime.bundle, role="worker", registered_runtime=runtime)
@@ -295,14 +308,23 @@ def main(*, installed_service_factory: InstalledServiceFactory | None = None,
                     if args.once:
                         break
                     time.sleep(0.25)
+        elif args.command == "evidence-admin":
+            if args.evidence_command != "install":
+                raise EngineError("evidence_admin_command_invalid",
+                                  "Only the one-shot evidence-admin install is supported", 400)
+            print(json.dumps(evidence_admin_install(data_dir=args.data_dir, receipt=args.receipt),
+                             ensure_ascii=False))
         elif args.command == "mcp-stdio":
             from video_creator.integrations.mcp_stdio import run_mcp_stdio
             token = os.environ.get("VIDEO_CREATOR_MCP_TOKEN", "")
             if len(token) < 32:
                 raise EngineError("mcp_session_token_missing", "MCP requires a trusted per-session child environment token", 503)
             engine = EngineService(args.data_dir)
+            install_local_evidence_trust(engine)
             media = configured_media_validator(engine, args.ffmpeg, args.ffprobe)
-            bundle = BundleService(engine, TrustedBundleValidators(media_validator=media))
+            bundle = BundleService(engine, TrustedBundleValidators(
+                media_validator=media,
+                resource_manifest_hashes=local_evidence_resource_manifest_hashes(engine)))
             original_threads = set(threading.enumerate())
             installed = install_startup_services(installed_service_factory,
                 engine=engine, bundle=bundle, role="mcp")
@@ -316,6 +338,7 @@ def main(*, installed_service_factory: InstalledServiceFactory | None = None,
                 raise EngineError("native_host_denied", "Native API binds only the fixed loopback listener and hosts", 400)
             token = os.environ.get("VIDEO_CREATOR_API_TOKEN", "")
             engine = EngineService(args.data_dir)
+            install_local_evidence_trust(engine)
             session_secret = authorization_session_secret_from_environment()
             media_validator = None
             bundle = None
@@ -327,11 +350,16 @@ def main(*, installed_service_factory: InstalledServiceFactory | None = None,
             restricted = (installed_service_factory is None and owner_binding_absent(engine))
             if not restricted:
                 media_validator = configured_media_validator(engine, args.ffmpeg, args.ffprobe)
-                bundle = (BundleService(engine, TrustedBundleValidators(media_validator=media_validator))
-                          if installed_service_factory is not None else None)
+                # The admitted local self-issued qualification binds one exact
+                # child-observed ASR resource manifest; publish-time validators
+                # must trust that sha or the runtime identity check fails. The
+                # helper reads only signed qualification rows, never config.
+                bundle = BundleService(engine, TrustedBundleValidators(
+                    media_validator=media_validator,
+                    resource_manifest_hashes=local_evidence_resource_manifest_hashes(engine)))
                 try:
-                    installed = (install_startup_services(installed_service_factory,
-                        engine=engine, bundle=bundle, role="api") if bundle is not None else None)
+                    installed = install_startup_services(installed_service_factory,
+                        engine=engine, bundle=bundle, role="api")
                 except EngineError as error:
                     # The development factory proves its own conditions (frozen,
                     # environment, registration, resource identity) before its
@@ -354,7 +382,19 @@ def main(*, installed_service_factory: InstalledServiceFactory | None = None,
                     engine, session_secret=session_secret, owner_subject="local-user",
                     caller_module="video_creator.cli.main", origins=origins,
                     allowed_hosts=tuple(args.allowed_host or ["127.0.0.1", "localhost"]),
-                    launcher_origin="serve-dev" if installed_service_factory is not None else "serve")
+                    launcher_origin="serve-dev" if installed_service_factory is not None else "serve",
+                    allowed_kinds=('owner_initialize',))
+            else:
+                # A normally assembled instance offers only the local
+                # self-issued evidence range (ADR0082); it never reopens the
+                # Owner-initialization surface and never touches evidence rows
+                # itself (the one-shot evidence-admin child does that).
+                channel = ProductAuthorizationChannel(
+                    engine, session_secret=session_secret, owner_subject="local-user",
+                    caller_module="video_creator.cli.main", origins=origins,
+                    allowed_hosts=tuple(args.allowed_host or ["127.0.0.1", "localhost"]),
+                    launcher_origin="serve-dev" if installed_service_factory is not None else "serve",
+                    allowed_kinds=('local_evidence_policy',))
             state = ApiLifecycle()
             original_threads = set(threading.enumerate())
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
@@ -365,7 +405,7 @@ def main(*, installed_service_factory: InstalledServiceFactory | None = None,
 
                 def ready():
                     descriptor = {"event": "ready", "base_url": f"http://{args.host}:{actual_port}", "instance_id": engine.instance_id}
-                    if channel is not None:
+                    if restricted:
                         # No execution principal is claimed while restricted.
                         descriptor["authorization_state"] = channel.authorization_state
                     if installed is not None:
@@ -386,7 +426,8 @@ def main(*, installed_service_factory: InstalledServiceFactory | None = None,
                                  bundle_service=bundle,
                                  copy_input_service=installed.native.services.copy_inputs if installed is not None else None,
                                  authorization_channel=channel,
-                                 authorization_state='none' if channel is None else None)
+                                 authorization_state='none',
+                                 restricted=restricted)
                 server = uvicorn.Server(uvicorn.Config(app, log_level="warning", access_log=False,
                                                      lifespan="on" if args.control_stdin else "auto"))
                 if args.control_stdin:

@@ -49,6 +49,36 @@ def validate_benchmark(report: c.MethodBenchmarkReport):
         raise EngineError("benchmark_not_qualified", "Whole benchmark exceeds the criterion or has unresolved gaps", 409)
 
 
+def validate_self_issued_benchmark(report: c.LocalSelfIssuedBenchmarkV1):
+    """ADR0082 section 3.4: self-consistency, identity equality and literals only.
+
+    It never calls `validate_benchmark`: there is no corpus, sample count, P95,
+    listener or arbitration fact to validate, and inventing one is forbidden.
+    """
+    check_evidence_record(report)
+    if (report.evaluation_scope != "capability_benchmark_not_performed"
+            or report.precision_claim != "not_measured"
+            or report.independent_reference != "none"
+            or not report.authority_ref.startswith("local-selfissued-authority-")
+            or not set(c.LOCAL_SELF_ISSUED_BENCHMARK_LIMITATIONS) <= set(report.limitations)
+            or not report.limitations):
+        raise EngineError("local_evidence_benchmark_invalid",
+                          "A not-performed benchmark must retain its fixed local-self-issued literals", 422)
+
+
+def _validated_benchmark(raw) -> c.MethodBenchmarkReport | c.LocalSelfIssuedBenchmarkV1:
+    body = json.loads(raw) if isinstance(raw, (str, bytes)) else raw
+    if not isinstance(body, dict):
+        raise EngineError("evidence_benchmark_invalid", "Benchmark bytes are not a single document", 422)
+    if body.get("evaluation_scope") == "capability_benchmark_not_performed":
+        benchmark = c.LocalSelfIssuedBenchmarkV1.model_validate(body)
+        validate_self_issued_benchmark(benchmark)
+        return benchmark
+    benchmark = c.MethodBenchmarkReport.model_validate(body)
+    validate_benchmark(benchmark)
+    return benchmark
+
+
 class PersistentEvidenceRegistry:
     def __init__(self, engine, *, trust_roots: Mapping[str, bytes] | None = None,
                  trusted_configuration_sha256: str | None = None,
@@ -99,9 +129,12 @@ class PersistentEvidenceRegistry:
         return value
 
     def install(self, capability: EvidenceAdminCapability, document: c.EvidencePolicyRevision | c.MethodQualificationRef,
-                benchmark: c.MethodBenchmarkReport, approval: EvidenceApproval):
+                benchmark: c.MethodBenchmarkReport | c.LocalSelfIssuedBenchmarkV1, approval: EvidenceApproval):
         self._administration(capability)
-        validate_benchmark(benchmark)
+        if isinstance(benchmark, c.LocalSelfIssuedBenchmarkV1):
+            validate_self_issued_benchmark(benchmark)
+        else:
+            validate_benchmark(benchmark)
         check_evidence_record(document)
         if document.issuer != approval.issuer or approval.document_sha256 != document.content_sha256 or approval.benchmark_content_sha256 != benchmark.content_sha256:
             raise EngineError("evidence_approval_conflict", "Approval must bind the complete actual document and benchmark", 403)
@@ -296,13 +329,12 @@ class PersistentEvidenceRegistry:
             raise EngineError("alignment_required", "Exact trusted evidence admission is unavailable", 409)
         model = c.EvidencePolicyRevision if kind == "policy" else c.MethodQualificationRef
         document = model.model_validate_json(row["body"])
-        benchmark = c.MethodBenchmarkReport.model_validate_json(row["benchmark_json"])
+        benchmark = _validated_benchmark(row["benchmark_json"])
         approval = EvidenceApproval.model_validate_json(row["approval_json"])
         body = approval.model_dump(mode="json")
         body.pop("signature")
         self._signature(approval.issuer, body, approval.signature)
         check_evidence_record(document)
-        validate_benchmark(benchmark)
         if (approval.document_sha256, approval.benchmark_content_sha256) != (document.content_sha256, benchmark.content_sha256):
             raise EngineError("evidence_approval_conflict", "Stored approval binding is inconsistent", 403)
         now = self.engine.clock()

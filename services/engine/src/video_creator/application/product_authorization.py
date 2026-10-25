@@ -46,6 +46,15 @@ from pydantic import BaseModel, ConfigDict
 
 from video_creator.application.bundles import strict_json
 from video_creator.application.engine import EngineService
+from video_creator.application.local_evidence import (
+    build_receipt,
+    discard_pending_receipt,
+    finalize_receipt,
+    local_evidence_audit_filename,
+    local_evidence_audit_metadata_key,
+    local_evidence_scope,
+    prepare_receipt,
+)
 from video_creator.domain.errors import EngineError
 from video_creator.infrastructure.owner_identity import inspect_owner_directory
 
@@ -60,6 +69,9 @@ AUTHORIZATION_HEADER = 'X-VideoCreator-Authorization'
 HEALTH_HEADER = 'X-VideoCreator-Authorization'
 DEFAULT_OWNER_SUBJECT = 'local-user'
 OWNER_BINDING_KIND = 'owner_initialize'
+LOCAL_EVIDENCE_KIND = 'local_evidence_policy'
+_SUPPORTED_KINDS = (OWNER_BINDING_KIND, LOCAL_EVIDENCE_KIND)
+_INSTALL_WINDOW_US = 10 * 60_000_000
 
 _REQUEST_LIFETIME_US = 600_000_000
 _MAX_OWNER_LIFETIME_US = 7 * 86400_000_000
@@ -220,6 +232,14 @@ class AuthorizationDecision(BaseModel):
     nonce: str
     instance_id: str | None = None
     generation: int | None = None
+
+
+class LocalEvidencePolicyRequest(BaseModel):
+    """The product-side request for one local self-issued evidence range."""
+
+    model_config = ConfigDict(extra='forbid')
+
+    project_id: str
 
 
 class ProductOwnerAuthorizationSource:
@@ -405,11 +425,11 @@ def _audit_document(source, *, action_id, generation, authorized_at_us, request_
                                   decided_at_us=_clock(engine))
 
 
-def _install_audit_file(engine, body: bytes, message: str) -> str:
+def _install_audit_file(engine, body: bytes, message: str, *, filename: str = AUDIT_FILENAME) -> str:
     """Create (or reuse byte-identical) the one audit file; never overwrite silently."""
     digest_hex = hashlib.sha256(body).hexdigest()
     folder = Path(engine.db.data_dir) / 'Control'
-    path = folder / AUDIT_FILENAME
+    path = folder / filename
     try:
         if path.is_symlink() or path.is_junction():
             raise OSError('The authorization audit path cannot cross filesystem links')
@@ -419,7 +439,7 @@ def _install_audit_file(engine, body: bytes, message: str) -> str:
                 return digest_hex
             if len(existing) > _MAX_AUDIT_BYTES:
                 raise OSError('The previous authorization audit document exceeds its fixed bound')
-            aborted = folder / ('ProductAuthorization.aborted-'
+            aborted = folder / (Path(filename).stem + '.aborted-'
                                 + hashlib.sha256(existing).hexdigest() + '.json')
             if aborted.exists():
                 raise OSError('The retained aborted authorization audit name already exists')
@@ -479,14 +499,14 @@ def write_product_denial_audit(channel, request, *, engine, origin) -> str:
         'The product authorization audit could not be written; the denial was not recorded')
 
 
-def _commit_audit_digest(engine, digest_hex: str) -> None:
+def _commit_audit_digest(engine, digest_hex: str, *, key: str = AUDIT_METADATA_KEY) -> None:
     with engine.db.transaction() as connection:
         connection.execute('INSERT INTO metadata VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value',
-                           (AUDIT_METADATA_KEY, digest_hex))
+                           (key, digest_hex))
 
 
-def _audit_baseline(engine) -> bytes | None:
-    path = Path(engine.db.data_dir) / 'Control' / AUDIT_FILENAME
+def _audit_baseline(engine, filename: str = AUDIT_FILENAME) -> bytes | None:
+    path = Path(engine.db.data_dir) / 'Control' / filename
     try:
         if path.is_file() and not path.is_symlink() and not path.is_junction():
             return path.read_bytes()
@@ -495,15 +515,15 @@ def _audit_baseline(engine) -> bytes | None:
     return None
 
 
-def _restore_audit(engine, baseline: bytes | None) -> None:
+def _restore_audit(engine, baseline: bytes | None, *, filename: str = AUDIT_FILENAME) -> None:
     """A failed metadata commit may not leave an uncommitted decision audited."""
-    path = Path(engine.db.data_dir) / 'Control' / AUDIT_FILENAME
+    path = Path(engine.db.data_dir) / 'Control' / filename
     try:
         if baseline is None:
             if path.is_file() and not path.is_symlink() and not path.is_junction():
                 path.unlink()
             return
-        temporary = path.with_name(AUDIT_FILENAME + '.restore')
+        temporary = path.with_name(filename + '.restore')
         with temporary.open('wb') as stream:
             stream.write(baseline)
             stream.flush()
@@ -649,7 +669,7 @@ class ProductAuthorizationChannel:
 
     def __init__(self, engine, *, session_secret=None, owner_subject=DEFAULT_OWNER_SUBJECT,
                  caller_module='video_creator.cli.main', origins=(), allowed_hosts=(),
-                 launcher_origin='serve'):
+                 launcher_origin='serve', allowed_kinds=(OWNER_BINDING_KIND,)):
         if type(engine) is not EngineService:
             raise _denied('product_authorization_configuration_conflict',
                           'The product authorization channel requires an actual EngineService', 503)
@@ -661,6 +681,12 @@ class ProductAuthorizationChannel:
         if type(owner_subject) is not str or not owner_subject:
             raise _denied('product_authorization_configuration_conflict',
                           'The product authorization channel requires its installation Owner subject', 503)
+        if (type(allowed_kinds) is not tuple or not allowed_kinds
+                or any(kind not in _SUPPORTED_KINDS for kind in allowed_kinds)
+                or len(set(allowed_kinds)) != len(allowed_kinds)):
+            raise _denied('product_authorization_configuration_conflict',
+                          'The channel offers only distinct supported authorization kinds', 503)
+        self.allowed_kinds = allowed_kinds
         self.engine = engine
         self.instance_id = engine.instance_id
         self.owner_subject = owner_subject
@@ -697,29 +723,35 @@ class ProductAuthorizationChannel:
         with OwnerBootstrapStore(self.engine).current(allow_inactive=True) as record:
             return record.generation
 
-    def _create_request(self) -> ProductAuthorizationRequest:
+    def _create_request(self, kind=OWNER_BINDING_KIND, *, generation=None, scope=None) -> ProductAuthorizationRequest:
         now = _clock(self.engine)
-        generation = self._generation()
-        projects = _owned_projects(self.engine, self.owner_subject)
-        owner_expires_at_us = now + _MAX_OWNER_LIFETIME_US
-        scope = {
-            'kind': OWNER_BINDING_KIND,
-            'owner_subject': self.owner_subject,
-            'project_ids': list(projects),
-            'expires_at_us': owner_expires_at_us,
-            'amount_cap': None,
-            'target': {'kind': 'local-owner-binding-v1'},
-        }
+        if kind not in _SUPPORTED_KINDS:
+            raise _denied('authorization_kind_denied', 'Unsupported product authorization kind', 403)
+        if generation is None:
+            generation = self._generation()
+        if scope is None:
+            if kind != OWNER_BINDING_KIND:
+                raise _source_denied('A non-Owner authorization request requires its exact approved range')
+            projects = _owned_projects(self.engine, self.owner_subject)
+            owner_expires_at_us = now + _MAX_OWNER_LIFETIME_US
+            scope = {
+                'kind': OWNER_BINDING_KIND,
+                'owner_subject': self.owner_subject,
+                'project_ids': list(projects),
+                'expires_at_us': owner_expires_at_us,
+                'amount_cap': None,
+                'target': {'kind': 'local-owner-binding-v1'},
+            }
         scope_sha256 = _sha256_text(_canonical(scope))
         identity_material = {'instance_id': self.instance_id, 'generation': generation,
-                             'kind': OWNER_BINDING_KIND, 'scope_sha256': scope_sha256}
+                             'kind': kind, 'scope_sha256': scope_sha256}
         authorization_id = 'authorization-' + _sha256_text(_canonical(identity_material))[:40]
         request = ProductAuthorizationRequest(
             format=REQUEST_FORMAT,
             authorization_id=authorization_id,
             instance_id=self.instance_id,
             generation=generation,
-            kind=OWNER_BINDING_KIND,
+            kind=kind,
             scope=scope,
             scope_sha256=scope_sha256,
             requested_by={'role': 'api', 'pid': os.getpid(), 'executable': sys.executable,
@@ -740,12 +772,17 @@ class ProductAuthorizationChannel:
 
     def _view(self, request: ProductAuthorizationRequest) -> dict:
         state = 'complete' if self._restart_required(request) else request.state
-        summary = (
-            'Authorize this installation Owner ({owner}) for {count} project(s) until {expiry}'
-        ).format(owner=request.scope['owner_subject'],
-                 count=len(request.scope['project_ids']),
-                 expiry=request.scope['expires_at_us'])
-        return {
+        if request.kind == OWNER_BINDING_KIND:
+            summary = (
+                'Authorize this installation Owner ({owner}) for {count} project(s) until {expiry}'
+            ).format(owner=request.scope['owner_subject'],
+                     count=len(request.scope['project_ids']),
+                     expiry=request.scope['expires_at_us'])
+        else:
+            summary = (
+                'Authorize local self-issued evidence (not measured) for project {project} until {expiry}'
+            ).format(project=request.scope['project_id'], expiry=request.scope['expires_at_us'])
+        view = {
             'version': VIEW_VERSION,
             'authorization_id': request.authorization_id,
             'kind': request.kind,
@@ -764,20 +801,73 @@ class ProductAuthorizationChannel:
             'restart_required': self._restart_required(request),
             'can_decide': request.state == 'pending' and _clock(self.engine) < request.expires_at_us,
         }
+        if request.kind == LOCAL_EVIDENCE_KIND and request.result_ref:
+            # The launcher runs the one-shot installer, then restarts the host so
+            # the OS-vault key is picked up by normal startup.
+            view['install'] = {
+                'action': 'evidence-admin-install',
+                'command': 'video_creator evidence-admin install',
+                'receipt_id': request.result_ref.get('receipt_id'),
+                'receipt_path': request.result_ref.get('receipt_path'),
+                'receipt_sha256': request.result_ref.get('receipt_sha256'),
+                'restart_required_after_install': True,
+            }
+        return view
 
     def pending(self, *, secret=None) -> dict:
-        """The one current view; expired or denied requests are re-issued."""
+        """The one current view.
+
+        A restricted process re-issues its first-Owner request automatically. A
+        normal process only shows an already requested evidence range: it never
+        opens an Owner-initialization surface.
+        """
         with self._lock:
             self._assert_read_secret(secret)
             request = self._request
-            if request is None:
+            owner_available = OWNER_BINDING_KIND in self.allowed_kinds
+            if request is None or request.state in {'expired', 'denied', 'superseded'}:
+                if not owner_available:
+                    if request is None:
+                        raise _not_found('No product authorization request has been created in this process')
+                    return self._view(request)
                 request = self._create_request()
-            elif request.state == 'pending':
-                if _clock(self.engine) >= request.expires_at_us:
-                    request.state = 'expired'
-                    request = self._create_request()
-            elif request.state in {'expired', 'denied', 'superseded'}:
+            elif request.state == 'pending' and _clock(self.engine) >= request.expires_at_us:
+                request.state = 'expired'
+                if not owner_available:
+                    return self._view(request)
                 request = self._create_request()
+            return self._view(request)
+
+    def request_local_evidence_policy(self, project_id, *, secret=None) -> dict:
+        """Explicit product consent to issue one local self-issued evidence range."""
+        with self._lock:
+            self._assert_read_secret(secret)
+            if LOCAL_EVIDENCE_KIND not in self.allowed_kinds:
+                raise _denied('authorization_kind_denied',
+                              'This process does not offer a local evidence policy range', 403)
+            if type(project_id) is not str or not project_id:
+                raise _denied('owner_project_scope_invalid', 'One explicit owned project is required', 422)
+            from video_creator.application.owner_bootstrap import OwnerBootstrapStore
+
+            with OwnerBootstrapStore(self.engine).current(allow_inactive=False) as record:
+                principal = record.principal
+                if principal.owner_subject != self.owner_subject:
+                    raise _denied('evidence_policy_scope_denied',
+                                  'The actual Owner binding differs from this installation subject', 403)
+                if project_id not in principal.project_ids:
+                    raise _denied('production_management_project_denied',
+                                  'The requested project is outside the actual Owner scope', 403)
+                generation = record.generation
+                now = _clock(self.engine)
+                expires_at_us = min(now + _MAX_OWNER_LIFETIME_US, principal.expires_at_us)
+                if expires_at_us <= now:
+                    raise _denied('production_management_denied',
+                                  'The actual Owner management scope already expired', 403)
+            scope = local_evidence_scope(instance_id=self.instance_id,
+                                         owner_subject=self.owner_subject,
+                                         project_id=project_id,
+                                         expires_at_us=expires_at_us)
+            request = self._create_request(LOCAL_EVIDENCE_KIND, generation=generation, scope=scope)
             return self._view(request)
 
     def get(self, authorization_id: str, *, secret=None) -> dict:
@@ -866,6 +956,8 @@ class ProductAuthorizationChannel:
             if request.state != 'pending':
                 raise _not_found('No product authorization request has this identity in this process')
             self._assert_decision_credentials(decision, request)
+            if request.kind == LOCAL_EVIDENCE_KIND:
+                return self._approve_local_evidence(request, origin=origin)
             from video_creator.application.owner_bootstrap import OwnerBootstrapStore
 
             store = OwnerBootstrapStore(self.engine)
@@ -888,6 +980,58 @@ class ProductAuthorizationChannel:
                                   'command_scope': 'owner.bootstrap.initialize',
                                   'command_key': source.action_key}
             return self._view(request)
+
+    def _approve_local_evidence(self, request: ProductAuthorizationRequest, *, origin) -> dict:
+        """Approve the range only: audit + receipt, no evidence row, no binding.
+
+        The one-shot `evidence-admin` child performs the actual install with the
+        real settled ASR observation and the OS-vault key. This process never
+        holds that key and never opens the evidence registry.
+        """
+        from video_creator.application.owner_bootstrap import OwnerBootstrapStore
+
+        now = _clock(self.engine)
+        with OwnerBootstrapStore(self.engine).current(allow_inactive=False) as record:
+            principal = record.principal
+            if (principal.owner_subject != self.owner_subject
+                    or principal.owner_subject != request.scope['owner_subject']
+                    or request.scope['project_id'] not in principal.project_ids):
+                raise _denied('evidence_policy_scope_denied',
+                              'The approved local evidence range is outside the actual Owner binding', 403)
+            if record.generation != request.generation:
+                raise _instance_conflict('The Owner binding generation changed before this approval')
+        identity = inspect_owner_directory(Path(self.engine.db.data_dir))
+        receipt_id = 'local-evidence-receipt-' + secrets.token_hex(12)
+        audit_body = _common_audit_document(
+            self, request, decision='approve',
+            result_ref={'receipt_id': receipt_id, 'receipt_filename': local_evidence_audit_filename()},
+            engine=self.engine, identity=identity, origin=origin or '', decided_at_us=now)
+        audit_sha256 = hashlib.sha256(audit_body).hexdigest()
+        receipt = build_receipt(
+            request_scope=request.scope, authorization_id=request.authorization_id,
+            scope_sha256=request.scope_sha256, audit_sha256=audit_sha256, receipt_id=receipt_id,
+            approved_at_us=now, install_by_us=now + _INSTALL_WINDOW_US,
+            origin=origin or '', nonce_fingerprint=_fingerprint(request.nonce),
+            session_secret_fingerprint=_fingerprint(self._session_secret))
+        baseline = _audit_baseline(self.engine, local_evidence_audit_filename())
+        target, _payload, receipt_sha256 = prepare_receipt(self.engine, receipt=receipt)
+        try:
+            _install_audit_file(
+                self.engine, audit_body,
+                'The local evidence approval audit could not be written; no receipt was issued',
+                filename=local_evidence_audit_filename())
+            _commit_audit_digest(self.engine, audit_sha256,
+                                 key=local_evidence_audit_metadata_key())
+            finalize_receipt(self.engine, target=target)
+        except BaseException:
+            discard_pending_receipt(self.engine)
+            _restore_audit(self.engine, baseline, filename=local_evidence_audit_filename())
+            raise
+        request.state = 'applied'
+        request.result_ref = {'receipt_id': receipt_id, 'receipt_path': str(target),
+                              'receipt_sha256': receipt_sha256,
+                              'policy_expires_at_us': request.scope['expires_at_us']}
+        return self._view(request)
 
     def deny(self, authorization_id: str, decision: AuthorizationDecision, *, secret,
              origin=None, fetch_site=None) -> dict:

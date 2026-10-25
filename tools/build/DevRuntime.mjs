@@ -24,12 +24,31 @@ if (controlEnabled) {
 }
 const python = process.env.VIDEO_CREATOR_PYTHON || path.join(repo, '.venv', process.platform === 'win32' ? 'Scripts/python.exe' : 'bin/python');
 const token = randomBytes(32).toString('hex');
+// ADR0081: the launcher owns the per-process authorization session secret.
+// It is 128-bit lowercase hex (exactly 32 chars) and goes to the engine child
+// environment only; it is never written to disk, logs, audit or metadata.
+// A caller may pin it for deterministic tests; otherwise it is fresh per run.
+const authorizationIndex = options.indexOf('--authorization-session-secret');
+let authorizationSecret;
+if (authorizationIndex >= 0) {
+  const supplied = options[authorizationIndex + 1];
+  if (options.lastIndexOf('--authorization-session-secret') !== authorizationIndex
+    || typeof supplied !== 'string' || !/^[0-9a-f]{32}$/.test(supplied)) {
+    throw new Error('authorization_session_secret_invalid');
+  }
+  authorizationSecret = supplied;
+} else {
+  authorizationSecret = randomBytes(16).toString('hex');
+}
 const portIndex = options.indexOf('--workbench-port');
 const portText = portIndex < 0 ? '1420' : options[portIndex + 1];
 if ((portIndex >= 0 && options.lastIndexOf('--workbench-port') !== portIndex) || typeof portText !== 'string' || !/^[1-9][0-9]{0,4}$/.test(portText) || String(Number(portText)) !== portText || Number(portText) < 1024 || Number(portText) > 65535) throw new Error('workbench_port_invalid');
 const workbenchPort = Number(portText);
 const origin = 'http://127.0.0.1:' + workbenchPort;
 const env = { ...process.env, PYTHONPATH: path.join(repo, 'services/engine/src'), VIDEO_CREATOR_API_TOKEN: token, PYTHONUTF8: '1', PYTHONIOENCODING: 'utf-8' };
+// The authorization secret is narrower than the session token: only the engine
+// child receives it. Vite/proxy keeps the same existing token-only environment.
+const engineEnv = { ...env, VIDEO_CREATOR_AUTHORIZATION_SESSION_SECRET: authorizationSecret };
 const mediaArgs = [];
 let engine;
 let pendingStopCause;
@@ -119,7 +138,7 @@ if (resourceManifest) {
 if (pendingStopCause) return null;
 await mkdir(dataDir, { recursive: true });
 if (pendingStopCause) return null;
-  return launchEngine({ repo, executable: python, dataDir, env, origin, mediaArgs });
+  return launchEngine({ repo, executable: python, dataDir, env: engineEnv, origin, mediaArgs });
 }
 try { engine = await prepareEngine(); }
 catch { lifecycleFailed = true; console.error(JSON.stringify({ event: 'failed', code: 'engine_start_failed' })); }
@@ -171,7 +190,14 @@ if (ready && !stopping) {
     });
     if (!stopping) {
       hostReady = true;
-      console.log(JSON.stringify({ event: 'dev_runtime_ready', workbench_url: origin, instance_id: ready.instance_id, authentication: 'private_same_origin_proxy', paid_worker: false, media_resources_verified: mediaArgs.length === 4 }));
+      const descriptor = { event: 'dev_runtime_ready', workbench_url: origin, instance_id: ready.instance_id, authentication: 'private_same_origin_proxy', paid_worker: false, media_resources_verified: mediaArgs.length === 4 };
+      if (ready.authorization_state !== undefined) descriptor.authorization_state = ready.authorization_state;
+      // ADR0081 R1 loopback transport: one-time fragment, read and scrubbed by
+      // the page before mount. Development launcher only; the product path uses
+      // the desktop shell's isolated preload and never prints this value.
+      descriptor.authorization_url = origin + '/#a=' + authorizationSecret;
+      descriptor.dev_only = true;
+      console.log(JSON.stringify(descriptor));
     }
   } catch { console.error(JSON.stringify({ event: 'failed', code: 'workbench_start_failed' })); await stop('workbench_start_failed', true); }
 }

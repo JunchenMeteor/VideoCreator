@@ -32,7 +32,7 @@ class MaterialSlot(InternalBundleModel):
     artifact_id: Identifier
     relative_path: str
     media_type: Literal["application/json", "application/x-ndjson", "text/plain", "text/srt", "text/vtt"]
-    schema_kind: Literal["creative_revision", "approved_script", "actual_transcript", "work_summary", "source_bindings", "shots", "semantic_segments", "rag_chunks", "quality", "precision_report", "srt", "vtt", "license", "audit_summary", "actual_transcript_v03", "precision_report_v03", "precision_reference_v03", "method_benchmark", "method_benchmark_reference", "method_qualification", "evidence_policy", "work_alignment_validation", "production_authorization", "local_master_selection", "local_speech_evidence", "actual_transcript_local", "quality_local", "visual_mapping_local", "shots_local", "semantic_segments_local", "rag_chunks_local", "srt_local", "vtt_local"]
+    schema_kind: Literal["creative_revision", "approved_script", "actual_transcript", "work_summary", "source_bindings", "shots", "semantic_segments", "rag_chunks", "quality", "precision_report", "srt", "vtt", "license", "audit_summary", "actual_transcript_v03", "precision_report_v03", "precision_reference_v03", "method_benchmark", "method_benchmark_reference", "method_benchmark_self_issued", "method_qualification", "evidence_policy", "work_alignment_validation", "production_authorization", "local_master_selection", "local_speech_evidence", "actual_transcript_local", "quality_local", "visual_mapping_local", "shots_local", "semantic_segments_local", "rag_chunks_local", "srt_local", "vtt_local"]
 
 
 class BundlePreparationIntent(InternalBundleModel):

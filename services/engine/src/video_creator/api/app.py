@@ -30,6 +30,7 @@ from video_creator.application.product_authorization import (
     AUTHORIZATION_HEADER,
     HEALTH_HEADER,
     AuthorizationDecision,
+    LocalEvidencePolicyRequest,
     ProductAuthorizationChannel,
 )
 from video_creator.application.worker import WorkerService
@@ -91,7 +92,8 @@ def create_app(engine: EngineService, token: str, subject: str = "local-user",
                principal_registry: InstancePrincipalRegistry | None = None,
                copy_input_service=None,
                authorization_channel: ProductAuthorizationChannel | None = None,
-               authorization_state: str | None = None) -> FastAPI:
+               authorization_state: str | None = None,
+               restricted: bool = False) -> FastAPI:
     if len(token) < 32:
         raise EngineError("session_token_missing", "A session token of at least 32 characters is required", 503)
     if authorization_channel is not None and (
@@ -102,7 +104,9 @@ def create_app(engine: EngineService, token: str, subject: str = "local-user",
     if authorization_state is not None and authorization_state != 'none':
         raise EngineError('product_authorization_configuration_conflict',
                           'The only externally fixed authorization state is none', 503)
-    restricted = authorization_channel is not None
+    if type(restricted) is not bool or (restricted and authorization_channel is None):
+        raise EngineError('product_authorization_configuration_conflict',
+                          'A restricted process requires its actual authorization channel', 503)
     allowed_origins = startup_origins(allowed_origins)
     bundles = bundle_service or BundleService(engine, TrustedBundleValidators(media_validator=media_validator),
                       principal_registry or InstancePrincipalRegistry(engine.instance_id, subject))
@@ -205,10 +209,12 @@ def create_app(engine: EngineService, token: str, subject: str = "local-user",
         if is_development_host():
             # Process-internal development binding only; not declared in OpenAPI.
             response.headers[DEVELOPMENT_INSTALLATION_HEADER] = DEVELOPMENT_INSTALLATION_VALUE
-        if authorization_channel is not None:
+        if authorization_channel is not None and restricted:
             # Runtime-only fact; deliberately not part of the health model or OpenAPI.
             response.headers[HEALTH_HEADER] = authorization_channel.authorization_state
-        elif authorization_state == 'none':
+        elif authorization_channel is not None or authorization_state == 'none':
+            # A normally assembled process is the stable `none` state; the
+            # evidence-authorization channel does not change that fact.
             response.headers[HEALTH_HEADER] = 'none'
         return InstanceHealth(instance_id=engine.instance_id, schema_version=c.CONTRACT_SET_VERSION, engine_version=__version__,
                               worker_connected=WorkerService(engine).connected())
@@ -264,6 +270,14 @@ def create_app(engine: EngineService, token: str, subject: str = "local-user",
             response.headers['Cache-Control'] = 'no-store'
             return authorization_channel.deny(authorization_id, body, secret=secret, origin=origin,
                                               fetch_site=request.headers.get('sec-fetch-site'))
+
+        @app.post('/api/v1/authorization/local-evidence-policy', include_in_schema=False)
+        def authorization_local_evidence(body: LocalEvidencePolicyRequest, request: Request,
+                                         response: Response, actor: str = Depends(authenticate),
+                                         secret: str = secret_dependency):
+            authorization_origin(request)
+            response.headers['Cache-Control'] = 'no-store'
+            return authorization_channel.request_local_evidence_policy(body.project_id, secret=secret)
 
     @app.get("/api/v1/projects", response_model=list[ProjectDraft])
     def projects(actor: str = Depends(authenticate)):

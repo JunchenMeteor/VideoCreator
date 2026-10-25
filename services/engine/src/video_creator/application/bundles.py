@@ -40,10 +40,16 @@ from video_creator.application.bundle_facts import (
     ReadyRightsArtifact,
     VerifiedRightsEvidence,
 )
+from video_creator.application.current_final_evidence_service import (
+    CurrentFinalEvidenceService,
+)
 from video_creator.application.engine import EngineService, canonical, digest, identity
-from video_creator.application.current_final_evidence_service import CurrentFinalEvidenceService
-from video_creator.application.evidence import validate_benchmark
+from video_creator.application.evidence import (
+    validate_benchmark,
+    validate_self_issued_benchmark,
+)
 from video_creator.domain import contracts as c
+from video_creator.domain import local_bundle as local
 from video_creator.domain.bundle import (
     AccessContext,
     BundleContentHandle,
@@ -60,13 +66,12 @@ from video_creator.domain.bundle import (
 from video_creator.domain.daily_project_authorization import (
     ProductionAuthorizationDocumentV02,
     ProjectGoalAccepted,
-    ProjectGoalReceiptQueryV1,
-    ProjectGoalReceiptAssociationV1,
     ProjectGoalInput,
+    ProjectGoalReceiptAssociationV1,
+    ProjectGoalReceiptQueryV1,
 )
 from video_creator.domain.errors import EngineError
 from video_creator.domain.local_material_production import plan_rights_body
-from video_creator.domain import local_bundle as local
 from video_creator.domain.production_authorization import (
     ProductionAdmissionRef,
     ProductionAuthorizationDocument,
@@ -86,6 +91,7 @@ TEXT_MODELS = {"creative_revision": c.CreativeRevision, "approved_script": c.App
     "actual_transcript_v03": c.ActualTranscriptDocumentV03,
     "precision_reference_v03": c.PerWorkReferenceDocument,
     "method_benchmark": c.MethodBenchmarkReport, "method_benchmark_reference": c.MethodBenchmarkReference,
+    "method_benchmark_self_issued": c.LocalSelfIssuedBenchmarkV1,
     "method_qualification": c.MethodQualificationRef, "evidence_policy": c.EvidencePolicyRevision,
     "work_alignment_validation": c.WorkAlignmentValidationReport,
     "production_authorization": ProductionAuthorizationDocument}
@@ -836,8 +842,12 @@ class BundleService(CurrentFinalEvidenceService):
         return run, production, request
 
     def _local_source(self, *, required=True):
-        from video_creator.application.local_material_sources import LocalMaterialSourceService
-        from video_creator.domain.local_material_production import RegistrationConfigLocalV1
+        from video_creator.application.local_material_sources import (
+            LocalMaterialSourceService,
+        )
+        from video_creator.domain.local_material_production import (
+            RegistrationConfigLocalV1,
+        )
         source = getattr(self.engine, '_local_material_plan_source', None)
         if source is None and not required:
             return None
@@ -990,7 +1000,8 @@ class BundleService(CurrentFinalEvidenceService):
         if has_local and local_context is None:
             raise EngineError('local_bundle_context_required', 'Local material allocation requires original controlled context.', 403)
         new_kinds = {"actual_transcript_v03", "precision_report_v03", "precision_reference_v03", "method_benchmark",
-            "method_benchmark_reference", "method_qualification", "evidence_policy", "work_alignment_validation"}
+            "method_benchmark_reference", "method_benchmark_self_issued", "method_qualification", "evidence_policy",
+            "work_alignment_validation"}
         if local_context is None and request.request_format_version == c.SCHEMA_VERSION and any(slot.schema_kind in new_kinds for slot in intent.material_slots):
             raise EngineError("bundle_material_version_conflict", "Old strict preparation cannot accept versioned 0.3 material grammar", 422)
         if local_context is None and request.request_format_version == c.V03_SCHEMA_VERSION and any(slot.relative_path == "Text/actual-transcript.json" and slot.schema_kind != "actual_transcript_v03" for slot in intent.material_slots):
@@ -1437,7 +1448,9 @@ class BundleService(CurrentFinalEvidenceService):
         alignment_source = self.assert_initial_alignment_manifest(lease, preparation_id, manifest)
         ctc_work_source = self.registered_ctc_work_manifest_source(lease, preparation_id, manifest)
         if local_context is not None:
-            from video_creator.application.local_bundle_relations import validate_local_relations
+            from video_creator.application.local_bundle_relations import (
+                validate_local_relations,
+            )
             rights_observations = validate_local_relations(self, lease, preparation_id, manifest, documents, request, local_context)
         else:
             rights_observations = self._validate_relations(lease, manifest, documents, request)
@@ -1695,7 +1708,9 @@ class BundleService(CurrentFinalEvidenceService):
         return self.engine.create_project_goal(actor.subject_id, key, goal, entry=entry)
 
     def lookup_project_goal_receipt(self, actor: AccessContext, query: ProjectGoalReceiptQueryV1) -> ProjectGoalReceiptAssociationV1:
-        from video_creator.application.goal_receipt_lookup import lookup_project_goal_receipt
+        from video_creator.application.goal_receipt_lookup import (
+            lookup_project_goal_receipt,
+        )
         self._actor(actor, 'production.read', 'playback')
         result = lookup_project_goal_receipt(self.engine, actor, query)
         self._actor(actor, 'production.read', 'playback')
@@ -2149,7 +2164,8 @@ class BundleService(CurrentFinalEvidenceService):
             kind = fixed[artifact.relative_path]
             return "actual_transcript_v03" if version == c.V03_SCHEMA_VERSION and kind == "actual_transcript" else kind
         if version in {c.V03_SCHEMA_VERSION, local.LOCAL_SCHEMA_VERSION}:
-            for role in ("method_benchmark", "method_benchmark_reference", "method_qualification", "evidence_policy", "work_alignment_validation"):
+            for role in ("method_benchmark", "method_benchmark_reference", "method_benchmark_self_issued",
+                         "method_qualification", "evidence_policy", "work_alignment_validation"):
                 if role in artifact.roles:
                     if artifact.roles != (role,):
                         raise EngineError("import_evidence_kind_invalid", "Versioned evidence has one exact admitted kind/role", 415)
@@ -2355,7 +2371,12 @@ class BundleService(CurrentFinalEvidenceService):
         if (quality.evidence_policy_revision_ref, quality.qualification_ref, quality.work_validation_report_ref.report_id,
             quality.work_validation_report_ref.content_sha256) != (policy_ref, qualification, work.report_id, work.content_sha256):
             raise EngineError("import_evidence_binding_invalid", "Origin quality binds a different scoped runtime report", 422)
-        benchmark_model = c.MethodBenchmarkReport if manifest.benchmark_binding == "embedded_full_report" else c.MethodBenchmarkReference
+        benchmark_models = {'embedded_full_report': c.MethodBenchmarkReport,
+                            'embedded_self_issued': c.LocalSelfIssuedBenchmarkV1,
+                            'provenance_reference': c.MethodBenchmarkReference}
+        benchmark_model = benchmark_models.get(manifest.benchmark_binding)
+        if benchmark_model is None:
+            raise EngineError('import_benchmark_binding_invalid', 'Origin benchmark binding is not admitted', 422)
         benchmark = document(manifest.benchmark_document_artifact_id, benchmark_model)
         if isinstance(benchmark, c.MethodBenchmarkReport):
             validate_benchmark(benchmark)
@@ -2363,6 +2384,13 @@ class BundleService(CurrentFinalEvidenceService):
                 qualification.execution_identity, qualification.applicability) != (benchmark.report_id, benchmark.content_sha256,
                 benchmark.execution_identity, benchmark.applicability):
                 raise EngineError("import_benchmark_binding_invalid", "Origin qualification differs from the actual embedded benchmark", 422)
+        elif isinstance(benchmark, c.LocalSelfIssuedBenchmarkV1):
+            validate_self_issued_benchmark(benchmark)
+            if (qualification.benchmark_report_ref.report_id, qualification.benchmark_report_ref.content_sha256,
+                qualification.execution_identity, qualification.applicability, qualification.authority_ref) != (benchmark.report_id,
+                benchmark.content_sha256, benchmark.execution_identity, benchmark.applicability, benchmark.authority_ref):
+                raise EngineError("import_benchmark_binding_invalid",
+                                  "Origin qualification differs from the actual self-issued declaration", 422)
         elif (benchmark.origin_report_ref, benchmark.execution_identity, benchmark.applicability) != (
                 qualification.benchmark_report_ref, qualification.execution_identity, qualification.applicability):
             raise EngineError("import_benchmark_binding_invalid", "Origin provenance reference cannot replace the original benchmark SHA", 422)
@@ -2645,9 +2673,8 @@ class BundleService(CurrentFinalEvidenceService):
         count, p95 = nearest_rank(unit_errors(actual.alignment.boundaries, reference.boundaries, report.boundaries, actual.transcript.duration_us))
         if (count, p95) != (precision.sample_count, precision.p95_error_us) or (count, p95) != (report.sample_count, report.p95_error_us):
             raise EngineError("criterion_mismatch", "Actual measurement differs from complete unit max/N nearest rank", 422)
-        if p95 > LIMIT_US:
-            if not self._in_current_final_evidence():
-                raise EngineError("alignment_required", "Actual full-unit measurement exceeds the 200ms criterion", 409)
+        if p95 > LIMIT_US and not self._in_current_final_evidence():
+            raise EngineError("alignment_required", "Actual full-unit measurement exceeds the 200ms criterion", 409)
         if report.corrected_from and (report.corrected_from.report_id == report.evaluation_id or not report.correction_reason):
             raise EngineError("correction_lineage_invalid", "Correction requires a distinct original report and its actual reason", 422)
         self._correction_closure(manifest, documents, lease=lease)
@@ -2700,13 +2727,25 @@ class BundleService(CurrentFinalEvidenceService):
         if (quality.evidence_policy_revision_ref, quality.qualification_ref, quality.work_validation_report_ref.report_id,
             quality.work_validation_report_ref.content_sha256) != (resolved.policy_ref, qualification, work.report_id, work.content_sha256):
             raise EngineError("work_evidence_binding_invalid", "Quality must bind this actual complete runtime report", 422)
-        benchmark_type = c.MethodBenchmarkReport if manifest.benchmark_binding == "embedded_full_report" else c.MethodBenchmarkReference
-        benchmark_role = "method_benchmark" if manifest.benchmark_binding == "embedded_full_report" else "method_benchmark_reference"
+        benchmark_types = {'embedded_full_report': (c.MethodBenchmarkReport, "method_benchmark"),
+                           'embedded_self_issued': (c.LocalSelfIssuedBenchmarkV1, "method_benchmark_self_issued"),
+                           'provenance_reference': (c.MethodBenchmarkReference, "method_benchmark_reference")}
+        if manifest.benchmark_binding not in benchmark_types:
+            raise EngineError('benchmark_binding_invalid', 'Manifest benchmark binding is not admitted', 422)
+        benchmark_type, benchmark_role = benchmark_types[manifest.benchmark_binding]
         _, benchmark = document(manifest.benchmark_document_artifact_id, benchmark_type, benchmark_role)
         if isinstance(benchmark, c.MethodBenchmarkReport):
             validate_benchmark(benchmark)
             if benchmark != resolved.benchmark:
                 raise EngineError("benchmark_binding_invalid", "Embedded benchmark differs from actual admitted complete evidence", 422)
+        elif isinstance(benchmark, c.LocalSelfIssuedBenchmarkV1):
+            validate_self_issued_benchmark(benchmark)
+            if benchmark != resolved.benchmark:
+                raise EngineError("benchmark_binding_invalid",
+                                  "Embedded self-issued declaration differs from actual admitted evidence", 422)
+            if request.delivery_requirements.alignment_evidence_policy == 'strict_reference_v1':
+                raise EngineError('alignment_required',
+                                  'Strict reference policy cannot use a not-performed local declaration.', 409)
         elif (benchmark.origin_report_ref, benchmark.execution_identity, benchmark.applicability, benchmark.corpus_id,
               benchmark.corpus_sha256, benchmark.authority_ref) != (qualification.benchmark_report_ref, resolved.benchmark.execution_identity,
               resolved.benchmark.applicability, resolved.benchmark.corpus_id, resolved.benchmark.corpus_sha256, resolved.benchmark.authority_ref):
@@ -2719,9 +2758,8 @@ class BundleService(CurrentFinalEvidenceService):
         measurements = [value for value in documents.values() if isinstance(value, c.PrecisionEvaluationReportV03)]
         if precision.status != "measured":
             if measurements or quality.per_work_measurement_report_ref is not None or request.delivery_requirements.alignment_evidence_policy == "strict_reference_v1":
-                if measurements or quality.per_work_measurement_report_ref is not None:
-                    if self._in_current_final_evidence():
-                        raise EngineError('precision_evidence_conflict', 'Unmeasured work cannot hide real measurements', 422)
+                if (measurements or quality.per_work_measurement_report_ref is not None) and self._in_current_final_evidence():
+                    raise EngineError('precision_evidence_conflict', 'Unmeasured work cannot hide real measurements', 422)
                 self._current_precision_problem('independent_reference_missing', kind='independent_reference')
                 raise EngineError("alignment_required", "No reference means no measurement artifact or metric; strict policy still requires real reference", 409)
         else:
@@ -2754,7 +2792,7 @@ class BundleService(CurrentFinalEvidenceService):
         for output in manifest.outputs:
             if {by_id[ref].relative_path for ref in output.artifact_ids} != set(expected[output.role]):
                 raise EngineError("bundle_output_binding_invalid", "Output roles must bind their actual fixed artifacts", 422)
-        allowed_extra_roles = {"license", "precision_evaluation", "precision_reference", "frame_evidence", "asr_input", "audit_summary", "method_benchmark", "method_benchmark_reference", "method_qualification", "evidence_policy", "work_alignment_validation"}
+        allowed_extra_roles = {"license", "precision_evaluation", "precision_reference", "frame_evidence", "asr_input", "audit_summary", "method_benchmark", "method_benchmark_reference", "method_benchmark_self_issued", "method_qualification", "evidence_policy", "work_alignment_validation"}
         for item in manifest.artifacts:
             if item.relative_path not in FIXED_FILES and not set(item.roles) <= allowed_extra_roles:
                 raise EngineError("bundle_attachment_denied", "Extra private files cannot enter the fixed export index", 403)
@@ -2974,12 +3012,22 @@ class BundleService(CurrentFinalEvidenceService):
             raise EngineError('work_qualification_conflict', 'Reports differ from original real current registry admission.', 409)
         benchmark = reports.get('method_benchmark')
         reference = reports.get('method_benchmark_reference')
-        if (benchmark is None) == (reference is None):
-            raise EngineError('benchmark_binding_invalid', 'Exactly one actual benchmark or licensed reference is required.', 422)
+        self_issued = reports.get('method_benchmark_self_issued')
+        if sum(value is not None for value in (benchmark, reference, self_issued)) != 1:
+            raise EngineError('benchmark_binding_invalid',
+                              'Exactly one actual benchmark, licensed reference or self-issued declaration is required.', 422)
         if benchmark is not None:
             validate_benchmark(benchmark)
             if benchmark != resolved.benchmark:
                 raise EngineError('benchmark_binding_invalid', 'Actual benchmark differs from complete admitted source.', 422)
+        elif self_issued is not None:
+            validate_self_issued_benchmark(self_issued)
+            if self_issued != resolved.benchmark:
+                raise EngineError('benchmark_binding_invalid',
+                                  'Self-issued not-performed declaration differs from its admitted source.', 422)
+            if request.delivery_requirements.alignment_evidence_policy == 'strict_reference_v1':
+                raise EngineError('alignment_required',
+                                  'Strict reference policy cannot use a not-performed local declaration.', 409)
         elif (reference != self.engine.evidence_registry.benchmark_reference(resolved.qualification.benchmark_report_ref)
                 or reference.license_ref not in {right.rights_id for right in manifest.rights}):
             raise EngineError('benchmark_disclosure_approval_invalid', 'Original licensed benchmark disclosure is required.', 403)

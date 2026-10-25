@@ -160,7 +160,11 @@ export function launchEngine({ repo, executable, dataDir, env, origin, mediaArgs
       try {
         const value = JSON.parse(buffer.subarray(0, newline).toString('utf8'));
         const u = new URL(value.base_url);
-        if (Object.keys(value).sort().join(',') !== 'base_url,event,instance_id' || value.event !== 'ready' || u.protocol !== 'http:' || u.hostname !== '127.0.0.1' || !u.port || u.username || u.password || u.pathname !== '/' || u.search || u.hash || typeof value.instance_id !== 'string' || !value.instance_id) throw new Error();
+        const keys = Object.keys(value).sort().join(',');
+        // ADR0081: a restricted process adds its authorization channel state.
+        const restricted = keys === 'authorization_state,base_url,event,instance_id'
+          && (value.authorization_state === 'pending' || value.authorization_state === 'complete');
+        if ((keys !== 'base_url,event,instance_id' && !restricted) || value.event !== 'ready' || u.protocol !== 'http:' || u.hostname !== '127.0.0.1' || !u.port || u.username || u.password || u.pathname !== '/' || u.search || u.hash || typeof value.instance_id !== 'string' || !value.instance_id) throw new Error();
         readyValue = value;
         // Ready proves API availability only; capture failures stay latched for cleanup.
         owned.capture().then(() => finish(null, value), () => finish('engine_ownership_unavailable'));

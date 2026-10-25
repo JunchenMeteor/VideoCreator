@@ -98,6 +98,20 @@ class EngineService:
             raise EngineError('local_copy_configuration_conflict', 'Live copy registry cannot be silently replaced', 503)
         self.local_copy_inputs = service
 
+    def configure_evidence_registry(self, registry):
+        """Trusted startup only: root the evidence registry with the OS-vault key.
+
+        The registry still carries no execution or Owner capability. A request,
+        task payload or model output never reaches this method; only the trusted
+        host startup and the one-shot local evidence administrator call it.
+        """
+        from video_creator.application.evidence import PersistentEvidenceRegistry
+
+        if type(registry) is not PersistentEvidenceRegistry or registry.engine is not self:
+            raise EngineError('evidence_configuration_invalid',
+                              'Evidence registry must be the exact same-instance implementation', 503)
+        self.evidence_registry = registry
+
     def configure_production_authorization(self, issuer, *, subject_identities):
         """Trusted authenticated host startup, never a task or management action.
 

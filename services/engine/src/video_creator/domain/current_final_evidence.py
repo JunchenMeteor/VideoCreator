@@ -7,17 +7,24 @@ from pydantic import ConfigDict, Field, model_validator
 
 from video_creator.domain import contracts as c
 from video_creator.domain.bundle import (
-    BundlePreparation, BundlePreparationIntent, MaterialAllocation, MaterialReceipt,
+    BundlePreparation,
+    BundlePreparationIntent,
+    MaterialAllocation,
+    MaterialReceipt,
     VerifiedBundleMaterial,
 )
 from video_creator.domain.evidence import ResolvedEvidencePolicy
-from video_creator.domain.registered_production import AsrResultAllocation, PrivateModel, ProductionBinding
+from video_creator.domain.registered_production import (
+    AsrResultAllocation,
+    PrivateModel,
+    ProductionBinding,
+)
 
 # This is the original allocation grammar, not a parallel public SchemaKind.
 SchemaKind = Literal['creative_revision', 'approved_script', 'actual_transcript', 'work_summary',
     'source_bindings', 'shots', 'semantic_segments', 'rag_chunks', 'quality', 'precision_report',
     'srt', 'vtt', 'license', 'audit_summary', 'actual_transcript_v03', 'precision_report_v03',
-    'precision_reference_v03', 'method_benchmark', 'method_benchmark_reference',
+    'precision_reference_v03', 'method_benchmark', 'method_benchmark_reference', 'method_benchmark_self_issued',
     'method_qualification', 'evidence_policy', 'work_alignment_validation', 'production_authorization']
 SourceRef = c.EvidencePolicyRevisionRef | c.EvidenceReportRef | c.EvidenceAuthorityRevisionRef | c.MethodQualificationRef | c.EvidenceMaterialRef
 

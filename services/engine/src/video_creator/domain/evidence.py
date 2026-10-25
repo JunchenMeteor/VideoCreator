@@ -10,6 +10,7 @@ from video_creator.domain.contracts import (
     EvidencePolicyRevision,
     EvidencePolicyRevisionRef,
     Identifier,
+    LocalSelfIssuedBenchmarkV1,
     MethodBenchmarkReport,
     MethodQualificationRef,
     Sha256,
@@ -78,7 +79,7 @@ class ReferenceIssuerAdmission(BaseModel):
 class ResolvedEvidencePolicy:
     policy: EvidencePolicyRevision
     qualification: MethodQualificationRef
-    benchmark: MethodBenchmarkReport
+    benchmark: MethodBenchmarkReport | LocalSelfIssuedBenchmarkV1
     registry_revision: int
 
     @property

@@ -1321,7 +1321,8 @@ class EvidencePolicyRevisionRef(Contract):
 class EvidenceReportRef(Contract):
     report_id: Identifier
     schema_version: Literal["0.3.0-candidate"]
-    evaluation_scope: Literal["capability_benchmark", "work_runtime_validation", "per_work_reference_measurement"]
+    evaluation_scope: Literal["capability_benchmark", "work_runtime_validation", "per_work_reference_measurement",
+                              "capability_benchmark_not_performed"]
     content_sha256: Sha256
 
 
@@ -1387,8 +1388,16 @@ class MethodQualificationRef(Contract):
 
     @model_validator(mode="after")
     def benchmark_scope(self):
-        if self.benchmark_report_ref.evaluation_scope != "capability_benchmark" or self.expires_at_us <= self.valid_from_us:
-            raise ValueError("qualification binds a benchmark and an actual validity interval")
+        if self.expires_at_us <= self.valid_from_us:
+            raise ValueError("qualification binds an actual validity interval")
+        if self.benchmark_report_ref.evaluation_scope == "capability_benchmark_not_performed":
+            # ADR0082 section 3.4: a "not performed" declaration is admitted only
+            # for a local self-issued authority; every other issuer still needs a
+            # real capability benchmark.
+            if not self.authority_ref.startswith("local-selfissued-authority-"):
+                raise ValueError("only a local self-issued authority may bind a not-performed declaration")
+        elif self.benchmark_report_ref.evaluation_scope != "capability_benchmark":
+            raise ValueError("qualification binds a capability benchmark")
         return self
 
 
@@ -1590,6 +1599,43 @@ class MethodBenchmarkReport(Contract):
         return self
 
 
+LOCAL_SELF_ISSUED_BENCHMARK_LIMITATIONS = (
+    "whisper_word_estimate_not_forced_alignment",
+    "no_independent_precision_benchmark",
+    "self_issued_local_instance_only",
+    "not_third_party_certification",
+)
+
+
+class LocalSelfIssuedBenchmarkV1(Contract):
+    """ADR0082 section 3.4: a declaration that no benchmark was performed.
+
+    It has no corpus, sample count, P95, listener or arbitration field at all, so
+    it cannot be rendered as a measurement. It is admitted only for a local
+    self-issued authority and always carries the fixed limitations.
+    """
+
+    schema_version: Literal["0.3.0-candidate"]
+    evaluation_scope: Literal["capability_benchmark_not_performed"]
+    report_id: Identifier
+    execution_identity: AlignmentExecutionIdentity
+    applicability: AlignmentApplicability
+    authority_ref: Identifier
+    precision_claim: Literal["not_measured"]
+    independent_reference: Literal["none"]
+    limitations: tuple[str, ...] = Field(min_length=4)
+    disclosure_sha256: Sha256
+    content_sha256: Sha256
+
+    @model_validator(mode="after")
+    def not_performed(self):
+        if not self.authority_ref.startswith("local-selfissued-authority-"):
+            raise ValueError("a not-performed declaration exists only for a local self-issued authority")
+        if not set(LOCAL_SELF_ISSUED_BENCHMARK_LIMITATIONS) <= set(self.limitations):
+            raise ValueError("the declaration retains every fixed limitation")
+        return self
+
+
 class MethodBenchmarkReference(Contract):
     schema_version: Literal["0.3.0-candidate"]
     evidence_trust_status: Literal["reference_only"]
@@ -1677,7 +1723,7 @@ class BundleManifestV03(BundleManifest):
     schema_version: Literal["0.3.0-candidate"]
     evidence_policy_revision_ref: EvidencePolicyRevisionRef
     qualification_ref: MethodQualificationRef
-    benchmark_binding: Literal["embedded_full_report", "provenance_reference"]
+    benchmark_binding: Literal["embedded_full_report", "provenance_reference", "embedded_self_issued"]
     benchmark_document_artifact_id: Identifier
     policy_document_artifact_id: Identifier
     qualification_document_artifact_id: Identifier
