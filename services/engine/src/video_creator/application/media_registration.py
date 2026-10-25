@@ -1165,9 +1165,10 @@ def run_registered_worker(runtime: RegisteredMediaRuntime, *, control, on_ready:
                             current = engine._run(connection, lease.run_id)
                         if current["status"] in {"waiting_user", "succeeded", "cancelled", "failed", "needs_reconciliation"}:
                             continue
-                        engine.heartbeat(lease, lease_seconds=RUN_LEASE_SECONDS)
+                        lease = engine.heartbeat(lease, lease_seconds=RUN_LEASE_SECONDS)
                     except EngineError as error:
                         errors.append(error.code)
+                        sys_event('worker_heartbeat_failed', run_id=lease.run_id, code=error.code)
                         return
             heartbeat = threading.Thread(target=renew, name="production-worker-heartbeat")
             heartbeat.start()

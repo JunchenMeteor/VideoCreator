@@ -43,7 +43,7 @@ from video_creator.domain.worker import (
 WORKER_SLOT = WORKFLOW_VERSION
 HEARTBEAT_SECONDS = 5
 PRESENCE_TTL_SECONDS = 15
-RUN_LEASE_SECONDS = 30
+RUN_LEASE_SECONDS = 300
 REGISTERED_MEDIA_WORKFLOW = "registered-media-bundle-v1"
 
 
@@ -507,7 +507,9 @@ class WorkerService:
         with self.engine.db.transaction() as connection:
             run = self.engine._lease(connection, lease)
             if alignment:
-                from video_creator.application.registered_alignment import assert_registered_alignment_step
+                from video_creator.application.registered_alignment import (
+                    assert_registered_alignment_step,
+                )
                 assert_registered_alignment_step(connection, self.engine, lease, step_key, input_sha256)
             if not connection.execute("SELECT run_id FROM execution_bindings WHERE run_id=?", (lease.run_id,)).fetchone():
                 raise EngineError("execution_binding_missing", "Bind fixed execution inputs before output allocation")
@@ -558,7 +560,9 @@ class WorkerService:
         with self.engine.db.transaction() as connection:
             row = self._generated(connection, lease, reservation.attempt_id)
             if alignment:
-                from video_creator.application.registered_alignment import assert_registered_alignment_step
+                from video_creator.application.registered_alignment import (
+                    assert_registered_alignment_step,
+                )
                 assert_registered_alignment_step(connection, self.engine, lease, row['step_key'], row['input_sha256'])
             step = connection.execute("SELECT * FROM steps WHERE run_id=? AND step_key=?", (lease.run_id, row["step_key"])).fetchone()
             if not step or step["input_sha256"] != row["input_sha256"] or step["fencing_token"] != lease.fencing_token:

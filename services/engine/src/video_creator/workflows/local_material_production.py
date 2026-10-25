@@ -607,8 +607,11 @@ def _run(services, lease, *, checkpoint_path, cancel, deadline_monotonic, policy
         flow = LocalMaterialFlow(services, lease, SQLiteFlowPersistence(db_path=str(path)))
         flow.state['id'] = str(uuid5(NAMESPACE_URL, 'local-material-production-v1:' + lease.run_id))
         from video_creator.application.media_registration import sys_event
+        with services.engine.db.connect_readonly() as connection:
+            lease_row = services.engine._run(connection, lease.run_id)
         sys_event('flow_kickoff_started', run_id=lease.run_id, checkpoint=str(path),
-                  checkpoint_exists=path.exists())
+                  checkpoint_exists=path.exists(), lease_until_us=lease_row['lease_until_us'],
+                  server_now_us=services.engine.clock(), fencing_token=lease_row['fencing_token'])
         started = time.monotonic()
         try:
             result = flow.kickoff()
@@ -625,11 +628,15 @@ def _run(services, lease, *, checkpoint_path, cancel, deadline_monotonic, policy
                       code=None, message=str(error)[:300],
                       elapsed_seconds=round(time.monotonic() - started, 3))
             raise
+        with services.engine.db.connect_readonly() as connection:
+            finished_row = services.engine._run(connection, lease.run_id)
         sys_event('flow_kickoff_finished', run_id=lease.run_id,
                   elapsed_seconds=round(time.monotonic() - started, 3),
                   result_is_none=result is None, outcome=flow.state.get('outcome'),
                   blocker_code=flow.state.get('blocker_code'),
-                  selection_present=flow._selection is not None)
+                  selection_present=flow._selection is not None,
+                  lease_until_us=finished_row['lease_until_us'], server_now_us=services.engine.clock(),
+                  fencing_token=finished_row['fencing_token'])
         return CurrentProductionUpstreamResultV2(run_id=lease.run_id, fencing_token=lease.fencing_token,
             state='masters_ready' if result is not None else flow.state['outcome'],
             selection=flow._selection,
