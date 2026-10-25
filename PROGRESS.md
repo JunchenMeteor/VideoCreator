@@ -4799,3 +4799,14 @@ Backend bc3d67自然0/RoleSourceBridgeGap该slice释放；Root039c8c全文Gap.md
 - R1 其余：真实配音/转写/字幕/RAG（缺 ASR/TTS 模型资源）、HTTP/MCP 单次交付、三平台安装包（仅 Windows 引擎候选）。
 - R2：未开始；真实商户/平台/机器条件仍缺。
 - contracts provenance `repository`（ADR0078 P2）：发布前须恢复正式快照工具或由用户明确接受。
+
+
+## 2026-10-25 深夜：第二次出片成功、两份 ADR、产品内授权开工
+
+- 同一实例用同一素材**第二次**出片成功（`production-e65cbeacbd8b4f77ac16f4787531fdd1` succeeded，bundle `local-bundle-revision-f6ca834e…`），证明静音链可重复。
+- 期间修复 `correction_evidence_required` 误判：确定性 artifact id 在历史作品包存在时被当作"历史拷贝"；现仅在修正 facts 或 current final-evidence 作用域内才如此判定（真拷贝缺事实仍 409，commit `ebacc97`）。
+- 冻结两份设计：ADR0081（产品内授权通道：受限启动、一次点击、审计先于绑定、授权后重启、凭据四要素）与 ADR0082（本地自签证据：issuer 内嵌实例、keyring 密钥、HMAC、不伪造基准、精度 `not_measured`、ADR0075 中 CTC 降为可选）。
+- 用户决定：本地语音采用**本地自签 + whisper 时间戳 + not_measured**，界面须标注"本地自签、未做精度实测"。
+- 产品内授权的后端与前端实现已开工（ADR0081）。
+- ASR 资源包由集成交付：4,644 文件 / 989 MB，隔离 Python + whisper 模型；`load_asr_resources` exit 0；包内真实转写成功；依赖锁定 `faster-whisper 1.2.1 / ctranslate2 4.8.3 / av 18.1.0`。
+- 仍未完成：带语音的作品包（待产品内授权 + evidence-admin 安装入口 + 媒体真实路径）、模型设置、安装形态、R2。
