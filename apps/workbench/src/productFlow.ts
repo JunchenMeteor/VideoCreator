@@ -78,8 +78,16 @@ export const REVIEW_INFO: Readonly<Record<ReviewKind, { title: string; what: str
   },
 };
 
-/** Review validity is task-state bound; there is no independent public expiry. */
-export const REVIEW_VALIDITY = '本次审核只在任务处于“待审核”期间有效；任务状态改变后失效。';
+/** Review validity now comes from the contract; no public expiry means task-state bound. */
+export type ReviewExpiry = { label: string; expired: boolean; provided: boolean };
+export function reviewExpiry(expiresAtUs: number | null | undefined, nowMs = Date.now()): ReviewExpiry {
+  if (typeof expiresAtUs !== 'number' || !Number.isFinite(expiresAtUs)) {
+    return { label: '未提供，按任务状态判断', expired: false, provided: false };
+  }
+  const date = new Date(Math.floor(expiresAtUs / 1000));
+  const expired = expiresAtUs <= nowMs * 1000;
+  return { label: `${date.toLocaleString('zh-CN')}${expired ? '（已过期）' : ''}`, expired, provided: true };
+}
 
 const REVIEW_CODE_TEXT: Readonly<Record<string, string>> = {
   alignment_required: '制作能力尚未对齐：实例缺少完成这条作品所需的执行或证据能力。同意不能补齐缺失能力，需要先补装配。',
@@ -93,11 +101,17 @@ export function reviewFailureText(code: unknown): string | undefined {
   return typeof code === 'string' ? REVIEW_CODE_TEXT[code] : undefined;
 }
 
+/** Human copy for a summary failure_code; never returns the internal literal. */
+export function reviewFailureMessage(code: unknown): string | undefined {
+  if (typeof code !== 'string' || !code) return undefined;
+  return REVIEW_CODE_TEXT[code] ?? '实例报告了一项检查未通过，但没有提供可读说明。';
+}
+
 export function reviewKindOf(kind: string): kind is ReviewKind {
   return kind === 'plan' || kind === 'quality';
 }
 
-export function latestReviewRevisions(revisions: readonly Schemas['CreativeRevision'][]) {
+export function latestReviewRevisions(revisions: readonly Schemas['ProductionRevisionSummary'][]) {
   return REVIEW_KINDS.flatMap(kind => {
     const revision = revisions.filter(item => item.kind === kind).at(-1);
     return revision ? [{ kind, revision }] : [];
@@ -130,10 +144,6 @@ export function selfIssuedNote(binding: string): string | undefined {
   return binding === 'embedded_self_issued'
     ? '能力基准：未执行；精度声明：未测量（precision_claim=not_measured）。'
     : undefined;
-}
-
-export function isPreviewableRevisionCode(body: unknown): string | undefined {
-  return body && typeof body === 'object' && 'code' in body && typeof body.code === 'string' ? body.code : undefined;
 }
 
 export type { ProductionAccepted };

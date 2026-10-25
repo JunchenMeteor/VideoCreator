@@ -33,7 +33,7 @@ type State = {
   projects: Schemas['ProjectDraft'][];
   productions: ProductionAccepted[];
   details: Record<string, ProductionDetail>;
-  revisions: Record<string, Schemas['CreativeRevision'][]>;
+  revisions: Record<string, Schemas['ProductionRevisionSummary'][]>;
   decisions: { runId: string; body: unknown; key: string }[];
   productionBodies: { body: Record<string, unknown>; key: string }[];
 };
@@ -119,17 +119,17 @@ it('creates a production with the selected outputs and shows the real accepted s
 
 it('lists real waiting revisions and rejects with a required reason', async () => {
   const production = accepted({ status: 'waiting_user', production_id: 'production-review' });
-  const revision: Schemas['CreativeRevision'] = {
-    revision_id: 'revision-plan-1', kind: 'plan', input_revision_refs: [],
-    body: { title: '一分钟介绍', scenes: ['开场', '演示'] } as never,
+  const revision: Schemas['ProductionRevisionSummary'] = {
+    revision_id: 'revision-plan-1', kind: 'plan',
+    expires_at_us: Date.now() * 1000 + 5 * 60 * 1_000_000,
   };
   const { state } = installApi({ productions: [production], details: { [production.production_id]: detail('waiting_user') }, revisions: { [production.production_id]: [revision] } });
   renderWorkspace();
   expect(await screen.findByRole('heading', { name: '制作计划' })).toBeInTheDocument();
   expect(screen.getByText('它是什么')).toBeInTheDocument();
   expect(screen.getByText('会影响什么')).toBeInTheDocument();
-  expect(screen.getByText('有效期')).toBeInTheDocument();
-  expect(screen.getByText(/本次审核只在任务处于“待审核”期间有效/)).toBeInTheDocument();
+  expect(screen.getByText('本次确认有效期')).toBeInTheDocument();
+  expect(screen.queryByText(/已过期/)).not.toBeInTheDocument();
   const reject = screen.getByRole('button', { name: /拒绝并保存原因/ });
   expect(reject).toBeDisabled();
   fireEvent.change(screen.getByLabelText(/拒绝原因/), { target: { value: '第三个镜头与主题不符，请保留前两个镜头重做。' } });
@@ -170,20 +170,39 @@ it('maps queued, running, review, success and failure to honest product copy', (
 
 it('approves a real waiting revision with the approve action and no instruction', async () => {
   const production = accepted({ status: 'waiting_user', production_id: 'production-approve' });
-  const revision: Schemas['CreativeRevision'] = {
-    revision_id: 'revision-quality-1', kind: 'quality', input_revision_refs: [],
-    body: { code: 'alignment_required' } as never,
+  const revision: Schemas['ProductionRevisionSummary'] = {
+    revision_id: 'revision-quality-1', kind: 'quality',
+    expires_at_us: Date.now() * 1000 + 5 * 60 * 1_000_000,
+    failure_code: 'alignment_required',
   };
   const { state } = installApi({ productions: [production], details: { [production.production_id]: detail('waiting_user') }, revisions: { [production.production_id]: [revision] } });
   renderWorkspace();
   expect(await screen.findByRole('heading', { name: '质量检查' })).toBeInTheDocument();
-  expect(screen.getByText('alignment_required', { selector: 'code' })).toBeInTheDocument();
   expect(screen.getByText(/制作能力尚未对齐/)).toBeInTheDocument();
+  expect(screen.queryByText('alignment_required')).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: '同意' }));
   expect(await screen.findByText(/已同意/)).toBeInTheDocument();
   expect(state.decisions[0].body).toEqual({
     target_revision_id: 'revision-quality-1', action: 'approve', instruction_text: '', preserved_constraints: [],
   });
+});
+
+it('shows an expired review window and disables both decisions', async () => {
+  const production = accepted({ status: 'waiting_user', production_id: 'production-expired' });
+  const revision: Schemas['ProductionRevisionSummary'] = {
+    revision_id: 'revision-quality-expired', kind: 'quality',
+    expires_at_us: Date.now() * 1000 - 60 * 1_000_000,
+    failure_code: 'media_invalid',
+  };
+  installApi({ productions: [production], details: { [production.production_id]: detail('waiting_user') }, revisions: { [production.production_id]: [revision] } });
+  renderWorkspace();
+  expect(await screen.findByRole('heading', { name: '质量检查' })).toBeInTheDocument();
+  expect(screen.getByText('本次确认有效期')).toBeInTheDocument();
+  expect(screen.getAllByText(/已过期/).length).toBeGreaterThan(0);
+  expect(screen.getByText(/素材无法解码或格式不受支持/)).toBeInTheDocument();
+  expect(screen.queryByText('media_invalid')).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: '同意' })).toBeDisabled();
+  expect(screen.getByRole('button', { name: /拒绝并保存原因/ })).toBeDisabled();
 });
 
 it('does not invent a review item when nothing is waiting', async () => {

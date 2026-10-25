@@ -1,14 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Badge, Button, Callout, Checkbox, Flex, Select, TextArea, TextField } from '@radix-ui/themes';
-import { Check, ChevronRight, Clapperboard, FileText, RefreshCw, ShieldCheck, Upload, X } from 'lucide-react';
+import { Check, Clapperboard, FileText, RefreshCw, ShieldCheck, Upload, X } from 'lucide-react';
 import { engineData, errorMessage, RequestFailure } from './engine';
 import type { AssetRecord, ProductionAccepted, ProductionInput, Schemas } from './engine';
-import { RevisionView } from './RevisionView';
 import { DeliveryView } from './DeliveryView';
 import {
   formatBytes, latestReviewRevisions, OUTPUT_LABEL, PRODUCTION_STATUS, productionFailure,
-  productionStatusInfo, reviewFailureText, reviewKindOf, REVIEW_INFO, REVIEW_KINDS, REVIEW_VALIDITY,
+  productionStatusInfo, reviewExpiry, reviewFailureMessage, reviewKindOf, REVIEW_INFO,
   shortSha, VOICE_OUTPUTS, waitingProductions,
 } from './productFlow';
 import type { OutputRole, ReviewKind } from './productFlow';
@@ -54,7 +53,7 @@ function StatusBadge({ status }: { status: Schemas['RunStatus'] }) {
 
 function ReviewCard({ production, revision, projectName, connected, onChanged, onDecision }: {
   production: ProductionAccepted;
-  revision: Schemas['CreativeRevision'];
+  revision: Schemas['ProductionRevisionSummary'];
   projectName?: string;
   connected: boolean;
   onChanged: () => void;
@@ -67,13 +66,12 @@ function ReviewCard({ production, revision, projectName, connected, onChanged, o
   const [done, setDone] = useState('');
   const approveIntent = useRef<{ key: string; signature: string } | null>(null);
   const rejectIntent = useRef<{ key: string; signature: string } | null>(null);
-  const code = revision.body && typeof revision.body === 'object' && 'code' in revision.body && typeof revision.body.code === 'string'
-    ? revision.body.code : undefined;
-  const codeText = reviewFailureText(code);
+  const expiry = reviewExpiry(revision.expires_at_us);
+  const failureMessage = reviewFailureMessage(revision.failure_code);
   const info = reviewKind ? REVIEW_INFO[reviewKind] : null;
 
   const decide = async (action: 'approve' | 'reject') => {
-    if (!connected || busy || done) return;
+    if (!connected || busy || done || expiry.expired) return;
     if (action === 'reject' && !reason.trim()) {
       setFailure(new RequestFailure(400, 'invalid_request'));
       return;
@@ -117,18 +115,17 @@ function ReviewCard({ production, revision, projectName, connected, onChanged, o
     <dl className="review-facts">
       <div><dt>它是什么</dt><dd>{info?.what ?? '一项需要确认的创作产物。'}</dd></div>
       <div><dt>会影响什么</dt><dd>{info?.impact ?? '决定会固定到当前任务。'}</dd></div>
-      <div><dt>有效期</dt><dd>{REVIEW_VALIDITY}</dd></div>
+      <div><dt>本次确认有效期</dt><dd>{expiry.label}{expiry.expired ? '，按钮已停用，需重新发起任务或等待新产物。' : ''}</dd></div>
       <div><dt>所属作品</dt><dd>{projectName ?? '当前实例作品'} · {production.production_id}</dd></div>
-      {code ? <div><dt>检查代码</dt><dd><code>{code}</code>{codeText ? `：${codeText}` : '：实例返回的具名检查结果。'}</dd></div> : null}
+      {failureMessage ? <div><dt>未通过原因</dt><dd>{failureMessage}</dd></div> : null}
     </dl>
-    <details className="review-detail"><summary>查看这份产物的实际内容<ChevronRight size={13} /></summary><RevisionView revision={revision} /></details>
     {failure ? <Callout.Root color="red" role="alert"><Callout.Text>{failureText(failure)}</Callout.Text></Callout.Root> : null}
     {!done ? <>
       <label className="field-label" htmlFor={`review-reason-${revision.revision_id}`}>拒绝原因（拒绝时必填）</label>
-      <TextArea id={`review-reason-${revision.revision_id}`} size="2" value={reason} disabled={busy} placeholder="例如：第三个镜头与主题不符，请保留前两个镜头重做。" onChange={event => setReason(event.target.value)} />
+      <TextArea id={`review-reason-${revision.revision_id}`} size="2" value={reason} disabled={busy || expiry.expired} placeholder="例如：第三个镜头与主题不符，请保留前两个镜头重做。" onChange={event => setReason(event.target.value)} />
       <Flex gap="3" wrap="wrap" className="review-actions">
-        <Button size="2" disabled={!connected || busy} onClick={() => void decide('approve')}><Check size={15} />同意</Button>
-        <Button size="2" variant="soft" color="red" disabled={!connected || busy || !reason.trim()} onClick={() => void decide('reject')}><X size={15} />拒绝并保存原因</Button>
+        <Button size="2" disabled={!connected || busy || expiry.expired} onClick={() => void decide('approve')}><Check size={15} />同意</Button>
+        <Button size="2" variant="soft" color="red" disabled={!connected || busy || expiry.expired || !reason.trim()} onClick={() => void decide('reject')}><X size={15} />拒绝并保存原因</Button>
       </Flex>
     </> : null}
   </article>;
