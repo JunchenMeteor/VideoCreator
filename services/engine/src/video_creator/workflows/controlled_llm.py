@@ -18,6 +18,7 @@ from video_creator.providers.deepseek import (
     DeepSeekTextDriver,
     validate_messages,
 )
+from video_creator.workflows.attempt_control import current_attempt
 from video_creator.workflows.react_protocol import crewai_safe_turn, validate_react_turn
 
 
@@ -86,6 +87,7 @@ class ControlledTextLLM(BaseLLM):
         response_model: type[BaseModel] | None = None,
         **kwargs: Any,
     ):
+        current_attempt().check()
         if self._calls >= self._max_calls:
             raise EngineError(
                 "model_call_limit",
@@ -173,6 +175,7 @@ class ControlledTextLLM(BaseLLM):
                 self._records[-1]["protocol_accepted"] = False
                 raise
         self._records[-1]["protocol_accepted"] = True
+        current_attempt().check()
         return (
             response_model.model_validate_json(content)
             if response_model

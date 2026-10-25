@@ -37,7 +37,7 @@ def parse_specialist(role, raw):
         if len({item["candidate_id"] for item in parsed}) != 3:
             raise ValueError("distinct candidates required")
         return parsed
-    if role == "导演":
+    if role in {"导演", "声音导演", "画面导演", "剪辑导演"}:
         if not isinstance(value, list) or len(value) != 3:
             raise ValueError("three shots required")
         return [
@@ -76,6 +76,48 @@ def successful_reuse(proposal, audit):
         refs.append(
             {"role": role, "task_sha256": record["task_sha256"], "output_sha256": sha}
         )
+    return True, refs
+
+
+def successful_production_reuse(proposal, audit):
+    """Additional production fields come from actual completed specialists."""
+    if not isinstance(audit, list) or any(not isinstance(record, dict) for record in audit):
+        return False, []
+    for record in audit:
+        calls = record.get("model_calls")
+        if calls is not None and (not isinstance(calls, list) or any(not isinstance(call, dict) for call in calls)):
+            return False, []
+    valid, refs = successful_reuse(proposal, audit)
+    if not valid:
+        return False, []
+    ownership = {"导演": ("shot_id", "source_refs"), "声音导演": ("shot_id", "narration"),
+                 "画面导演": ("shot_id", "visual", "camera"), "剪辑导演": ("shot_id", "duration_us")}
+    final = [shot.model_dump(mode="json") for shot in proposal.shots]
+    for role, fields in ownership.items():
+        found = None
+        for record in audit:
+            if record.get("kind") != "delegate" or record.get("role") != role or record.get("status") != "completed":
+                continue
+            body, calls = record.get("output_body"), record.get("model_calls")
+            if (not isinstance(body, list) or len(body) != 3 or not calls
+                    or hashlib.sha256(canonical_body(body).encode()).hexdigest() != record.get("output_sha256")
+                    or any(call.get("status") != "succeeded" or not call.get("protocol_accepted")
+                           or call.get("cost_evidence") == "unknown" for call in calls)):
+                continue
+            if (not record.get("source_operation_dedupe_key")
+                    or record["source_operation_dedupe_key"] != calls[-1].get("operation_dedupe_key")
+                    or record.get("source_model_output_sha256") != calls[-1].get("output_sha256")):
+                continue
+            try:
+                parsed = [StoryboardShot.model_validate(value).model_dump(mode="json") for value in body]
+            except (ValueError, TypeError):
+                continue
+            if [{key: value[key] for key in fields} for value in parsed] == [{key: value[key] for key in fields} for value in final]:
+                found = record
+                break
+        if found is None:
+            return False, []
+        refs.append({"role": role, "task_sha256": found["task_sha256"], "output_sha256": found["output_sha256"]})
     return True, refs
 
 
@@ -127,7 +169,8 @@ class AuditedDelegateTool(DelegateWorkTool):
                     {
                         "洞察师": InsightBrief,
                         "编剧": ScriptCandidate,
-                        "导演": StoryboardShot,
+                        "导演": StoryboardShot, "声音导演": StoryboardShot,
+                        "画面导演": StoryboardShot, "剪辑导演": StoryboardShot,
                     }[selected.role].model_json_schema(),
                     ensure_ascii=False,
                 ),
@@ -163,6 +206,7 @@ class AuditedDelegateTool(DelegateWorkTool):
                     "output_sha256": hashlib.sha256(
                         encoded.encode("utf-8")
                     ).hexdigest(),
+                    "output_body": result,
                     "source_model_output_sha256": calls[-1]["output_sha256"],
                     "source_operation_dedupe_key": calls[-1]["operation_dedupe_key"],
                 }

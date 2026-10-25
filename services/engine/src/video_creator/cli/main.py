@@ -1,24 +1,42 @@
 """CLI diagnostics report identities and status, never credentials."""
 
 import argparse
+import asyncio
+import hashlib
 import importlib
 import json
 import os
 import socket
 import sys
+import threading
 import time
 from collections.abc import Callable
 from pathlib import Path
 
 import uvicorn
-from pydantic import ValidationError
+from pydantic import TypeAdapter, ValidationError
 
 from video_creator.api.app import create_app
+from video_creator.application.bundles import BundleService
 from video_creator.application.engine import EngineService
-from video_creator.domain import contracts
+from video_creator.application.worker import run_local_worker
+from video_creator.cli.lifecycle import ApiLifecycle, confirm_stopped, controlled_serve
+from video_creator.cli.startup_services import (
+    InstalledServiceFactory,
+    confirm_api_cleanup,
+    install_startup_services,
+    installed_principal_id,
+)
+from video_creator.domain import (
+    contracts,
+    daily_project_authorization,
+    local_copy_input_scope,
+)
+from video_creator.domain.bundle import TrustedBundleValidators
 from video_creator.domain.contracts import CapabilityRoute, MediaProbe, Money
 from video_creator.domain.errors import EngineError
 from video_creator.infrastructure.credentials import CredentialVault
+from video_creator.infrastructure.origins import native_startup_origins, startup_origins
 
 
 def configured_media_validator(engine: EngineService, ffmpeg: Path | None,
@@ -75,21 +93,42 @@ def export_contracts(output_dir: Path):
         value = getattr(contracts, name)
         if isinstance(value, type) and issubclass(value, contracts.Contract) and value is not contracts.Contract:
             schemas[name] = value.model_json_schema()
-    (output_dir / "schemas.json").write_text(json.dumps({"schema_version": contracts.SCHEMA_VERSION, "schemas": schemas}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
-    print(json.dumps({"schema_version": contracts.SCHEMA_VERSION, "schema_count": len(schemas)}))
+    for name in dir(local_copy_input_scope):
+        value = getattr(local_copy_input_scope, name)
+        if (isinstance(value, type) and issubclass(value, contracts.Contract)
+                and value.__module__ == local_copy_input_scope.__name__):
+            schema = value.model_json_schema()
+            if name in schemas and schemas[name] != schema:
+                raise EngineError('contract_name_conflict', 'Independent copy contract collides with an existing unique schema', 503)
+            schemas[name] = schema
+    for name in dir(daily_project_authorization):
+        value = getattr(daily_project_authorization, name)
+        if (isinstance(value, type) and issubclass(value, contracts.Contract)
+                and value.__module__ == daily_project_authorization.__name__ and not name.startswith('_')):
+            schema = value.model_json_schema()
+            if name in schemas and schemas[name] != schema:
+                raise EngineError('contract_name_conflict', 'Daily creation contract collides with an existing unique schema', 503)
+            schemas[name] = schema
+    schemas['ProjectGoalReceiptAssociationV1'] = TypeAdapter(daily_project_authorization.ProjectGoalReceiptAssociationV1).json_schema()
+    (output_dir / "schemas.json").write_text(json.dumps({"schema_version": contracts.CONTRACT_SET_VERSION, "supported_request_versions": [contracts.SCHEMA_VERSION, contracts.V03_SCHEMA_VERSION], "local_copy_input_scope_version": local_copy_input_scope.LOCAL_COPY_SCOPE_VERSION, "schemas": schemas}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
+    print(json.dumps({"schema_version": contracts.CONTRACT_SET_VERSION, "schema_count": len(schemas)}))
 
 
 def parser() -> argparse.ArgumentParser:
     root = argparse.ArgumentParser(prog="video-creator-engine")
     commands = root.add_subparsers(dest="command", required=True)
+    from video_creator.cli.owner import add_owner_parsers
+    add_owner_parsers(commands)
     serve = commands.add_parser("serve")
     serve.add_argument("--data-dir", required=True, type=Path)
     serve.add_argument("--host", default="127.0.0.1")
     serve.add_argument("--port", default=0, type=int)
     serve.add_argument("--allowed-origin", action="append", default=[])
+    serve.add_argument("--native-origin", help="Trusted native host exact origin; Windows http://tauri.localhost only")
     serve.add_argument("--allowed-host", action="append", default=[])
     serve.add_argument("--ffmpeg", type=Path, help="Trusted launcher absolute FFmpeg resource path")
     serve.add_argument("--ffprobe", type=Path, help="Trusted launcher absolute ffprobe resource path")
+    serve.add_argument("--control-stdin", action="store_true", help="Accept fixed private stop frames from a trusted launcher pipe")
     export = commands.add_parser("export-contracts")
     export.add_argument("--output-dir", required=True, type=Path)
     secret = commands.add_parser("credential-import")
@@ -106,15 +145,36 @@ def parser() -> argparse.ArgumentParser:
     recover.add_argument("--data-dir", required=True, type=Path)
     worker = commands.add_parser("worker")
     worker.add_argument("--data-dir", required=True, type=Path)
-    worker.add_argument("--driver", required=True)
+    worker.add_argument("--workflow", choices=["gate0-local-render-v1", "registered-media-bundle-v1"])
+    worker.add_argument("--driver", help="Legacy explicit trusted workflow probe entry")
+    worker.add_argument("--resource-manifest", type=Path)
+    worker.add_argument("--run-id")
+    worker.add_argument("--max-seconds", type=int, default=300)
     worker.add_argument("--once", action="store_true")
+    worker.add_argument("--production-config", type=Path, help="Trusted installed complete engine/media registration")
+    worker.add_argument("--production-config-sha256", help="Installer-pinned production configuration SHA256")
+    worker.add_argument("--control-stdin", action="store_true", help="Opt-in private bounded quiesce pipe; EOF does not cancel tasks")
+    mcp = commands.add_parser("mcp-stdio")
+    mcp.add_argument("--data-dir", required=True, type=Path)
+    mcp.add_argument("--ffmpeg", type=Path)
+    mcp.add_argument("--ffprobe", type=Path)
     return root
 
 
-def main() -> int:
+def main(*, installed_service_factory: InstalledServiceFactory | None = None,
+         owner_installation_observer_factory=None) -> int:
     args = parser().parse_args()
     try:
-        if args.command == "export-contracts":
+        if installed_service_factory is not None and not (
+                args.command in {"serve", "mcp-stdio"}
+                or args.command == "worker" and args.workflow == "registered-media-bundle-v1"):
+            raise EngineError("installed_services_command_denied", "Private installation assembly is limited to the actual API, MCP and registered Worker", 503)
+        if owner_installation_observer_factory is not None and args.command != 'owner-execution':
+            raise EngineError('owner_installation_command_denied', 'Private installation observer is limited to actual Owner execution registration actions', 403)
+        if args.command in {"owner-init", "owner-policy", "owner-execution", "owner-project-creation"}:
+            from video_creator.cli.owner import run_owner_command
+            run_owner_command(args, installation_observer_factory=owner_installation_observer_factory)
+        elif args.command == "export-contracts":
             export_contracts(args.output_dir)
         elif args.command == "credential-import":
             reference = CredentialVault().import_file(args.source, args.credential_id)
@@ -134,36 +194,170 @@ def main() -> int:
         elif args.command == "recover":
             print(json.dumps(EngineService(args.data_dir).recover()))
         elif args.command == "worker":
-            module_name, _, function_name = args.driver.partition(":")
-            if not module_name.startswith("video_creator.workflows.") or not function_name.isidentifier():
-                raise EngineError("worker_driver_denied", "Worker driver must be a configured workflow entry", 400)
-            driver = getattr(importlib.import_module(module_name), function_name)
+            from video_creator.cli.worker_lifecycle import (
+                WorkerControl,
+                confirm_worker_stopped,
+                worker_ready,
+            )
+            original_threads = set(threading.enumerate())
+            if args.workflow == "registered-media-bundle-v1":
+                if args.driver or args.resource_manifest or not args.production_config or not args.production_config_sha256 or not 1 <= args.max_seconds <= 900:
+                    raise EngineError("production_configuration_missing", "Registered producer requires a fixed complete installer configuration and bounded attempt window", 503)
+                from video_creator.application.media_registration import (
+                    RegisteredMediaRuntime,
+                    run_registered_worker,
+                )
+                engine = EngineService(args.data_dir)
+                runtime = RegisteredMediaRuntime(engine, args.production_config, args.production_config_sha256)
+                installed = install_startup_services(installed_service_factory,
+                    engine=engine, bundle=runtime.bundle, role="worker", registered_runtime=runtime)
+                with WorkerControl(args.control_stdin) as control:
+                    run_registered_worker(runtime, control=control,
+                        on_ready=lambda identifier: worker_ready(engine, identifier, runtime.sha256, args.workflow),
+                        run_id=args.run_id, once=args.once, max_seconds=args.max_seconds)
+                if args.control_stdin:
+                    confirm_worker_stopped(control, original_threads)
+                if installed is not None:
+                    installed.finish_shutdown(original_threads)
+            elif args.workflow:
+                if args.production_config or args.production_config_sha256:
+                    raise EngineError("worker_configuration_invalid", "Production installer configuration cannot alter the legacy fixed experiment", 400)
+                if args.driver or not args.resource_manifest or not 1 <= args.max_seconds <= 900:
+                    raise EngineError("worker_configuration_invalid", "Fixed local workflow requires a resource manifest and a 1 to 900 second window", 400)
+                manifest_path = args.resource_manifest
+                if not manifest_path.is_absolute() or str(manifest_path).startswith(("\\\\", "//")):
+                    raise EngineError("worker_resource_denied", "Worker resources require a trusted absolute local manifest", 400)
+                raw = manifest_path.read_bytes()
+                manifest = json.loads(raw)
+                runtime_root = Path(manifest["runtime_root"]).resolve(strict=True)
+                for entry in manifest["files"]:
+                    resource = (runtime_root / entry["relative_path"]).resolve(strict=True)
+                    if not resource.is_relative_to(runtime_root) or not resource.is_file():
+                        raise EngineError("worker_resource_denied", "Manifest resource escaped its fixed local root", 403)
+                    if resource.stat().st_size != entry["bytes"] or hashlib.sha256(resource.read_bytes()).hexdigest() != entry["sha256"]:
+                        raise EngineError("worker_resource_integrity_failed", "Manifest resource failed its fixed hash", 503)
+                for name in ("ffmpeg_path", "ffprobe_path"):
+                    # The named launcher resources must be covered by the verified list.
+                    configured = Path(manifest[name]).resolve(strict=True)
+                    if not any((runtime_root / entry["relative_path"]).resolve() == configured for entry in manifest["files"]):
+                        raise EngineError("worker_resource_integrity_failed", "Media tool is not covered by the verified manifest", 503)
+                font = manifest["font"]
+                font_path = Path(font["path"])
+                if not font_path.is_absolute() or str(font_path).startswith(("\\\\", "//")):
+                    raise EngineError("worker_resource_denied", "Font requires a fixed absolute local resource path", 403)
+                if font_path.stat().st_size != font["bytes"] or hashlib.sha256(font_path.read_bytes()).hexdigest() != font["sha256"]:
+                    raise EngineError("worker_resource_integrity_failed", "Font failed its fixed manifest hash", 503)
+                def driver(invocation, services):
+                    try:
+                        workflow = importlib.import_module("video_creator.workflows.local_render")
+                        callback = workflow.run_invocation
+                    except (ImportError, AttributeError):
+                        raise EngineError("worker_driver_missing", "Fixed local workflow implementation is not installed", 503) from None
+                    return callback(invocation, services)
+
+                def reconciliation_driver(invocation, services):
+                    try:
+                        workflow = importlib.import_module("video_creator.workflows.local_reconciliation")
+                        callback = workflow.run_reconciliation
+                    except (ImportError, AttributeError):
+                        raise EngineError("reconciliation_driver_missing", "Fixed local evidence driver is not installed", 503) from None
+                    return callback(invocation, services)
+                engine = EngineService(args.data_dir)
+                validator = configured_media_validator(engine, Path(manifest["ffmpeg_path"]), Path(manifest["ffprobe_path"]))
+                if validator is None:
+                    raise EngineError("media_validator_missing", "Worker requires the actual configured decoder", 503)
+                resource_sha = hashlib.sha256(raw).hexdigest()
+                with WorkerControl(args.control_stdin) as control:
+                    run_local_worker(engine, manifest_path, resource_sha, validator, driver,
+                                     reconciliation_driver=reconciliation_driver,
+                                     run_id=args.run_id, max_seconds=args.max_seconds, once=args.once,
+                                     control=control,
+                                     on_ready=(lambda identifier: worker_ready(engine, identifier, resource_sha, args.workflow)) if args.control_stdin else None)
+                if args.control_stdin:
+                    confirm_worker_stopped(control, original_threads)
+            else:
+                if args.control_stdin or args.production_config or args.production_config_sha256:
+                    raise EngineError("worker_configuration_invalid", "Legacy explicit probes do not implement the registered worker lifecycle", 400)
+                if not args.driver:
+                    raise EngineError("worker_configuration_invalid", "Select the fixed workflow or an explicit legacy probe", 400)
+                module_name, _, function_name = args.driver.partition(":")
+                if not module_name.startswith("video_creator.workflows.") or not function_name.isidentifier():
+                    raise EngineError("worker_driver_denied", "Worker driver must be a configured workflow entry", 400)
+                driver = getattr(importlib.import_module(module_name), function_name)
+                engine = EngineService(args.data_dir)
+                while True:
+                    driver(engine)
+                    if args.once:
+                        break
+                    time.sleep(0.25)
+        elif args.command == "mcp-stdio":
+            from video_creator.integrations.mcp_stdio import run_mcp_stdio
+            token = os.environ.get("VIDEO_CREATOR_MCP_TOKEN", "")
+            if len(token) < 32:
+                raise EngineError("mcp_session_token_missing", "MCP requires a trusted per-session child environment token", 503)
             engine = EngineService(args.data_dir)
-            while True:
-                driver(engine)
-                if args.once:
-                    break
-                time.sleep(0.25)
+            media = configured_media_validator(engine, args.ffmpeg, args.ffprobe)
+            bundle = BundleService(engine, TrustedBundleValidators(media_validator=media))
+            original_threads = set(threading.enumerate())
+            installed = install_startup_services(installed_service_factory,
+                engine=engine, bundle=bundle, role="mcp")
+            asyncio.run(run_mcp_stdio(bundle, token))
+            if installed is not None:
+                installed.finish_shutdown(original_threads)
         elif args.command == "serve":
+            origins = (native_startup_origins(args.native_origin, tuple(args.allowed_origin))
+                       if args.native_origin else startup_origins(tuple(args.allowed_origin)))
+            if args.native_origin and (args.host != "127.0.0.1" or any(host not in {"127.0.0.1", "localhost"} for host in args.allowed_host)):
+                raise EngineError("native_host_denied", "Native API binds only the fixed loopback listener and hosts", 400)
             token = os.environ.get("VIDEO_CREATOR_API_TOKEN", "")
             engine = EngineService(args.data_dir)
             media_validator = configured_media_validator(engine, args.ffmpeg, args.ffprobe)
-            listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            listener.bind((args.host, args.port))
-            listener.listen(128)
-            actual_port = listener.getsockname()[1]
+            state = ApiLifecycle()
+            original_threads = set(threading.enumerate())
+            bundle = (BundleService(engine, TrustedBundleValidators(media_validator=media_validator))
+                      if installed_service_factory is not None else None)
+            installed = (install_startup_services(installed_service_factory,
+                engine=engine, bundle=bundle, role="api") if bundle is not None else None)
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
+                listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                listener.bind((args.host, args.port))
+                listener.listen(128)
+                actual_port = listener.getsockname()[1]
 
-            def ready():
-                print(json.dumps({"event": "ready", "base_url": f"http://{args.host}:{actual_port}", "instance_id": engine.instance_id}), flush=True)
+                def ready():
+                    descriptor = {"event": "ready", "base_url": f"http://{args.host}:{actual_port}", "instance_id": engine.instance_id}
+                    if installed is not None:
+                        descriptor['principal_id'] = installed_principal_id(installed,
+                            engine=engine, bundle=bundle, role='api')
+                    state.ready = True
+                    print(json.dumps(descriptor), flush=True)
 
-            app = create_app(engine, token, allowed_origins=tuple(args.allowed_origin),
-                             allowed_hosts=tuple(args.allowed_host or ["127.0.0.1", "localhost"]),
-                             media_validator=media_validator, on_ready=ready)
+                def shutdown_completed():
+                    state.lifespan_completed = True
 
-            uvicorn.Server(uvicorn.Config(app, log_level="warning", access_log=False)).run(sockets=[listener])
+                server = None
+                app = create_app(engine, token, allowed_origins=origins,
+                                 allowed_hosts=tuple(args.allowed_host or ["127.0.0.1", "localhost"]),
+                                 media_validator=media_validator, on_ready=ready,
+                                 is_stopping=(lambda: server.should_exit) if args.control_stdin else None,
+                                 on_shutdown=shutdown_completed if args.control_stdin or installed is not None else None,
+                                 bundle_service=bundle,
+                                 copy_input_service=installed.native.services.copy_inputs if installed is not None else None)
+                server = uvicorn.Server(uvicorn.Config(app, log_level="warning", access_log=False,
+                                                     lifespan="on" if args.control_stdin else "auto"))
+                if args.control_stdin:
+                    asyncio.run(controlled_serve(server, listener, state, sys.stdin.fileno()),
+                                loop_factory=server.config.get_loop_factory())
+                else:
+                    server.run(sockets=[listener])
+                    state.serve_completed = True
+            if args.control_stdin:
+                confirm_stopped(server, listener, state, original_threads)
+            if installed is not None:
+                confirm_api_cleanup(server, listener, state)
+                installed.finish_shutdown(original_threads)
         return 0
-    except (EngineError, ValidationError, OSError, ValueError) as error:
+    except (EngineError, ValidationError, OSError, ValueError, KeyError, TypeError) as error:
         code = error.code if isinstance(error, EngineError) else "configuration_failed"
         message = error.message if isinstance(error, EngineError) else "Configuration or local operation failed"
         print(json.dumps({"code": code, "message": message}), file=sys.stderr)

@@ -95,4 +95,7 @@ def crewai_safe_turn(content: str) -> str:
     start, value = region
     encoded = json.dumps(value, ensure_ascii=False, separators=(",", ":"))
     encoded = encoded.replace("Final Answer:", "Final Answer\\u003a")
-    return content[:start] + encoded
+    # A complete bare JSON document is a final result, not an implicit tool
+    # instruction. Give the locked parser its explicit final control wrapper.
+    prefix = "Final Answer: " if start == 0 else content[:start]
+    return prefix + encoded

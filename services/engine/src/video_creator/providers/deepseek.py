@@ -14,6 +14,7 @@ from video_creator.application.pricing import MAX_REQUEST_BYTES
 from video_creator.domain.contracts import ExecutionPermit, OperationObservation
 from video_creator.domain.errors import EngineError
 from video_creator.infrastructure.credentials import SecretHandle
+from video_creator.workflows.attempt_control import current_attempt
 
 ENDPOINT = "https://api.deepseek.com/chat/completions"
 MODEL = "deepseek-flash"
@@ -95,6 +96,8 @@ class DeepSeekTextDriver:
     def __call__(
         self, permit: ExecutionPermit, secret: SecretHandle | None
     ) -> OperationObservation:
+        control = current_attempt()
+        control.check()
         if (
             permit.route.destination != ENDPOINT
             or permit.route.capability != "text"
@@ -112,7 +115,7 @@ class DeepSeekTextDriver:
             with (
                 httpx.Client(
                     transport=transport,
-                    timeout=httpx.Timeout(120, connect=15),
+                    timeout=httpx.Timeout(control.remaining(120), connect=control.remaining(15)),
                     follow_redirects=False,
                     trust_env=False,
                 ) as client,
@@ -136,6 +139,7 @@ class DeepSeekTextDriver:
                     )
                 chunks, size = [], 0
                 for chunk in response.iter_bytes():
+                    control.check()
                     size += len(chunk)
                     if size > 2 * 1024 * 1024:
                         return OperationObservation(
@@ -144,7 +148,7 @@ class DeepSeekTextDriver:
                         )
                     chunks.append(chunk)
                 body = json.loads(b"".join(chunks))
-        except (httpx.HTTPError, OSError, ValueError):
+        except (httpx.HTTPError, OSError, ValueError, EngineError):
             return OperationObservation(
                 status="unknown",
                 result_json={"error_code": "upstream_transport_uncertain"},

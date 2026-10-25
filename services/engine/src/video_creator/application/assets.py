@@ -69,6 +69,18 @@ class AssetService:
                 return asset
         if staged is None:
             raise EngineError("not_found", "Staged asset not found", 404)
+        probe = self.prepare_candidate(subject, candidate, validator)
+        with self.engine.db.transaction() as connection:
+            asset_id = self.register_candidate(connection, subject, candidate, probe)
+        return self.get(subject, asset_id)
+
+    def prepare_candidate(self, subject: str, candidate: AssetCandidate,
+                          validator: Callable[[Path, str], MediaProbe] | None) -> MediaProbe:
+        """Real decoding and durable content commit, outside any DB transaction."""
+        with self.engine.db.connect() as connection:
+            staged = connection.execute("SELECT * FROM staging WHERE id=? AND owner=?", (candidate.staging_id, subject)).fetchone()
+        if staged is None:
+            raise EngineError("not_found", "Staged asset not found", 404)
         path = self.staging_path(subject, candidate.staging_id)
         size = path.stat().st_size
         sha = self._hash(path)
@@ -112,15 +124,25 @@ class AssetService:
                 output.flush()
                 os.fsync(output.fileno())
             os.replace(temporary, object_path)
-        with self.engine.db.transaction() as connection:
-            current = connection.execute("SELECT asset_id FROM staging WHERE id=? AND owner=?", (candidate.staging_id, subject)).fetchone()
-            if current["asset_id"]:
-                asset_id = current["asset_id"]
-            else:
-                asset_id = identity("asset")
-                connection.execute("INSERT INTO assets VALUES(?,?,?,?,?,?,?,?)", (asset_id, subject, sha, size, candidate.media_type, candidate.source, candidate.rights, canonical(probe)))
-                connection.execute("UPDATE staging SET status='imported',asset_id=? WHERE id=?", (asset_id, candidate.staging_id))
-        return self.get(subject, asset_id)
+            if object_path.stat().st_size != size or self._hash(object_path) != sha:
+                raise EngineError("object_integrity_failed", "Copied content does not match its fixed input hash", 422)
+        return probe
+
+    def register_candidate(self, connection, subject: str, candidate: AssetCandidate, probe: MediaProbe) -> str:
+        """Trusted transaction seam; caller must first actually prepare this candidate."""
+        current = connection.execute("SELECT * FROM staging WHERE id=? AND owner=?", (candidate.staging_id, subject)).fetchone()
+        if (not current or current["status"] not in {"ready", "imported"}
+                or (current["sha256"], current["size"], current["media_type"]) != (candidate.sha256, candidate.size, candidate.media_type)):
+            raise EngineError("asset_integrity_failed", "Staged candidate changed before registration", 422)
+        if current["asset_id"]:
+            row = connection.execute("SELECT * FROM assets WHERE id=? AND owner=?", (current["asset_id"], subject)).fetchone()
+            if not row or (row["sha256"], row["size"], row["media_type"], row["source"], row["rights"]) != (candidate.sha256, candidate.size, candidate.media_type, candidate.source, candidate.rights):
+                raise EngineError("asset_import_conflict", "Staging identity already has a different immutable import")
+            return current["asset_id"]
+        asset_id = identity("asset")
+        connection.execute("INSERT INTO assets VALUES(?,?,?,?,?,?,?,?)", (asset_id, subject, candidate.sha256, candidate.size, candidate.media_type, candidate.source, candidate.rights, canonical(probe)))
+        connection.execute("UPDATE staging SET status='imported',asset_id=? WHERE id=?", (asset_id, candidate.staging_id))
+        return asset_id
 
     def _hash(self, path: Path) -> str:
         value = hashlib.sha256()
