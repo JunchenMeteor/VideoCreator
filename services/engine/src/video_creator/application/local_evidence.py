@@ -27,12 +27,13 @@ import hmac
 import json
 import os
 import secrets
+import sys
 from pathlib import Path
 
 from pydantic import ValidationError
 
 from video_creator.application.bundles import strict_json
-from video_creator.application.engine import EngineService
+from video_creator.application.engine import EngineService, digest
 from video_creator.application.evidence import (
     PersistentEvidenceRegistry,
     check_evidence_record,
@@ -59,6 +60,7 @@ INSTALLATION_FORMAT = 'local-evidence-installation-v1'
 RECEIPT_CREDENTIAL_PREFIX = 'evidence_local_issuer:'
 RECEIPT_CONSUMED_METADATA_PREFIX = 'local_evidence_receipt:'
 RESOURCE_MANIFEST_METADATA_KEY = 'local_evidence_resource_manifest'
+SESSION_SECRET_ENV = 'VIDEO_CREATOR_AUTHORIZATION_SESSION_SECRET'
 DISCLOSURE_FORMAT = 'local-selfissued-disclosure-v1'
 DISCLOSURE_LINES = (
     '本地自签、未做精度实测',
@@ -85,6 +87,10 @@ def _sha256(value: str) -> str:
 
 def _sha256_bytes(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()
+
+
+def _sha256_file(path: Path) -> str:
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
 def _denied(code: str, message: str, status: int) -> EngineError:
@@ -182,46 +188,67 @@ def install_local_evidence_trust(engine: EngineService) -> bool:
     return True
 
 
+def _manifest_rejected(code: str) -> frozenset[str]:
+    # Nonsecret diagnostic: operators can see that a forged/stale admission did
+    # not enter any publication validator set, without printing any secret.
+    print(json.dumps({'event': 'local_evidence_manifest_rejected', 'code': code}), file=sys.stderr, flush=True)
+    return frozenset()
+
+
 def local_evidence_resource_manifest_hashes(engine: EngineService) -> frozenset[str]:
     """The exact child-observed ASR resource manifest admitted by a signed policy.
 
     This is what a publication validator needs in its trusted set. The value is
-    never read from configuration, argv, environment or a request: it comes from
-    the qualification rows this installation signed, and is accepted only while
-    the admitted qualification still matches the recorded content hash.
+    never read from configuration, argv, environment or a request. It is returned
+    only when the stored metadata record points at a qualification row that the
+    actual evidence registry re-verifies end to end: HMAC approval, approval
+    document/benchmark binding, registry floor, expiry/revocation and the
+    policy/qualification/benchmark cross-identity. Any failure returns the empty
+    set and a nonsecret diagnostic.
     """
     try:
         with engine.db.connect_readonly() as connection:
             row = connection.execute('SELECT value FROM metadata WHERE key=?',
                                      (RESOURCE_MANIFEST_METADATA_KEY,)).fetchone()
-            if row is None or type(row[0]) is not str:
-                return frozenset()
-            record = json.loads(row[0])
-            if type(record) is not dict or set(record) != {
-                    'resource_manifest_sha256', 'qualification_content_sha256', 'qualification_id',
-                    'qualification_revision', 'issuer', 'policy_ref', 'recorded_at_us'}:
-                return frozenset()
-            admitted = connection.execute(
-                "SELECT body FROM alignment_admissions WHERE kind='qualification' "
-                'AND admission_id=? AND revision=?',
-                (record['qualification_id'], record['qualification_revision'])).fetchone()
     except (OSError, TypeError, ValueError, EngineError):
-        return frozenset()
-    if admitted is None:
+        return _manifest_rejected('metadata_unavailable')
+    if row is None or type(row[0]) is not str:
         return frozenset()
     try:
-        document = c.MethodQualificationRef.model_validate_json(admitted[0])
-    except (ValidationError, TypeError):
-        return frozenset()
+        record = json.loads(row[0])
+    except (TypeError, ValueError):
+        return _manifest_rejected('record_invalid')
+    if type(record) is not dict or set(record) != {
+            'resource_manifest_sha256', 'qualification_content_sha256', 'qualification_id',
+            'qualification_revision', 'issuer', 'policy_ref', 'recorded_at_us'}:
+        return _manifest_rejected('record_invalid')
     resource_sha256 = record['resource_manifest_sha256']
     if (type(resource_sha256) is not str or len(resource_sha256) != 64
             or any(character not in '0123456789abcdef' for character in resource_sha256)
-            or type(record['issuer']) is not str
-            or not record['issuer'].startswith(ISSUER_PREFIX)
-            or document.issuer != record['issuer']
-            or document.content_sha256 != record['qualification_content_sha256']
+            or type(record['issuer']) is not str or not record['issuer'].startswith(ISSUER_PREFIX)
+            or type(record['qualification_id']) is not str
+            or type(record['qualification_revision']) is not int
+            or type(record['qualification_content_sha256']) is not str):
+        return _manifest_rejected('record_invalid')
+    try:
+        found = load_local_evidence_key(engine.instance_id)
+    except EngineError as error:
+        return _manifest_rejected(error.code)
+    if found is None:
+        return _manifest_rejected('local_evidence_key_unavailable')
+    issuer, key = found
+    if issuer != record['issuer']:
+        return _manifest_rejected('issuer_mismatch')
+    registry = _rooted_registry(engine, issuer, key)
+    try:
+        document, _benchmark = registry.admitted(
+            'qualification', record['qualification_id'], record['qualification_revision'],
+            record['qualification_content_sha256'])
+    except (EngineError, ValidationError, TypeError, ValueError) as error:
+        return _manifest_rejected(getattr(error, 'code', 'admission_invalid'))
+    if (document.issuer != record['issuer']
             or document.execution_identity.resource_manifest_sha256 != resource_sha256):
-        return frozenset()
+        return _manifest_rejected('identity_mismatch')
     return frozenset({resource_sha256})
 
 
@@ -259,8 +286,8 @@ def _canonical_file(body: dict) -> bytes:
 def build_receipt(*, request_scope: dict, authorization_id: str, scope_sha256: str,
                   audit_sha256: str, receipt_id: str, approved_at_us: int,
                   install_by_us: int, origin: str, nonce_fingerprint: str,
-                  session_secret_fingerprint: str) -> dict:
-    return {
+                  session_secret_fingerprint: str, session_secret: str) -> dict:
+    body = {
         'format': RECEIPT_FORMAT,
         'receipt_id': receipt_id,
         'authorization_id': authorization_id,
@@ -280,9 +307,25 @@ def build_receipt(*, request_scope: dict, authorization_id: str, scope_sha256: s
         'nonce_fingerprint': nonce_fingerprint,
         'session_secret_fingerprint': session_secret_fingerprint,
     }
+    body['session_binding'] = _receipt_session_binding(body)
+    body['signature'] = _receipt_signature(body, session_secret)
+    return body
 
 
-def _validated_receipt(raw: bytes) -> dict:
+def _receipt_session_binding(body: dict) -> str:
+    return _sha256(_canonical({key: body[key] for key in (
+        'authorization_id', 'scope_sha256', 'audit_sha256', 'nonce_fingerprint',
+        'session_secret_fingerprint', 'receipt_id', 'approved_at_us', 'install_by_us',
+        'instance_id', 'owner_subject', 'project_id')}))
+
+
+def _receipt_signature(body: dict, session_secret: str) -> str:
+    unsigned = {key: value for key, value in body.items() if key != 'signature'}
+    key = hashlib.sha256(('local-evidence-receipt-v1:' + session_secret).encode('utf-8')).digest()
+    return hmac.new(key, _canonical(unsigned).encode('utf-8'), hashlib.sha256).hexdigest()
+
+
+def _validated_receipt(raw: bytes, session_secret: str) -> dict:
     if len(raw) > _MAX_FILE_BYTES:
         raise _denied('local_evidence_receipt_invalid', 'The receipt exceeds its fixed bound', 403)
     try:
@@ -292,9 +335,16 @@ def _validated_receipt(raw: bytes) -> dict:
     required = {'format', 'receipt_id', 'authorization_id', 'instance_id', 'issuer', 'authority_ref',
                 'owner_subject', 'project_id', 'method_profile', 'scope', 'scope_sha256',
                 'approved_at_us', 'expires_at_us', 'install_by_us', 'audit_sha256', 'origin',
-                'nonce_fingerprint', 'session_secret_fingerprint'}
+                'nonce_fingerprint', 'session_secret_fingerprint', 'session_binding', 'signature'}
     if type(body) is not dict or set(body) != required or body.get('format') != RECEIPT_FORMAT:
         raise _denied('local_evidence_receipt_invalid', 'The receipt fields are not the fixed issuance grammar', 403)
+    # The receipt is only valid for the launcher session that approved it:
+    # session binding + HMAC over every field (session secret is launcher-only).
+    if (type(body.get('signature')) is not str or len(body['signature']) != 64
+            or not hmac.compare_digest(body['session_binding'], _receipt_session_binding(body))
+            or not hmac.compare_digest(body['signature'], _receipt_signature(body, session_secret))):
+        raise _denied('local_evidence_receipt_signature_invalid',
+                      'The receipt signature or session binding is not valid for this launcher session', 403)
     scope = body.get('scope')
     if (type(scope) is not dict or _sha256(_canonical(scope)) != body.get('scope_sha256')
             or scope.get('kind') != 'local_evidence_policy' or scope != {
@@ -306,13 +356,13 @@ def _validated_receipt(raw: bytes) -> dict:
     return body
 
 
-def read_receipt(path: str | Path) -> tuple[dict, bytes]:
+def read_receipt(path: str | Path, session_secret: str) -> tuple[dict, bytes]:
     candidate = Path(path)
     if (not candidate.is_absolute() or candidate.is_symlink() or candidate.is_junction()
             or not candidate.is_file()):
         raise _denied('local_evidence_receipt_invalid', 'The receipt must be one fixed local file', 403)
     raw = candidate.read_bytes()
-    return _validated_receipt(raw), raw
+    return _validated_receipt(raw, session_secret), raw
 
 
 def _consumed_record(engine: EngineService, receipt_id: str) -> dict | None:
@@ -343,66 +393,205 @@ def _identifier(value: str) -> str:
     return cleaned[:128] or 'unknown'
 
 
+def _verified_journal_facts(engine: EngineService, row, observation) -> dict:
+    """Prove one settled Operation is the real registered ASR execution.
+
+    Every check below is about the *original* execution path: the configured
+    route row, the immutable journaled result bytes, the original validation
+    context committed by the concrete driver before dispatch, the real decoded
+    asset object and the execution-binding identity. A fabricated settled row
+    without those facts cannot pass.
+    """
+    result = observation.result_json
+    unverified = _denied('local_evidence_observation_unverified',
+                         'A settled operation does not carry a complete genuine registered ASR execution', 409)
+    if (observation.status != 'succeeded' or observation.actual_cost is None
+            or observation.actual_cost.units() or observation.cost_evidence != 'confirmed_no_charge'):
+        raise unverified
+    if not isinstance(result, dict) or result.get('kind') != 'actual_transcript':
+        raise unverified
+    if result.get('timestamp_method') != TIMESTAMP_METHOD:
+        raise unverified
+    execution = result.get('execution')
+    if (not isinstance(execution, dict) or execution.get('child_terminal') is not True
+            or execution.get('tree_empty') is not True or execution.get('return_code') != 0):
+        raise unverified
+    route = c.CapabilityRoute.model_validate_json(row['route_json'])
+    if (route.source != 'owned_local' or route.capability != 'transcription'
+            or route.credential_ref is not None or route.max_operation_cost.units()
+            or not route.destination.startswith('local:') or route.verified is not True):
+        raise unverified
+    runtime = result.get('runtime')
+    identity_body = runtime.get('execution_identity') if isinstance(runtime, dict) else None
+    if not isinstance(identity_body, dict):
+        raise unverified
+    execution_identity = c.AlignmentExecutionIdentity.model_validate(identity_body)
+    language = result.get('language')
+    duration = result.get('duration_us')
+    audio_sha256 = result.get('input_audio_sha256')
+    provenance = result.get('audio_provenance')
+    if (type(language) is not str or not language or type(duration) is not int or duration <= 0
+            or type(audio_sha256) is not str or len(audio_sha256) != 64
+            or not isinstance(provenance, dict)):
+        raise unverified
+    expected_input = digest(json.dumps({'audio_sha256': audio_sha256,
+                                        'resource_manifest_sha256': execution_identity.resource_manifest_sha256},
+                                       sort_keys=True))
+    if row['input_sha256'] != expected_input or row['step_key'] not in {'bundle-actual-asr'}:
+        raise unverified
+    with engine.db.connect_readonly() as connection:
+        configured = connection.execute('SELECT body FROM routes WHERE id=?', (route.route_id,)).fetchone()
+        binding_row = connection.execute(
+            'SELECT body, content_sha256 FROM execution_bindings WHERE run_id=?', (row['run_id'],)).fetchone()
+        attempt = connection.execute(
+            'SELECT * FROM generated_attempts WHERE run_id=? AND step_key=? AND output_key=?',
+            (row['run_id'], row['step_key'], 'asr-result.' + row['id'])).fetchone()
+        staging = (connection.execute('SELECT * FROM staging WHERE id=?', (attempt['staging_id'],)).fetchone()
+                   if attempt is not None else None)
+        context_row = connection.execute(
+            'SELECT value FROM metadata WHERE key=?',
+            ('asr_validation_context:' + row['id'],)).fetchone()
+        asset = connection.execute(
+            'SELECT * FROM assets WHERE owner=? AND sha256=? ORDER BY id LIMIT 1',
+            (row['owner'], audio_sha256)).fetchone()
+    if configured is None:
+        raise unverified
+    try:
+        if c.CapabilityRoute.model_validate_json(configured[0]) != route:
+            raise unverified
+    except (ValidationError, TypeError):
+        raise unverified from None
+    if (binding_row is None or attempt is None or staging is None or context_row is None
+            or asset is None or type(context_row[0]) is not str):
+        raise unverified
+    try:
+        from video_creator.domain.current_final_evidence import AsrValidationContextRef
+        from video_creator.domain.registered_production import (
+            ProductionBinding,
+            StoredAsrObservation,
+        )
+
+        binding = ProductionBinding.model_validate_json(binding_row[0])
+    except (ValidationError, TypeError):
+        raise unverified from None
+    if (digest(binding_row[0]) != binding_row[1]
+            or binding.instance_id != engine.instance_id
+            or binding.production_id != row['production_id'] or binding.run_id != row['run_id']
+            or binding.request_sha256 != digest(row['request_json'])):
+        raise unverified
+    if staging['status'] != 'ready' or staging['media_type'] != 'application/json':
+        raise unverified
+    staging_path = Path(engine.db.data_dir) / 'Staging' / attempt['staging_id']
+    try:
+        raw_result = staging_path.read_bytes()
+    except OSError:
+        raise unverified from None
+    if (len(raw_result) != staging['size'] or _sha256_bytes(raw_result) != staging['sha256']):
+        raise unverified
+    try:
+        stored = StoredAsrObservation.model_validate_json(raw_result)
+    except (ValidationError, TypeError):
+        raise unverified from None
+    if stored.observation != observation:
+        raise unverified
+    allocation = stored.allocation
+    if (allocation.operation_id, allocation.run_id, allocation.step_key, allocation.input_sha256,
+            allocation.dedupe_key, allocation.route_sha256, allocation.binding_sha256,
+            allocation.resource_manifest_sha256) != (
+            row['id'], row['run_id'], row['step_key'], row['input_sha256'], row['dedupe_key'],
+            digest(row['route_json']), binding_row[1], execution_identity.resource_manifest_sha256):
+        raise unverified
+    try:
+        context_binding = strict_json(context_row[0].encode('utf-8'))
+        context = AsrValidationContextRef.model_validate(context_binding['ref'])
+    except (EngineError, TypeError, ValueError, ValidationError):
+        raise unverified from None
+    if (context.operation_id, context.run_id, context.input_sha256, context.route_sha256,
+            context.binding_sha256, context.resource_manifest_sha256) != (
+            row['id'], row['run_id'], row['input_sha256'], digest(row['route_json']),
+            binding_row[1], execution_identity.resource_manifest_sha256):
+        raise unverified
+    context_path = Path(engine.db.data_dir) / 'AsrValidationContexts' / ('context-' + context.context_sha256)
+    try:
+        context_raw = context_path.read_bytes()
+    except OSError:
+        raise unverified from None
+    if len(context_raw) != context.size or _sha256_bytes(context_raw) != context.context_sha256:
+        raise unverified
+    try:
+        from video_creator.providers.local_asr import validate_original_asr_result
+
+        validate_original_asr_result(result, context_raw)
+    except (ValueError, TypeError, EngineError):
+        raise unverified from None
+    context_request = json.loads(context_raw.decode('utf-8'))['request']
+    if (context_request['resource_manifest_sha256'] != execution_identity.resource_manifest_sha256
+            or context_request['audio_sha256'] != audio_sha256
+            or context_request['storage_root'] != str(Path(engine.db.data_dir).resolve())):
+        raise unverified
+    if not isinstance(asset['media_type'], str) or not asset['media_type'].startswith('audio/'):
+        raise unverified
+    try:
+        probe = c.MediaProbe.model_validate_json(asset['probe_json'])
+    except (ValidationError, TypeError):
+        raise unverified from None
+    object_path = Path(engine.db.data_dir) / 'Objects' / audio_sha256
+    try:
+        if object_path.stat().st_size != asset['size'] or _sha256_file(object_path) != audio_sha256:
+            raise unverified
+        if Path(context_request['audio_path']).resolve() != object_path.resolve():
+            raise unverified
+    except OSError:
+        raise unverified from None
+    if not probe.has_audio or probe.duration_us != duration:
+        raise unverified
+    container = provenance.get('container_format')
+    codec = provenance.get('audio_codec')
+    rate = provenance.get('resampled_sample_rate')
+    transformations = tuple(item for item in (
+        'local_decode:' + _identifier(container) if container else None,
+        'local_decode_codec:' + _identifier(codec) if codec else None,
+        'local_resample:' + _identifier(rate) + '-mono' if rate else None,
+        'local_asr:faster-whisper',
+    ) if item)
+    applicability = c.AlignmentApplicability(
+        languages=(language,), input_media_types=(asset['media_type'],),
+        transformations=transformations, maximum_duration_us=duration + _DURATION_MARGIN_US,
+        units='utterance')
+    return {'operation_id': row['id'], 'execution_identity': execution_identity,
+            'applicability': applicability, 'language': language, 'duration_us': duration,
+            'input_audio_sha256': audio_sha256, 'media_type': asset['media_type']}
+
+
 def _settled_observation(engine: EngineService, *, owner_subject: str, project_id: str) -> dict:
     with engine.db.connect_readonly() as connection:
         rows = connection.execute(
-            'SELECT o.id, o.observation_json FROM operations o '
-            'JOIN productions p ON p.id=o.production_id '
+            "SELECT o.id, o.observation_json, o.route_json, o.step_key, o.dedupe_key, o.input_sha256, "
+            "o.run_id, o.production_id, p.owner, p.project_id, p.request_json "
+            'FROM operations o JOIN productions p ON p.id=o.production_id '
             "WHERE o.status='succeeded' AND o.settled=1 AND p.owner=? AND p.project_id=? "
             'ORDER BY o.created_at_us DESC, o.id DESC', (owner_subject, project_id)).fetchall()
-    for operation_id, raw in rows:
-        if type(raw) is not str:
+    shaped, failure = 0, None
+    for row in rows:
+        if type(row['observation_json']) is not str:
             continue
         try:
-            observation = c.OperationObservation.model_validate_json(raw)
-        except ValidationError:
+            observation = c.OperationObservation.model_validate_json(row['observation_json'])
+        except (ValidationError, TypeError):
             continue
         result = observation.result_json
         if not isinstance(result, dict) or result.get('kind') != 'actual_transcript':
             continue
-        if result.get('timestamp_method') != TIMESTAMP_METHOD:
-            continue
-        runtime = result.get('runtime')
-        identity = runtime.get('execution_identity') if isinstance(runtime, dict) else None
-        if not isinstance(identity, dict):
-            continue
+        shaped += 1
         try:
-            execution = c.AlignmentExecutionIdentity.model_validate(identity)
-        except ValidationError:
-            continue
-        language = result.get('language')
-        duration = result.get('duration_us')
-        audio_sha256 = result.get('input_audio_sha256')
-        provenance = result.get('audio_provenance')
-        if (type(language) is not str or not language or type(duration) is not int or duration <= 0
-                or type(audio_sha256) is not str or len(audio_sha256) != 64
-                or not isinstance(provenance, dict)):
-            continue
-        with engine.db.connect_readonly() as connection:
-            asset = connection.execute(
-                'SELECT media_type FROM assets WHERE owner=? AND sha256=? ORDER BY id LIMIT 1',
-                (owner_subject, audio_sha256)).fetchone()
-        if asset is None or type(asset[0]) is not str or not asset[0]:
-            continue
-        container = provenance.get('container_format')
-        codec = provenance.get('audio_codec')
-        rate = provenance.get('resampled_sample_rate')
-        transformations = tuple(item for item in (
-            'local_decode:' + _identifier(container) if container else None,
-            'local_decode_codec:' + _identifier(codec) if codec else None,
-            'local_resample:' + _identifier(rate) + '-mono' if rate else None,
-            'local_asr:faster-whisper',
-        ) if item)
-        try:
-            applicability = c.AlignmentApplicability(
-                languages=(language,), input_media_types=(asset[0],),
-                transformations=transformations, maximum_duration_us=duration + _DURATION_MARGIN_US,
-                units='utterance')
-        except ValidationError:
-            continue
-        return {'operation_id': operation_id, 'execution_identity': execution,
-                'applicability': applicability, 'language': language, 'duration_us': duration,
-                'input_audio_sha256': audio_sha256, 'media_type': asset[0]}
+            return _verified_journal_facts(engine, row, observation)
+        except EngineError as error:
+            failure = error
+        except (ValidationError, TypeError):
+            failure = _denied('local_evidence_observation_unverified',
+                              'A settled operation does not carry a complete genuine registered ASR execution', 409)
+    if shaped and failure is not None:
+        raise failure
     raise _denied('local_evidence_observation_missing',
                   'No real settled local whisper observation exists for this owner/project; '
                   'run one real transcription before installing self-issued evidence', 409)
@@ -532,10 +721,16 @@ def _build_documents(engine: EngineService, *, issuer: str, authority: str, key:
 # ------------------------------------------------------------------ evidence-admin install
 
 
-def evidence_admin_install(*, data_dir: str | Path, receipt: str | Path) -> dict:
+def evidence_admin_install(*, data_dir: str | Path, receipt: str | Path,
+                           session_secret: str | None = None) -> dict:
     """One-shot install: receipt -> real observation -> three documents -> install/preauthorize."""
+    session_secret = session_secret if session_secret is not None else os.environ.get(SESSION_SECRET_ENV)
+    if type(session_secret) is not str or len(session_secret) != 32 or any(
+            character not in '0123456789abcdef' for character in session_secret):
+        raise _denied('local_evidence_session_required',
+                      'The launcher authorization session secret is required to consume an evidence receipt', 503)
     engine = EngineService(data_dir)
-    receipt_body, receipt_raw = read_receipt(receipt)
+    receipt_body, receipt_raw = read_receipt(receipt, session_secret)
     receipt_sha256 = _sha256_bytes(receipt_raw)
     if receipt_body['instance_id'] != engine.instance_id:
         raise _denied('local_evidence_instance_conflict',
@@ -575,9 +770,11 @@ def evidence_admin_install(*, data_dir: str | Path, receipt: str | Path) -> dict
             or audit.get('decision') != 'approve'
             or audit.get('scope_sha256') != receipt_body['scope_sha256']
             or audit.get('scope') != receipt_body['scope']
-            or audit.get('instance_id') != engine.instance_id):
+            or audit.get('instance_id') != engine.instance_id
+            or audit.get('session_secret_fingerprint') != receipt_body['session_secret_fingerprint']
+            or audit.get('nonce_fingerprint') != receipt_body['nonce_fingerprint']):
         raise _denied('local_evidence_receipt_invalid',
-                      'The approval audit does not describe this receipt range', 403)
+                      'The approval audit does not describe this receipt range or session', 403)
     with engine.db.connect_readonly() as connection:
         committed = connection.execute("SELECT value FROM metadata WHERE key=?",
                                        ('local_evidence_authorization_audit',)).fetchone()

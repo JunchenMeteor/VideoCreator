@@ -22,7 +22,19 @@ from video_creator.workflows.attempt_control import current_attempt
 
 SPEECH_LIMITATIONS = ('whisper_word_estimate_not_forced_alignment',
                       'precision_not_measured', 'local_self_issued_evidence')
-ASR_STEP_KEY = 'local-final-asr'
+# The registered ASR result journal owns this exact step/dedupe pair: a
+# non-child Operation must reuse STEP and `bundle-asr-<run_id>` or the journal's
+# scope check refuses its handle. No Backend helper exposes it yet (the literal
+# lives in `application/asr_result_journal._operation`), so Media keeps one
+# constant here and derives the key in a single function.
+from video_creator.application.asr_result_journal import STEP as ASR_STEP_KEY
+
+BUNDLE_ASR_DEDUPE_PREFIX = 'bundle-asr-'
+MIXED_PATH = 'Media/mixed-audio.wav'
+TRANSCRIPT_PATH = 'Text/actual-transcript.json'
+SRT_PATH = 'Text/subtitles.srt'
+VTT_PATH = 'Text/subtitles.vtt'
+SPEECH_PATH = 'Checks/local-speech-evidence.json'
 
 
 def _record(model):
@@ -31,16 +43,30 @@ def _record(model):
 
 
 def require_settled(operation):
-    """Only an actually settled successful ASR Operation may yield materials."""
-    if type(operation) is not dict or operation.get('settled') is not True:
+    """Only an actually settled successful ASR Operation may yield materials.
+
+    `engine.prepare_operation` returns the persisted SQLite row, whose `settled`
+    column is the integer 1 (never Python `True`), so this must compare values,
+    not identity; a settled Operation reused by dedupe is equally valid.
+    """
+    if type(operation) is not dict or operation.get('settled') not in (1, True):
         raise EngineError('local_asr_unsettled',
-                          'Only a settled successful ASR Operation may enter the speech materials.', 409, 'reconcile')
+                          'Only a settled successful ASR Operation may enter the speech materials '
+                          f"(settled={operation.get('settled')!r}, status={operation.get('status')!r}).",
+                          409, 'reconcile')
     if operation.get('status') != 'succeeded':
         raise EngineError('local_asr_unavailable',
                           'Keep the original controlled ASR outcome; reconcile before resubmitting.', 409, 'reconcile')
     if type(operation.get('id')) is not str or not operation['id']:
         raise EngineError('local_asr_unsettled', 'The settled ASR Operation needs its actual identity.', 409, 'reconcile')
     return operation
+
+
+def asr_operation_intent(lease, asr_route_id, operation_input):
+    """The sole local ASR intent: the journal's STEP and `bundle-asr-<run>` key."""
+    return c.OperationIntent(step_key=ASR_STEP_KEY,
+        dedupe_key=BUNDLE_ASR_DEDUPE_PREFIX + lease.run_id,
+        input_sha256=operation_input, route_id=asr_route_id, reserved_cost=c.Money(amount='0'))
 
 
 def run_local_asr(engine, executor, media, lease, *, mixed_asset, mixed_path, asr_route_id,
@@ -60,23 +86,23 @@ def run_local_asr(engine, executor, media, lease, *, mixed_asset, mixed_path, as
     if resources is None:
         raise EngineError('production_asr_resource_required',
                           'Actual final transcript/subtitle/RAG requires installed ASR resources.', 503)
-    # The worker accepts exactly its own MODEL_FILES set; a documentation file in
-    # the installed manifest is not a model file and must not be claimed as one.
+    # `LocalAsrResources.driver` already passes its manifest identity, including
+    # `expected_model_files`; passing it twice is a TypeError before the Operation
+    # exists. Only check that the installed manifest lists exactly the admitted
+    # model files (README is documentation, not a model file).
     from video_creator.providers.local_asr import MODEL_FILES
 
-    model_files = {name: resources.model_file_sha256.get(name) for name in MODEL_FILES}
-    if any(type(value) is not str for value in model_files.values()):
-        raise EngineError('local_asr_model_missing',
-                          'The installed ASR model must provide every admitted model file.', 503)
+    if set(resources.model_file_sha256) != set(MODEL_FILES):
+        raise EngineError('local_asr_model_files_invalid',
+            'The installed ASR manifest must list exactly the admitted model files.', 503)
     driver = resources.driver(mixed_path, storage_root=media.root, runtime_root=runtime_root,
-        expected_audio_sha256=mixed_asset.sha256, expected_model_files=model_files,
+        expected_audio_sha256=mixed_asset.sha256,
         timeout_seconds=control.remaining(timeout_seconds),
         cancel=control.cancel_requested, deadline_monotonic=control.deadline_monotonic)
     operation_input = digest(json.dumps({'audio_sha256': mixed_asset.sha256,
         'resource_manifest_sha256': resources.manifest_sha256}, sort_keys=True))
     engine.begin_step(lease, ASR_STEP_KEY, operation_input)
-    intent = c.OperationIntent(step_key=ASR_STEP_KEY, dedupe_key='local-final-asr-' + lease.run_id,
-        input_sha256=operation_input, route_id=asr_route_id, reserved_cost=c.Money(amount='0'))
+    intent = asr_operation_intent(lease, asr_route_id, operation_input)
     control.check()
     observation = executor.execute(lease, intent, driver)
     if observation.status != 'succeeded' or type(observation.result_json) is not dict:
@@ -100,8 +126,9 @@ def run_local_asr(engine, executor, media, lease, *, mixed_asset, mixed_path, as
     return actual, operation, operation_input, resources
 
 
-def build_local_speech_materials(*, composition, assets, tracks, actual, operation, operation_input,
-                                 resources, artifact_ids, ids, video_track=None):
+def build_local_speech_materials(*, composition, mixed_asset, video_asset, mixed_track, actual,
+                                 operation, operation_input, resources, artifact_ids, ids,
+                                 video_track=None):
     """Typed speech documents from the settled observation; no invented facts.
 
     `ids` carries transcript/alignment/subtitle/mapping revision ids; artifact
@@ -116,8 +143,7 @@ def build_local_speech_materials(*, composition, assets, tracks, actual, operati
             or not isinstance(actual.get('segments'), list) or not actual['segments']):
         raise EngineError('local_transcript_incomplete',
                           'A speech work needs actual recognized segments, not an empty transcript.', 422)
-    mixed = assets['mixed']
-    track = tracks['mixed']
+    mixed, track = mixed_asset, mixed_track
     identity = c.AlignmentExecutionIdentity.model_validate(actual['runtime']['execution_identity'])
     script_ref = composition['creative_revision_refs'][0]
     utterances = tuple(c.TranscriptUtterance(utterance_id=f'utterance-{index}', text=segment['text'],
@@ -162,7 +188,7 @@ def build_local_speech_materials(*, composition, assets, tracks, actual, operati
         raise EngineError('local_audio_mapping_required',
                           'A nonzero encoded audio origin needs its separately verified mapping.', 409)
     mapping = _record(c.AudioTimelineMapping(mapping_revision_id=ids['mapping'],
-        target_video_asset_id=assets['video'].asset_id, target_track=video_track,
+        target_video_asset_id=video_asset.asset_id, target_track=video_track,
         timeline_duration_us=timeline, pieces=(piece,), encoding_origin_offset_us=0,
         method_ref='actual-decoder', content_sha256='0' * 64))
     cues = tuple(c.SubtitleCue(cue_id=f'cue-{index}', text=value.text,
@@ -172,8 +198,8 @@ def build_local_speech_materials(*, composition, assets, tracks, actual, operati
         actual_transcript_revision_id=transcript.transcript_revision_id,
         alignment_revision_id=alignment.alignment_revision_id,
         mapping_revision_id=mapping.mapping_revision_id, timeline_duration_us=timeline, cues=cues,
-        srt_artifact_id=artifact_ids['Text/subtitles.srt'],
-        vtt_artifact_id=artifact_ids['Text/subtitles.vtt'],
+        srt_artifact_id=artifact_ids[SRT_PATH],
+        vtt_artifact_id=artifact_ids[VTT_PATH],
         quantization_errors=tuple(c.SubtitleQuantization(cue_id=value.cue_id, start_error_us=0, end_error_us=0)
             for value in cues), content_sha256='0' * 64)
     srt, vtt, quantization = serialize_subtitles(subtitles)
@@ -186,23 +212,23 @@ def build_local_speech_materials(*, composition, assets, tracks, actual, operati
             raise EngineError('local_subtitle_transcript_conflict',
                               'Each cue must retain its exact transcript unit text and identity.', 422)
     document = _record(LocalActualTranscriptDocumentV1(
-        speech_evidence_artifact_id=artifact_ids['Checks/local-speech-evidence.json'],
+        speech_evidence_artifact_id=artifact_ids[SPEECH_PATH],
         transcript=transcript, alignment=alignment, subtitles=subtitles))
     speech = LocalSpeechEvidenceV1(state='speech_observed', input_audio_asset_id=mixed.asset_id,
         input_audio_sha256=mixed.sha256,
-        transcript_artifact_id=artifact_ids['Text/actual-transcript.json'],
-        alignment_artifact_id=artifact_ids['Text/actual-transcript.json'],
-        subtitle_artifact_ids=(artifact_ids['Text/subtitles.srt'],
-                               artifact_ids['Text/subtitles.vtt']),
+        transcript_artifact_id=artifact_ids[TRANSCRIPT_PATH],
+        alignment_artifact_id=artifact_ids[TRANSCRIPT_PATH],
+        subtitle_artifact_ids=(artifact_ids[SRT_PATH],
+                               artifact_ids[VTT_PATH]),
         method_refs=(identity.method_id,),
-        proof_artifact_ids=(artifact_ids['Media/mixed-audio.wav'],
-                            artifact_ids['Text/actual-transcript.json']))
+        proof_artifact_ids=(artifact_ids[MIXED_PATH],
+                            artifact_ids[TRANSCRIPT_PATH]))
     method = c.MethodEvidence(method_id=identity.method_id, kind='observed',
         tool_name='faster-whisper', tool_version=identity.tool_version,
         model_repository=identity.model_id, model_revision=identity.model_id,
         resource_manifest_sha256=identity.resource_manifest_sha256,
         operation_ids=(operation['id'],),
-        input_artifact_ids=(artifact_ids['Media/mixed-audio.wav'],),
+        input_artifact_ids=(artifact_ids[MIXED_PATH],),
         config_sha256=operation_input,
         limitations=('whisper_word_estimate_not_forced_alignment',
                      'No independent precision measurement; local self-issued evidence.',))

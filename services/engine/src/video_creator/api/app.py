@@ -134,10 +134,16 @@ def create_app(engine: EngineService, token: str, subject: str = "local-user",
 
     app = FastAPI(title="VideoCreator Engine", version=__version__, docs_url=None, redoc_url=None,
                   lifespan=lifespan, responses=ERROR_RESPONSES)
+    app.add_middleware(CORSMiddleware, allow_origins=list(allowed_origins), allow_credentials=False,
+                       allow_methods=["GET", "POST", "PUT"], allow_headers=["Authorization", "Content-Type", "Idempotency-Key", "If-Match", "If-None-Match", "Range", "Last-Event-ID"],
+                       expose_headers=["ETag", "Accept-Ranges", "Content-Range", "Content-Length", "Content-Disposition"])
+    # Host validation also precedes a CORS preflight response.
+    app.add_middleware(TrustedHostMiddleware, allowed_hosts=list(allowed_hosts))
     if restricted:
         async def authorization_only(request: Request, call_next):
-            # No Owner binding yet: only health and the authorization channel are
-            # addressable. This is "not authorized" (403), not "unavailable".
+            # Outermost middleware: a restricted process exposes only health and
+            # the authorization channel, including CORS preflight. A preflight to
+            # any other path must not be answered by CORSMiddleware with 200.
             path = request.url.path
             if path == '/api/v1/health' or path.startswith('/api/v1/authorization/'):
                 return await call_next(request)
@@ -147,11 +153,6 @@ def create_app(engine: EngineService, token: str, subject: str = "local-user",
                                      retryability='never', request_id=identity('request'))
             return JSONResponse(envelope.model_dump(mode='json'), status_code=403)
         app.middleware('http')(authorization_only)
-    app.add_middleware(CORSMiddleware, allow_origins=list(allowed_origins), allow_credentials=False,
-                       allow_methods=["GET", "POST", "PUT"], allow_headers=["Authorization", "Content-Type", "Idempotency-Key", "If-Match", "If-None-Match", "Range", "Last-Event-ID"],
-                       expose_headers=["ETag", "Accept-Ranges", "Content-Range", "Content-Length", "Content-Disposition"])
-    # Host validation also precedes a CORS preflight response.
-    app.add_middleware(TrustedHostMiddleware, allowed_hosts=list(allowed_hosts))
     assets = AssetService(engine)
     app.state.bundle_service = bundles
 

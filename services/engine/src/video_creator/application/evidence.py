@@ -10,6 +10,8 @@ import json
 import secrets
 from collections.abc import Mapping
 
+from pydantic import ValidationError
+
 from video_creator.application.alignment_math import LIMIT_US, nearest_rank, unit_errors
 from video_creator.application.engine import canonical, digest
 from video_creator.domain import contracts as c
@@ -328,20 +330,48 @@ class PersistentEvidenceRegistry:
         if not row or row["content_sha256"] != content_sha256:
             raise EngineError("alignment_required", "Exact trusted evidence admission is unavailable", 409)
         model = c.EvidencePolicyRevision if kind == "policy" else c.MethodQualificationRef
-        document = model.model_validate_json(row["body"])
-        benchmark = _validated_benchmark(row["benchmark_json"])
-        approval = EvidenceApproval.model_validate_json(row["approval_json"])
+        try:
+            document = model.model_validate_json(row["body"])
+            benchmark = _validated_benchmark(row["benchmark_json"])
+            approval = EvidenceApproval.model_validate_json(row["approval_json"])
+        except (ValidationError, TypeError, ValueError):
+            raise EngineError("evidence_admission_invalid",
+                              "Stored evidence admission is not its canonical complete document", 422) from None
         body = approval.model_dump(mode="json")
         body.pop("signature")
         self._signature(approval.issuer, body, approval.signature)
         check_evidence_record(document)
         if (approval.document_sha256, approval.benchmark_content_sha256) != (document.content_sha256, benchmark.content_sha256):
             raise EngineError("evidence_approval_conflict", "Stored approval binding is inconsistent", 403)
+        # ADR0082 review P2-3: the document and benchmark must mutually agree on
+        # report identity, content hash, execution identity, applicability and
+        # authority. A policy embeds the qualification; a qualification names the
+        # benchmark. Any mismatch is a conflict, never a silent replacement.
+        if kind == "policy":
+            embedded = document.qualification_ref
+        else:
+            embedded = document
+        if (embedded.benchmark_report_ref.report_id, embedded.benchmark_report_ref.content_sha256,
+                embedded.execution_identity, embedded.applicability, embedded.authority_ref) != (
+                benchmark.report_id, benchmark.content_sha256, benchmark.execution_identity,
+                benchmark.applicability, benchmark.authority_ref):
+            raise EngineError("evidence_qualification_conflict",
+                              "Document, qualification and benchmark do not share one exact method identity", 409)
         now = self.engine.clock()
         revoked = connection.execute("SELECT 1 FROM alignment_revocations WHERE target_kind=? AND target_id=? AND target_revision=? AND effective_at_us<=?", (kind, identifier, revision, now)).fetchone()
         if revoked or document.valid_from_us > now or document.expires_at_us <= now:
             raise EngineError("evidence_admission_inactive", "Evidence is expired, not yet valid or currently revoked", 409)
         return document, benchmark
+
+    def admitted(self, kind, identifier, revision, content_sha256):
+        """Trusted-startup read of one already admitted row with full verification.
+
+        Used by the local evidence administrator/validators: it re-checks the HMAC
+        approval, the document/benchmark cross-binding, expiry/revocation and the
+        registry floor instead of trusting a metadata or qualification row shape.
+        """
+        with self.engine.db.connect_readonly() as connection:
+            return self._load(connection, kind, identifier, revision, content_sha256)
 
     def preauthorize(self, capability: EvidenceAdminCapability, subject: str, project_id: str | None,
                      policy_ref: c.EvidencePolicyRevisionRef):

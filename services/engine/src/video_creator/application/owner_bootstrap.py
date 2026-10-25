@@ -314,7 +314,12 @@ class OwnerBootstrapStore:
                             project_ids=projects, authentication_binding_id=identity('owner-binding'),
                             authentication_source=authentication_source, scope='production.authorization.manage',
                             expires_at_us=expires_at_us)
-                        self.secrets.create(principal.authentication_binding_id)
+                        # ADR0081/0082: the in-product consent writes the scoped
+                        # Owner binding only. It must not mint the OS-vault
+                        # management credential, so this source can never obtain
+                        # a management capability (the registry refuses it).
+                        if not (product is not None and authentication_source == product.AUTHENTICATION_SOURCE):
+                            self.secrets.create(principal.authentication_binding_id)
                     record = OwnerBindingRecord(principal=principal, os_subject=self.os_identity.os_subject,
                         directory_device=self.os_identity.directory_device, directory_inode=self.os_identity.directory_inode,
                         generation=revision + 1, action_id=identity('owner-action'), authorized_at_us=self.engine.clock(),
@@ -378,6 +383,12 @@ class PersistentOwnerManagementRegistry(ProductionManagementRegistry):
         self.store = store
         self._action_state = threading.local()
         with store.current() as record:
+            if record.principal.authentication_source == 'product_authorization':
+                # ADR0081/0082: in-product Owner consent deliberately mints no
+                # management credential, so no registry capability may exist for
+                # this source. A TTY/native renewal writes a new principal.
+                raise EngineError('production_management_denied',
+                                  'In-product Owner initialization grants no production management capability', 403)
             binding = TrustedManagementBinding(record.principal, store.secrets.resolve(record.principal.authentication_binding_id))
             self._generation = record.generation
         super().__init__(store.engine.instance_id, binding.principal.owner_subject, (binding,))

@@ -79,7 +79,7 @@ DOCUMENT_KINDS = {
 }
 VISUAL_KINDS = {'Semantics/shots.jsonl': ('shots_local', 'application/x-ndjson'),
                 'Semantics/visual-mapping.json': ('visual_mapping_local', 'application/json')}
-DOCUMENT_PATHS = frozenset(DOCUMENT_KINDS) | frozenset(VISUAL_KINDS)
+DOCUMENT_PATHS = frozenset(DOCUMENT_KINDS) | frozenset(VISUAL_KINDS) | frozenset(SPEECH_DOCUMENTS)
 SPOKEN_OUTPUTS = frozenset({'actual_transcript', 'subtitles'})
 # The committed local final-assembly context indexes these same Ready documents
 # by the role names its Backend validator admits. A path outside this table is
@@ -96,6 +96,9 @@ ASSEMBLY_DOCUMENT_ROLES = {
     'Semantics/rag-chunks.jsonl': 'rag',
     'Semantics/shots.jsonl': 'shots',
     'Semantics/visual-mapping.json': 'visual',
+    'Text/actual-transcript.json': 'transcript',
+    'Text/subtitles.srt': 'srt',
+    'Text/subtitles.vtt': 'vtt',
 }
 
 
@@ -329,7 +332,21 @@ def _bundle_revision_id(composition, selection):
                      _selection_part(selection))
 
 
-def _validate_outputs(documents, outputs, *, masters, assets):
+def require_plan_audio(plan, selection):
+    """The approved plan and the applicable selection must agree on audio.
+
+    A master set that contains `mixed_audio` with a silent plan (or the reverse)
+    is a real inconsistency; refuse it by name here instead of letting a later
+    "silent work" message misdescribe a speech work.
+    """
+    audio = bool(plan.timeline.audio_tracks)
+    if ('mixed_audio' in selection.master_roles) != audio:
+        raise EngineError('local_plan_audio_conflict',
+                          'The applicable selection and the approved plan must agree on whether the work has audio.', 409)
+    return audio
+
+
+def _validate_outputs(documents, outputs, *, masters, assets, speech):
     """Require an actual produced artifact for every requested output role.
 
     Media roles count only through the actual registered master assets, and
@@ -346,7 +363,7 @@ def _validate_outputs(documents, outputs, *, masters, assets):
                               f'Requested output {role} has no local bundle attachment.', 422)
         if set(paths) <= produced:
             continue
-        if role in SPOKEN_OUTPUTS:
+        if role in SPOKEN_OUTPUTS and not speech:
             # Local 0.4 has no zero-cue branch (统筹裁定 2026-10-25): the two
             # spoken documents exist only after a real speech observation, so a
             # silent work is refused with the adjudicated 422 and a message that
@@ -388,32 +405,89 @@ def _media_artifacts(composition, *, selection, tracks, right):
     return tuple(artifacts)
 
 
-def _document_artifacts(*, documents, receipts, artifact_ids, media_artifacts, right, speech_method=None):
+def document_dependencies(artifact_ids):
+    """The sole artifact dependency DAG (upstream -> downstream, one direction).
+
+    Direction: approved script -> plan -> selection; final mix -> transcript ->
+    subtitles -> speech evidence; shot frames -> shots -> visual mapping;
+    transcript/segments -> quality. Subtitles never feed the transcript, so the
+    table is acyclic by construction; the caller still validates it.
+    """
+    video = ROLE_PATHS['video'] if ROLE_PATHS['video'] in artifact_ids else None
+    mixed = ROLE_PATHS['mixed_audio'] if ROLE_PATHS['mixed_audio'] in artifact_ids else None
+    speech = ('Checks/local-speech-evidence.json' if 'Checks/local-speech-evidence.json' in artifact_ids else None)
+    transcript = ('Text/actual-transcript.json' if 'Text/actual-transcript.json' in artifact_ids else None)
+    if speech is None:
+        raise EngineError('local_document_lineage_missing', 'The local speech evidence slot is always produced.', 409)
     dependencies = {
-        'Creative/production-plan.json': (_lineage(artifact_ids, 'Text/approved-script.json'),),
-        'Checks/local-master-selection.json': (_lineage(artifact_ids, 'Creative/production-plan.json'),),
-        'Checks/local-speech-evidence.json': (_lineage(artifact_ids, ROLE_PATHS['video'])
-                                              if ROLE_PATHS['video'] in artifact_ids
-                                              else _lineage(artifact_ids, ROLE_PATHS['mixed_audio']),),
-        'Checks/quality-report.json': (_lineage(artifact_ids, 'Semantics/semantic-segments.jsonl'),
-                                       _lineage(artifact_ids, 'Checks/local-speech-evidence.json')),
-        'Semantics/work-summary.json': (_lineage(artifact_ids, 'Creative/production-plan.json'),),
-        'Semantics/source-bindings.json': (_lineage(artifact_ids, 'Creative/production-plan.json'),),
-        # Video segments come from the actual shot frames; an audio/speech work
-        # has no shot document at all and derives its segments from the actual
-        # speech evidence, never from a missing key.
-        'Semantics/semantic-segments.jsonl': (
-            _lineage(artifact_ids, 'Semantics/shots.jsonl') if 'Semantics/shots.jsonl' in artifact_ids
-            else _lineage(artifact_ids, 'Checks/local-speech-evidence.json'),),
-        'Semantics/rag-chunks.jsonl': (_lineage(artifact_ids, 'Semantics/semantic-segments.jsonl'),),
-        'Semantics/shots.jsonl': (_lineage(artifact_ids, ROLE_PATHS['video']),),
-        'Semantics/visual-mapping.json': (_lineage(artifact_ids, ROLE_PATHS['video']),),
-        'Text/actual-transcript.json': (_lineage(artifact_ids, ROLE_PATHS['mixed_audio']),
-                                        _lineage(artifact_ids, 'Text/subtitles.srt'),
-                                        _lineage(artifact_ids, 'Text/subtitles.vtt'),),
-        'Text/subtitles.srt': (_lineage(artifact_ids, 'Text/actual-transcript.json'),),
-        'Text/subtitles.vtt': (_lineage(artifact_ids, 'Text/actual-transcript.json'),),
+        'Checks/local-master-selection.json': ('Creative/production-plan.json',),
+        'Checks/quality-report.json': ('Semantics/semantic-segments.jsonl', speech),
+        'Creative/production-plan.json': ('Text/approved-script.json',),
+        'Semantics/work-summary.json': ('Creative/production-plan.json',),
+        'Semantics/source-bindings.json': ('Creative/production-plan.json',),
+        'Semantics/semantic-segments.jsonl': (('Semantics/shots.jsonl',) if video is not None else (speech,)),
+        'Semantics/rag-chunks.jsonl': ('Semantics/semantic-segments.jsonl',),
+        'Text/actual-transcript.json': ((mixed,) if mixed is not None else ()),
+        'Checks/local-speech-evidence.json': ((transcript,) if transcript is not None else ((video,) if video else ())),
     }
+    if video is not None:
+        dependencies['Semantics/shots.jsonl'] = (video,)
+        dependencies['Semantics/visual-mapping.json'] = (video,)
+    if transcript is not None:
+        dependencies['Text/subtitles.srt'] = (transcript,)
+        dependencies['Text/subtitles.vtt'] = (transcript,)
+    return {path: (_lineage(artifact_ids, value) for value in paths) for path, paths in dependencies.items()}
+
+
+def _deny_cycle(edges):
+    """Return one concrete cycle path for a named refusal."""
+    state, stack = {}, []
+
+    def visit(node):
+        state[node] = 1
+        stack.append(node)
+        for child in edges.get(node, ()):
+            if state.get(child) == 1:
+                index = stack.index(child)
+                return tuple(stack[index:]) + (child,)
+            if state.get(child) is None:
+                cycle = visit(child)
+                if cycle is not None:
+                    return cycle
+        stack.pop()
+        state[node] = 2
+        return None
+
+    for node in edges:
+        if state.get(node) is None:
+            cycle = visit(node)
+            if cycle is not None:
+                return cycle
+    return None
+
+
+def validate_dependency_graph(artifacts):
+    """Named refusal for a cyclic or unresolved manifest Artifact DAG."""
+    indexed = {artifact.artifact_id for artifact in artifacts}
+    edges = {}
+    for artifact in artifacts:
+        for dependency in artifact.dependency_artifact_ids:
+            if dependency not in indexed:
+                raise EngineError('local_manifest_dependency_missing',
+                                  f'Artifact {artifact.artifact_id} names the unknown dependency {dependency}.', 422)
+            if dependency == artifact.artifact_id:
+                raise EngineError('local_manifest_dependency_cycle',
+                                  f'Artifact {artifact.artifact_id} depends on itself.', 422)
+        edges[artifact.artifact_id] = tuple(artifact.dependency_artifact_ids)
+    cycle = _deny_cycle(edges)
+    if cycle is not None:
+        raise EngineError('local_manifest_dependency_cycle',
+                          'Artifact dependencies contain a cycle: ' + ' -> '.join(cycle) + '.', 422)
+    return artifacts
+
+
+def _document_artifacts(*, documents, receipts, artifact_ids, media_artifacts, right, speech_method=None):
+    dependencies = document_dependencies(artifact_ids)
     methods = {'Semantics/shots.jsonl': DECODER_METHOD,
                'Semantics/visual-mapping.json': DECODER_METHOD,
                'Checks/local-speech-evidence.json': DECODER_METHOD,
@@ -425,9 +499,9 @@ def _document_artifacts(*, documents, receipts, artifact_ids, media_artifacts, r
         receipt = receipts[path]
         artifacts.append(c.BundleArtifact(artifact_id=artifact_ids[path], material_id=receipt.material_id,
             sha256=receipt.sha256, size=receipt.size, media_type=receipt.media_type, relative_path=path,
-            roles=(receipt.schema_kind,), dependency_artifact_ids=dependencies.get(path, ()),
+            roles=(receipt.schema_kind,), dependency_artifact_ids=tuple(dependencies.get(path, ())),
             method_ref=methods.get(path, PLAN_METHOD), rights_ref=right.rights_id))
-    return tuple(artifacts)
+    return validate_dependency_graph(tuple(artifacts))
 
 
 def _request_version(request):
@@ -602,7 +676,7 @@ def _produce_local(engine, bundle, executor, media, lease, *, production_service
                 or (video.probe.width, video.probe.height) != (plan.timeline.width, plan.timeline.height)):
             raise EngineError('local_master_timeline_invalid',
                               'Actual video must match the approved frame timeline.', 422)
-    audio = bool(plan.timeline.audio_tracks)
+    audio = require_plan_audio(plan, selection)
     if audio != ('mixed_audio' in assets):
         raise EngineError('local_master_audio_conflict',
                           'Actual mix/audio timeline presence differs from the approved plan.', 409)
@@ -631,8 +705,9 @@ def _produce_local(engine, bundle, executor, media, lease, *, production_service
             mixed_asset=assets['mixed_audio'], mixed_path=bundle.content_path(lease, assets['mixed_audio'].asset_id),
             asr_route_id=asr_route_id, asr_resources=asr_resources, runtime_root=runtime_root)
         control.check()
-        speech_bundle = build_local_speech_materials(composition=composition, assets={
-                'mixed': assets['mixed_audio'], 'video': assets['video']}, tracks=tracks,
+        speech_bundle = build_local_speech_materials(composition=composition,
+            mixed_asset=assets['mixed_audio'], video_asset=assets['video'],
+            mixed_track=tracks['mixed_audio'],
             actual=actual, operation=operation, operation_input=operation_input, resources=resources,
             artifact_ids=artifact_ids, ids={
                 'transcript': _identity('local-transcript', operation['id']),
@@ -647,7 +722,8 @@ def _produce_local(engine, bundle, executor, media, lease, *, production_service
     documents = _documents(composition, bundle, lease, media, selection=selection, speech=speech,
                            shots=shots, visuals=visuals, right=right, artifact_ids=artifact_ids,
                            speech_bundle=speech_bundle)
-    _validate_outputs(documents, request.outputs, masters=selection.master_roles, assets=assets)
+    _validate_outputs(documents, request.outputs, masters=selection.master_roles, assets=assets,
+                      speech=speech_bundle is not None)
     slots = _slots(documents, video=selection.content_kind == 'video',
                    speech=speech_bundle is not None)
     context = bundle.context(lease)
@@ -756,10 +832,19 @@ def produce_local_bundle(engine, bundle, executor, media, lease, *,
     a silent registration never loads ASR bytes.
     """
     with attempt_control(cancel, deadline_monotonic).activate():
-        return _produce_local(engine, bundle, executor, media, lease,
-            production_services=production_services,
-            local_material_context=local_material_context, selection=selection,
-            media_roles=media_roles, asr_route_id=asr_route_id,
-            plan_admission=plan_admission, production_rights_fact=production_rights_fact,
-            final_evidence_ports=final_evidence_ports,
-            asr_resources=asr_resources, runtime_root=runtime_root)
+        try:
+            return _produce_local(engine, bundle, executor, media, lease,
+                production_services=production_services,
+                local_material_context=local_material_context, selection=selection,
+                media_roles=media_roles, asr_route_id=asr_route_id,
+                plan_admission=plan_admission, production_rights_fact=production_rights_fact,
+                final_evidence_ports=final_evidence_ports,
+                asr_resources=asr_resources, runtime_root=runtime_root)
+        except EngineError:
+            raise
+        except Exception as error:  # report the real cause by name
+            import traceback
+
+            traceback.print_exc()
+            raise EngineError('local_speech_evidence_invalid',
+                f'Local final production failed: {type(error).__name__}: {error}', 422) from error

@@ -1012,7 +1012,8 @@ class ProductAuthorizationChannel:
             scope_sha256=request.scope_sha256, audit_sha256=audit_sha256, receipt_id=receipt_id,
             approved_at_us=now, install_by_us=now + _INSTALL_WINDOW_US,
             origin=origin or '', nonce_fingerprint=_fingerprint(request.nonce),
-            session_secret_fingerprint=_fingerprint(self._session_secret))
+            session_secret_fingerprint=_fingerprint(self._session_secret),
+            session_secret=self._session_secret)
         baseline = _audit_baseline(self.engine, local_evidence_audit_filename())
         target, _payload, receipt_sha256 = prepare_receipt(self.engine, receipt=receipt)
         try:
