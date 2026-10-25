@@ -80,3 +80,27 @@
 ### 明确不做（本次）
 
 CTC、word 级认证、第三方认证、官方合规表述、Piper 旁白、audio-only、零 cue。
+
+
+## 2026-10-26 01:20 真实链路到达证据门（实测）
+
+真实 run `run-277a1a8e2dab40a4a41207f0a8d1c9bc`（production `production-60e44d2718394eb9898104d8573c5781`）事件：
+
+```
+… step.started → operation.prepared → dispatch_intent → observed → step.completed
+→ bundle.prepared → production.final_assembly_committed → run.recovered
+code = alignment_required
+message = "Speech publication needs an explicit 0.3 evidence request with admitted requirements."
+```
+
+即：真实 ASR（注册 operation、settled）、转写、字幕、语音证据、装配与提交全部通过，**只剩证据策略解析**。
+
+### 已裁定的产品行为（待后端实现）
+本地 profile 在"已安装并启用自签 policy"时**自动解析该实例策略**，不要求客户端拼 0.3 `delivery_requirements`；未安装/验签失败/过期仍 `alignment_required` 409（默认关闭语义不变）；非本地 profile 不变。
+
+### 今天暴露的"模块间隐含约定"清单（应写入各角色 Handoff）
+1. 角色名必须来自 `MASTER_ORDER`/`OutputRole` 常量，禁止简写（`mixed` ≠ `mixed_audio`）。
+2. `DOCUMENT_PATHS` 白名单必须包含语音三材料，否则会误报"静音作品"。
+3. artifact 依赖必须单向 DAG：script→plan→selection、mixed_audio→transcript→{srt,vtt}→speech evidence。
+4. bundle 级 ASR operation 的 `step_key` 必须是后端 `asr_result_journal.STEP`，`dedupe_key` 必须是 `bundle-asr-<run_id>`。
+5. SQLite 布尔/整数列一律用值比较（`in (1, True)`），禁止 `is True`。
