@@ -4,9 +4,18 @@ Real HTTP against two real processes:
 
 * `serve-dev --development-auto-owner-init` on a copy of the clean instance for the
   local cases (`outputs=["video"]` in v0.2 and v0.3 must be accepted and `queued`);
-* production `serve` on another clean copy for the non-local cases, which must keep
+* production `serve` on another instance whose Owner was authorized through the
+  product's own consent channel (ADR0081), for the non-local cases, which must keep
   the old blockers (`output_profile_unavailable` for the v0.2 subset,
   `alignment_required` for v0.3 without a resolved evidence policy).
+
+ADR0081: a `serve` without an Owner binding only answers `/health` and
+`/api/v1/authorization/*`; every other route is `403 owner_authorization_required`.
+That is why the non-local instance is authorized first. The product channel is
+used instead of `--development-auto-owner-init` on purpose: the auto-init flag
+turns the host into a development host (`x-videocreator-installation`), and these
+cases must run against a production-shaped host. The channel itself is covered
+independently by `test_product_authorization.py`.
 
 The requests use the registered project and the four registered local routes; no
 review decision and no worker are created.
@@ -107,17 +116,67 @@ def local_dispatch(evidence, installation, source_status, instance_factory) -> d
         server.stop()
 
 
+AUTHORIZATION_SECRET_ENV = 'VIDEO_CREATOR_AUTHORIZATION_SESSION_SECRET'
+
+
+def production_arguments(instance: Path, installation: dict) -> list[str]:
+    return [str(support.PYTHON), '-m', 'video_creator.cli.main', 'serve',
+            '--data-dir', str(instance), '--host', '127.0.0.1', '--port', '0',
+            '--ffmpeg', str(installation['ffmpeg']), '--ffprobe', str(installation['ffprobe'])]
+
+
 @pytest.fixture(scope='session')
 def nonlocal_dispatch(evidence, installation, instance_factory) -> dict:
     instance = instance_factory('acceptance-nonlocal')
     token = support.new_token()
-    argv = [str(support.PYTHON), '-m', 'video_creator.cli.main', 'serve',
-            '--data-dir', str(instance), '--host', '127.0.0.1', '--port', '0',
-            '--ffmpeg', str(installation['ffmpeg']), '--ffprobe', str(installation['ffprobe'])]
+    session_secret = secrets.token_hex(16)
+    argv = production_arguments(instance, installation)
+    # ADR0081 §2: without an Owner binding `serve` starts restricted. The launcher
+    # (this fixture) injects the 128-bit authorization session secret, reads the
+    # pending request with it, approves it, and only then restarts the same
+    # instance into the ready host that the non-local cases need.
+    restricted_environment = support.base_environment({
+        'VIDEO_CREATOR_API_TOKEN': token,
+        AUTHORIZATION_SECRET_ENV: session_secret,
+    })
+    restricted = support.launch('acceptance-nonlocal-restricted', argv, evidence,
+                                env=restricted_environment)
+    try:
+        pending_ready = restricted.wait_for_event('ready', timeout=120)
+        assert pending_ready.get('authorization_state') == 'pending', pending_ready
+        status, headers, health, raw = support.http_json(
+            pending_ready['base_url'], '/api/v1/health', token=token)
+        assert status == 200, f'restricted health returned {status}: {raw[:300]!r}'
+        assert headers.get('x-videocreator-authorization') == 'pending', headers
+        status, _headers, refused, raw = support.http_json(
+            pending_ready['base_url'], '/api/v1/projects', token=token)
+        assert status == 403, f'restricted projects returned {status}: {raw[:300]!r}'
+        assert refused.get('code') == 'owner_authorization_required', refused
+        status, _headers, pending, raw = support.http_json(
+            pending_ready['base_url'], '/api/v1/authorization/pending', token=token,
+            exact_headers={'X-VideoCreator-Authorization': session_secret})
+        assert status == 200, f'authorization pending returned {status}: {raw[:300]!r}'
+        assert pending.get('nonce') and pending.get('state') == 'pending', pending
+        status, _headers, approved, raw = support.http_json(
+            pending_ready['base_url'], f"/api/v1/authorization/{pending['authorization_id']}/approve",
+            token=token, method='POST',
+            body={'scope_sha256': pending['scope_sha256'], 'nonce': pending['nonce']},
+            exact_headers={'X-VideoCreator-Authorization': session_secret})
+        assert status == 200, f'authorization approve returned {status}: {raw[:600]!r}'
+        assert approved.get('state') == 'complete', approved
+        assert approved.get('restart_required') is True, approved
+        support.write_json(Path(evidence) / 'acceptance-nonlocal-authorization.json',
+                           {'pending': {**pending, 'nonce': '<consumed; not persisted>'},
+                            'approved': approved})
+    finally:
+        restricted.stop()
+
     environment = support.base_environment({'VIDEO_CREATOR_API_TOKEN': token})
     server = support.launch('acceptance-nonlocal-serve', argv, evidence, env=environment)
     try:
         ready = server.wait_for_event('ready', timeout=120)
+        assert 'authorization_state' not in ready, (
+            'a production serve with an Owner binding must not run the restricted channel')
         assert 'principal_id' not in ready
         status, headers, health, raw = support.http_json(ready['base_url'], '/api/v1/health', token=token)
         assert status == 200, f'health returned {status}: {raw[:300]!r}'

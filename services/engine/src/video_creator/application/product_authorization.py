@@ -47,6 +47,7 @@ from pydantic import BaseModel, ConfigDict
 from video_creator.application.bundles import strict_json
 from video_creator.application.engine import EngineService
 from video_creator.domain.errors import EngineError
+from video_creator.infrastructure.owner_identity import inspect_owner_directory
 
 REQUEST_FORMAT = 'product-authorization-request-v1'
 VIEW_VERSION = 'product-authorization-ui-v1'
@@ -346,6 +347,41 @@ def assert_product_authorization_source(source, *, engine, proposal, os_identity
     object.__setattr__(source, '_claimed', True)
 
 
+def _common_audit_document(channel, request, *, decision, result_ref, engine, identity,
+                           origin, decided_at_us) -> bytes:
+    """The §6 audit document shared by approval and denial decisions."""
+    if channel._session_secret is None:
+        raise _not_available('The product authorization session secret is not installed in this process')
+    document = {
+        'format': AUDIT_FORMAT,
+        'authorization_id': request.authorization_id,
+        'instance_id': engine.instance_id,
+        'generation': request.generation,
+        'kind': request.kind,
+        'scope': request.scope,
+        'scope_sha256': request.scope_sha256,
+        'requested_by': request.requested_by,
+        'created_at_us': request.created_at_us,
+        'decided_at_us': decided_at_us,
+        'expires_at_us': request.expires_at_us,
+        'decision': decision,
+        'session_secret_fingerprint': _fingerprint(channel._session_secret),
+        'nonce_fingerprint': _fingerprint(request.nonce),
+        'origin': origin,
+        'caller_module': channel.caller_module,
+        'os_identity': {'os_subject': identity.os_subject,
+                        'administrator_id': identity.administrator_id,
+                        'directory_device': identity.directory_device,
+                        'directory_inode': identity.directory_inode},
+        'result_ref': result_ref,
+    }
+    body = _canonical(document).encode('utf-8') + b'\n'
+    if len(body) > _MAX_AUDIT_BYTES:
+        raise _audit_unwritten(
+            'The product authorization audit exceeds its fixed sixty-four kilobyte document bound')
+    return body
+
+
 def _audit_document(source, *, action_id, generation, authorized_at_us, request_sha256,
                     engine, result_ref) -> bytes:
     _assert_retained(source)
@@ -360,50 +396,17 @@ def _audit_document(source, *, action_id, generation, authorized_at_us, request_
             or type(result_ref) is not dict
             or set(result_ref) != {'command_scope', 'action_key', 'action_id', 'generation'}):
         raise _source_denied('The product authorization audit requires the exact written binding identity')
-    if channel._session_secret is None:
-        raise _not_available('The product authorization session secret is not installed in this process')
-    identity = source._os_identity
-    document = {
-        'format': AUDIT_FORMAT,
-        'authorization_id': source.authorization_id,
-        'instance_id': engine.instance_id,
-        'generation': source._generation,
-        'kind': source._scope['kind'],
-        'scope': source._scope,
-        'scope_sha256': source._scope_sha256,
-        'requested_by': source._requested_by,
-        'created_at_us': source._created_at_us,
-        'decided_at_us': _clock(engine),
-        'expires_at_us': source._request_expires_at_us,
-        'decision': 'approve',
-        'session_secret_fingerprint': _fingerprint(channel._session_secret),
-        'nonce_fingerprint': source._nonce_fingerprint,
-        'origin': source._origin,
-        'caller_module': source._caller_module,
-        'os_identity': {'os_subject': identity.os_subject,
-                        'administrator_id': identity.administrator_id,
-                        'directory_device': identity.directory_device,
-                        'directory_inode': identity.directory_inode},
-        'result_ref': result_ref,
-    }
-    body = _canonical(document).encode('utf-8') + b'\n'
-    if len(body) > _MAX_AUDIT_BYTES:
-        raise _audit_unwritten(
-            'The product authorization audit exceeds its fixed sixty-four kilobyte document bound')
-    return body
+    request = channel._request
+    if request is None or request.authorization_id != source.authorization_id:
+        raise _source_denied('The product authorization audit has no matching issued request')
+    return _common_audit_document(source._channel, request, decision='approve',
+                                  result_ref=result_ref, engine=engine,
+                                  identity=source._os_identity, origin=source._origin,
+                                  decided_at_us=_clock(engine))
 
 
-def write_product_authorization_audit(source, *, action_id, generation, authorized_at_us,
-                                      request_sha256, engine, result_ref) -> str:
-    """Create (or reuse byte-identical) `Control/ProductAuthorization.json` before binding.
-
-    A stale, different audit file is retained as
-    `ProductAuthorization.aborted-<sha256>.json` and never deleted: a failed
-    approval is historical evidence, not something a retry may silently erase.
-    """
-    body = _audit_document(source, action_id=action_id, generation=generation,
-                           authorized_at_us=authorized_at_us, request_sha256=request_sha256,
-                           engine=engine, result_ref=result_ref)
+def _install_audit_file(engine, body: bytes, message: str) -> str:
+    """Create (or reuse byte-identical) the one audit file; never overwrite silently."""
     digest_hex = hashlib.sha256(body).hexdigest()
     folder = Path(engine.db.data_dir) / 'Control'
     path = folder / AUDIT_FILENAME
@@ -426,10 +429,90 @@ def write_product_authorization_audit(source, *, action_id, generation, authoriz
             stream.flush()
             os.fsync(stream.fileno())
     except OSError as error:
-        raise _audit_unwritten(
-            'The product authorization audit could not be written; no Owner binding was written'
-        ) from error
+        raise _audit_unwritten(message) from error
     return digest_hex
+
+
+def write_product_authorization_audit(source, *, action_id, generation, authorized_at_us,
+                                      request_sha256, engine, result_ref) -> str:
+    """Create the approval audit before the binding; the digest commits with it.
+
+    A stale, different audit file is retained as
+    `ProductAuthorization.aborted-<sha256>.json` and never deleted: a failed or
+    superseded decision is historical evidence, not something a retry may erase.
+    """
+    body = _audit_document(source, action_id=action_id, generation=generation,
+                           authorized_at_us=authorized_at_us, request_sha256=request_sha256,
+                           engine=engine, result_ref=result_ref)
+    return _install_audit_file(
+        engine, body,
+        'The product authorization audit could not be written; no Owner binding was written')
+
+
+def write_product_denial_audit(channel, request, *, engine, origin) -> str:
+    """Create the denial audit before the decision is recorded.
+
+    A denial is a real authorization decision: the same file and committed
+    metadata digest record `decision='deny'`, the scope, the fingerprints and
+    the caller. A failed write leaves the request pending and changes nothing.
+    """
+    _assert_channel_retained(channel)
+    if (type(engine) is not EngineService or channel.engine is not engine
+            or type(request) is not ProductAuthorizationRequest
+            or channel._request is not request or request.state != 'pending'):
+        raise _source_denied('The product denial audit requires the original pending request')
+    folder = Path(engine.db.data_dir) / 'Control'
+    try:
+        folder.mkdir(mode=0o700, exist_ok=True)
+    except OSError as error:
+        raise _audit_unwritten('The product authorization audit could not be written; '
+                               'the denial was not recorded') from error
+    identity = inspect_owner_directory(Path(engine.db.data_dir))
+    inspect_owner_directory(folder)
+    body = _common_audit_document(channel, request, decision='deny',
+                                  result_ref={'authorization_id': request.authorization_id,
+                                              'decision': 'deny', 'binding_written': False},
+                                  engine=engine, identity=identity, origin=origin or '',
+                                  decided_at_us=_clock(engine))
+    return _install_audit_file(
+        engine, body,
+        'The product authorization audit could not be written; the denial was not recorded')
+
+
+def _commit_audit_digest(engine, digest_hex: str) -> None:
+    with engine.db.transaction() as connection:
+        connection.execute('INSERT INTO metadata VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value',
+                           (AUDIT_METADATA_KEY, digest_hex))
+
+
+def _audit_baseline(engine) -> bytes | None:
+    path = Path(engine.db.data_dir) / 'Control' / AUDIT_FILENAME
+    try:
+        if path.is_file() and not path.is_symlink() and not path.is_junction():
+            return path.read_bytes()
+    except OSError:
+        return None
+    return None
+
+
+def _restore_audit(engine, baseline: bytes | None) -> None:
+    """A failed metadata commit may not leave an uncommitted decision audited."""
+    path = Path(engine.db.data_dir) / 'Control' / AUDIT_FILENAME
+    try:
+        if baseline is None:
+            if path.is_file() and not path.is_symlink() and not path.is_junction():
+                path.unlink()
+            return
+        temporary = path.with_name(AUDIT_FILENAME + '.restore')
+        with temporary.open('wb') as stream:
+            stream.write(baseline)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, path)
+    except OSError as error:
+        raise _audit_unwritten(
+            'The product authorization audit could not be restored after a failed metadata commit'
+        ) from error
 
 
 def _read_audit(engine) -> tuple[dict, str]:
@@ -823,9 +906,19 @@ class ProductAuthorizationChannel:
             if request.state != 'pending':
                 raise _not_found('No product authorization request has this identity in this process')
             self._assert_decision_credentials(decision, request)
-            # A denial grants nothing and therefore writes no Owner fact; the
-            # audit file is reserved for an actual authorization decision.
+            # A denial is a real authorization decision, so it is audited before
+            # the in-memory state changes: the same `Control/ProductAuthorization.json`
+            # (decision='deny') and its committed metadata digest. A failed audit
+            # write leaves this request pending and changes nothing.
+            baseline = _audit_baseline(self.engine)
+            digest_hex = write_product_denial_audit(self, request, engine=self.engine, origin=origin)
+            try:
+                _commit_audit_digest(self.engine, digest_hex)
+            except BaseException:
+                _restore_audit(self.engine, baseline)
+                raise
             request.state = 'denied'
+            request.result_ref = {'decision': 'deny', 'binding_written': False}
             return self._view(request)
 
     def _issue_source(self, request: ProductAuthorizationRequest, *, store, origin) -> ProductOwnerAuthorizationSource:
