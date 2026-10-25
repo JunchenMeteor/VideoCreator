@@ -1,0 +1,8 @@
+# Backend118独审：原111比较输入定位
+
+仅补充原任务卡ceb46e09100d196868de5432c1cf035cda07fc48bfc5618dbdae720547b2aeb7的已冻结比较基线，不扩大审查/执行范围。
+
+原111停止索引：G:/开发测试/Codex/VideoCreatorImplementation/Backend/CurrentFinalEvidenceRecoveryImplementation/SourceStage/SourceIndex.json。
+SHA-256：c8480592bacfde5d886267e8afd467b84e12ebdc9b903bfeafe0f78f2e1d0033。
+统筹e5b3af自然退出0按原已知SHA精确定位；原Review可核对该索引、其完整普通副本及固定118差异，不读热0056或Media生产源。此前f45b65文件名结果截断未当全文证明，Review574e05的records定位错误保留，不算产品运行失败。
+原111只是历史比较，不替代118当前完整审查，不改变失败次数、执行批准、静态支持与真实运行的界限。

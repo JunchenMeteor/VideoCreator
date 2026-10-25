@@ -1,0 +1,19 @@
+# Backend — ADR0058显式配方、失败影响与获准组件实现
+
+QUEUED_ARCHITECTURE_FORMAL_AND_REAL_SLOT，原backend_instance。须架构0058正式Handoff/source/index/末自然终态被Root接收及真实空槽，才恢复。不读热Media/架构，不开启第五角色。Root93cf45全文已读停止ADR0058 SHAa2660ba525f88fc81539e238fafb9c7c51eaf7b3c46f70f4726db785f44b6857(28154B)，APPROVED_SCHEMA_AND_MAPPING_CONTRACT_ONLY，不授真实用户/Owner/provider或产品运行。
+
+正式独评RRD报告c6eb3fac8c357098f9d11b63022c45eba917db832f776d3f21ad7aeb14947b70/Findingf5e2fcf6及原Architecture30ordinary停止源；RRD-P01 P2 OPEN。当前Backend基线SelectedChildCtcReadComposition/SourceStage/SourceIndex.jsonc0ab833f165fb5cde13f23f54e6c7041107f115e3868b92f0b29f2f3a8d2acdf，121源完整普通/110AST、末826df0自然0，全释放。该基线独Review正在读停止副本，不能改其输入或倒补结论。
+
+白名单只原Backend domain/application及必要integrations/api/cli生产源；公开类型/schema/parse与映射sole owner，测试/锁/SDK/Media/Frontend不改。自身过程Backend/AffectedRecipeComponentImplementation/，先固定完整121baseline/ADR/报告/有限inputs Before；依据实际类/调用源码，不按设计想象现有签名。
+
+完整实现ADR0058新RegisteredProductionPlanV3/targetsV2/recipeV1/proposalV2、持久execution-v2/masters-v2/lineage-v3与真实frozen eq=False registry执行/readset。同一严格版本dispatcher贯穿initial/prepare/proposal/admission/shortwriter/claim/dispatch/observe/recovery/child/current verification/publish；保旧字节格式/九+十held口/ASR/CTC原grammar及v1 realignment。新增prepare_affected_recipe_proposal仅读取真实held current同thread/lease/fence/claim并返回数据，不授权或效果。
+
+新同一typed纯mapper独立计算失败真实坐标映射后的impacted shots、获准regenerated shots、精确component_target_ids与ordered output O；O仍exact且不超原failed/完整approval。四有限recipe按ADR完整表、真实输入模板/source/index/route/cost/资源许可；audio/cover不生成picture，visual保真实mix无TTS/mix allocation，首shot缺cover权拒。旧ambient/full exact与旧合法edit fallback保持，原被拒intersection/subset不应用；新路径不是给原依赖截小或换名绕过拒绝。
+
+新完整canonical plan/projection/command绑定真实parent/source/failed/rights/resources/current issuer，plan数据/hash不授执行。interactive真实approve新完整body、unattended原真实Owner execute_plan admission及政策/预算覆盖；证据缺失具体NOT_READY/waiting_authorization，合法完整覆盖须有正向自动路径。ledger先effect，原atomic child/counter/UNKNOWN/预算/限次保持，冲突409不换key/Run清旧unknown。source无未来UUID自循环，新repair2-step grammar仅首次获准v2命令；旧command未知仍原版本恢复。
+
+原兩authority/短writer/同connection源快照/原文件完整SHA/实际clock/许可scope不放宽。lineage-v3新增严格认证与原0057共同祖先resolver对接，32与原revision限次/current/sameRun不变，不借新格式获得CTC权。不能把新schema候选或bool当真实注册/installed qualification。
+
+先实现并源码静态冻结，允许有限自身AST/Ruff/标准库只读来源比对；不运行原耗尽product/Pydantic/SQL/19目标或等价第四次，不模型/API/网络/key/fee/native/install。若具体新权界操作被自动拒绝，保原拒绝并报精确变更及来源，不能换工具绕过。跨Media实际graph/Integration资源closure问题精确停源接口交下游，不代写或伪造资源。
+
+交真实完整所有Backend普通源/index、完整baseline差异、ActualInterfaces版本/mapper/注册/必要调用点、保护核验/失败/未实现缺口与末工具自然终态/全读写释放。原121独评若新finding，按实际停止报告另任务修复，不热改其输入。RRD-P01不自关闭，独Review/Test/Acceptance后继；完整R1后连续R2保留。

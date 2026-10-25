@@ -60,8 +60,17 @@ queued经有效租约进入running；等待审核→waiting_user，异步上游�
 
 ## 冻结待办
 
-2026-10-08的架构续跑裁决见0002/0003/0004 ADR：范围和证据规则已获架构批准，技术栈及Gate0仍未冻结。独立Python3.13.16、候选依赖解析/导入、React build、Rust/Cargo1.99及Windows SDK核心文件已有各归属角色证据；MSVC仍缺，两次安装失败保留，FFmpeg/ffprobe/字体、桌面IPC成包和macOS/Linux安装未通过。不得以源码、SDK存在或开发代理HTTP200替代App安装。
+2026-10-08的架构续跑裁决见0002—0005 ADR：范围和证据规则已获架构批准，技术栈及Gate0仍未冻结。A1时的资源缺口保留历史；后续I3/AV0已实际运行带媒体资源的Windows内部API/CLI候选，不等于Tauri/安装器或干净系统成功。AV0两次CTRL_BREAK exit3保持失败，I4只纠正过程脚本。MSVC/UAC、桌面IPC/成包与macOS/Linux仍按具体证据保留缺口，不以SDK/Rust存在或开发代理HTTP200替代App安装。
 
-T2独立B2机制57绿；W1最终协议/审计35项31绿4红需W3明确免费修复及T3/RV1复核。LangGraph真实经理委派和成果消费、反馈跨进程免费恢复有局部证据；unattended失败，不能据此选定整栈或虚报成片。最终生产只保留一套编排，历史两框架实验与旧任务版本仍可追溯。
+T2独立B2机制57绿和W1原31绿4红保持历史；后续W3/T3局部机制修复已绿，RV1/T4新增完整Crew解析接缝反证仍需原owner免费修复，不能把局部绿升格为真实自主协作。LangGraph真实经理委派和成果消费、反馈跨进程免费恢复有局部证据；unattended失败，不能据此选定整栈或虚报成片。最终生产只保留一套编排，历史两框架实验与旧任务版本仍可追溯。生命周期A2的免费准入不调整ADR0003原三轮或收费限制。
+
+0005批准serve默认关闭的--control-stdin私有固定帧接缝；EOF只通道失联，明确指令只停当前API，不取消Run/Worker或改未知费用。固定stderr api_stopped/API-scope marker须实际loop/lifespan/listener清理完成，且与真实退出状态分开检查。后端B4唯一实现，集成可信host/新包消费，测试/评审/验收独立；当前正常停止尚未实现通过。
 
 用户已授权DeepSeek/Kimi共用CNY20实验，唯一实例/账本与凭证治理见AGENTS；不读取/输出/复制.ssh内容。官方路线必须通过commercial/official-provider-admission.md，私人订阅/API权益不当成商业官方资源。项目和媒体长存安装实例，官方Gateway仅处理授权执行必需的临时数据，TTL/删除/已受理结果取回窗口在准入前明确。未配置生成API、跨OS、商户/平台资质及分发许可继续保留缺口。
+## 首次本地 App 的同子进程实例初始化
+
+ADR0042固定新的私有indexed initialize_and_bind入口，先用原held OS peer/data/host来源初始化一次原Engine并读实际SQLite instance_id，再由同原child接受原六字段record和两个instance-bound locators，复用同Engine进入ADR0038/0039首次真实Goal流程。原后台唯一identity模型、安装资格、人审与制作授权相互独立；stdio/ID/locator不是authority。前端四命令和五步可独立source接入，没有新增instance/路径/确认参数。副作用包括原schema升级一致性备份，未知初始化保实际数据、不盲重开/造ID/重发Goal。仅架构设计准入，peer/原process/实际迁移/安装资格/setup-aware恢复及三OS运行尚未验证。
+
+## 真实安装资格注入
+
+ADR0043固定唯一qualified私有wire v2/同原Engine和held peer的具体issuer，保旧v1仅facts-only；原Daily装配不另造。真实完整资源测验、许可/构建/ABI和独立接受报告形成离线资格pack，发布/本机受保护verifier来源各自验证，免产品账号。Owner接纳镜像、JSON、SHA或编译0不能qualify；current撤销/期限/升级floor/原对象与短writer本地hook都必核。现有源仅有portNone且v1永远not_ready，producer/wire/实际资格suite与三个平台尚未实现或运行。

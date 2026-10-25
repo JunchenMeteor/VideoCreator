@@ -1,0 +1,57 @@
+# ADR0013：完整作品包契约与交付准入
+
+日期：2026-10-08。状态：架构批准以下精确契约选择，B8草案按本ADR修正后才可实施；不是生产/测试/供应商准入或Gate通过。依据ADR0012 SHA2155cb4a068203bf3a9bb0527deebb5b5bd99a2852f0acf6bc91218f9dde6918、B8InterfacesDraft SHA787638ed14f981256b666fbabffbf75ab0961dca4789b0ed0990cf00f15fcd32、B8Handoff JSONb3d523dc81b66b7bda6816eb9d99c523dd7b5f1228a60df85a817cb1b1d44386；01—11与A9基线实核无漂移。后端实施另须统筹解除T14等生产读取冻结并分派；本轮不持生产读锁。
+
+## 1 四个版本与具体字段
+
+批准新公开源SCHEMA_VERSION=0.2.0-candidate、HTTP仍/api/v1；包bundle_format_version=1、语义record_format_version=1、SQLite schema4分开管理。Manifest另显式记录schema_version，BundleRef指其实际格式版本及清单哈希，不能以版本号代访问权。正式源码/集成生成后才成为现实契约，不预填schema数量。旧0.1候选和简化SemanticSegment仅兼容历史读取；新完整Manifest只接受SemanticSegmentV1，禁止自动用旧缺证据记录填新包。
+
+批准B8第2节字段表的RevisionRef、MethodEvidence、RightsSnapshot、Output/Manifest、Track/Mapping、Transcript/Gap/Alignment/Precision、Subtitle、Source/Fact/Frame、SemanticV1/RAG/Quality及Export/Grant/Import模型，以下约束优先：
+
+- 资产、创作/批准/反馈、来源及实际音轨/帧分别固定版本/hash。Creative RevisionRef属于原Production；外部source_revision_ref必须带system/namespace和准确来源版本，不把外部ID插入本地创作FK。SourceFactRef保留调用方真正提供的fact ID/版本语境；字符串confirmed_facts只生成与原request绑定的本地事实ID，不能伪造Portal审批或事实ID。
+- 媒体BundleArtifact必须有已登记asset_id及真实MediaProbe；JSON/JSONL/SRT/VTT和许可文本允许asset_id=null，须有后端受控material_id、严格文本验证、不可变文件/hash/size与归属。不要把文本塞进媒体decoder或伪造decoded=true。文本只经原Preparation的精确material索引进入bundle_items，不能登记任意路径/扫描DataDir；对媒体不得使用此例外。具体私有MaterialReceipt由后端唯一模型固定给媒体消费。
+- 实际主转写对应最终mixed PCM或登记后的MP4音轨解码产物；旁白转写可另持有，不能覆盖其他对白。TranscriptGap分类来自实际证据；空ASR segments不等于音乐/静音证明。词概率不等于边界误差，未测p95/confidence为null并记原因。普通required_checks/批准/许可由服务端固定事实决定，不由请求bool或模型声明授予。
+- AudioTimelineMapping必须指明确目标作品/音轨，pieces引用输入固有范围；rate为source/timeline正约分有理数。修正草案对微秒时长机械交叉相等的要求：先按原sample/PTS有理数与实际变换校验，再独立舍入到整数微秒，保留舍入策略与逐边界误差；不因≤1微秒舍入差假判变速错误，也不允许随手扩大容差。1:1裁切/实际time_stretch/编码偏移有各自证据，负原PTS/有符号offset不进入负MediaRange。
+- canon record采用固定model_dump(mode=json)、UTF-8、sort_keys、ensure_ascii=False和紧凑分隔符，排除自身content_sha256后计算；保留文本/数组顺序，不做隐式Unicode或词句修补。实际文件hash另算；重复JSON键/非有限数拒绝。Manifest不含自身hash，Ref计算其实际字节。
+
+新请求DeliveryRequirements只能进入新固定请求版本。既有request body/hash/批准政策/事件不能回填新字段；重复旧Idempotency-Key按其原输入规范化与原command比较，不能因新默认值另建Run、重置成本或把原失败改绿。版本未知/不匹配显式冲突或格式不支持，不静默迁移正文。
+
+## 2 outputs与精度默认
+
+默认完整profile始终八项video/narration_audio/mixed_audio/approved_script/actual_transcript/subtitles/semantic_manifest/rag_chunks；固定附件按ADR0012齐备。BundleOutput.present只在所请求角色和固定依赖校验后出现，不得空旁白、复制稿作实转写或删失败项求成功。
+
+当前outputs显式子集是合法受理形状，不能被格式解析器一概当非法。本轮Gate0生产实施仅准完整八项profile；尚无明确子集依赖/能力时，在副作用前持久记录output_profile_unavailable及waiting_user可恢复动作，不自动扩成八项而增加费用，也不把子集称完整作品包/R1验收。后续支持某子集必须先明确其依赖/manifest完整性和实际标准，不改原请求；这不是永久取消子集能力。已有完整包的选择性音频/文本/资产导出本轮可实施，见第4节。
+
+DeliveryRequirements.alignment_requirement批准枚举utterance_verified/word_verified，默认utterance_verified；allowed_degradations默认空。utterance_verified需要引用真实PrecisionAssessment/evaluation report与批准criterion，保持MM03语句边界P95≤200ms原目标，未测/未达标不得标精确；word_verified还需真实词级能力及对应已批准标准，不能把语句指标当词指标。
+
+候选word_estimate_with_declared_gap只允许把显式word_verified的词精度要求降为已声明的ASR词估计，且须请求明确选择、服务端政策允许和审核/预授权事实；它不能免除默认语句核验、实际ASR、范围/来源/权限或其他质量检查。旧请求缺字段不是允许降级。无能力/证据保存alignment_required与waiting_user，不能回200空转写或捏造P95。人工校正若使用，须经授权、持有独立修订/方法，不覆盖原ASR。
+
+## 3 字幕量化与跨实例origin
+
+批准单独serializer策略subtitle-ms-contain-capped-v1：保留原微秒cue表；start_ms=floor(start_us/1000)，end_ms=min(ceil(end_us/1000), floor(timeline_duration_us/1000))。原本不重叠的相邻cue如因量化发生重叠，前cue.end_ms再截到后cue.start_ms；原本明确重叠的cue保持其声明，不能默默消除。最终start>=0、end>start、end在可表达时间线内；坍缩/无法表达返回422，不能改原时码或造延长视频。
+
+记录每cue起止的有符号量化误差，绝对值须<1000微秒，SRT/VTT使用同一策略/版本；末尾非整毫秒有显式截断证据。该误差是格式量化，不计作ASR边界P95或对齐精度通过；媒体与测试各自验证，不靠模型自报。字幕词/语句引用和实际文本不可因serializer变化而重写。
+
+批准ImportReceipt原origin_bundle_ref保持instance/bundle/revision/schema/manifest_hash，Manifest/语义文件原字节和segment/artifact IDs不重写。目标实例另存local_instance_id/import_id/project_id及原artifact→本地Asset/Material映射；完整定位键含origin instance/bundle/revision/hash，防外来同名revision碰撞。不将外国request/run写成一次本地Production，不用local instance替换origin而改hash。
+
+导入来源/hash提供定位和字节一致性，不自动证明可信发布者、事实或商业权利。先核归档/清单/严格文件全集/文本Schema/hash/时间/引用/权利，再原子可见import；新实例按自身主体授权访问，原主体/原grant/票据不继承。index_state与媒体导入状态分开，建立向量/全文索引可重试，失败不伪称导入/制作失败，也不称匹配质量通过。
+
+明确本地读取入口GET /api/v1/bundle-imports/{import_id}/manifest和/artifacts/{artifact_id}/content；MCP bundle_import_get返回相同受保护本地入口/描述。不把foreign revision送GET /bundles/{id}绕定位/授权。重导出进口包走POST /bundle-imports/{import_id}/exports或明确import_id的同一ExportService入口，保持原标准字节；若还未实现，明确能力缺口，不返回伪造URL。原origin IDs不是本地Asset读取票据。
+
+## 4 schema4、有限导出与可信principal
+
+批准bundle_revisions、bundle_items、bundle_exports、bundle_grants、bundle_imports五表；items中媒体Asset和受控文本Material二者互斥，具体json正文与索引/hash存一次，不拆通用元数据平台。复用commands/events，不改预算、Operation生成计数、B7/W7协议或正常Worker权限。迁移BEGIN IMMEDIATE并真实核schema4，失败回滚；schema3旧程序拒4，回退用一致SQLite/WAL和所引用不可变文件备份或前向修复，禁止降user_version删表伪回滚。
+
+导出只对已published本地bundle或ready import，具有独立export_id、固定input/hash、归档全集/权限范围及有限lease/fence。免费本地ZIP任务不新建模型Operation，不借已成功Run lease或改变Production终态；202仅在job持久化后返回。由后端受管实例执行器有界领取/完成，HTTP/MCP断开不取消job；尚无执行器时明确queued/不可用，不称持续运行。API/宿主退出可能中断本地打包，重启以原journal精确文件/归档核实续办，不假称关机后仍制作。需要CLI托管入口时，仅准后端另交固定导出处理端口/配置，不预批改通用Worker或任务调度器。
+
+完整导出保持原Manifest及其全部文件/hash。合法选择性导出必须明确projection：独立delivery.manifest.json记录parent BundleRef/origin、选中artifact及所需引用闭包、允许用途/实际hash；不携一个缺文件却仍自称完整的原Bundle manifest。只导音频或metadata不能从projection导入完整Bundle成功；完整导入收到projection显式415 unsupported_delivery_profile。许可不允许整包则拒绝完整导出，可按明确授权提供projection，不默删文件。投影副本与撤销原在线引用的语义分开，合法已导出副本不能远程撤回。
+
+认证层唯一构造AccessContext(subject_id、installation/project scopes、用途、credential expiry/来源)，HTTP/MCP业务JSON不能自填主体/权限。本地桌面/受管stdio按配置映射安装实例owner，不要求产品账号；Portal为实例预登记独立credential→principal/project/operation scopes，不能和owner共用一个token后靠recipient字符串区分。recipient_id仅解析注册表真实主体，grant只能缩小原权限/许可和到期上限。接缝缺配置503，不能给任意调用方owner权限；接入凭证配置属于实例授权，不是R2云账号前置。
+
+每次get/分页/下载/Range/304前检查项目/用途/grant到期撤销，先授权再缓存校验或计数；跨主体不可探测资源404、已知但scope拒绝403。grant不变更Bundle和源许可；进口包按目标项目owner授权，原外来grants不复用。沿唯一ErrorEnvelope及B8第6节错误映射，新增声明后真实源生成；不能承诺框架/Host/Range已有错误全JSON或未测的长连接即时撤销。
+
+## 商业接管与下一owner
+
+已审核official-provider-admission.md两新增要求：多供应商官方内容生产、产品内工作台/API/MCP一体使用、Gateway持商业凭证及权益/预算/对账、长期产物在安装实例，均符合用户要求并由架构接管。补明确商业权益/支付账本与本地Operation/Asset/Bundle账本分离，以request_id及供应商任务ID对账；官方登录失效不锁本地，官网插件/个人权益/占位片仍不构成准入。供应商实际能力、商业许可/价格/费用和临时数据TTL仍未批准。
+
+后端唯一实施contracts/bundles/engine/API/MCP/database/0004迁移与可信AccessContext；媒体只消费固定端口提供实物，集成只生成SDK及运行资源/成包；测试维护实际标准/执行，评审及验收独立。字段表按本ADR修正先交精确消费签名；公开版本、schema4、MCP/导入/完整或projection输出均须实测，不能凭草案数量宣完成。不写生产/测试/锁/SDK或触凭证收费，本轮结束立即释放，不等待I15/T14，完整Gate0→R1→R2和FR17范围保持。

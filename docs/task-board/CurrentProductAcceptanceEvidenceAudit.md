@@ -1,0 +1,17 @@
+# Acceptance — 当前完整产品交付证据独立盘点
+
+ACTIVE，唯一原acceptance。本卡为只读证据缺口盘点，不是重新运行产品、不作R1/R2通过结论。完整Gate0→R1全部必要项独验→连续R2保持。Root610788已全文原AV0Report与KimiSampleAcceptance-W21及其FINAL卡；原验收角色已全部释放，当前Root/Integration/Review三槽，此卡占第四槽。
+
+职责：依据原01—11及现有冻结AC/MM/CM/Gate0标准，独立列每项真实完成证据、失败、未测、缺件和最短下一验证依赖。不代Review审具体实现、不代Test改标准、不补生产产物。实例持有数据、本地免注册、官方服务应用内部可调用、自有API可选、不列用户配置义务。
+
+白名单：只写docs/acceptance/reports/CurrentProductEvidenceAudit.md与同名JSON及自身G:/开发测试/Codex/VideoCreatorImplementation/Acceptance/CurrentProductEvidenceAudit/。只读准确项目规格、现有docs/acceptance/criteria与两历史验收报告，及下述已正式停止固定报告。不能读热Integration修订、热Review报告、热业务目录；需要更多fixed交接先报精确资料，不猜环境/扫描私密。
+
+固定证据：AV0Report.md/json仅原阶段范围（53断言51pass2fail与真实局部运行）；KimiSampleAcceptance-W21.md/json仅单个无音轨33729B视频及两静态帧。原比较器独评docs/reviews/PiperRepresentationActualValidation-IndependentReview.md SHA bf0e5b0f9d201b1b94332eb4922580dd44c4c04e0fb8f695a80d67d47a6d7fb2及Review/PiperRepresentationActualValidationIndependentReview/FinalHandoff.json SHA09cef652f07e048d7a26d32937711e66bf909e91b3b0e87484b8d707f2c2dea0，只支持LIMITED_COMPONENT_PASS。0061独评docs/reviews/CombinedFailureDiagnosticSelection-IndependentReview.md d304e0ecf301279de625f3480e5eafc0dc58d055e4e9bd52f7ef0ccb4e9d560b只是设计合同关闭，BDE实现/运行仍OPEN。
+
+其他准备非执行：TestDevelopment/AffectedRecipeV3IndependentTestPreparation/PreparationHandoff.md6ad6257e878a9a1606fa751719f672615b931947976dd0804c0b2786a0c36df1（105 NOT_EXECUTED/NOT_READY）；Integration/PiperSemanticAndMetadataExecutionReadiness/ReadinessStage/Handoff.md2d2b7270a682120582cc3aca00f6c48c09dd9da008e8cebe55306d056405f19e（6归档及10metadata NOT_RUN）。过程前缀统一G:/开发测试/Codex/VideoCreatorImplementation/。Root状态只作定位，不能作为验收通过证据。后端未执行拒绝补丁不作实现，不需读其源码。
+
+必须逐项覆盖10完成条件、01全部适用FR/AC与09全部MM、11 CM01—08/R2 FR05/10增强及FR17；FR18排除但明确来源。五步简单顺畅、最小目标资料驱动自主洞察/方案/AI剧组、一次HTTP/MCP断连继续、真实口播及≥3新生成镜头动画/9:16+16:9、多模态旁白/混音/源稿/实际转写/字幕/来源坐标/RAG、导出引用同版本及授权失效、精度与检索数据集、三OS当前精确提交安装、真实支付沙箱/额度/发布等分别审。每项需合格证据形态、已具原件和精确缺件/owner/依赖，不能把相似组件绿算完整门。Gate0未整体通过及技术未整冻保留。
+
+不运行Python/Pydantic/SQL/HTTP/API/MCP/fixture/parser/native/model/安装/下载/平台或收费，不访问.ssh，不复制运行时或借环境；所有旧19三败/CNY20与原失败保持。可进行有限普通文件内容/JSON/哈希核验；无媒体新听看对象不得虚称实际听审或完整视频观看。本轮报告只能inspection证据审查，原真实记录明确author/run时间与版本，不宣重新独立实跑。
+
+交付紧凑覆盖表与机器可读矩阵、优先影响用户端可用性的关键缺口及负责角色、原证据范围与当前不可推断项，必要机器/资源/许可明确列条件；不安排用户配置API待办，不改验收标准。固定输入BeforeAfter/实际工具自然终态/no live/全部读者释放并正式Handoff。Root据报告调整交付依赖，不自行替你签完整产品通过。

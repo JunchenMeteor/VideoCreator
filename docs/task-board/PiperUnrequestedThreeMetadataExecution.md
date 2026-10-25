@@ -1,0 +1,11 @@
+# Integration — 原未请求三项官方元数据恰一次执行
+
+ACTIVE原integration_release，同当前阶段，不新角色。Rootf9ac1f FULL冻结Plan/核SHA，fdb601 FULL18179B差异核，新helper/runner仅旧已核限定HTTP实现的新固定名称、恰三targets与24MiB总限。原9c8c6e自然0、44pins无变化/三PS parse0/exclusive batch absent、当前无live；首次原77406已本人e31035实际exit1，不再poll/接管。
+
+批准恰一次原Plan指定runner（不是原失败七批重放）：UnrequestedThreeMetadataPlan.json SHA1f5bd3123e4719fcb95bb7610198cfaf7a3225b0120a69c3a244a954bbb252a4；RunUnrequestedThreeMetadataRoundOne.ps1 SHA32f2be4af76b88f6771d49a7e7a964fbd03141aff429ac51b62f82f2f3933739；ReadUnrequestedThreeMetadata.ps1 SHAb4b935a69d606967c0b00b72225bb77d76b61167106fe787121bfbd0f69e1e72。绝对根 Integration/PiperRemainingDirectMetadataSelection/，cwd同根。原system pwsh.exe -NoProfile -NonInteractive -File该runner -PlanSha256该64位小写SHA；默认PlanPath已固定forward路径，不能换argv/脚本/命名空间或修改冻结Plan。
+
+URL恰 https://pypi.org/pypi/tokenizers/json、https://pypi.org/pypi/typer/json、https://pypi.org/pypi/safetensors/json，各原GET0且现在最多1GET，首次失败后后续不启动。每源8MiB/60s、总24MiB/owner240s sticky；普通TLS/identity/no proxy/auth/redirect/retry/HEAD/range/recursive，只官方JSON，不wheel/权重/安装或vendor运行。冻结Plan preparation_only_no_HTTP_authorization保留原真值；本独立卡提供后继一次授权，不回填旧记录。Plan outputs/ownership中沿用seven/MetadataRoundOne文字不扩实际scope，唯一执行batch_root为UnrequestedThreeMetadataRoundOne，实际targets_count=3。
+
+owner本人持唯一original tool/session及Process句柄至自然终态/双byteEOF；观测超时或错误sticky红，不杀/重启/重发。Root不取原柄或以receipt/目录推终态。批次存在立即拒重复；原Regex.partial/source错误、原4GET与20/27pins保留，不请求Regex或前三成功JSON，不解析partial为完整结果。前后44pins固定，真实CommandReceipt/MetadataReceipt/raw/stdout/stderr/current输入末核与精确工具自然终态交接。
+
+取得原完整JSON后仅纯data选择：满足transformers5.19.0实际incoming、稳定非yanked、完整markers/extras/RequiresPython/四平台CP313stdGIL候选与缺件。不可借当前latest info替旧release RequiresDist；资源ABI/许可/真正CTC/TTS与三OS仍未资格通过。允许完成前三saved分析的准确Addendum/普通副本formal交接，原空名投影失败保留，不扩HTTP目标。无secret/SDK/产品SQL/Pydantic/模型/费用/第四耗尽目标；完整R1后R2继续。

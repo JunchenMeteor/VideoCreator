@@ -1,0 +1,61 @@
+# ADR0016：0.3证据、材料与持久注册接缝
+
+2026-10-08。批准本ADR修正后的B10契约与下一实施输入；不批准当前任何真实基准、authority/profile或产品pass。完整读B10InterfacesDraft 110行，SHA597bfeaf117934c24a868ccb4ba53777460703cd044daa63fc9d5b463f11be68；正式B10Handoff JSON1c5a3f652eae16292a9acfebe40c4b934adbe94afdbf6636516dcfc6b48c2426、Snapshot5a2a4804d86ff2d4ae6dddde95dc16baedddf0c8e524baf2278210fb0ca7799f。继承ADR0015 SHA869d8943f092c2f169353b2550264d416a61506b58ef02083c3f2b417d6b28ff；不读W10/Frontend/I17 WIP，不要求运行批停下。本轮R1自动路径及三OS/R1→R2保持。
+
+## 1 批准V03字段与版本分派
+
+批准B10第1节独立ProductionRequestV03、DeliveryRequirementsV03、Policy/ReportRef、Qualification/三scope报告、Alignment/Transcript/Quality/Manifest V03，不在旧0.2类型上改默认或序列化。request_format_version必须显式0.3.0-candidate；缺版本仍0.2 strict，同key先按已存版本/原hash核重复，显式换版本或policy同key409。SCHEMA_VERSION常量不决定所有历史对象读法。Manifest0.3/Bundle1与Record1分开；旧读者不支持0.3时明确拒绝。
+
+V03 submission可省DeliveryRequirements，仅由已可信预授权的安装/项目配置解析alignment_evidence_policy及EvidencePolicyRevisionRef(policy_id/revision/SHA)，固定入RequestRevision后再算hash。没有配置持久waiting_user/alignment_required，不能补一个通用approved对象。ref只定位，资格和主体/项目/用途仍需registry；allowed_degradations保持空，词级标准未批不冒语句指标。Portal一次预授权后正常只给目标/资料即可自动制作，不逐片强制人工标注。
+
+| scope/type | 必须成立 |
+| --- | --- |
+| MethodBenchmarkReport/capability_benchmark | 固定corpus/reference/audio、独立标注听审裁决、实际方法/模型/资源/compute/OS配置、逐unit误差/真实N/P95及criterion/authority；基准数字只属于该scope |
+| WorkAlignmentValidationReport/work_runtime_validation | 实际work/run/request/input音轨与Transcript/Alignment/Mapping/Subtitle版本/hash，实际执行/Operation/资源身份、policy/qualification、全量检查/缺口/原因；没有独立P95字段 |
+| PrecisionAssessmentV03及真正测量报告/per_work_reference_measurement | 无本片独立reference时status=not_measured，reference_ref/sample_count/p95和measurement_report_locator均null；不造空测量报告文件。assessment仍嵌实际Alignment并随质量记录交付；有参考才产生真实PrecisionEvaluationReportV03 |
+
+ReportRef带已完成独立报告的SHA；PerWorkReportLocator只标确定report/artifact/material/schema身份，不含未来SHA。scope为Literal，不允许报告跨scope替换。基准P95、ASR置信或两模型一致不能填成该片P95；新自动release由可信资格+真实WorkValidation及原全部Bundle守卫决定，旧strict仍须独立本片参考。MethodQualificationRef按B10字段固定全执行身份和适用范围，当前状态发布前重查，不信快照approved。
+
+## 2 材料预分配与无循环组装
+
+批准material_allocation(ordinary lease, preparation_id, artifact_id)私有读口和verify_alignment_evidence私有核验口。MaterialAllocation固定preparation/artifact/material ID、规范相对路径、MIME/schema_kind及分配身份；无size/SHA/decoded/validated。分配slot的allocated/writing/ready状态可另读，但Allocation永远不是ready Receipt。
+
+分配必须先持久化到同preparation的精确journal/slot，再交给媒体；(preparation_id,artifact_id)唯一，重启返回同material ID。expected MIME/schema及所属run/request固定，异请求/其他slot409或拒绝；每次写入/完成都重核当前ordinary lease/fence、policy和归属，旧fence/核实lease无此写权。准备记录原byte/hash不变；schema5迁移可对现slot正文作向后兼容表达，不给模型任意文件/SQL访问。
+
+MaterialReceipt仅在真实字节不可变落盘、严格内容/hash/size/身份验证后ready。不能先填未来hash、先写占位再覆盖、把Allocation传成Receipt；旧BundlePreparation.materials继续只列ready对象。可信Material路径由原journal解析，locator不是文件权限或票据。
+
+组装顺序明确：有本片测量需求才预分配其report locator → Alignment.precision仅引用locator → 固定AlignmentSHA → 生成带实际AlignmentSHA/原音轨和独立参考的测量报告 → stage一次不可变报告并取得Receipt。Manifest索引再绑定其实际SHA，发布核locator一一对应。无参考自动路径则locator=null；不留未完成占位附件。WorkValidation引用已完成Transcript/Alignment/Mapping/Subtitle hash；Quality引用已完成WorkValidation，前者不能反引未来Quality hash。独立Benchmark已完成可用完整ReportRef。所有内容依赖无环，不用排除真实字段hash或覆写旧对象来解环。
+
+新增schema_kind批准B10所列actual_transcript_v03、precision_report_v03、method_benchmark、method_qualification、evidence_policy、work_alignment_validation；另批准method_benchmark_reference用于下述来源引用文档。都为后端严格JSON Material，不伪造媒体Probe。旧schema_kind解析器和原JSON重复键/非有限数/UTF8 LF/hash规则保持。
+
+## 3 修复旧2N数学，不保错误判据
+
+B10静态位置证据指出cc7811fa候选将起/终点分别加入errors、sample_count=2N，且Alignment与report全unit对应未显式闭合。它与原RV16/RV17数学不符；这是固定源码的静态缺口，尚不是本轮独立运行反证。
+
+后端必须在0.2 strict和新0.3真正测量/基准统计处按原criterion修复：每unit error=max(abs(start差),abs(end差))，N为完整不同unit数，nearest-rank ceil(95N/100)，门槛200000us。先检查原列表所有条目、strict ID/范围、长度/唯一性和Alignment/参考/report完整一一对应，再建映射，不通过去重隐藏坏unit。当前criterion指定全量固定标注单位；本轮不批准新增sampling_plan缩集合或排坏段。语料选择与每片runtime全量检查分开，词级不借语句指标。
+
+旧请求/hash/default和旧report原字节保留，不能理解为继续错误2N算法。对不符原criterion的旧报告明确criterion_mismatch/invalid evidence，禁止新的release复用，不改报告字节补绿。必要更正产生新immutable report/revision及corrected_from/原因，保原证据与费用/Operation；既有历史Bundle不覆写、不倒改历史审计成“原已正确”，当前可用性另记录。测试独立先覆盖能区分2N与max/N的真实服务反例、集合缺损/重复/乱序/坏range，再判修复，不拿纯helper绿代服务通过。200ms/MM05阈值及旧标准原字节不变。
+
+## 4 选定schema5两表持久registry
+
+批准SQLite schema5新增alignment_admissions和alignment_revocations两表，优于临时内存dict；不另建库/通用权限或计费平台。admissions存immutable policy/qualification/authority批准事实：kind、logical_id/revision、canonical正文/SHA、issuer/审批refs、固定method/corpus/criterion/资源作用域与安装时序；唯一kind+id+revision，同身份异正文拒绝。revocations为可信不可变撤销事实，含目标、issuer、原因/有效时刻及递增registry revision/去重键。有效状态结合可信时间/有效期/撤销计算，不覆写admission hash或靠snapshot approved。
+
+trust roots/秘密仍安装配置/OS凭证，数据库只存公开身份/批准及hash。项目一次选择已准入profile只生成被授权policy，不等于给用户方法/authority审批权。B10 EvidenceRegistry私有install/resolve/verify/revoke端口批准；TrustAdminCapability/VerifiedAlignmentEvidence等只能由后端可信构造，普通Production/MCP payload不得自造。安装准入须核独立审批、issuer作用域及实际完整报告/资源，不信集成自产approved或authority回调True。
+
+执行前保存policy/profile/registry固定revision，真正发布短事务再次核expiry/revocation、当前lease/fence和全部实际identity；撤销与发布同writer顺序，不能校验后又漏新撤销。旧token不可跨run/preparation复用，失效后只重核原实物，不自动换方法/重新收费。可信更新/撤销防旧声明重放；离线使用已获批准、未过期范围，不需要产品注册。
+
+schema4→5同writer事务，失败回滚，既有五表/预算/Operation/Worker计数和旧JSON字节不搬不改；旧schema4程序须拒5。备份包含SQLite/WAL、全部引用不可变材料及registry相关可信配置身份；回退恢复兼容完整备份或前向修复，不降user_version删表。恢复旧快照不能忽略已经掌握的可信撤销或费用事实，须受控重新核最新撤销记录，不把“文件能打开”当安全回滚。
+
+## 5 基准导出闭包和import origin信任
+
+本地资格准入必须实际可得完整独立benchmark与审批/参考证据；一个引用文档或外网URL不能替其。公开作品包可以按真实许可选择两种固定绑定：embedded_full_report，或provenance_reference。前者把完整有权报告列入Checks及依赖索引；原始语料/音频/标注另按其许可，不默认连带导出。
+
+provenance_reference必须有实际Checks/method-benchmark-reference.json Material，schema_kind=method_benchmark_reference，固定原report ID/schema/SHA、criterion/corpus identity、method/profile/authority身份、基准scope/可披露摘要、许可/取得状态及limitations，明确reference_only。它是来源证明，不是完整基准或新的本地资格；不写不存在的下载URL或伪“已核准”标志。Qualification中的原benchmark_report_ref指原报告；另有benchmark_binding_kind及对应文档artifact_id，不能把reference文档SHA替原report SHA。
+
+policy/qualification/WorkValidation/Quality和所选benchmark document都在0.3 Manifest artifact索引，artifact依赖闭包不得悬挂/循环。不能导出的语料只留明确external evidence身份/限制，不冒包内文件；即使原实例离线，成片/音频/文本/RAG定位仍可读，基准资料不可得时明确不可新准入。合法projection取选中物及实际必要许可/方法证明闭包，原包字节不因某次导出而改。无许可或无法满足声明的交付闭包则拒该导出/待权限，不默删后自称完整。
+
+导入先识别0.2/0.3 schema，保持origin原字节/IDs/hash；新包无本片reference/P95 null按新策略合法解析，不拿0.2 measured门误拒。结构/hash/范围/完整引用检查仍必须，reference文档不得冒完整报告。初始evidence_trust_status=origin_snapshot_only；只有本地可信registry确识相同资格依据才recognized_locally，它仍不授跨OS/资源的新执行资格。外来approved、policy或grant不能登记本地authority；新本地自动任务另resolve本地实际身份/权限。合法原作品读取/导出与本地方法资格、索引状态分开，不为信任待核而篡改原包或依赖厂商账号/embedding。
+
+## 下一owner与准入
+
+后端按确定V03 DTO/私有Allocation-Receipt/registry与schema5实施，并修原数学和覆盖守卫；先交冻结消费签名与生成影响。只有统筹另派且相关读取批释放才写生产，当前W10旧批不因本文等待。Test保持RV17旧字节，新增0.3/三scope/null/2N区别、循环组装/预分配重启旧fence、registry撤销竞争、许可闭包/import信任的实际标准版本，独立Review批准后运行。媒体只消费端口供实物；集成从实际新源生成SDK并封装资格资料；独立验收判断自动创作/真实基准与三OS。当前任何真实authority、方法、语料/听审或MM05仍pending，不造正向。本轮无联网/安装/运行/fee/key，全读取终态后正式交接释放。

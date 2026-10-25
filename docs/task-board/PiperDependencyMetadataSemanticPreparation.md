@@ -1,0 +1,15 @@
+# Integration — 保留原字符串差异的依赖语义核验准备
+
+QUEUED_ARCHITECTURE_REVIEW_REAL_SLOT；仅原 integration_release。当前不执行、不下载、不安装、不读secret、不收费、不调产品。源码准备白名单仅 Codex/VideoCreatorImplementation/Integration/PiperDependencyMetadataSemanticPreparation/。必须实际空槽再恢复，不把本卡加入原64inputs或改旧停止计划。
+
+原六归档唯一检查124c3e自然1/41752双byte EOF/无timeout，末77c458只读0 TRUEFINAL。原DataInspectionRoundOne CommandReceipt SHA1f2442a687ab39751599ae7ec102db520130275a073a33e5afb2a16f6d36ff41，InspectionReceipt314d24f91df77b45c83473510a3d4d73cf804d24001837033689d6ac7bd07b19，原Plan042067363c2bc20345856cbbf952147391616435bad13380f7ac5a7f7c0a34c3、helper46d2a127083ea81bcdb30773ba227cd32de3106e42fe710b28f3fbcacce1dc9e、runnerb9933bce1c3ce679726634cdbf78f87de04ce69edb05cd47ba832a6432faf32f及所有旧失败/部分/限次不变。runner SHA以正式停止源核为准；本卡若发现字面拼写误差须报告，不能修改原件。
+
+前三tqdm/HFHub/PyYaml PASS_DATA_ONLY；tokenizers第一错误，typer/safetensors NOT_EXECUTED。实际tokenizers完整12原strings与同版本savedJSON不逐字相同：第一>=0.16.4,<3.0对<3.0,>=0.16.4，其余markers空白/单双引号不同。不把该原红抹掉、不直接宣包坏或语义兼容。
+
+准备一个有限独立核验方案，保留每条原Requires-Dist正文、重复行、extra/marker、精确archive/json大小SHA及唯一release关联。明确literal equality与解析后representation equality各自结果；不得激活extras、评估平台markers、归一化条件真值或递归解析下载。版本运算符与范围须完整保持，允许条件顺序的合取表示规范化但不能丢掉重复/约束；marker括号/and/or/比较符/变量/literal的解析结构必须严格保留，不能简单删空白或引号当相等。真实不同/语法不支持明确拒绝，保存全部差异。
+
+优先利用已取得原packaging/PEP508一手语法来源，先实际定位完整普通可读源与许可证；任何第三方工具代码导入均需逐件提出路径/全源码/固定hash/闭集loader/实际调用范围，准备时不import。不能用产品Pydantic或调用原耗尽19目标。若用自有有限parser，交全实现/grammar/已知支持边界及确实必要的正反用例计划，不能凭几个镜像字符串自宣通用等价。
+
+停止产出Plan/helper/runner（如后续执行确需）、完整差异和精确输入/输出地界、旧批保存事实、工具/实际运行边界、唯一实际后继command提议及自然停止Handoff。此次ONLY_PREPARATION：不执行archive检查或语义用例、不过早测试第三方工具。后继将先独立/统筹消费停止完整源并明确单次执行任务，不能自行重放原检查。后两个未执行包必须继续纳入合法后继完整成员/CRC/RECORD/WHEEL/许可来源检查，所有上限与首红停保留，不缩成功范围只验tokenizers。
+
+完整四targets/三OS安装、TTS/voice/model/native源/rights、原剩余依赖/Regexpartial及完整R1后连续R2仍缺。语义元数据证据不代实际兼容、发行或生产验收。原20元累计和失败次数不重置。

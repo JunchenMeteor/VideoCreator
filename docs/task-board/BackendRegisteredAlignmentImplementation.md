@@ -1,0 +1,19 @@
+# Backend — 初始对齐及修订对齐的原执行链实现
+
+状态：QUEUED_DEPENDENCY。唯一角色backend_instance；架构0056完整停止交接并由统筹核验、出现真实空槽后才恢复。总目标Gate0→R1独验→连续完整R2；本卡只推进真实对齐所缺后端执行链，不能算媒体或安装验收。
+
+输入：10/11与01—09冻结规格；仓库AGENTS.md；RegisteredAlignmentOperationContract任务卡；ADR0053/0054/0055；Backend118固定SourceStageIndex db3403175d6bec860cbe4b9aacc9a07300d1d1e9387c3b481a4a6b815baeda1f、Interfaces251b81dde770f59e2bdc23f452a6bafe451d775393be4a51f502edf425365aae；Media38停止交接c8cdf3b5e4d9c77fd3a1706c4df9d3525b560577d09fdab5069bd57ba7299d90。0056文件、正式Handoff与普通件索引的实际路径/SHA在派发前附固定补充；没有该补充不得猜ABI开工。
+
+需求：R1真实中文音画对齐、多模态固定版本交付、局部修订和一次HTTP/MCP持续执行；精度及安装仍按原MM/AC标准，不能降标。当前实际gap：realignment命令steps={}；初始来源为ASR估计not_measured，未证明CTC执行。
+
+可写：仓库AGENTS.md后端白名单内实际所需domain/application/infrastructure/api/cli及migrations；过程仅Backend/RegisteredAlignmentImplementation。所有测试、依赖/锁、Media生产、架构设计不改。不提交，不安装或付费；不改其他仓库/共享环境。
+
+实现：按停止0056维护sole后端输入/输出类型及canonical请求；将真实音频身份、不可变源稿/单位/span、批准范围与actual失败子集、当前route/resource/model/config/qualification绑定到原持久command/Step/input/dedupe。完整输入与命令在同短writer中不可变落库，原held getter返回已有OperationIntent及sole canonical字节。初始对齐和修订各沿其真实原入口接入，不新增第二Engine/账本、任意generic dispatch或Media权限。具体端口、schema/version与迁移规则只按停止0056。
+
+输出沿原Worker reservation/GeneratedFileManifest；对齐JSON作为结构化结果受控核验，不当成视频Asset解码。必须先核真实成功settled Observation再完成原Step，按批准合同推进原子child、Material READY、report/verify/publish。缺失、漂移、失败、未知或未测必须准确拒绝/核实；不使用None、布尔资格、估计时码代真实CTC。未知请求恢复只读原settled输出与上下文，不更换key重发。deadline/cancel、原lease/fence/source/current、预算限次、两precision authority、旧命令及旧Plan审批语义保留。
+
+独立边界：被自动审批拒绝的角色exact→subset/intersection变更不属本卡，不重试或等价绕过。原19产品/Pydantic目标已三败耗尽，本卡不授权第四次或等价launcher。原ASR拒绝项、收费失败及原账本保持。可执行必要静态/编译检查，保存实际argv、退出码及全部失败；不得将其当业务运行通过。测试角色后续建立并实际运行新的合同范围用例，不能重命名旧目标规避次数。
+
+证据与回滚：先固定当前归属源码与原118差异；保留所有原冻结件。交付完整变更、接口、迁移/兼容和失败语义、保护点检查、完整普通源码与SHA索引，原工具自然终态及读者释放。回滚只针对本卡归属变更，不reset共享工作树或覆盖其他角色。未验证运行/SQL/媒体/平台明确列出。
+
+下游：后端sole接口切片先冻结→原Media消费并实现实际CTC驱动→必要生成契约交Integration→独立Test/Review/Acceptance。若合同矛盾或缺实际端口，给架构固定源码问题，不以占位或直接provider调用补洞。

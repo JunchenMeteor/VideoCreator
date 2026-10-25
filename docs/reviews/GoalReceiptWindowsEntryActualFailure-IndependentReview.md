@@ -1,0 +1,82 @@
+# GoalReceipt Windows入口首批实际失败独立评审
+
+结论：原批次**NOTPASS，1 error、0 pass、0 failure、0 skip，18项NOT_EXECUTED，整体自然exit 1**。实际首因归Test动态代码来源守卫；本次没有Backend receipt业务反例。两项P2交原Test：GRWA-P01为实际ForwardRef导入边界错误，GRWA-P02为未到达的dataclasses生成/装配期源码接缝。原19目标及失败保留，不重置批次次数；本报告不授下一次运行。
+
+## 固定范围和身份
+
+任务卡SHA`fd4599c239508778c4b125b7551e487f00ba08f874d3f28bb8ff7b63762dbd8a`。workspace/repo AGENTS及10/11规格继续约束本永久独立Review角色。只读正式ordinary40件与索引指定的必要旧102产品/原typing、Pydantic、dataclasses文本；未读活Backend或Integration实现。写入仅本报告和`G:\开发测试\Codex\VideoCreatorImplementation\Review\GoalReceiptWindowsEntryActualFailure`。
+
+| 原正式件 | 完整SHA-256 |
+| --- | --- |
+| ExecutionHandoff.md | 48e56218d250dd4650dd7708772527949f70d4f61727af7a1efbc14fea4ac0fc |
+| ExecutionHandoff.json | 0f9648813b16e8512d9d686fea6575a076e027f93ce13dd5778280a0907845a7 |
+| ExecutionSnapshot.json | 24ad8ef4e3a847f25995e896a064e861a0512c7dcd65de3e8633733bbcc3ac47 |
+| ExecutionOrdinaryManifest.json | 7ff63b0a2a328d4114a736555fd94aed136547bb5ca2b182583b68bdd47847f7 |
+| ExecutionFinalizerToolTerminal.json | e2f69818016d46c3a0f5e74789a7679993b8a6ee595b7fe8b933a45ffa0719af |
+
+40份ordinary完整size/SHA均匹配manifest，无环境复制。本评审有限输入最终71条/71唯一完整path，after changes=[]。原InputBefore63条与SupplementaryInputBefore记录的既有已读源码分开保存；补充只显式绑定之前有限AST读中已咨询的原102身份，不新增运行或热源审查。SelectedSourceIdentity记录逐件原依赖正文SHA核对，不把`.venv`文件名当不经核验的可信来源。
+
+## 实际到达与原始结果互证
+
+原唯一工具6ac0af/session92219→fd524e实际1。实际command/cwd逐值等于已冻结LaunchRequest；request SHA`ef211f538825ca4c53d5221a6c7c4eb509c6a0ce564b72d950491ae615dd3beb`，index SHA`2e8b1cb38069cca35429f04a1651122d5bf667ad2aaba11a1ac62ead3c74cd2a`均与普通原件字节相符。原GRRP-P01仅SOURCE_STATIC关闭仍成立，没有将它提升为19测试通过。
+
+原wrapper PID23548/creation FILETIME134361025087259802（UTC2026-10-10T10:41:48.7259802Z），Probe child PID21688/134361025102311455（10:41:50.2311455Z）。各自LaunchReceipt、CommandReceipt、RetainedChildWait及MainToolTerminal身份一致。wrapper和child实际exit各1、natural terminal、两原始流byte EOF，child forced=false，lifecycle_errors=[]。原formal末工具95cd90自然0和读者释放另有terminal记录；它不覆盖原运行1。
+
+原流逐件SHA/bytes：
+
+| 流 | 字节 | SHA-256 |
+| --- | ---: | --- |
+| LauncherRoundOne/Stdout.bin | 1253 | 3833659fcd10e0c0f9695da817c09ac5a396d39ba416ea199d631c9ecffb1854 |
+| LauncherRoundOne/Stderr.bin | 0 | e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 |
+| MethodRoundOne/Stdout.bin | 0 | e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 |
+| MethodRoundOne/Stderr.bin | 5403 | 9258dddc7492c281be6fb2f54de9ac40cfa39c29b315dcebe713aff40e6658e7 |
+
+JUnit SHA`7a6eb60e8ee903d607c0f9fb093347e2680effce4dd70e6cc0ecc4e151323aef`实际1 testcase/1 error，G01 time0.5078304999988177s；Events独立case-start→finish相差0.5078226s。CaseResults同一test id、同一完整error trace，Summary counts一致；ArrivalMatrix19名字/顺序和原CASES一致，剩余18 precisely NOT_EXECUTED。不是18 skip，更不是18 pass。
+
+Events共123 exact_missing_read_attempt、1 case_started、1 case_finished；123是审计准许尝试记录，不是123项测试或完整OS访问结果证明。Methods仅22个原模块/类定义键；LoadedWholeModules只保留video_creator、application、domain三个产品package。失败的完整模块导入尚未完成，不能由非空Methods宣称Engine或receipt执行。ForbiddenCalls=[]也不能把来源守卫219的实际拒绝洗成业务准入。
+
+Fixture66仍在load_product30的Engine import中，EngineService构造在Fixture68；未到该调用。Database schema11构造、registry注册、fault SQL rows、中文缺回执断言、HTTP端口与MCP调用均未到达，没有即时Rows或ports receipts。Cases模块自身导入sqlite3和ActualRuntime事前sqlite_not_yet_imported字段不等价于SQL目标已执行。本报告只保留有据的NOT_REACHED，不臆造空SQL快照。
+
+原Method InputBefore/InputAfter各3635完整路径-key和值，逐项与原index.record的size/SHA相等：missing=[]、extra=[]、value_mismatch=[]，两图完全相等。本评审解析原记录，不重hash整个runtime/机器。原actualruntime为固定CPython3.13.16、prefix/base_prefix一致；one cold ctypes kernel32 event原system DLL filepath未观测，OS_qualification=false，不授native/Owner资格。
+
+## GRWA-P01：实际ForwardRef误拒，P2/Test/OPEN
+
+证据等级：ACTUAL_TEST_IMPORT_BOUNDARY。原实际批次1 error/18 NOT_EXECUTED/整体1不变；不判Backend业务失败。
+
+固定普通Probe为G:/开发测试/Codex/VideoCreatorImplementation/TestDevelopment/ReviewHandoff/GoalReceiptWindowsEntryRoundOneExecution/ProbeGoalReceipt.py（17707B，SHA ba51338492bd8c0307507030b41f1e8fd3537204459282b7de3fc55e7a1908fe）。profile202–232完整链：209识别video_creator globals，211发现<string>不在实际源pins，214–217唯一动态例外要求已绑定到原dataclass成员的代码对象，219拒绝合法typing ForwardRef eval代码。
+
+原MethodRoundOne/Stderr.bin SHA9258dddc7492c281be6fb2f54de9ac40cfa39c29b315dcebe713aff40e6658e7，与JUnit7a6eb60e8ee903d607c0f9fb093347e2680effce4dd70e6cc0ecc4e151323aef一致：Cases273→Fixture66/load_product30→Engine源13→pricing7→contracts219 ProductionDetail→固定Pydantic model_construction242/566→fields256→typing_extra350/404/455/492/541→原typing474/1077→<string>:0→Probe219。Engine构造68及所有receipt assertions未到。
+
+原typing.py SHAaa40d89b8d665e69c23cea58572c840509c2d2a757db537747462e55a4785b80，1031 compile annotation为<string>/eval，1035–36将原arg/code对象绑定ForwardRef，1077 eval同code于模型namespace。原typing_extra SHAfc6458a29362e1af544a2e54436f3939bae5b189afa8a1164cd6c1a091522b67，331/336–350从模型原annotations和NsResolver取值；401将str变ForwardRef。它是合法固定类型声明过程，不是Engine业务反例。原raw未保存frame locals/确切__forward_arg__，不能从trace最后显示字段猜首个表达式；原contracts220和224有两条明确字符串注解。
+
+最小归属Test修复条件：保完整产品导入、profile/审计与所有原19断言/时窗。区分已固定typing/Pydantic真实函数code及module字典、ForwardRef实例和当前frame.f_code同一__forward_code__、当前模型/继承base对应已pin模块及原完整注解、实际globals/locals/namespace来源；按固定转换/递归规则绑定表达式，不能只看<string>、co_name、路径或frame内自称module。不从异常/NameError创造合法回执或放宽Owner/provider/native/预算/文件/网络动作门。
+
+后继独立纯机制反向需覆盖伪造filename/function/module、同globals任意eval/exec、不同ForwardRef code、不同/篡改注解与namespace、同名foreign模型。保两级安全拒绝和原failfast/双EOF；新冻结修订另评、另准确准入，旧批不重置。进一步同类dataclasses factory装配边界仅可按固定源审查另列，不当已实际发生。
+
+固定产品contracts.py为64856B/SHA`175d105c6c80415b14d0f4a5b69f841548b7fbc968d3058f55d13e1cba5284ec`；其正常字符串类型注解不应为躲测试改写。原NsResolver.types_namespace250取模型所属module globals，275–281构造原类型locals。实际raw未保存ForwardRef locals或具体arg/code对象观察，因此报告不猜首次表达式。正确后继需要透明记录原事实，不用拟Fixture表达式假称原运行已观察。
+
+## GRWA-P02：装配期仍不被旧成员门识别，P2/Test/OPEN_SOURCE_STATIC
+
+固定同类接缝：原profile的dataclass成员代码例外不覆盖stdlib生成/装配期。原首批只Pydantic错误实际发生，本问题未在该实际批次到达，不能写成第二个实际error。
+
+原普通ProbeGoalReceipt.py（ba51338492bd8c0307507030b41f1e8fd3537204459282b7de3fc55e7a1908fe）214–217仅承认已存在某原module class成员的__code__身份。原dataclasses.py（71aef7961f18bacf223566a83730def028c7fd3d6854b2d27ee23732f3d10f83）937–938取cls所属原module globals；_FuncBuilder.add_fns_to_class 496生成__create_fn__文本，498 exec(txt,self.globals,ns)先调用<string>/<module>，499调用__create_fn__，502–507之后才把所得fn挂到cls。1157在_process_class调用该装配函数。生成期module/helper的code既不是已附着类成员，且正使用video_creator模块globals，故原214–217不能接受这条合法路径。
+
+同一完整19的Fixture.load_product32明确直接导入daily_projects；固定daily_projects120–121的@dataclass(frozen=True,eq=False,repr=False) _GoalRecoveryProof，以及193/205/213同类声明必经装配。该原执行source为SourceBodies/services/engine/src/video_creator/application/daily_projects.py，76468B，SHA9857c97be9023b121991d04d50f8e03f4f6cd561f1d415f947ff1bd3c3d1a2fa。load_product33直接导入domain.bundle，固定5460B/SHA504649b976d62abf0fb0875e5659a528d348414489d2640daefda06775754083的68/87/99等类有同样声明。仅修首ForwardRef支路并不能从源码上解决此生成装配支路。
+
+归属Test。窄修应分别证明固定原dataclasses真实函数code/module身份、当前builder/cls与原源AST声明及真实decorator参数和annotations关联、builder globals为该原module字典、生成code对象来自当前原builder完整txt/真实compile-exec调用与原factory结果的关联。需要区分尚未挂接的module/helper装配期与已绑定的真正成员调用期；不能把__create_fn__名字/<string>/dataclasses caller的路径当授权。
+
+可用透明compile/exec审计记录建立该特定原builder code provenance，但不得运行额外eval/exec去求一致、无界注册临时code或把任意当前builder.locals/src可信化。保原class成员身份检查与敏感method拒绝，原Owner/资格类声明导入不是创建授权对象的许可。负向保持foreign cls/module、非原decorator、伪原caller、改builder/src/code/params/namespace、正常成员foreign替换及Owner/provider/native业务action拒绝。后继新candidate先独立源评与pure机制证据，原19/时窗/完整模块和原失败不得修改或重置。
+
+该源码判断限定同一原Fixture完整module导入中的stdlib生成装配；不是第二个已发生异常。未扫描全部vendor动态代码或声称其他未知生成路线都已批准。Pydantic选定_typing_extra/_fields/_model_construction/_namespace_utils未有直接exec/compile，而实际typing1031/1077和dataclasses498的原两机制均有固定源码证据。后继原Test应同时保存两族正向与foreign/伪caller/异code/异namespace反向，避免按每次首错盲重跑；不能修改19业务断言或降低门槛。
+
+## 修复和资格界限
+
+原Test唯一写者修Probe/辅助观测，另固定正确候选diff、完整文件pins和有意义纯机制正反证据，再独立评审；由Root按真实状态决定是否另准一次准确批次。Review不实现、不代人类或Root授运行。文件来源、code对象、注解/装配provenance与module完整关联均需保，不能只允许某函数名或字符串。模块/class-body声明计数和实际构造对象、原敏感方法调用继续区分，不以导入合法授Owner、provider、native或收费行为。
+
+lawful accepted/pending/denied/history positives仍NOT_READY；无SQL造授权，无真实Owner/human/安装/native/API/MCP业务/媒体/精度/RAG/三OS/R1资格。GRRP-I01未复现的background export归因界限继续保留。完整R1独立验收后连续完整R2仍未完成，费用/ASR/keys/install/network为0，Material三连失败不重置。
+
+## 过程限制与正式交接
+
+本评审没有import/execute产品、Test、vendor或候选，没有跑原guard、DB、SQL、HTTP/MCP、Win32、native、模型或安装。部分dc17af与ed0f05合并输出截断，只对所需原字段/遗漏段做定向补读361dfd/39316a/5fe1ab，未用截断内容冒充完整可见证据，也未扩大环境。自己的所有已返回读取/分析工具均自然0；没有新增真实运行错误。
+
+两早Finding分别SHA`cc12145fae3f8227407a52aa0e24666a5deb82758984dbc245e284656f206e9d`、`6afd6b8a8cf89daaa929dfab6cd87b090075487b4b0040b9d94f2f8ebd083b65`，原报告保持。准确Report/Handoff和有限末核封存后，由实际工具返回与Agent FINAL确认读者释放，文件存在不代终态。

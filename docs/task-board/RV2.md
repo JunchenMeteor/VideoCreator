@@ -1,0 +1,15 @@
+# RV2 W5/W4 解析与媒体边界独立复审
+
+task_id RV2；阶段Gate0；唯一永久评审角色；前置W5/W4固定源、T5原58终态，当前阶段报告/交接已保存且phasefinal。完整目标Gate0→R1独立验收→连续R2。
+
+本阶段独立核原58与39源，P01和HLS/concat边界在已测范围局部闭环；新25/40源正式副本尚未纳入本批核验，另补。报告SHA34a753a1f1ff5effa7c5f81c192ada4fb51af48a855d5c0fbb33b0ab31eff764，新增P2为领域415未进入OpenAPI/SDK，A3/B5处理。Gate0/R1/R2不签通过。
+
+输入RV1正式报告、W5Handoff/W5SourceSnapshot、W4Handoff/W4SourceSnapshot（SHA95908d77a9eb244d05a8b2a05ef1f586f0883fb16688fef564f9ca7d3572da8c）、T5Original58Regression实际receipt/XML/39源身份与范围标准。当前最终react_protocol SHA84a39f18b6ceacdaa783c3e2b7266bc526a2b0e99f6496ef610dc704e2b238a2、ffmpeg SHA36a13bb084228e1e1b1021da8812688720192c71560340a4951ad6595a201a5d。
+
+只读实现/测试/标准/收据，只写docs/reviews/及自身Review过程，不改实现、测试、标准、ACL，不自编或运行验收代T/AV。先复审稳定源与独立原58实际exit0/无skip/源变化0及原红保留；T5新增媒体批仍运行，不预判其结果或整卡完成。拿不到case私有路径用普通receipt副本且核hash，不改ACL。
+
+逐项核RV1-P01完整adapter→锁parser合法JSON语义保持/真Action/混合拒绝/原文账本；核RV1-I02真实格式、解析前拒绝、静态图duration/真实decode、受限MP4 dref目录外与协议政策。max_alloc不等于OS内存隔离；仅flags或HLS绿不证明完整沙箱；codec白名单未经全部实样不称全部支持。原Before/中间12绿1红/Final13绿版本和错误语义不可混成同一源码。
+
+新风险给严重度、实际触发/影响、源码身份与owner；inspection与实证分开。T5新增反例和receipt到达后再更新结论，未到可阶段交接已审范围供后续，不无界占槽等待。B4当前未实现，ADR0005只批准接口，不签正常停止；旧候选exit3、ASR未bundled、三OS/真实作品/商业资源缺口保持。费用0/key0/不读ValidationInstance，ADR0003收费实验限制不重开。
+
+交RV2报告、源/证据hash清单及严重度归属，独立AV后续验收；不得将58机制绿等同Gate0或R1/R2通过。回滚仅自身报告变更，保留原RV1及原失败。

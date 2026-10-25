@@ -1,0 +1,27 @@
+# PrivateEventsV2ContractAlignment
+
+ACTIVE。唯一原 integration_release。前置两个窗口均已自然停止：Integration e7e284、Test 82d738；原完整源、标准与历史不改。任务只修 SOURCE 接线，完整 R1 独验后连续 R2。
+
+## 固定输入
+
+- Integration/PinnedLicenseExecutorPrivateEventsSourcePreparation/SourceStage/SourceCopies/RunPinnedLicenseEvidence.ps1：19717B，7c4583f8756dd70424521f5ad109ce698c560ee5aef54dde0cd50065868e7a1e；SourceIndex594a1a6533b64a5387ca16e9510692c9344c0aae91e85c5dbdb8343d2960c6f2；完整Full.diff48e1e152de67d3ffff636bb19bfd5f3f94bca32c0ca56e004463814e880130e0。
+- 同根 Interfaces.md：07df821f05f1878428830026549a482e82596c002444d00035793d36afd8689d；FormalStage/Handoff.md611e71634ea10ea74d3a294a77516fc26ab2cf11ac30317f9f2544d735cd815d。
+- TestDevelopment/PinnedLicenseExecutorLifecycleFaultMethodCorrection/IntegrationInterfaceDelta.md3442afcc033190ca91427ca0735dcca06c49c1052ae3b8fb06b348c3878d37c8；ActualInterfaces.md fdca5d41e021a7ddf3be487b93874b82f50e6420626684cfc3666f825ae94bc0；MethodCorrectionHandoff.md19237f05a71b3c25e4e2d47531b2fffcf60673df0e5bdfe28792011913700166。逐项核实际文件身份；若不符先报告，不猜测。
+
+Root78c7f7全文实际接口及Test终态，79fba5全文Delta；79fba5错误猜Interfaces.json已保留，3a7312定位准确md，不计产品失败。差异是真正v1/v2契约不兼容，不能仅重命名文件声称通过。
+
+## SOURCE职责和白名单
+
+唯一新过程 Integration/PrivateEventsV2ContractAlignment/；完整候选只在本过程SourceStage，不修改已停止v1/Test文件或仓库生产代码，不写测试callback/oracle/标准。沿完整13件v1源建立before/new，保未改12件与原RunOriginal全部逻辑。无实现应用或运行授权。
+
+按Test冻结请求发布 pinned-owner-test-events-v2，参数 LifecycleTestObserver 默认null。准确13键：contract,name,command_id,process,clock,stdout_task,stderr_task,stream,attempt_number,channel,pipe,target,actual_wait_return。stream含义按实际Test完整消费者核定并记录；若请求语义含糊先交接口问题，不自行伪造来源。
+
+保五既有事件，新增 after_pump_start：原CopyToAsync返回Task已赋到原channel之后、原setup try内部发送，真实Task、同Process/pipe/target/channel/实际attempt，不用later wait代替这个来源点。attempt1错误恢复到attempt2，同已有stdoutTask不重复挂载。所有callback错误保首红、原真实资源及sticky deadline；无返回对象/结果替换，无事件默认路径不改变原控制流。私有可信callback不是沙箱或角色授权，无公共API/renderer/env入口。
+
+## 交付与检查
+
+交完整13before/new、完整实际diff、版本化Interfaces、调用位置/错误流、Impact、固定有限输入before-after与普通source索引；可做源码PS语法解析，不执行候选任何函数/fixture/owner/OS测试/Python/import/安装/SQL/模型。不要重复无变化大索引扫描；完整交接后真实自然工具终态和全部读写释放，报告SOURCE FINAL。
+
+生产22000/900不变，Test1s仍未批准；五用例NOT_EXECUTED。原19三次失败、三binding、31/105 NOT_READY、累计20元及全部历史不重开。29工具不材料化、不扫描999运行环境。未知/同步阻塞不承诺有界终止。回滚是不采用候选，保v1及原deb19。
+
+后继原独Review对完整v2与Test六候选联合SOURCE审查，Test另做whole-owner/root/tool关联及完整benign Plans；实际运行须单独具体任务。不能自关PLFM、源码语法通过不能算运行/R1/R2通过。用户预览40920服务保持。

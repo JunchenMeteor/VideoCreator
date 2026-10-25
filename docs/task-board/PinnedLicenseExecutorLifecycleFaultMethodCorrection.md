@@ -1,0 +1,31 @@
+# PinnedLicenseExecutorLifecycleFaultMethodCorrection
+
+QUEUED_NOT_ACTIVE。唯一原test_development，原准备fe2109 TRUEFINAL/no live/allrelease。前置当前PinnedLicenseExecutorLifecycleFaultMethodIndependentReview正式报告停止/Root全文收取及实际空槽；不要因早finding消息读热报告或启动第五角色。完整R1独验后连续R2不缩。
+
+## 固定停止输入与白名单
+
+TestDevelopment/PinnedLicenseExecutorLifecycleFaultTestPreparation/原完整五例标准/方法/fixture/observer/oracle及49有限副本、完整旧新owner和既有交接全部不改。仅新过程 TestDevelopment/PinnedLicenseExecutorLifecycleFaultMethodCorrection/，可以SOURCE候选/标准修订提案，旧五标准/失败原件保留。不写Integration事件实现、RunOriginal、生产SOURCE/依赖清单，不修改COMMANDS已通过行。
+
+固定早单 Review/PinnedLicenseExecutorLifecycleFaultMethodIndependentReview/Finding-PLFM-P01.md SHA1a36062d39f7509b0024e6c41944d1a5d620e4104ef489ab86fb7d7aab3ad04a，Finding-PLFM-P02.md SHAa5ddbea7b6d01ee015e59d124e51c2a8fe3518f7c70976467a71c3d778d5b5b7，Root837660全文并核身份。只OPEN_SOURCE_METHOD/NOT_EXECUTED，原Review193fc8自然0/no live固定早单；完整最终报告及真实其他问题待激活补入，不能只修两早单就忽略完整报告。
+
+## PLFM-P01具体整改
+
+Fixture实际两pipe关闭后ready文件创建与parent两Task GetResult之间无先后保障。修完整双向可观察handshake，parent不得从EOF推ready已存在；真实GetResult/同child仍alive/真实ready都到达后才能gate release。等ready用同原Stopwatch的明确前置窗口/异常规则和finally仅自有release，让良性child自然结束，不kill或造EOF。C05全部步骤计入原批准边界，未到/超界保持setup红，不能clock reset、sleep race或silent扩大1s/生产22000/900。当前1s仍未批准；若必要另提具体稳定时序方案和阈值设计请求供独Review，保旧标准，不自降低目标。
+
+## PLFM-P02具体整改
+
+C02在真实事件处锁存channel/first及recover attempt/原pipe/原byte target、原Process/已有stdoutTask，以ReferenceEquals核同一真实持有对象，不仅receipt文本或byteshash。首stderr尚无task、仅一次预期注入、恢复真实samepipe/target、不重建stdoutTask；准确complete事件序列及独立oracle必须检查身份与一次恢复，未捕获保持unknown不能PASS。Test不供替代pipe/task/process/clock，原Integration事件合同须提供真字段；提出停止接口delta交原Integration，不热写其任务或伪补端口。
+
+五例原raw大小/独立literalhash/首错/innerouterexit/EOF/taskfault/自然terminal/stoplater/downstream/费用权限标准保持；完整方法评审报告其它问题逐项修复或准确说明未实现。明确实际Windows getter与controlledthrow区别、同步阻塞/持续未知未测试、单通道fault/saveflushcleanup晚到等覆盖缺项。无需用Mock阳性或复制RunOriginal让现有五例先绿。
+
+## 交付与有限工具
+
+只SOURCE准备及自身有限PSparse/文本JSON/固定身份核，0fixture/observer/oracle函数、owner/OS/Python/第三方/Pydantic/native/SQL/HTTP/归档/安装/模型/费用；不扫/复制999runtime或29Integration工具。所有未来入口缺件仍NOT_READY/argv=null/runtimefalse，直到完整映射/benignPlans/outer入口/新事件合同独审及Root具体运行任务；本卡不能直接跑五例。原19三次/三binding/31/105/20元不重开。
+
+交完整before/candidate普通源、逐变更full diff、标准版本差异及不降低说明、Impact、唯一Interfaces/与Integration精确接点、finite beforeafter、函数未调用/parseonly说明、实际工具自然终态/allreader释放。正式SOURCE FINAL不自关两个P2。后继原独Review复审完整候选/标准/方法，再具体有限实际执行，独Acceptance仍负责完整R1后连续R2。回滚为不采用新候选，旧原准备材料不变。
+
+## 当前激活：完整正式评审已收取
+
+ACTIVE，唯一原 test_development。Root c8cde4 已全文读取正式报告 docs/reviews/PinnedLicenseExecutorLifecycleFaultMethodIndependentReview.md（SHA adcaa580ebd380b481b8da7fc4bff9a96114f390acdd85c9aad7c53d8a185b57）；Review 949497 自然0、TRUEFINAL、全部释放，实际并发空槽已核实。原所有约束继续有效。
+
+新增 PLFM-P03 也必须整改：LifecycleObserver 前置验证及 Trace 写失败处于 gate finally 外；将自有 gate 的实际释放责任覆盖 callback/outer setup 首红分支，持续 trace 失败不应阻止 release。不能 kill、伪 EOF、重开 child 或通过复制 Owner 控制流规避。Finding SHA720f511e26bd7e023b7eddd3afb4ac6422b58920830169549d5c8b9ac0f6ab79。三项均仅源码问题，五例未执行。交付仍按完整候选、真实差异、Impact、接口和停止证据，不自关 P2。

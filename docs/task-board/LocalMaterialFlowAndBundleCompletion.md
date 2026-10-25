@@ -1,0 +1,11 @@
+# LocalMaterialFlowAndBundleCompletion
+
+ACTIVE，唯一原 agent_media；R1实际本地视频与多模态作品包，随后R2不变。只写仓库 AGENTS.md 的 workflows/providers/media 生产路径及自身 AgentMedia/LocalMaterialFlowAndBundleCompletion/ 过程目录；Backend sole DTO/API/权限/账本、Integration依赖打包、测试与评审文件均不可改。候选先自有目录，不应用/运行，待独Review/Root实际收件与独立验证另推进。
+
+固定停止输入：ADR0074 SHAfe82d5db54489e48080efa4bbda03fe7c4d5c6f76bdd56c395f48d321fbd953e（11字段已架构批准，待独评）；Backend EarlyTypedAbi唯一module SHA7187ac4cf7dc0fd9fdfa941f1c88ae0c62bc03131c7fb88ccaf551f0679e92d4/Interfaces e309d56d6e2c9df661fe3edb289b0d9cf083d9ec09e02bebdedbb23ae32d0765；Backend新停止Partial Handoff SHA429e855bcb5c223bfb9847003318d81f4e5de0f3ff5888414585a96973cefd76 与 ActualInterfaces SHA182ecbb367bd5d6b3a126922a93eae0c1456925eab9b650f5dfe24138b8e6420；自身 RevisionTwo/SourceIndex SHA f939763decb1a9e18fc0dffcd19e8758ed4664b54e77e8855520492d55dfe929、Interfaces SHA2f326bb66c62bafdda0dc2683fec379ab59f9c35db2332ee85fcf5f3cd7a2012。自身三新增驱动正由原独Review读取其已停版本；本轮新候选放不同过程目录，不改该冻结输入。Backend后继计划实现并行进行，勿读热源、自造Ref/parser/Asset。完整baseline=原Media48+自身停止新增3，原 qualified 分支保持。若必要接口尚无实际类型，从冻结0074构造可静态候选并精确声明依赖，后续和sole Backend实件对齐。
+
+真实目标：在原同Run Engine/Worker/Bundle/Operation/lease/plan admission及human ProductionPorts或actual PolicyExecutionPorts上，实现 local services、policy services、两个runners、local Flow与composer；使用唯一LocalMaterialPlanV1读取真实 accepted Goal/request/Asset/script/Step，规范化上传旁白音频、由每个成功Step绑定派生素材，驱动可变镜头/混音/cover四masters。source script、input audio实际转写、最终旁白/混音ASR、字幕、精确时码、RAG/source semantic records各自引用真实原始证据，作品包原QC/两authority/immutable publish和导出/引用共版本；ASR无实际资源或未通过须 WAITING/NOT_READY，不生成假的转写/CTC/字幕/RAG成功。无旁白/纯音频等输出适用规则从原request和冻结计划明确处理，不塞假narration/假镜头。模型生成路径另保目标，不把上传旧片计为新生成三镜头。断线/unknown/取消/局部修订保持原Operation与未影响哈希/调用次数，不能盲重交。
+
+已停Media候选拒gain>4，ADR0074不设任意上限；独Review正核代码冲突，先记录确切影响与候选修正方案，不热改其冻结三源，也不自动放宽执行。静态图的source_range/display hold语义Gaps中未获唯一source_media_range裁定，需交架构/Backend给最窄合同，不能把图像伪称原生有时长。若这些问题妨碍具体分支，继续video/voice等不受影响真实实现并标gap。
+
+交付完整候选、明确哪些媒体/对齐/Bundle运行尚缺、失败语义/实际接口/完整diff/Impact；不做模型/FFmpeg/ASR/SQL/安装/费用运行，旧19/三binding及20元累计不重开。不得以AST/模拟称R1；源码独评/真正受控实测单列。保旧候选与失败原件，回滚是不应用。原工具自然终态/读写释放后给Root正式交接。

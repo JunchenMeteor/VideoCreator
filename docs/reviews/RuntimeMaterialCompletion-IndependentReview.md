@@ -1,0 +1,63 @@
+# 完整运行材料补件候选独立源码评审
+
+结论：`SOURCE_REVIEW_BLOCKED_BY_TWO_P2`。三份完整候选及原源/diff、原停止材料投影已独立核对；确认两个归属原Integration的源码P2。RMCP-P01是新grammar校验调用继承遍历函数导致的遗漏，RMCP-P02是原locator/stage写入边界的继承缺陷。本报告不批准应用、构建、安装、grammar或候选执行，也不把来源方案、AST或data观察升为真实运行资格。
+
+## 固定输入与实际审读
+
+当前任务卡3012B，SHA `280ffa91bf11880a51af0ff8678ac4065dfbd809e9933d463aef6de04bc8a5ce`，末ACTIVE_SOURCE_REVIEW_ONLY为本轮范围。正式入口只用 [FormalStage/Handoff.md](G:/开发测试/Codex/VideoCreatorImplementation/Integration/DependencyRuntimeMaterialCompletionPreparation/FormalStage/Handoff.md)，SHA `2b3b1e56118df3151b0060b20c3fc6a21feb64493567175a6cb2cf73583d5531`，JSON `8de6a5b7f68b4a562057787df3ed688aa9144722016ff76afb8de62a7de7c5af`。partial父级Handoff不替代此入口。
+
+SourceIndex `9c1ddccb0b861407bd61e84885ba2929b86efddb53d59e9e78fee44792bebc20`定位三对完整普通源。InputIndex `6698e3aa19e410bb41c59d89c7706985f73c50fcebe7e001b15c43e9c93d5b54`实际位于父级；186停止声明输入与CompleteArtifactIndex的50固定件/治理合并为239唯一输入，Before/After byte/SHA均无mismatch/difference。源语义审读使用OriginalSources/CandidateSources普通件；声明输入中原builder/metadata路径仅作固定身份核，没有读取活动Backend/Integration来源方案。
+
+| 完整源对 | 原SHA | 候选SHA/字节 |
+| --- | --- | --- |
+| EngineResourceInventory.py | cc35585271f66545b0f1751b0d950ee5f402784a057ae55b91a70447df93f70e | 3090f70a5530e07f21bb18b6f6facdc34f0a8c4b391065d141da3e765dcc746f /20413B |
+| BuildPortableEngineStage.py | 3ecc514ab67efc687d1454d0b304705d9b5d6bef3be6aa75e344d4f340ff84b3 | 115b2ce363c6663565a6549986d48b0bb27224a542f2baaf2222fd17c2f4299e /8666B |
+| BindQualifiedCompletionDependencies.py | 3c8b8ba70795bdd0c65985291ae6d5ace8e225585ae50ea71967e8d182458f55 | e7c600a4c3ec4e2a03011c9fca9e702bd6b7088a54c6e9bb7713beb09964b5ba /29007B |
+
+14598B完整Full.diff，SHA `8595a9c3e91f75ecd5c09c6cb314d5a03aed9919a2c6512286ccdad05517601e`已全文读；882cf9自然0按每个hunk的原上下文/删除/新增/计数核验，三份完整候选文本均可从完整原件重建，所有diff节已消费。三个候选256/78/507行正文已全文读，未变原段通过逐字重建保护，没有调用任何候选或解析grammar。
+
+RepairPlan7159B/`a24f40a29f659a1e5d5667e92035fe5c1cdab91af9d1904c631ee11ece8ed3fe`、Impact3667B/`e91a076abd93daee51bd2325fc5a1c97317b6d5eae7d073a956d8c7be523bec0`全文已读。数量、作者bool、候选AST3不承担本报告源码结论。
+
+## 两个确认问题
+
+**RMCP-P01，P2/OPEN_SOURCE_STATIC，归Integration。** [停止inventory候选](G:/开发测试/Codex/VideoCreatorImplementation/Integration/DependencyRuntimeMaterialCompletionPreparation/CandidateSources/EngineResourceInventory.py:100) 第100–105行用walk判断grammar whole membership并核declared files的byte/SHA；但第19行跳过整个__pycache__，第20行排除pyc/pyo。随后107–111、116行加入sys.path并真实import packaging。未声明cache因此能从这一输入闭包检查消失；-B约束cache写入，不能当现存cache不参与导入的证明。最小条件是正常声明.py均相符而目录另有未声明cache；本轮没有观察实际恶意cache、执行导入或做OS复现。修复须独立完整枚举grammar，导入前拒绝全部未声明/缓存/链接输入，或另行固定完整真实加载规则和所有代码身份，不能用过滤树称whole membership。详见 [Finding-RMCP-P01](G:/开发测试/Codex/VideoCreatorImplementation/Review/RuntimeMaterialCompletionIndependentReview/Finding-RMCP-P01.md)。
+
+**RMCP-P02，P2/OPEN_SOURCE_STATIC，归Integration，继承问题。** 同inventory74–87行add只拒空、反斜线、dot/parent段，PurePosixPath呈现不会拒绝`C:/Outside/Example.py`的drive/colon。该locator可从plan.sources进入inventory.files。 [停止stage候选](G:/开发测试/Codex/VideoCreatorImplementation/Integration/DependencyRuntimeMaterialCompletionPreparation/CandidateSources/BuildPortableEngineStage.py:27) 第27–31行直接root/relative_path后mkdir/copyfile，没有逐项验证安全相对定位或完整目标仍在fresh root内。Windowsdrive绝对定位会覆盖root；新source_root='Code'旁字段和正确SHA不证明每项输出定位安全。最小条件是未来固定plan含这种行而source字节/其他必要输入相符；不声称现冻结输入含此行或已有越界写入。修复须在inventory和stage首次写之前分别验证相对段、drive/UNC/特殊路径、允许payload空间和完整目标父链/root关系，保持原链接/hash/fresh规则。详见 [Finding-RMCP-P02](G:/开发测试/Codex/VideoCreatorImplementation/Review/RuntimeMaterialCompletionIndependentReview/Finding-RMCP-P02.md)。
+
+这两个问题足以阻断本候选的完整安全源码支持。Review不代修，也不等待作者热修或真实OS才能交静态finding；独立运行/故障验证仍须另一明确准入。
+
+## 依赖语义与材料关联的可支持部分
+
+inventory120–132按唯一uv-lock包和extra/marker遍历；137–164要求installed METADATA version与lock完全对应，解析每份原RECORD并核hash/size。新166–190使用Version/SpecifierSet/Requirement，对各保留包Requires-Python、已声明extras、所有base/active-extra原要求及child extras进行单调fixed point，活跃缺包、URL或版本冲突直接拒；191–197保留每个原ordinal/raw和最终active/target/extras决策，未把false条件边删掉。未知语法/变量或版本解析异常没有被捕获成false。113–115要求完整11个target字段，当前保存target仍缺platform_release/version，不能自行补宿主值求通过。
+
+147 floor在167–169由独立plan.retained_baseline_packages要求subset，旧资源不能凭inactive marker缩水。它不是新锁解析器：raw child不在already-selected版本集合会拒，不获取或选择新版本。完整four profiles api/worker/mcp/asr和Windows、Linux、macOS Intel/ARM仍在RepairPlan中；profile/OS实际资格不是这一函数实现。
+
+仅做保存JSON字面与原停止数据的独立核对，2c39ca自然0：[SavedProjectionChecks.json](G:/开发测试/Codex/VideoCreatorImplementation/Review/RuntimeMaterialCompletionIndependentReview/SavedProjectionChecks.json) 对全部147 retained package/version/METADATA/tags/Requires-Python/Requires-Dist/Provides-Extra/original_extras逐值核对旧PackageBinding；全1138 edges、642原missing和roots同旧graph；linkify/requests/crypto/standard四组原extras保留。没有执行第三方grammar、markers、SpecifierSet或任何候选，不能把这些字面相等说成实际语义求值成功。
+
+候选未实施wheel-tag兼容求值或完整current root/profile声明绑定，虽保存了packaging22份Python源码的来源投影和WHEEL tags。精确grammar/source/loader/宿主/target/入口调用图及真正OS floor仍需独立具体闭包；RMCP-P01解决后也不能直接授grammar运行。缺失的current complete root/profile声明、real platform事实在ActivationPreparation中明确保留；SHA/ref本身不是issuer/source authority。
+
+## Scripts、pth和新安装的真实边界
+
+完整48原缺行与47唯一缺件/owners/ordinal/raw triplets/hash/size均同原PackageBinding；其中47 Scripts行/46唯一Scripts，另185B pywin32.pth，旧原缺件事实未被改成match。CausalAnalysis两份crewai/crewai-cli的完整entry_points.txt实际49B且均为相同console_scripts正文，SHA `fe64462cc7d5caf7d7c157bd93e66304003fc29f50e4525143a09bafdecb4203`；两个owner原行均在unique_missing_members保留。
+
+inventory148–162允许RECORD文件仅处于declared site或同installed_prefix/Scripts，拒绝cache/editable/direct_url和其他pth；唯一pywin32/pywin32.pth只以数据成员加入manifest。它不执行site或postinstall。新derived-installed-record origin与旧原件区分，add对于同定位不同SHA直接拒。对同SHA共享定位add只保留首个origin，完整包RECORD和后继collector仍可保留双owner；该单origin不能自行证明双entrypoint语义一致。未来installer/真实receipt与共享launcher解释仍须固定完整调用目标和两owner的确切原entrypoint/body校验，不能只依据文件相等或旁ref。
+
+RepairPlan明确新独立fresh prefix、exact publisher wheel/installer/source闭包、无网络/解析新版本/editable/compile/postinstall；缺原publisher成员和installer-generated launcher不得伪造旧hash，旧RECORD永久保留，新RECORD/byte转换需实际独立收据。现没有installer/tool执行或47缺件原body。historical wheel URL/hash不是已接收完整archive证明，不能从补件方案自行启动构建/安装。
+
+stage只要求refs非空而不实现完整installer/current source authority核验；这一明确未实施边界仍开放。../../Code相对拓扑可保留，但必须完整current生产源，不继承I26历史58源，也不能把154 Test composition直接当成完整产品。78行stage保留复制前后hash、fresh root/space、失败receipt/throw、原模型digest和ASR qualification-not-admitted；partial stage失败的隔离/后继处理须由实际后续plan管理，未运行。RMCP-P02的每项目标安全缺口独立存在。
+
+## 许可collector与剩余门
+
+collector原identity/RECORD/physical/source/limit/dual before-after和数据-only标记保持；新增349–373按完整License-File literal拒空、backslash、colon、NUL、absolute和dot段，对唯一原RECORD_HASH_SIZE_MATCH及actual IDENTITY_MATCH先核，再受原4MiB cap保存body。完整嵌套路径没有退化为leaf，保留declaration ordinal/raw字段；已有heuristic行不重复生成。未知或非2.4layout在352–353显式拒绝，未猜路径。
+
+193个原完整声明与旧PackageBinding全逐值相同；150个Metadata2.4声明，其余19个2.1、2个2.3、22个2.5。本候选严格拒绝这些非2.4声明；例如排序首aiofiles2.3会在这里停止，不能声称候选在当前全部147包上已产出216body或已兼容。未知旧layout另需明确原关系后归属修复；不能删除它们或把拒绝改成默认接受。
+
+198旧selected body引用保持，18份pypdfium2完整嵌套原文copy逐件原路径/size/SHA相等，18是普通版权证据，不是runtime新增文件或法律准入；本报告未作198+18所有条款的分发履约审查。七包crewai/crewai-cli/crewai-core/flatbuffers/lance-namespace/lance-namespace-urllib3-client/tokenizers仍缺完整已选/已证明body来源；classifiers/License字符串不能替代原body、NOTICE或履约。静态210 PE、namespace集合、ABI3/CP313 tags不证明真实DLL/native加载或三OS资格。
+
+## 原结果、自己的错误与交接
+
+原preparation child11348/creation2026-10-11T08:56:53.8423654Z，natural1/双EOF。原1507B STDERR全文证实PrepareCompletionProposal.py306最终rglob/fact读取自己仍打开的Stderr.bin触PermissionError；不是候选inventory/stage/collector执行。原56d489/1保留。metadata child26824/creation09:02:48.2072193Z另natural0/双EOF，receipt明确metadata_only、candidate_functions0、candidate_AST未重复、无kill/restart/replay；它没有洗掉原错误或重跑候选。
+
+自有f9bfe9把InputIndex误定位到FormalStage，实际shell exit0但含FileNotFoundError/Null错误；2a65df按已读Handoff精确父级路径纠正，原错误保留，不算产品。d5fb63仅完成Before，混合命令的LASTEXITCODE检查未继续diff；882cf9单独完成实际重建。504c91为有限结构投影，深度3截断警告及console截断不称全文展示；ebeadf/43ae59精确补字段，完整保存关联由2c39ca另核。没有因为定位或工具错误重跑目标。
+
+末ab1022自然0，239有限输入Before/After无差异，无环境树扫描。原19三次耗尽、31 NOT_READY/NOT_EXECUTED、三绑定限次与真实observer缺口保持。真实安装、native/Owner/API/MCP/媒体与完整三OS R1后连续R2均未验收。只可将本报告的两P2和明确剩余实现/准入边界交原Integration；实际末工具终态/读者释放见FinalHandoff与Agent TRUEFINAL，不以文件存在当停止。

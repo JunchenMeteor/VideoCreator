@@ -1,0 +1,20 @@
+# Architecture — CFDJ-P01 诊断选定来源转移合同修正
+
+Task CombinedFailureDiagnosticSelectionCorrection。QUEUED_CURRENT_REVIEW_TRUEFINAL_ROOT_FULL。唯一原 development_role_plan；当前0c1a6bc8独审全部工具自然终态、读者释放且Root全文消费正式报告/交接后，Root另行明确激活。此前不修改ADR0060或原固定输入。
+
+完整目标R1独立验收后连续完整R2；数据在安装实例，本地免注册、官方内部服务、自有API可选。职责仅架构合同，不代写后端/媒体/测试，不授运行。
+
+白名单：docs/decisions/及自身G:/开发测试/Codex/VideoCreatorImplementation/Architecture/CombinedFailureDiagnosticSelectionCorrection/。不修改旧0058/0059、已有冻结0060版本或其他角色过程材料。保旧0060完整字节/身份；采用后继不可变设计版本及明确替代关系，不能静默改旧输入。
+
+固定输入：ADR0060 24496B SHA8fc928e2ea0ff418a0ee1cfe998baf5d86873d542989bf2f22f100df114d184f；原Architecture Handoff.md 3a5fd5d3a9f38708adcbf0d2bac92cf234b236860b96a1238962e38c23ac96e8 / Handoff.json e6a14aff2c0dfea8e50024a0593c5edaf137082125135db23cc5900cbd603742；原停止127源index2647be662e31cafb8c9870c5276b8740df3ffd9bbfc701dcea79a5d67e38a424。明确finding路径：G:/开发测试/Codex/VideoCreatorImplementation/Review/CombinedFailureDiagnosticJoinContractIndependentReview/Finding-CFDJ-P01.md，SHAb28e7c008fffe1db69daf5d2c6eab1f20685cc0e5e74095f21d7a6f8d2771923。正式评审及所有额外问题身份待激活补充。需求沿原0060/BDE-P01/P02，保01适用AC及09 MM03/MM06原精度、版本、恢复要求，不新增降级标准。
+
+目标：以原实际方法和调用者闭合finding指出的 record→选定来源→park/journal→publication 接缝。区别合法不同input新增不可变Fact与原同input冲突；明确谁追加、谁选择，以及old selected ref/body、exact journal/source/readset、Owner/current/lease fence与同短连接事务/CAS的约束。publication、显式reader、失败join须消费同一当前选择；记录后park前崩溃、重复复用及任一竞争变更保原拒绝和历史，失败整体rollback。原原子资产/操作账本、未知受理先核实、已settled不重收费、原限次/费用以及两authority/完整精度闭包/rights/整份plan权限全部保留。由架构自主设计，统筹不指定实现算法。
+
+不可接受：直接清除旧pointer/失败、覆盖Fact、latest选择、放宽原同input不同Fact409/损坏422、关publication guard、被拒的pre-verifier earlyreturn或第二wholeverify、假READY/伪完成源/随机key。新版本须给Backend可实现的具体caller/ABI、输入输出和403/409/422等真实失败语义；必要跨Media/Integration变化写清消费者与交接，不猜另一角色实现。
+
+检查仅固定合同/普通源码全文和有限身份/UTF8-LF校验；不import产品、Pydantic/SQL、测试/87/fixture、native/模型、HTTP/MCP、密钥/费用、安装。没有新增实际运行验收命令；原19三败不重置，原CNY20不扩展。提出测试需求交Test，架构不得修改标准。合同修正不关闭BDE-P01/P02实现问题或CFDJ-P01独审问题。
+
+完成：新ADR、完整实际接口差异/失败语义、固定输入before/after及有限普通副本、Handoff MD/JSON和本人末工具真实终态/无live/所有读者释放。原问题与旧设计保留。回滚只撤回本次未批准后继设计，旧版本不变。下游独立Review新合同→Backend原职责实现→Media/Integration实际消费→独立测试/验收，不以设计源审代业务运行。
+
+## 2026-10-11 正式激活
+原Review6100b6自然0 TRUEFINAL/no live/全读者释放；Root全文并actualSHA核正式报告a22dfe71cbcd6a71f898046b5b0201cb89cea2ad555ae1cfa5eba14e60b90fd1、FinalHandoff71776ca75e67c47da6c26c9c38e4f9b9253a091a550462c1520e731f2dce32e7，唯一新CFDJ-P01。现原Architecture正式执行本卡新不可变设计修正；原0060整体实施合同未批准，限定保护方向不等于运行/实现许可。正式评审路径G:/开发测试/Projects/VideoCreator/docs/reviews/CombinedFailureDiagnosticJoinContract-IndependentReview.md；FinalHandoff位于原Review/CombinedFailureDiagnosticJoinContractIndependentReview/。只本卡白名单，保所有旧源/历史。

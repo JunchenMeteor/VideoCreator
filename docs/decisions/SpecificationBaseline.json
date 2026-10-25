@@ -1,0 +1,66 @@
+{
+  "captured_at": "2026-10-07T14:04:19.1613074Z",
+  "status": "design_inputs_read_only",
+  "files": [
+    {
+      "path": "G:\\开发测试\\AGENTS.md",
+      "bytes": 5794,
+      "sha256": "2ea0ba4b7313e9101c98759e262742c4ea93b706dd5ba1632e5269cd0968ede6"
+    },
+    {
+      "path": "G:\\开发测试\\Documents\\VideoCreatorSpecification\\01-项目需求文档.md",
+      "bytes": 21532,
+      "sha256": "062f57391792f8d52530949450a2591f8f7825537b0a9a9e665e3b5c6a91731d"
+    },
+    {
+      "path": "G:\\开发测试\\Documents\\VideoCreatorSpecification\\02-技术规范.md",
+      "bytes": 31204,
+      "sha256": "6d59ed7d3eedd12dc6666e2ce3ea02fbdb191566eb0a86a328ff20d50f0e4eed"
+    },
+    {
+      "path": "G:\\开发测试\\Documents\\VideoCreatorSpecification\\03-AI实施细则.md",
+      "bytes": 18199,
+      "sha256": "a268b7473124c32e9c5ab4e84d34e76a65913aee3184c87727e5520d686cc7e1"
+    },
+    {
+      "path": "G:\\开发测试\\Documents\\VideoCreatorSpecification\\04-Agent框架与技术选型调研.md",
+      "bytes": 11252,
+      "sha256": "44aaf0c27104280a09fe680f6c11d8441a34e92d2f36d275d4aa19af80c37eb2"
+    },
+    {
+      "path": "G:\\开发测试\\Documents\\VideoCreatorSpecification\\05-Portal代码复用与接入清单.md",
+      "bytes": 12880,
+      "sha256": "36b739b145258cad0f5a01afef1389f0cf640152ce053627f338826320da4784"
+    },
+    {
+      "path": "G:\\开发测试\\Documents\\VideoCreatorSpecification\\06-界面与交互规范.md",
+      "bytes": 11826,
+      "sha256": "f20959d755a7c56348971c02b0d188752efaebb2a4684a6b1b6c74bdf5ae6118"
+    },
+    {
+      "path": "G:\\开发测试\\Documents\\VideoCreatorSpecification\\07-版本与兼容性决策.md",
+      "bytes": 6922,
+      "sha256": "eb5282dfe0754473e359828a16a062a199c9c8cc4751505234bd1a510d352322"
+    },
+    {
+      "path": "G:\\开发测试\\Documents\\VideoCreatorSpecification\\08-演示音视频分析.md",
+      "bytes": 12526,
+      "sha256": "6f0c647e77cc448b1d594fc085c89154003a800170c706e20a7c886eaba807f5"
+    },
+    {
+      "path": "G:\\开发测试\\Documents\\VideoCreatorSpecification\\09-自动制作与多模态交付规范.md",
+      "bytes": 28153,
+      "sha256": "a866f31c05ca0ab28c83fba92496e99feb378cd7a2477fe9b4e2adabe69d95b0"
+    },
+    {
+      "path": "G:\\开发测试\\Documents\\VideoCreatorSpecification\\10-项目目标任务书.md",
+      "bytes": 8249,
+      "sha256": "3e345b4f295ad5bb8015e288b0476621d5f6a889b0fb43946d4f13a219e07df5"
+    },
+    {
+      "path": "G:\\开发测试\\Documents\\VideoCreatorSpecification\\11-研发角色与交付协议.md",
+      "bytes": 16620,
+      "sha256": "010c1f70c2aa2b9b22e5b13dda83b82f7c36c65db9e6544c2a8254688d6b1da0"
+    }
+  ]
+}

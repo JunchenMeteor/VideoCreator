@@ -1,0 +1,9 @@
+# RV77 固定输入定位补正
+
+原RV77任务卡保留，不覆盖角色已pin输入。正式B39SliceAHandoff明确最终静态修订；任务卡预期Snapshot SHA34506准确，源目录定位应以下为准。
+
+- 最终Snapshot：Backend/ExecutionRegistrationPersistence-B39/SliceA/StaticRevision/SourceSnapshot.json，36175B，SHA34506cbd465678a72555faeb8bf2ab492bc145132ac97a459ef248970c361ae3；其最终SourceCopies供本评审，application/execution_registration.py应103c7fb412076db2fdf029cc87646a87f2b0ccd067da63bbe81181f4df0b6123，21810B。
+- 原首批Snapshot：SliceA/SourceSnapshot.json，35103B，SHAddf487b802842b04819abbcd0d0d8372f686a51953267d24dccda211b082680c；仅作为原lint红来源，不混为最终修订。
+- Interfaces.md与B39SliceAHandoff.md/.json位置与hash不变。Root177295/0只读metadata核两个Snapshot实际位置，未读Backend热application。
+
+Root9326c9元数据读取脚本foreach直管道语法失败，177295仅修该只读脚本后实际0，原失败保留。Review自身路径数组错误独立记录，均不是生产反例。评审身份按最终完整普通副本，范围与独立角色白名单、完整R1→R2不变。

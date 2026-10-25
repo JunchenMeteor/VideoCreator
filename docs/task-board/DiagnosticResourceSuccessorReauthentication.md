@@ -1,0 +1,19 @@
+# 分批资源恢复的当前重新认证合同
+
+QUEUED_CURRENT_REVIEW_TRUEFINAL_ROOT_FULL_AND_REAL_SLOT；唯一原development_role_plan，当前四槽满，不自行激活。目标是修复明确的DRC-P01，保正常分批就绪后同Run自动继续，不把功能缩成首次资源就绪。
+
+输入：固定0063 ADR62b0d2e751c5698fa61a3acf26a9bc89d4a6d4f33026b9f2413f9e1a97fe6d98及Architecture/DiagnosticResourceCompletionContract/53普通源/index5fd80570338e760c0a1da8ec4909a3b929faea0e7ad56416c3be583ef202defc。Review/DiagnosticResourceCompletionIndependentReview/Finding-DRC-P01.md fd18d3e9e42b57d5502e12d577c09192b6c25732246e7b8a91c3910f60b8b126已Root5e1e4f全文及actualSHA核；其余当前独评formal仍热，停止后由统筹补身份。不要读新Media/Builder/DALI热源。
+
+实际冲突：R1已消费A的a1后等待B；同payload/catalog/完整route/method经真正Owner replace到R2，a2因record/action/revision变化不等a1；原stable input保old_completions+new并全部读，0063当前集合/exactref只认a2，旧observation失效，a1阻断正常分批恢复。不能删旧ref、放宽旧资格、用不同action假同事实、换Run/key/预算或重复已settled调用求通过。
+
+仅架构白名单docs/decisions及自身Architecture/DiagnosticResourceSuccessorReauthentication/。旧0063冻结保持，新增最小后继合同（预计0064，先查占用）。明确真实当前来源如何重新认证旧immutable完成事实、与当前新body/ref的受控关系、stable successor及来源/捕获/current CAS的确定规则；旧input/journal/Operation/ref原件作为历史保持，当前执行资格另有真实proof。原同instance/payload/catalog/method/fullroute/runtime、Report/rights/validity/floor/revoke/Owner/source与两authority/200ms/预算全部核；不从旧body或历史parent复活执行grant，不另建issuer/账本。
+
+给旧ref与新ref不变/变化/旧报告过期/撤销/移除/未知/新payload各有限正反语义，原probe/全部completion读/immutable input/claim/park实际接线和最小Backend/Integration/Media职责，no-reanalysis/no refee条件实际可实现。新增field/grammar若必要须闭集、唯一Backend typed owner和旧格式字节不变；所有外部观察在原短writer之外，事务内only真实member/captures/当前行。正常case必须能同Run逐批继续，不以永久503或人工挑资料替目标。
+
+只设计/source对照，不代码、产品/SQL/Pydantic/native/模型/安装/收费或测试标准，不扩大原被拒动作。交完整最小ADR/精确callers/独测必要证据、固定ordinary before/after、formal自然终态/allreader release；独Review批准后再原角色实施。未闭真实资源/OS/作品/R1→连续R2验收不能由合同关闭。
+
+前置独评已停止：原Review2c7c95自然0 TRUEFINAL/no live/allreader release，统筹56f25f完整报告87c264013c7c050caefd61e3b3d1adbe97ef84ca5de9e6d5465365e9ad2582d2及Final504b0694cc60fbc7b058ce9a103744b5fe94a4afd9c8c4e2e384be64faa81e34并核实际SHA。63有限inputs无漂移/53关系无残差，唯一DRC-P01仍OPEN，非运行资格。目前Root/Media/Integration/Review DALI四槽满，本卡仍QUEUED；等真实槽位统筹明确激活，不读取热Media MDG材料或扩为另一角色任务。
+
+## 本次激活
+
+ACTIVE：原Media最后工具01f42e自然退出0，TRUE_SOURCE_STAGE_FINAL，无live工具且全部读写释放；Root eb5183已全文收取其Handoff.md/json与ActualInterfaces.md。当前原角色Root、Integration构建器、Review DALI及本Architecture，未新增角色。原development_role_plan仅执行本DRC-P01合同；后续MDG合同保持排队，不并行扩大本任务。固定独评输入、职责边界和无运行限制如上。

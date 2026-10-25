@@ -1,0 +1,25 @@
+# RMCP-P01/P02 解析代码成员与制作目录定位修正
+
+QUEUED_SOURCE_CORRECTION_PREPARATION。唯一原 integration_release，在当前来源接线准备的真实读写窗口停止后接续，不混合两个报告或修改原评审输入。完整产品目标不变。
+
+原Review单独固定缺陷：Review/RuntimeMaterialCompletionIndependentReview/Finding-RMCP-P01.md，SHAfe1f3575ae55b0591027d0b67a64fcf8491952abc2e5a5e2016aef6b4b5e8bbe；JSONad3d10de4bc96d58d63762e897b458577257ec89d55a3966f3bb49069426c66c。882cf9自然0/完整三对diff重建；Root57da67全文两件核SHA。P2/OPEN_SOURCE_STATIC，仅静态缺陷，无实际缓存加载或OS复现，0候选运行。
+
+固定候选 CandidateSources/EngineResourceInventory.py20413B/3090f70a5530e07f21bb18b6f6facdc34f0a8c4b391065d141da3e765dcc746f，根Integration/DependencyRuntimeMaterialCompletionPreparation/。新100–105 grammar整体校验复用9–20源筛选walk，跳__pycache__/pyc/pyo；其后实际packaging imports，因此不能以-B或筛选源集合推完整加载闭包。
+
+仅自身新修正阶段，保完整原候选/SourceIndex/Full.diff/186输入和活动独评输入不变。准备最小完整补丁及Impact：grammar专用完整目录/文件遍历，不忽略任何成员；所有未声明、缓存、目录或文件链接必须在导入前拒绝，完整实际相对path/byte/SHA与明确声明一一匹配；或由原已评明确加载合同提供完整可执行来源，不能允许未知cache或只重复-B声明。源payload walk原语义不批量改变，target/markers/version/extras/原preloaded拒绝和路径边界完整保留。
+
+0候选/抽取函数/packaging第三方import/绑定/Test/SQL/native/network/install/模型费用。只普通修前/候选完整源及必要stdlib AST、完整diff/Impact/接口和精确身份。真实导入验证留给原Test独立准入，原19耗尽/31未执行保持。正式停止全读写释放后Root全文收件，再独立复审，不自关闭P2或应用原候选。
+
+## 正式独评交接与第二项修正
+
+原Review已 TRUE FINAL：末 f1bc5a 自然0、无live、全部读者释放。Root本轮全文读取正式报告、FinalHandoff、FinalizerTerminal：结论 SOURCE_REVIEW_BLOCKED_BY_TWO_P2。报告 docs/reviews/RuntimeMaterialCompletion-IndependentReview.md，SHA 1fe08b0c5dce0e7c0488ffeae0c23e54ff77ee0d8ffc0f0fb1f07d8c0a506869；FinalHandoff e6288896e5e6d55674b88d6009645942892344e195d88ce98533c7302988577c。239输入无漂移、三对diff重建一致仅为源码评审证据，不是运行准入。
+
+同一下一修正窗口纳入 RMCP-P02，P2/OPEN_SOURCE_STATIC。停止 Finding-RMCP-P02.md SHA 227f0bdaee649f2fef6527fbb8dc9d50a2efa56ee239684c499ec14c5343bc02，JSON 10d14bc8d504a9cbaa9f11b548a3b41d8f6d35b4560550f51401dd7b83d10f96。inventory add 与 stage 首次写之前均须拒绝 absolute/drive/UNC/colon/特殊或逃逸定位，核对允许payload空间、完整目标父链及fresh-root关系；保留原链接/hash/Scripts/pth规则。仅新增source_root旁字段不修复每项输出路径。没有观察当前冻结plan含恶意路径，也未做OS复现。
+
+独评另外指出非Metadata2.4声明当前严格拒绝，installer/current生产源权威、真实target、七包完整许可材料和native资格仍缺；修正不自行放宽这些门、不启动第四次绑定。当前来源接线阶段继续完成后，再切换此修正卡；不能热改活动输入或用本卡替代当前完整源码交接。
+
+## ACTIVE_SOURCE_CORRECTION_PREPARATION（2026-10-11）
+
+原Integration当前来源窗口已经结束：571485及f16e3d自然0，TRUE FINAL/no live/全读写释放。45 Native候选与独立FormalStageRevisionTwo已停止；Root c8591b/16e808全文正式Handoff，a1489c/3afa7a/3f80b5全文Interfaces/MissingProductionSeams/Impact并核SHA。该SOURCE_NOT_FOR_APPLICATION_UNCOMPILED阶段继续等待新来源合同，不在本修正窗口修改它。封存收据4fcc63输出截断，ca5832准确补读非列表字段，139输入数组未称全文审读。
+
+现由唯一原integration_release接续本卡两P2最小源码修正。另建自身 Integration/RuntimeMetadataAndStageLocatorCorrection/，完整原三候选保持不变；只准备两相关普通候选/diff/Impact/固定索引与必要stdlib AST。不应用仓库、不执行候选、packaging或target语义、不新安装/绑定/数据库/原生编译/费用。两P2需原独立Review闭合源码，不能自己关闭；后续运行准入独立处理。若发现修正需改变原publisher/schema/source权威，不猜值放宽，精确记录依赖后继续已可定义的最小边界修正。

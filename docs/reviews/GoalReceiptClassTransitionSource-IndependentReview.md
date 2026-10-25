@@ -1,0 +1,74 @@
+# GoalReceipt class-transition 修复独立源码复审
+
+本轮结论为 **SOURCE_STATIC_PARTIAL / 未批准完整来源守卫闭合**。修订保留原 class-body 快照，另在真实原 `__build_class__` 成功返回处记录 class-creation checkpoint，并在真实 dataclasses.wrap首次绑定可见class；这解决旧设计把整个类构建阶段都要求与类体返回快照不变的部分源码问题。但是确认 **GCTS-P01 / P2 / Test / OPEN**：原body尚未出现时的Python callback不经过新episode来源校验，之后的checkpoint仍被标为authenticated。原 **GRTSD-P01保持OPEN**，只记录阶段分层方向得到源码支持，不把它关闭为真实Pydantic兼容。
+
+原11自有stdlib检查真实通过保持。本Review没有运行任何pure、Pydantic、产品、19目标或反例，没有修改实现/测试/断言/保护门。三次实际19批均1error/18NOT_EXECUTED的原红不改；共享目标已耗尽，无第四等价目录、环境或launcher授权。实际Owner/SQL/HTTP/MCP/native/安装/媒体/三OS/R1后连续R2均未由本轮验收。
+
+## 输入与版本
+
+任务卡 `G:/开发测试/Projects/VideoCreator/docs/task-board/GoalReceiptClassTransitionSourceReview.md` SHA-256 `b868bb4985a3d58b31e17c696106390a33bb46d65feeb66d16617ebc759b0553`。
+
+固定正式根：`G:/开发测试/Codex/VideoCreatorImplementation/TestDevelopment/GoalReceiptClassTransitionSourceCorrection/`。
+完整ordinary根：`G:/开发测试/Codex/VideoCreatorImplementation/TestDevelopment/ReviewHandoff/GoalReceiptClassTransitionSourceCorrection/`。来源Index有43源/原结果/引用；完整manifest另含4末正式件，共47records且manifest本身不列其中。独立核所有47普通件完整path/size/SHA，mismatches=[]；本轮61有限输入含这些件、精确元数据/治理及9旧ordinary，末核全部不变。没有重扫/哈希整套运行环境。
+
+|固定件|SHA-256|
+|---|---|
+|ClassTransitionHandoff.md|45071db0e975d26a16e40d30a855397b6d7ac19ceac4cef29acefa5bec4fed3a|
+|ClassTransitionHandoff.json|7b30d10bdad6ea12600ca89d50cbe329fda8d64ecf281bd35f4f8511577794f6|
+|ClassTransitionSnapshot.json|7d1dad58f4b94b46095c971f5e76e128733effc5cd336099441c2a6f3ca80099|
+|ClassTransitionOrdinaryIndex.json|9edfcb6f6aa2da04b31eb88d09c9b9db104f20f0bbe8a3e4caa93363fcfac451|
+|DataclassSourceDomain.py，11148B|bd283728503ea1ef9a137417dde7f7019c1cff394cc3d12df9f0b897d44023be|
+|ClassCreationTransition.py，8162B|8d49a0947ffe9e4479521b7b185ab48c5ccbddcc82bcd50d04a11ef5f29188bb|
+|FullTransitionDiff.md，4025B|d52a3d8a89e3e243ad306e310ed18cf5eaa4ee978af5b822aa4fb261cc822aec|
+|TransitionTestsBody.py，6434B|348a1d8e12d7f38109eaa81df9e264a843de9de83878f423a8a6c7d58a5844b3|
+|PureGeneratedTypeChecks.py，11987B|112b5405bd4f947fb9fe3b6cd27f1f4c80c08b55ffebe8db9b5802e664cdfde1|
+
+完整新helper、Domain、11方法及真实pure接线阅读全文；旧Domain与新Domain的实际unified diff全部59行和文档逐行相同。仅原`__init__`、observe_profile、classify三个方法AST变动；其余原方法保持。新helper是额外独立文件，不冒生产apply。原Boundary/Catalog/Probe/Cases/Python和PowerShell runner/PositiveMatrix七件与原失败普通件逐字节相同。原19方法名称顺序、断言及90s/5s窗口没有改写。
+
+读取旧/新已存候选index的3695→3714映射，旧3695全部完整path/size/SHA被保留，differences=[]，包括更早3677；只是读取映射，不是本次物理扫描3695或证明完整运行资格。未来LaunchRequest实际runtime_approved=false，通用字段名中出现需要Review/Root许可不能反向变为第四次授权；明确三次限制保持。
+
+## 得到源码支持的部分与边界
+
+Domain51–52先转发真实profile到ClassCreationTransition，原SourceLoader/get_code/exec_module强代码/模块/globals绑定仍保留。新helper48–61通过原已注册source模块及强CodeType，或原标准函数强CodeType/模块/globals和fingerprint辨认callback。65–69在原builtin对象c_call建立强owner/module/body episode；87–112成功c_return后保留旧snapshot并添加created_snapshot，诊断只有增删/替换数量和键顺序布尔、原代码/对象身份及callback数量，不输出成员键值/repr/秘密。
+
+c_return传入的是builtin对象，没有提供返回class。候选113–130在原dataclasses.dataclass完整代码树中的真实wrap调用首次绑定Python可见cls，132–139后续要求同一强class、sameowner及namespace不变；不声称在c_return已捕获class。本轮支持的是这个首次绑定点之后的身份连续性，不能从tuple/code匹配宣告完整实际原C返回对象已观测。
+
+Domain83–101在原_process_class入口require_bound及关联class属性；140–154新增真实process中的func_builder与compiler self强一致。160–176使用单独created_snapshot防止checkpoint之后的namespace变化、class/owner变化。原Boundary375–389的真实compiler认证、protected missing-builder拒绝和原Probe audit/profile不变。11样例中的Generic和nested Generic合法类创建、checkpoint后篡改、wrap后替换class、替换process builder及缺protected record，给这些具体机制以有限实际支持，不能外推全Pydantic源码。
+
+## GCTS-P01：前置callback来源认证窗口缺口
+
+归属Test，P2，OPEN，**SOURCE_STATIC**。早单 `G:/开发测试/Codex/VideoCreatorImplementation/Review/GoalReceiptClassTransitionSourceReview/Finding-GCTS-P01.md`，3642B SHA-256 `7abe9ecb69abdcfa300cb097dc5a393431166700d81d51efc2ab9fb242e769ca`。
+
+ClassCreationTransition65–69建立body=None的episode。70–86遍历其下Python call：76只识别原class-body，80–85只有body已经存在才调用authentic_call并拒foreign callback。如果一个非原强CodeType/globals的callback发生在episode已开始而原body尚未出现的窗口，76和80均不满足，86直接break，其来源不被校验，也不进入128上限计数。后续87–112原builtin成功返回仍记录最终namespace为created_snapshot，并标记authenticated_class_creation_transition。这个静态条件可让此前阶段的未认证变化被checkpoint吸收；本轮没有运行该反例，也没有声明实际泄漏/OS动作发生。
+
+TransitionPlan5明确“Class body and callbacks must belong to that episode ... Foreign callback/code is refused.” 源码只实现body出现后的callback门，不能称完整episode全部来源已验证。前置namespace准备/metaclass回调是需要明确核的条件例子，不是原失败实际捕获的参数。原旧namespace改动成员仍NOT_CAPTURED，绝不重构为__orig_bases__或其他具体项。
+
+原Probe205–239的profile只限制product/vault及特定敏感方法，不能普遍补上一个非敏感模块的普通Python callback来源认证；132–199外部动作和文件门仍保留，但普通函数调用不等于这些audit事件全部触发。此finding不声称所有其他动作门失效。
+
+原Test的最小修复需认证整个class创建episode所要求的各阶段，对body出现前callback验证原强函数/code/module/globals来源，缺允许证据时失败关闭；保原body首次识别门和合法原回调路线，不按库名/函数名或未知键豁免。callback计数和checkpoint只有阶段事实齐全时才称认证。可规划透明自有stdlib fixture的合法前置callback与同内容foreign CodeType/globals负例，确认拒绝在其body之前而不是事后因另一门拒绝；保原11断言，Review不实现、不运行、不授新批次。
+
+## 既有11实际结果独立核对
+
+原Summary、Cases、JUnit、stderr逐项同11名成功，failure/error/skip均0；实际执行DomainTests AST与独立TransitionTestsBody整体相同，不只是计数。真实pure profile先调用原PROBE.profile再fault注入；真实audit经原PROBE.audit，原Probe整文件加载而非裁剪产品函数。Case11的透明TestGuard先于自有sensitive_action body抛异常，SIDE_EFFECTS[]断言保留；sys.audit(os.system)只是无OS动作的模拟事件，不是实际外部命令尝试或Owner授权。
+
+|样例范围|原已有证据支持|
+|---|---|
+|01、02|完整自有Generic及nested Generic构造、Field/dataclass真实标准流程；新增checkpoint的added>0只解释这些新fixture，不重构旧Pydantic未知成员|
+|03|真实profile中原builtin return之后改状态namespace，随后namespace_changed_after_class_creation拒绝|
+|04|真实compiler入口删protected builder record，原protected_builder_record_missing仍拒绝|
+|05|相等内容不同强CodeType的defining函数，class_decoration_creation_episode_missing拒绝|
+|06、08、09、10|真实原链globals/module/path/process-builder替换到达对应拒绝；每项fault有原touch或复原断言|
+|07|首次原wrap之后的class替换被original_decoration_class_object_changed拒绝；不能宣wrap之前替换也已测|
+|11|原audit及透明before-body TestGuard继续拒绝；不证明真实Owner、vault或OS guard|
+
+原Events逐test存在相应checkpoint/认证/拒绝谓词。没有body=None前置foreign-callback负例；未覆盖不改为实际失败，原11PASS保持。原1018 before/after已存map相等，并和原PureInputPins期望逐路径size/SHA相等；不是评审重扫1018个运行时文件。原Pydantic/product导入0，原19 NOT_RUN，lawful positives NOT_READY。
+
+原纯child PID11380、creation134361193117619132，自然exit0、两raw byteEOF、timeout_sticky=false、errors=[]，LaunchReceipt与CommandReceipt身份相同。原tool43d248/session58632→585d44实际0，metadata/finalizer各工具0记录保留；末Test e241c1只封存终态，不授产品资格。unittest stderr0.351s与Summary0.7686191999964649s是不同窗口，不混算业务性能。原metadata工具完整raw EOF没有独立捕获，按原工具自然0边界记录。
+
+## 评审过程错误与交接
+
+fa86af早索引列举输出截断不作完整正文证据，后来只按精确索引读取所需源；e28ab2探测PureBoundary.py不存在是本评审文件定位错误，25d0c1按实际索引确认PureGeneratedTypeChecks.py，520a6a完整阅读全文。没有由此制造产品失败或重跑。
+
+c0f310严格整个fenced字符串比较自然exit1保留：断言在InputAfter写入前失败。4e96fd逐行确认59行FIRST_DIFF=None，仅围栏前末分隔newline不同；b0e360改用保持每行内容/顺序的比较验证59行一致，未改候选、文档或原断言。原过程红保存在DiffCheckOriginalFailure.json，不能称候选源漂移或业务失败。
+
+自有过程根 `G:/开发测试/Codex/VideoCreatorImplementation/Review/GoalReceiptClassTransitionSourceReview/` 集中保存Before三组有限pins、61路径InputAfter、完整旧新ComputedDomainDiff、SourceVerification、原结果派生Facts及Finding。当前源/证据读取已结束，无live reader。正式写工具实际返回后另保存FinalHandoff/FinalizerTerminal并报告自然退出，不能由文件存在自签终态。原GRTSD-P01未运行关闭、新GCTS-P01待原Test修复，独立Review不代实现或授第四目标。

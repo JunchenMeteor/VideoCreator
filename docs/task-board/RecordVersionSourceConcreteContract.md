@@ -1,0 +1,31 @@
+# RecordVersionSourceConcreteContract
+
+QUEUED_AFTER_EXECUTOR_REVIEW_TRUEFINAL_AND_REAL_SLOT。唯一原 development_role_plan（Architecture）；仅设计具体record-version source契约，不代实现/Review/Test/Acceptance。完整R1后连续R2保持，不改变产品五步或实例数据归属。
+
+## 固定输入与实际前置
+
+原Architecture0070已4287e4自然0/TRUEFINAL/allreaders释放；本卡需原executor Review正式停止、Root收完整报告、真实并发槽位和Root实际激活后开始。当前Root+Backend+Integration+Review四槽，不提前启动新role。
+
+Integration e631cf自然0/该单件no live/读写释放：G:/开发测试/Codex/VideoCreatorImplementation/Integration/NativeCoverageProducerCompletion/RecordVersionSourceAbiProposal.md /SHA ee15244930331ac924d664a48f7fdbe393a9f672c51826ae0bd8ed64aabedc07，Root080e68全文核实际SHA。只这一新停止件可以读；其余Native候选仍热，禁止读取。真实仓库既有load_policy.rs/PreparedLaunch/初始化/IndexedBootstrap/BuildIndexedEngine可只读核必要完整source，只认当前实际未改baseline，不从候选路径hash推存在实现。
+
+Backend停止 RecordProtocolAbi/Interfaces.md1f919cff34b9db3e834faaf85987f718485eb1effdf798adcb9d0d7e293f3943及Indexbfd20c50591fa28b5ccc8f037fb206561d4ef6f172ae3ec595419cfdb704012d；CheckSourceAbi/Interfaces de87ba56ddffb4b5044e531ca0c0d789d71421211ac034805e9b43a4faed11fa及Indexcc1ba0fc8ae6cb7fde144d6c26891887b5a3ef4fc843d4e5bc38fe68d175c404，原f001f7/04410f明确对应slice停止。Root7e34b7/7af093全文接口/index，八/九body未Root全读，不授实现资格；只有该slice ordinary可读取，不读后端其它热Candidate。
+
+已批设计0070ADR1a0a6eb7af84dd72841c6837d462564125a69ca1c6b7e8e7bc947dfe8266647a及独评290bd3e6ff56314fb282207df5e7ccfd55bddaad1721f1caaa9d97da57beebe5（CPAI三项仅design闭合）、0068及原0063/64/66/67边界不改。
+
+## 需要核准的具体问题
+
+现 strict serde deny_unknown_fields 的Profile不接受新字段，现CLI constructor没有strong selector仍v1。提案仅 qualified-install profile新增 optional record_admission_wire 闭值v1候选/v2，缺值v1兼容；新构建显式选择v2写完整LoadPolicy，新完整policy SHA/build/file-map/provenance及资格不得继承旧报告。链为原IndexedPolicy→PreparedLaunch→PendingInitialization→InitializationCurrent→PreparedRecordInput/RecordAdmissionOriginal→IndexedBootstrap→Backend entry keyword→open_instance_source pin→OwnedInstallationRecordConnection强一致。
+
+核这一新增字段是否能被原受认证Native强源真正固定；scope限定单profile、未授权renderer/普通keyword/JSON/env/root/file选择不能授能力；反向拒绝unknown值/错profile/同child版本错配/hash/原peer/engine/instance/current及篡改版本。两值共用原locator六键/reply七键和method/sequence，不盲fallback/新动作或预算，原v1bytes兼容。明确实际控制点与owner，不把普通参数等同source认证。
+
+检查producer与consumer闭值/parser/profile范围/默认版本/哈希覆盖/生命周期/current-local/wire绑定的具体独立设计，有歧义只做必要新ADR具体化（建议0071，先核编号未占），不要推翻已批架构、放宽root/actionv2/v3或新增第二公开schema/issuer。若强源链尚无实际接点，提出具体对应source成员/caller方法，不能以字符串类型或不存在函数补齐。
+
+## 交付与白名单
+
+只写Architecture白名单docs/decisions/及自身 G:/开发测试/Codex/VideoCreatorImplementation/Architecture/RecordVersionSourceConcreteContract/；不改AGENTS/冻结标准除非确有独立必要请求，不改生产码/Test/依赖。交有限完整ADR/Delta/ActualInterfaces/Impact、必要精确普通source及index/beforeafter、真实工具natural terminal/allreaders释放。标DESIGN_ONLY/NOT_IMPLEMENTED，不授签名/安装/运行资格；后继原Review独评、Backend solePythongrammar/caller、Integration soleNative/build实现，统筹不代设计批准。
+
+仅文本/source只读及必要自身stdlib/PSparse静态准备，0产品/Pydantic/SQL/Native/网络/归档/模型/费用/安装，不读取密钥，不重新导入或复用旧限次。原19三fail、31/105、三binding、20元/原全部失败、四平台与完整R1→R2验收缺口不改。
+
+## 2026-10-11 原Review实际正式释放后的架构接续
+
+ACTIVE_DESIGN_CONCRETE_CONTRACT_ONLY。原Review6344a7自然0/TRUEFINAL/no live/allreaders释放，actual list_agents已确认completed/三活动槽。Root30d347全文13403B executor报告524f9944，3b8908全文Finaldc38a91d/Terminal095db0ce并核三实际SHA，PLEE-P01/P02两P2仍OPEN_SOURCE_STATIC；不是执行资格，原Integration另卡排队修正。当前原Architecture接本卡停止profile proposal及两停止ABI核具体契约，未读热实现、未授应用/运行。独立测试准备继续排队，不超槽。

@@ -1,0 +1,16 @@
+# Integration — qualified_resource完成回调的真实生产路径定位
+
+唯一原integration_release角色。READ_ONLY_SOURCE_MAPPING，仅写自身Integration/DiagnosticQualifiedResourceObserverMapping/过程交接，不写生产实现/配置/合同/测试/评审/验收。完整R1独验后连续R2、实例持有数据、五步与免注册可用不变。任务不是安装资格或运行准入，也不建立新的authority。
+
+Backend已e00af7 TRUEFINAL/全部读写释放；Root ee058e/ee98f2全文Handoff e680c9fd/JSON658a8f8c、ActualInterfaces f3b71198、OpenSeams49609474。固定输入根G:/开发测试/Codex/VideoCreatorImplementation/Backend/CombinedFailureDiagnosticRecoveryImplementation/，SourceStage/SourceIndex.json SHA41b2f0e2650b10b97a7353a574e5f131164ae9a597d763435df11c5ab912c83d，完整源在SourceStage/SourceCopies。只读确切必要普通文件/完整签名，不能读取后续热仓库源。原Review正在审本固定130源；原Architecture0062只设计child/耗尽终态，不读其热输出。
+
+读取既有CurrentProductionResourceBuilderIntegration任务及你自己已经正式停止的资源builder/installer/Startup/native identity通道源码与准确交接index；由自己的正式交接定位，不扫整个环境、其他任务或系统。目标是为Backend明确宣称的observer缺口给完整真实映射：
+
+- DiagnosticResumeRuntime.probe_current_diagnostic_resume及DiagnosticSelectionService._diagnostic_v2_inputs/read_diagnostic_completion目前resource503的实际签名/调用链、严格completion输入与受控读取要求。
+- 原资源builder安装产物、真正注册安装authority/current guard与其receipt/body读取接口是否存在，分别由何角色维护。若存在，定位完整当前/revoke/floor/source/catalog/method/route/runtime绑定及受控bytes引用；仅数据manifest、SHA、file存在不算trusted qualifier。
+- 列明确切可用生产者到消费者接口、缺失接口与最小改动归属（Integration工具/packaging还是Backend私有服务），指出谁持原authority，不造第二issuer/JSON anchor/approval/qualification。
+- 判断当前本地真实已具备的资源仅使用你自己停止证据，有限路径引用；没有的准确NOT_READY，不重复扫描/下载或表面true。不把取得依赖wheel/原87组件绿当安装资格。
+
+交Mapping.md/Mapping.json：实际文件/完整签名/精确调用次序及来源SHA，存在/缺失/未测明确分开，建议下一最小生产实现与必要独立验证入口，不写实现或测试。BeforeAfter仅有限必要文件，不999环境census/拷贝、不新造交接标准。没有原通道就准确声明缺件与Backend/Architecture需定义的具体最小接口，不据ADR猜方法。
+
+只有限文本/JSON/hash/静态调用映射；不任何Python/Pydantic/产品/SQL/native/ASR/helper/parser/fixture/runtime/网络/模型/凭证/费用/下载/安装/归档/编译/发布。不第四次旧19，不放宽CNY20/旧红/拒绝。保原source3/RES13拒绝和不同授权边界，不重试旧补丁。末工具自然终态/无live/全部reader writer释放后TRUEFINAL。Root完整收件，再按后端源独评与实际合同安排原Integration生产者/原Backend消费者；本任务不算补齐资源回调、Gate0或作品。

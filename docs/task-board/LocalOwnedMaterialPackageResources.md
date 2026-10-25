@@ -1,0 +1,9 @@
+# LocalOwnedMaterialPackageResources
+
+ACTIVE，唯一原 integration_release；Media 已于 2026-10-12 自然结束并释放槽位，停止候选交接为 `AgentMedia/LocalMaterialFlowAndBundleCompletion/Handoff.md` SHA-256 `ac7922a6ef3f36525dd2c0bc3027c01cafce3936aa7a59038d60a7f84451b3f9`，55 源索引 SHA-256 `95dc15020b56965c169b0c108d519290e1743115480e288164f3d1c86c6b68c1`。Root 已全文核对交接；现在实际 followup 原 Integration。R1实际本地作品、HTTP/MCP、Windows EXE/两架构DMG/Linux后继续R2。本角色仅写仓库AGENTS.md的packaging/、tools/build/、apps/desktop/及依赖/锁/基础配置/生成SDK白名单，过程只在Integration/LocalOwnedMaterialPackageResources/；不改Backend/Media/Frontend/测试/评审/标准。
+
+固定合同：ADR0072本地实例安装/权限及ADR0074 plan；Backend EarlyTypedAbi/SourceCopies/domain/local_material_production.py SHA7187ac4cf7dc0fd9fdfa941f1c88ae0c62bc03131c7fb88ccaf551f0679e92d4 的 RegistrationConfigLocalV1 与 LocalMaterialResourcesV1；Backend Partial ActualInterfaces.md SHA182ecbb367bd5d6b3a126922a93eae0c1456925eab9b650f5dfe24138b8e6420；Media RevisionTwo/Interfaces.md SHA2f326bb66c62bafdda0dc2683fec379ab59f9c35db2332ee85fcf5f3cd7a2012。Media原独Review可能要求修正，消费正式结论后再应用。原packaging/IndexedRuntimeContract.md为已存在piper/wan v2路径，不覆盖、削减或冒称Local v1完成；生产现package当前状态需先核准确commit/source/paths。原29私有工具来源与许可缺口保留，不以旧1.65GB便携环境/另一任务资源充当前源资格。
+
+交付实际本地已拥有素材/上传音频路线的安装资源：从精确Backend/Media固定源建立完整封闭Source索引、LocalMaterialResourcesV1+runtime文件索引及本地config-v1候选；对选定真实ffmpeg/ffprobe及其动态依赖/版权声明做物理路径、size/SHA、来源与许可记录；三个owned_local zero-fee route由后端真实注册，Integration只打包资源/声明不得签发路由或当前执行资格。ASR四字段全null时必须明确保持WAITING，不提供假转写/字幕；如果已有合法可分发ASR，单独按真实资源/许可检验，未经确证不装。包的实例根、资源manifest.parent、DataDir scratch不能混淆；禁止链接逃逸/大小写碰撞/文件缺失、秘密或旧task私有资源混入。保留旧qualified/v2路径、原load policy/索引语义。
+
+优先拿出在当前Windows主机可实跑的封闭本地资源/引擎安装候选和实际构建命令/exit/完整文件哈希/缺口；随后给跨OS所需工具与机器准确清单。不要把静态manifest称EXE/DMG/Linux安装验收。任何构建/复制仅自身新目录，可复用已有合法物理资源但核source/分发许可，不下载未核许可新包、不改共享Dependencies或其他任务目录。无模型/费用/生产部署/公开发布；20元累计及三败限制不重开。评审前自有源码候选与固定输入分离，完整diff/Impact/可复现命令、自然终态/读写释放交Root；应用/实际安装/独验另按真实条件推进。

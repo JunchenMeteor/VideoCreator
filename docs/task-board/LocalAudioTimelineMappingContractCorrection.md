@@ -1,0 +1,7 @@
+# LocalAudioTimelineMappingContractCorrection
+
+ACTIVE，唯一原 development_role_plan 架构角色；原 Media 第三片 TRUE_FINAL、全部工具自然退出并释放槽位，Root 已全文核 ThirdHandoff SHA-256 `8a60db1fed1b6c0ef05ac181a1d167cdb6d5a275b7875e6bd86653e9d130ebcd` 和 ThirdInterfaces SHA-256 `9204bde91c9945a982e13868658b145b39526c18d2d252bd6db156b71907f008`，现实际 followup 原 Architecture。仅写仓库 `docs/decisions/`/`docs/architecture.md` 和自身 `Architect/LocalAudioTimelineMappingContractCorrection/`。不改 Backend/Media/Test/Review/Acceptance 实现与标准。目标是最窄补 ADR0075 的合法 audio-only 时间映射目标，保原0.2/0.3语义和真实sample/PTS/clock全部证据。
+
+实际冲突：停止 Backend134 `domain/contracts.py:825-842` 的 `c.AudioTimelineMapping` 强制 `target_video_asset_id: Identifier`，`target_track: AudioTrackRef`、work_timeline、duration、pieces/encoding offset/method/SHA。ADR0075 `BundleManifestLocalV1` 声称复用原 `audio_mappings` 类型而明确允许 audio-only 无video/cover；不能填假video ID，也不能删原映射/对齐/权利/质量门。Backend已报告并继续video路径与不依赖Bundle实现，Media不得自造公开类型。
+
+只读核 ADR0075 SHA-256 `776a1bb058bc79d9beee04aa9da129219e786c33707a01732a1c9b942a071091`、独立设计评报告 SHA-256 `54b550e100b4ed75e496b7a6c65ecba66433ab21fa915464cd60526075ef7061`、真实停止旧型与其 Bundle/semantic/ASR consumers。最小合同给 sole 本地版本 mapping 的确切字段/target media角色与资产/manifest关系、纯音频与视频条件、sample/clock/pieces/source闭包、parser/旧格式dispatch/导出引用、无speech/no_audio适用性；不把原 target_video_asset_id 改成任意 null 或削旧分支。给 Backend/Media/Integration 精确单一接口和必要负例，不扩整体产品设计。补丁需保持UTF8/LF，固定完整差异/输入/终态；设计不当产品通过，随后独立窄评。

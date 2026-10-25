@@ -1,0 +1,1053 @@
+{
+  "schema": "AV0-independent-stage-report-1",
+  "role": "acceptance",
+  "phase": "Gate0",
+  "overall_status": "not_passed",
+  "goal_status": "incomplete",
+  "criteria_version": "0.1-candidate",
+  "approval_scope": "scope_and_evidence_approved_only",
+  "build_commit": "68c1f0699086382856f61c703f88c8b03b5d2547",
+  "build_receipt_sha256": "c1f4867cb5eac58c09e67f0e5e4f3eda02842cad12e7972f2bdd1119e9519b65",
+  "exe_sha256": "afa520ada8efdd4c3b30d0d21900f57c0f03f8fd0906591dc343a981467a4f60",
+  "upstream_source_commit": "bb597bf36054cc49aff3efa276399493fbd94622",
+  "frontend_checkpoint": "cea36dd71a1293b197264950b993e2f291eb5e7d",
+  "environment_scope": "Windows current-machine isolated directory CLI/API candidate, not clean-OS installation or desktop app",
+  "independent_environment": {
+    "PYTHONPATH": "absent",
+    "PYTHONHOME": "absent",
+    "VIRTUAL_ENV": "absent",
+    "PATH": "System32 only",
+    "token": "private child environment; not recorded"
+  },
+  "provider_calls": 0,
+  "secret_reads": 0,
+  "fees": 0,
+  "probe_process_exit_code": 1,
+  "probe_checks": {
+    "total": 53,
+    "passed": 51,
+    "failed": [
+      {
+        "name": "FirstStop_clean_exit_zero",
+        "passed": false,
+        "actual_exit": 3
+      },
+      {
+        "name": "SecondStop_clean_exit_zero",
+        "passed": false,
+        "actual_exit": 3
+      }
+    ]
+  },
+  "media_attempt_process_exits": [
+    1,
+    0
+  ],
+  "hearing": "blocked_unsupported_input_no_hearing_claim",
+  "visual_review": "Actual four extracted frames viewed, no full video or AI-creative-quality claim",
+  "review_status": "RV0 scope approved; RV1-StableScopeReview.md not yet available during probe; subsequent inspection network/parser concerns pending T4",
+  "gates": [
+    {
+      "id": "G0-ENV",
+      "status": "not_run",
+      "evidence_kinds": [
+        "real",
+        "inspection"
+      ],
+      "reason": "Current Windows directory candidate runs, full clean-OS dependency/support matrix not verified",
+      "full_requirement_passed": false
+    },
+    {
+      "id": "G0-ORCH",
+      "status": "failed",
+      "evidence_kinds": [
+        "inspection",
+        "simulated"
+      ],
+      "reason": "Historic real Crew delegation zero; post-fix autonomous run unproved; LG comparison incomplete",
+      "full_requirement_passed": false
+    },
+    {
+      "id": "G0-REVIEW",
+      "status": "not_run",
+      "evidence_kinds": [
+        "inspection"
+      ],
+      "reason": "Recorded LG interactive feedback exists; full unattended creative success unproved",
+      "full_requirement_passed": false
+    },
+    {
+      "id": "G0-LEDGER",
+      "status": "not_run",
+      "evidence_kinds": [
+        "real",
+        "inspection",
+        "simulated"
+      ],
+      "reason": "Independent project idempotency/restart/asset persistence passed; all side-effect windows not independently rerun",
+      "full_requirement_passed": false
+    },
+    {
+      "id": "G0-BOUNDARY",
+      "status": "not_run",
+      "evidence_kinds": [
+        "real",
+        "inspection",
+        "simulated"
+      ],
+      "reason": "Independent authentication/origin/content/bad-media checks passed; full permission/budget/provider boundaries incomplete",
+      "full_requirement_passed": false
+    },
+    {
+      "id": "G0-MEDIA",
+      "status": "blocked",
+      "evidence_kinds": [
+        "real"
+      ],
+      "reason": "Independent candidate ffmpeg render/decode/frame passed; hearing unsupported, complete mix-to-video relationship unverified",
+      "full_requirement_passed": false
+    },
+    {
+      "id": "G0-ALIGN",
+      "status": "blocked",
+      "evidence_kinds": [
+        "inspection"
+      ],
+      "reason": "No independent human boundary labels or P95<=200ms evidence",
+      "full_requirement_passed": false
+    },
+    {
+      "id": "G0-DESKTOP",
+      "status": "failed",
+      "evidence_kinds": [
+        "real",
+        "inspection"
+      ],
+      "reason": "Own CTRL_BREAK two real exits3, full Tauri/clean Windows/mac installation unverified",
+      "full_requirement_passed": false
+    },
+    {
+      "id": "G0-LINUX",
+      "status": "blocked",
+      "evidence_kinds": [],
+      "reason": "No native Linux environment",
+      "full_requirement_passed": false
+    },
+    {
+      "id": "G0-CONTRACT",
+      "status": "not_run",
+      "evidence_kinds": [
+        "real",
+        "inspection"
+      ],
+      "reason": "Frozen schema export/ErrorEnvelope/OpenAPI match passed; complete eight contracts/MCP/Bundle not verified",
+      "full_requirement_passed": false
+    },
+    {
+      "id": "G0-UI",
+      "status": "blocked",
+      "evidence_kinds": [],
+      "reason": "Browser tool initialization failed with deny-read ACL error; independent UI interactions not completed",
+      "full_requirement_passed": false
+    }
+  ],
+  "requirements": [
+    {
+      "id": "FR01",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "FR02",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "FR03",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "FR04",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "FR05",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "FR06",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "FR07",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "FR08",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "FR09",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "FR10",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "FR11",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "FR12",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "FR13",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "FR14",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "FR15",
+      "required_phases": [
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "FR16",
+      "required_phases": [
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "FR17",
+      "required_phases": [
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "FR18",
+      "required_phases": [],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "FR19",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "FR20",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "FR21",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "AC01",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "AC02",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "AC03",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "AC04",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "AC05",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "AC06",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "AC07",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "AC08",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "AC09",
+      "required_phases": [
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "AC10",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "AC11",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "AC12",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "AC13",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "AC14",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "AC15",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "AC16",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "AC17",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "AC18",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "AC19",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "AC20",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "AC21",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "AC22",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "AC23",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "AC24",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "MM01",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "MM02",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "MM03",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "MM04",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "MM05",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "MM06",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "MM07",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "MM08",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "MM09",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "MM10",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "MM11",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "CM01",
+      "required_phases": [
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "CM02",
+      "required_phases": [
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "CM03",
+      "required_phases": [
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "CM04",
+      "required_phases": [
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "CM05",
+      "required_phases": [
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "CM06",
+      "required_phases": [
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "CM07",
+      "required_phases": [
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    },
+    {
+      "id": "CM08",
+      "required_phases": [
+        "R2"
+      ],
+      "status": "not_assessed_in_AV0",
+      "full_product_completion_proven": false
+    }
+  ],
+  "evidence": [
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\ProbeAV0.py",
+      "bytes": 12161,
+      "sha256": "a1a3751923e7f2c4b2de4b08b7fa27a252819560fd49b40a8b4c6c6c05f4d695"
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\AV0ProbeReceipt.json",
+      "bytes": 16959,
+      "sha256": "d86474be1f8832cadad59deea92e2555fc8e898b02ebdf5e7e1765f32a097ae3"
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\MediaAV0.py",
+      "bytes": 2667,
+      "sha256": "da9ffe54c3fca7e489712dcba022080a49ae12f44c09cfd7e74965b20ca0dcd1"
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\AV0MediaReceipt.json",
+      "bytes": 5579,
+      "sha256": "c115d8854dc728ba8c26f82cbd5acd62c90c46eaa588e341521eb0c9f9da259d"
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\AV0MediaCorrectedReceipt.json",
+      "bytes": 6479,
+      "sha256": "b2a13b081e3d35fb59990fd4fede18ecc173515352f425b290c4de1799f3a784"
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\FirstStopStderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\SecondStopStderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\Samples\\ChineseSpeech.wav",
+      "bytes": 783852,
+      "sha256": "0feaff4f1a482fa5e867beffd63f64d30a2bb0f5d2126d5589ad814081461341"
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\Samples\\LandscapeFrame.png",
+      "bytes": 192816,
+      "sha256": "251b9c0620b6cc6c1a9dd292358f775f52cba5256c71e70e2571632855a9f9e0"
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\Samples\\PortraitFrame.png",
+      "bytes": 188899,
+      "sha256": "d78cff2e4365701eaf3a68cd84cbd2954eb75deaeb41eeb6ee34dfe0258653a1"
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\Samples\\ResourceProbe-1280x720.mp4",
+      "bytes": 4079784,
+      "sha256": "ae143c36a01ab29f8537e1b95ed80c174a8cd664c33751f82c0b51ae4f5be23e"
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\Samples\\ResourceProbe-720x1280.mp4",
+      "bytes": 4097226,
+      "sha256": "959ce42ff2f1bc5a728e8d7cf5d0070a3b41c2cbc95f7fb9610d905cc7b6a78f"
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\RenderedSignalsCorrected\\Decode-1280x720.Stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\RenderedSignalsCorrected\\Decode-1280x720.Stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\RenderedSignalsCorrected\\Decode-720x1280.Stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\RenderedSignalsCorrected\\Decode-720x1280.Stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\RenderedSignalsCorrected\\Font.otf",
+      "bytes": 16437364,
+      "sha256": "2c76254f6fc379fddfce0a7e84fb5385bb135d3e399294f6eeb6680d0365b74b"
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\RenderedSignalsCorrected\\Frame-1280x720.png",
+      "bytes": 178234,
+      "sha256": "780d2b5da1510733813d75861b3ab0b84c59f1a43cfe8ada62793631d51417ff"
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\RenderedSignalsCorrected\\Frame-1280x720.Stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\RenderedSignalsCorrected\\Frame-1280x720.Stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\RenderedSignalsCorrected\\Frame-720x1280.png",
+      "bytes": 181565,
+      "sha256": "8f55a7cf50ef7bc8faa4e7951ac1a637f21beed02126f8a60d6a1fc83536e78e"
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\RenderedSignalsCorrected\\Frame-720x1280.Stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\RenderedSignalsCorrected\\Frame-720x1280.Stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\RenderedSignalsCorrected\\Render-1280x720.Stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\RenderedSignalsCorrected\\Render-1280x720.Stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\RenderedSignalsCorrected\\Render-720x1280.Stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\RenderedSignalsCorrected\\Render-720x1280.Stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\RenderedSignalsCorrected\\Signal-1280x720.mp4",
+      "bytes": 3606763,
+      "sha256": "3c84b86fc0d3cb66de1e664e8978f306ea05f46431af06515bf20d183f646f82"
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\RenderedSignalsCorrected\\Signal-720x1280.mp4",
+      "bytes": 3649290,
+      "sha256": "141e17e29d0dd613e190872e1371f202053d36deaa87c46ba4ed3259891e7b28"
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\RenderedSignalsCorrected\\Title.txt",
+      "bytes": 25,
+      "sha256": "fcc52eee540d1e6dcfedd55e43696e024e22bcb9f3eaeeac9ee9d215baaa8cdb"
+    }
+  ],
+  "commands": [
+    {
+      "command": [
+        "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\IndependentWindows\\中文 空格\\VideoCreatorEngine\\VideoCreatorEngine.exe",
+        "export-contracts",
+        "--output-dir",
+        "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\ExportedContracts"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "487e2f3068ea96a34658a7120e19e9a995c6cb9020dd13bd30c02779388dcbd8",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\IndependentWindows\\中文 空格\\VideoCreatorEngine\\VideoCreatorEngine.exe",
+        "serve",
+        "--data-dir",
+        "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\IndependentWindows\\中文 空格\\验收实例 Data",
+        "--port",
+        "0"
+      ],
+      "exit_code": null
+    },
+    {
+      "command": "CTRL_BREAK_EVENT to own candidate process",
+      "exit_code": 3,
+      "label": "FirstStop",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "CTRL_BREAK_EVENT to own candidate process",
+      "exit_code": 3,
+      "label": "SecondStop",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\IndependentWindows\\中文 空格\\VideoCreatorEngine\\_internal\\Resources\\Media\\bin\\ffmpeg.exe",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=720x1280:rate=25",
+        "-i",
+        "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\Samples\\ChineseSpeech.wav",
+        "-t",
+        "10",
+        "-vf",
+        "drawtext=fontfile=Font.otf:textfile=Title.txt:fontsize=38:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2",
+        "-c:v",
+        "libx264",
+        "-pix_fmt",
+        "yuv420p",
+        "-c:a",
+        "aac",
+        "-movflags",
+        "+faststart",
+        "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\RenderedSignalsCorrected\\Signal-720x1280.mp4"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\IndependentWindows\\中文 空格\\VideoCreatorEngine\\_internal\\Resources\\Media\\bin\\ffmpeg.exe",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-i",
+        "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\RenderedSignalsCorrected\\Signal-720x1280.mp4",
+        "-f",
+        "null",
+        "-"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\IndependentWindows\\中文 空格\\VideoCreatorEngine\\_internal\\Resources\\Media\\bin\\ffmpeg.exe",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-ss",
+        "5",
+        "-i",
+        "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\RenderedSignalsCorrected\\Signal-720x1280.mp4",
+        "-frames:v",
+        "1",
+        "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\RenderedSignalsCorrected\\Frame-720x1280.png"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\IndependentWindows\\中文 空格\\VideoCreatorEngine\\_internal\\Resources\\Media\\bin\\ffmpeg.exe",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-f",
+        "lavfi",
+        "-i",
+        "testsrc2=size=1280x720:rate=25",
+        "-i",
+        "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\Samples\\ChineseSpeech.wav",
+        "-t",
+        "10",
+        "-vf",
+        "drawtext=fontfile=Font.otf:textfile=Title.txt:fontsize=38:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2",
+        "-c:v",
+        "libx264",
+        "-pix_fmt",
+        "yuv420p",
+        "-c:a",
+        "aac",
+        "-movflags",
+        "+faststart",
+        "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\RenderedSignalsCorrected\\Signal-1280x720.mp4"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\IndependentWindows\\中文 空格\\VideoCreatorEngine\\_internal\\Resources\\Media\\bin\\ffmpeg.exe",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-i",
+        "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\RenderedSignalsCorrected\\Signal-1280x720.mp4",
+        "-f",
+        "null",
+        "-"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\IndependentWindows\\中文 空格\\VideoCreatorEngine\\_internal\\Resources\\Media\\bin\\ffmpeg.exe",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-ss",
+        "5",
+        "-i",
+        "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\RenderedSignalsCorrected\\Signal-1280x720.mp4",
+        "-frames:v",
+        "1",
+        "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Acceptance\\RenderedSignalsCorrected\\Frame-1280x720.png"
+      ],
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "findings": [
+    {
+      "id": "AV0-LIFECYCLE-01",
+      "owner": "integration_release",
+      "status": "open",
+      "evidence_kind": "real",
+      "description": "Two candidate process CTRL_BREAK waits return3; no teardown completion proof; restart succeeds separately"
+    }
+  ],
+  "ui_attempt": {
+    "status": "tool_failure",
+    "operation": "cua.createBrowserTab iab http://127.0.0.1:1420/ visible:false",
+    "error": "windows sandbox failed: helper_unknown_error: apply deny-read ACLs",
+    "page_observed": false
+  },
+  "report_markdown": {
+    "path": "G:\\开发测试\\Projects\\VideoCreator\\docs\\acceptance\\reports\\AV0Report.md",
+    "bytes": 8342,
+    "sha256": "90e52770b8028d928e91a2c86c100e6b54a392cffee8b52c5f53bfbca6c90d18"
+  }
+}

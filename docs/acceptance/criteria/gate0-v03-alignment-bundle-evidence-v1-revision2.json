@@ -1,0 +1,913 @@
+{
+  "criterion_version": "gate0-v03-alignment-bundle-evidence-v1",
+  "candidate_revision": 2,
+  "status": "candidate_revision2_not_approved_for_execution",
+  "execution_readiness": "not_ready_for_execution",
+  "design_inputs": [
+    {
+      "path": "G:\\开发测试\\Projects\\VideoCreator\\docs\\task-board\\T16.md",
+      "sha256": "4874aa3cd3bab6044aafced418ffe73f9ccfb32c42576c8a84be80802d5990c9",
+      "size": 4521
+    },
+    {
+      "path": "G:\\开发测试\\Projects\\VideoCreator\\docs\\decisions\\0015-automatic-alignment-evidence-scope.md",
+      "sha256": "869d8943f092c2f169353b2550264d416a61506b58ef02083c3f2b417d6b28ff",
+      "size": 10780
+    },
+    {
+      "path": "G:\\开发测试\\Projects\\VideoCreator\\docs\\decisions\\0016-v03-evidence-material-and-registry-contract.md",
+      "sha256": "a517af8c75e3b58381c895d2069de96216b3b5985b727d840ee9e330ca109a26",
+      "size": 11934
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Backend\\B10InterfacesDraft.md",
+      "sha256": "597bfeaf117934c24a868ccb4ba53777460703cd044daa63fc9d5b463f11be68",
+      "size": 17474
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Backend\\B10Handoff.json",
+      "sha256": "1c5a3f652eae16292a9acfebe40c4b934adbe94afdbf6636516dcfc6b48c2426",
+      "size": 3085
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Backend\\B9Handoff.json",
+      "sha256": "c878cb2f6a864f48b8b49599c7b691d28a72e84d8427a8f45132607d75b2e968",
+      "size": 4181
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Backend\\B9ServiceConsumption.md",
+      "sha256": "d0cc81974125f4e239725ff500943540dc74f3c93dfb198e6d2c3813e712f6a2",
+      "size": 10585
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\AgentMedia\\W10\\W10Handoff.md",
+      "sha256": "bac8cf143657428c48eddd757fa053c1aa9f0658df6ffbb8bb1d147770b69ed5",
+      "size": 10219
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Review\\RV17Handoff.json",
+      "sha256": "e662065c225c61cb2b0e0abb9f320290bf97ace09dbe76a06df901664c8986a8",
+      "size": 5601
+    },
+    {
+      "path": "G:\\开发测试\\Projects\\VideoCreator\\docs\\reviews\\RV17-T15RevisionTwoReview.md",
+      "sha256": "02d1d644842b52c26e81905bf22eac6981528db7403cb218a6c4331e7854f25e",
+      "size": 9000
+    },
+    {
+      "path": "G:\\开发测试\\Projects\\VideoCreator\\docs\\acceptance\\criteria\\gate0-bundle-asr-evidence-v1.json",
+      "sha256": "40afb746a669df341adc815491bc9e8d5962038591241081149931ddb6d43ecb",
+      "size": 23073
+    },
+    {
+      "path": "G:\\开发测试\\Projects\\VideoCreator\\docs\\acceptance\\criteria\\gate0-bundle-asr-evidence-v1.md",
+      "sha256": "6546e6ad8383f9e2c01bb48fb3ef9a23b1ac629b3de6ce665cfef22296ab23a0",
+      "size": 16786
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\TestDevelopment\\T15CasePlanRevisionTwo.json",
+      "sha256": "d8dbe9916e78422fb5a7f504ca4a70f2206670239e1f5c635dd57cb5e8800753",
+      "size": 18383
+    }
+  ],
+  "unique_public_schema": "Backend final production only; no Test DTO",
+  "declared_target_versions": {
+    "request_schema": "0.3.0-candidate",
+    "bundle": 1,
+    "semantic_record": 1,
+    "sqlite": 5,
+    "HTTP": "/api/v1"
+  },
+  "old_baseline": {
+    "criterion": "gate0-bundle-asr-evidence-v1",
+    "revision": 2,
+    "json_sha256": "40afb746a669df341adc815491bc9e8d5962038591241081149931ddb6d43ecb",
+    "md_sha256": "6546e6ad8383f9e2c01bb48fb3ef9a23b1ac629b3de6ce665cfef22296ab23a0",
+    "38_cases_unchanged": true,
+    "old_red_and_green_retained": true
+  },
+  "default_outputs": [
+    "video",
+    "narration_audio",
+    "mixed_audio",
+    "approved_script",
+    "actual_transcript",
+    "subtitles",
+    "semantic_manifest",
+    "rag_chunks"
+  ],
+  "fixed_attachments": [
+    "SRT",
+    "VTT",
+    "cover",
+    "insight",
+    "brief",
+    "creative_plan",
+    "source_bindings",
+    "shots",
+    "work_summary",
+    "quality_report",
+    "rights_and_required_license_documents"
+  ],
+  "measurement_math": {
+    "per_unit": "max(abs(start error),abs(end error))",
+    "N": "all distinct approved independent units; no sampling/dedup",
+    "p95_rank": "ceil(95*N/100) nearest rank",
+    "maximum_us": 200000,
+    "applies_to": [
+      "old strict",
+      "per_work_reference_measurement",
+      "capability_benchmark"
+    ],
+    "no_reference": "not_measured; N/p95/reference/locator all null; no measurement file",
+    "word": "separate approved criterion/qualification required"
+  },
+  "policy_scope": {
+    "strict_reference_v1": "real independent per-work reference plus trusted measurement as before",
+    "qualified_method_runtime_v1": "approved method for actual execution scope plus actual complete WorkValidation; no mandatory human annotation for each normal work",
+    "runtime_report_scope": "work_runtime_validation; no independent P95 field",
+    "benchmark_is_not_per_work_score": true,
+    "new_automatic_path_is_R1_required": true
+  },
+  "inherited38": [
+    {
+      "id": "T15-01",
+      "requirements": [
+        "MM01",
+        "MM02",
+        "G0-CONTRACT"
+      ],
+      "evidence_kind": "real",
+      "positive_or_guard": "默认新请求固定8输出、附件齐备；不自动扩大显式子集",
+      "negative_and_evidence": "新最小请求→固定request/hash/policy；合法subset副作用前output_profile_unavailable/waiting_user且0生成",
+      "product_execution_status": "not_run"
+    },
+    {
+      "id": "T15-02",
+      "requirements": [
+        "AC17",
+        "MM02"
+      ],
+      "evidence_kind": "real",
+      "positive_or_guard": "video/旁白/mix_master可独立完整decode与视听；用途/真实生产链各自证明",
+      "negative_and_evidence": "不能复制文件充mix；无其他声源导致bytes相同需独立chain；抽样播放和独立AV另有真实收据",
+      "product_execution_status": "not_run"
+    },
+    {
+      "id": "T15-03",
+      "requirements": [
+        "G0-CONTRACT",
+        "MM04"
+      ],
+      "evidence_kind": "real",
+      "positive_or_guard": "Manifest实际UTF8/LF字节hash，全部精确文件/hash/size及material/asset互斥",
+      "negative_and_evidence": "文本严格类型验证不走media fakeprobe；缺项/双locator/错hash/未知角色/依赖环拒；不扫描私有文件",
+      "product_execution_status": "not_run"
+    },
+    {
+      "id": "T15-04",
+      "requirements": [
+        "G0-CONTRACT",
+        "MM04"
+      ],
+      "evidence_kind": "real",
+      "positive_or_guard": "JSON/JSONL嵌套重复键及非有限数拒绝；规范记录hash独立复算",
+      "negative_and_evidence": "数组/原文/Unicode不偷偷修补；Manifest不含递归自身hash；rawhash与recordhash分开；正负/嵌套合法数字token 1e999/-1e999转换非有限必须拒绝，保有限数语义",
+      "product_execution_status": "not_run"
+    },
+    {
+      "id": "T15-05",
+      "requirements": [
+        "MM02",
+        "G0-ALIGN"
+      ],
+      "evidence_kind": "real",
+      "positive_or_guard": "实际主转写只由最终mixed PCM/已登记MP4解码音轨输入",
+      "negative_and_evidence": "参考原稿不送ASR；原稿含漏/多句反例；保完整输出及不同revision，不复制脚本",
+      "product_execution_status": "not_run"
+    },
+    {
+      "id": "T15-06",
+      "requirements": [
+        "MM02",
+        "G0-ALIGN"
+      ],
+      "evidence_kind": "real",
+      "positive_or_guard": "中文、非语音音乐、静音及不可辨语音保持实际结果/真实gap",
+      "negative_and_evidence": "ASR empty不是silence证明；无词时据实际信号/审核记录gap；不能造台词满足非空",
+      "product_execution_status": "not_run"
+    },
+    {
+      "id": "T15-07",
+      "requirements": [
+        "G0-MEDIA",
+        "MM02"
+      ],
+      "evidence_kind": "real",
+      "positive_or_guard": "ASR decoded identity绑定真实音频path/hash/size/sample/PTS；模型/库/compute真实固定",
+      "negative_and_evidence": "self-consistent输出不等于可信；取输入实际probe、资源model每文件hash/commit和真实worker元数据对照",
+      "product_execution_status": "not_run"
+    },
+    {
+      "id": "T15-08",
+      "requirements": [
+        "G0-CONTRACT",
+        "MM07"
+      ],
+      "evidence_kind": "injection",
+      "positive_or_guard": "实际driver接收坏输出拒：bool PTS/双sample-duration改/双offset改/language类型/compute虚构",
+      "negative_and_evidence": "使用自己可控raw child输出，原命令/异常保留；不称模型攻击/真实ASR正向",
+      "product_execution_status": "not_run"
+    },
+    {
+      "id": "T15-09",
+      "requirements": [
+        "MM03",
+        "G0-ALIGN"
+      ],
+      "evidence_kind": "real",
+      "positive_or_guard": "默认utterance_verified/allowed_degradations空；无独立精度基准alignment_required/waiting_user",
+      "negative_and_evidence": "no BundleRef/success/outbox；词估计/复制对比时码/伪measured/人工未听不能凑默认正向",
+      "product_execution_status": "not_run"
+    },
+    {
+      "id": "T15-10",
+      "requirements": [
+        "MM03"
+      ],
+      "evidence_kind": "real",
+      "positive_or_guard": "可信authority来自固定测试基准+实例配置；实际report对所有标注unit精确绑定与复算",
+      "negative_and_evidence": "未知authority/客户端bool/篡改report/audio/alignment/reference/挑好样本拒；评价输入不可用candidate自身定义；建映射前核全部原alignment范围、严格own/transcript unit ID唯一与基准/report完整一一对应；不去重",
+      "product_execution_status": "not_run"
+    },
+    {
+      "id": "T15-11",
+      "requirements": [
+        "MM03"
+      ],
+      "evidence_kind": "real",
+      "positive_or_guard": "语句P95<=200000us；每unit最大起止绝对误差nearest-rank候选算法",
+      "negative_and_evidence": "完整标注集合、误差列表、样本数、ceil(.95N)位、听审版本保存；算法须本候选独立审批；词级不冒用语句指标",
+      "product_execution_status": "not_run"
+    },
+    {
+      "id": "T15-12",
+      "requirements": [
+        "MM03",
+        "MM07"
+      ],
+      "evidence_kind": "real",
+      "positive_or_guard": "word_verified仅按固定显式降级+服务政策+批准事实允许词估计，语句仍核实",
+      "negative_and_evidence": "旧请求无字段不是许可；伪ApprovalRef/越policy/未测词精度不标verified；校正另版本不覆盖ASR",
+      "product_execution_status": "not_run"
+    },
+    {
+      "id": "T15-13",
+      "requirements": [
+        "MM03",
+        "AC17"
+      ],
+      "evidence_kind": "real",
+      "positive_or_guard": "旁白/mixed/MP4编码轨真实逐片段映射，非零正负PTS offset、裁切/拼接/变速",
+      "negative_and_evidence": "实际sample/PTS有理数和真实transform先比，独立half_up_us边界误差再比；不靠元数据自洽或任意容差",
+      "product_execution_status": "not_run"
+    },
+    {
+      "id": "T15-14",
+      "requirements": [
+        "MM03",
+        "AC17"
+      ],
+      "evidence_kind": "real",
+      "positive_or_guard": "所有微秒半开range非负不越真实decode，音轨固有与作品原点分明",
+      "negative_and_evidence": "同持续时长不同audio_id/stream/mapping片段不可互换；有符号encoding offset不冒负MediaRange",
+      "product_execution_status": "not_run"
+    },
+    {
+      "id": "T15-15",
+      "requirements": [
+        "MM03",
+        "G0-CONTRACT"
+      ],
+      "evidence_kind": "real",
+      "positive_or_guard": "SRT/VTT同策略contain-capped-v1与原cue逐一对应，误差<1000us",
+      "negative_and_evidence": "floor start/min(ceil end,floor timeline)/非重叠相邻前end截后start；重叠声明保持；坍缩422不改原cue",
+      "product_execution_status": "not_run"
+    },
+    {
+      "id": "T15-16",
+      "requirements": [
+        "MM06",
+        "AC18"
+      ],
+      "evidence_kind": "real",
+      "positive_or_guard": "精准来源查回namespace/system/article/topic/fact准确版本全部保持",
+      "negative_and_evidence": "同ID不同namespace/新版本/同题不同事实不串；local confirmed_facts不伪称Portalfact审批",
+      "product_execution_status": "not_run"
+    },
+    {
+      "id": "T15-17",
+      "requirements": [
+        "MM04",
+        "MM06"
+      ],
+      "evidence_kind": "real",
+      "positive_or_guard": "segments→视频Range/audio_spans/mapping/shot/transcript/rights→RAG逐项一致",
+      "negative_and_evidence": "同规格shot2/3交换、共用segment/assets、错误origin/文字与实际speech不符均拒；仅prompt/色板不是实际画面",
+      "product_execution_status": "not_run"
+    },
+    {
+      "id": "T15-18",
+      "requirements": [
+        "MM02",
+        "MM04",
+        "AC18"
+      ],
+      "evidence_kind": "real",
+      "positive_or_guard": "画面语义有最终帧实际hash/PTS/decode证据；标明observed/inference/user/derived",
+      "negative_and_evidence": "provider自报frame-verified/计划描述不能替代可信framevalidator；speech与真实transcript关系不靠同文本hash",
+      "product_execution_status": "not_run"
+    },
+    {
+      "id": "T15-19",
+      "requirements": [
+        "MM05",
+        "AC19"
+      ],
+      "evidence_kind": "real",
+      "positive_or_guard": "固定>=30选题>=60候选人工标注，精确率>=.90并报告召回/拒答率",
+      "negative_and_evidence": "包含同题异事实/过期/异受众/画面不符负例；全部拒答不达标；纯引用与Portal索引分别检验",
+      "product_execution_status": "not_run"
+    },
+    {
+      "id": "T15-20",
+      "requirements": [
+        "MM06",
+        "AC18"
+      ],
+      "evidence_kind": "real",
+      "positive_or_guard": "source/Bundle旧revision不可变；expiry/revoke让索引停止推荐旧结果",
+      "negative_and_evidence": "旧导出合法副本不会远程撤回；新内容不回填旧request/ref/manifest",
+      "product_execution_status": "not_run"
+    },
+    {
+      "id": "T15-21",
+      "requirements": [
+        "AC08",
+        "MM04"
+      ],
+      "evidence_kind": "real",
+      "positive_or_guard": "可信认证层principal/project/purpose形成AccessContext，不接受payload主体",
+      "negative_and_evidence": "owner/Portal不同登记credential；recipient伪造、跨主体相同IDs、foreignorigin不是本地权限",
+      "product_execution_status": "not_run"
+    },
+    {
+      "id": "T15-22",
+      "requirements": [
+        "AC08",
+        "MM04"
+      ],
+      "evidence_kind": "real",
+      "positive_or_guard": "未授权检查先于Range/If-None-Match304/分页计数/语义读取",
+      "negative_and_evidence": "无字节/记录/资源存在泄漏；跨主体404/已知scope403/auth401；既有Host/Range框架边界不伪称全JSON",
+      "product_execution_status": "not_run"
+    },
+    {
+      "id": "T15-23",
+      "requirements": [
+        "AC08",
+        "MM06"
+      ],
+      "evidence_kind": "real",
+      "positive_or_guard": "grant仅缩小原scope用途许可有效期，expiry/revoke真实墙钟后每次读失效",
+      "negative_and_evidence": "不凭固定ID访问；撤销后再次Range/304/page不能泄露；长连接即时撤销未测单列",
+      "product_execution_status": "not_run"
+    },
+    {
+      "id": "T15-24",
+      "requirements": [
+        "G0-CONTRACT",
+        "MM04"
+      ],
+      "evidence_kind": "real",
+      "positive_or_guard": "权利/方法/附件白名单完整，缺license/用途/到期权限不能默删后整包成功",
+      "negative_and_evidence": "SAPI试验商用权不自动授予；秘密不进export/log/Flow/manifest；用自己marker而非真实key",
+      "product_execution_status": "not_run"
+    },
+    {
+      "id": "T15-25",
+      "requirements": [
+        "MM07",
+        "G0-CONTRACT"
+      ],
+      "evidence_kind": "real",
+      "positive_or_guard": "unknown/failed/unsettled Operation禁止publish；旧fence/取消/漂移重核拒",
+      "negative_and_evidence": "B7核实grant没有正常publish权限；不清unknown、不重render/收费、不SQL补业务",
+      "product_execution_status": "not_run"
+    },
+    {
+      "id": "T15-26",
+      "requirements": [
+        "MM07"
+      ],
+      "evidence_kind": "injection",
+      "positive_or_guard": "cancel/deadline输入真实执行回收子树；清理无法确定必须unknown且不确定settle/refund",
+      "negative_and_evidence": "leader0不等全子树净；PID+Creation+退出/句柄/port核，自己的nativechild；模拟lookup失效仅机制",
+      "product_execution_status": "not_run"
+    },
+    {
+      "id": "T15-27",
+      "requirements": [
+        "MM01",
+        "MM04"
+      ],
+      "evidence_kind": "injection",
+      "positive_or_guard": "精确文件落盘→DB commit前真实kill不得半包；原revision文件只核实不再生成",
+      "negative_and_evidence": "原hash/ID/journal/fence保留，墙钟lease，新进程读取/只核实；不扫目录或覆盖manifest",
+      "product_execution_status": "not_run"
+    },
+    {
+      "id": "T15-28",
+      "requirements": [
+        "MM01",
+        "MM04"
+      ],
+      "evidence_kind": "injection",
+      "positive_or_guard": "DB commit→Flow前真实kill靠已提交Bundle/Step恢复，不再成包",
+      "negative_and_evidence": "原manifest/items/Step/Run/Production/outbox一事务可见，success仅其后；raw事件不模拟Flow事实",
+      "product_execution_status": "not_run"
+    },
+    {
+      "id": "T15-29",
+      "requirements": [
+        "MM01",
+        "MM07"
+      ],
+      "evidence_kind": "injection",
+      "positive_or_guard": "同input/key并发只一BundleRevision/成功event；异input409，旧请求hash不回填",
+      "negative_and_evidence": "固定成本/Operation/版本保持，事件unique；freezip不用新的模型Operation",
+      "product_execution_status": "not_run"
+    },
+    {
+      "id": "T15-30",
+      "requirements": [
+        "MM04",
+        "AC13"
+      ],
+      "evidence_kind": "real",
+      "positive_or_guard": "完整ZIP保原Manifest和文件全集精确hash，真实export job持久化202后才返回",
+      "negative_and_evidence": "独立export lease/fence、API断开任务不取消；重启原journal核实，不借成功Runlease；CLI0不是jobready",
+      "product_execution_status": "not_run"
+    },
+    {
+      "id": "T15-31",
+      "requirements": [
+        "MM04",
+        "AC13"
+      ],
+      "evidence_kind": "real",
+      "positive_or_guard": "projection独立delivery.manifest闭包/parent origin/用途hash，真实文件可读",
+      "negative_and_evidence": "不带缺项却自称完整Manifest；projection导入完整Bundle必须415",
+      "product_execution_status": "not_run"
+    },
+    {
+      "id": "T15-32",
+      "requirements": [
+        "MM04",
+        "AC13"
+      ],
+      "evidence_kind": "real",
+      "positive_or_guard": "ZIP traversal/绝对/反斜线/盘符/链接/重名大小写/重复/缺项/额外项拒",
+      "negative_and_evidence": "自己Marker在包外前后字节不变，无外网/private路径；小有界fixture，不造巨zipbomb",
+      "product_execution_status": "not_run"
+    },
+    {
+      "id": "T15-33",
+      "requirements": [
+        "MM04",
+        "AC13"
+      ],
+      "evidence_kind": "real",
+      "positive_or_guard": "归档实际compressed/uncompressed/membercount/单entry限额在写前核",
+      "negative_and_evidence": "具体产品limit待固定handoff记录原值，测试不提高限制；构造实际limit邻界和中央目录错误/CRC",
+      "product_execution_status": "not_run"
+    },
+    {
+      "id": "T15-34",
+      "requirements": [
+        "MM04",
+        "AC13"
+      ],
+      "evidence_kind": "real",
+      "positive_or_guard": "第二独立实例import保持origin Ref/Manifest/semantic原字节和ID，另建local locator",
+      "negative_and_evidence": "同名origin revision不同instance/hash不碰撞；foreignRun不是localProduction；local mapping不串权",
+      "product_execution_status": "not_run"
+    },
+    {
+      "id": "T15-35",
+      "requirements": [
+        "MM04",
+        "AC18"
+      ],
+      "evidence_kind": "real",
+      "positive_or_guard": "无embedding/厂商账号可导入、重建文本索引、精确媒体定位并重导出",
+      "negative_and_evidence": "实际本地保护读/API+MCP同入口；index失败保importready且indexfailed，不冒匹配90%",
+      "product_execution_status": "not_run"
+    },
+    {
+      "id": "T15-36",
+      "requirements": [
+        "G0-CONTRACT",
+        "MM04"
+      ],
+      "evidence_kind": "real",
+      "positive_or_guard": "固定版本/OpenAPI/SDK/API/MCP同一公开源及唯一ErrorEnvelope真实正反",
+      "negative_and_evidence": "409/401/403/404/413/415/422/503声明及真实status；frameworkdetail/Host/Range例外保存",
+      "product_execution_status": "not_run"
+    },
+    {
+      "id": "T15-37",
+      "requirements": [
+        "MM01"
+      ],
+      "evidence_kind": "real",
+      "positive_or_guard": "完整最小目标资料到作品一次HTTP/MCP触发，断开继续，在授权审核点等待",
+      "negative_and_evidence": "人不补脚本/分镜；本阶段真实template物理包不算自主LLM或unattended质量；未授权付费保持未测",
+      "product_execution_status": "not_run"
+    },
+    {
+      "id": "T15-38",
+      "requirements": [
+        "AC01",
+        "AC07",
+        "AC13"
+      ],
+      "evidence_kind": "real",
+      "positive_or_guard": "三OS安装离线资源/许可、横竖媒体、干净系统及跨实例备份另验",
+      "negative_and_evidence": "本机Python/WAV/模型存在不代表exe/dmg/Linux发行；缺机/听审/许可列not_run，不skip算绿",
+      "product_execution_status": "not_run"
+    }
+  ],
+  "v03_scenarios": [
+    {
+      "id": "V03-01",
+      "links_to_old_cases": [
+        "T15-01",
+        "T15-29",
+        "T15-37"
+      ],
+      "category": "explicit_version_and_fixed_request",
+      "criterion": "只有显式0.3请求可由可信预授权policy解析并固定进Revision/hash；缺版本仍0.2 strict，旧key按存储版本比原hash，同key换版本/policy409，不自动更正旧包",
+      "binding_or_evidence_limit": "未来实际request resolver/HTTP/MCP；0.3唯一DTO与overload待固定",
+      "actual_product_execution": "not_run"
+    },
+    {
+      "id": "V03-02",
+      "links_to_old_cases": [
+        "T15-09",
+        "T15-10",
+        "T15-11"
+      ],
+      "category": "three_scopes_and_null",
+      "criterion": "capability_benchmark/work_runtime_validation/per_work_reference_measurement不得互充；无本片reference则not_measured，N/P95/ref/locator全null，没有测量文件，不把benchmark数字填本片",
+      "binding_or_evidence_limit": "未来实际独立模型解析与verify_alignment_evidence；目前仅纯谓词",
+      "actual_product_execution": "not_run"
+    },
+    {
+      "id": "V03-03",
+      "links_to_old_cases": [
+        "T15-10",
+        "T15-13",
+        "T15-25"
+      ],
+      "category": "qualification_execution_identity",
+      "criterion": "实际method/tool/model/resource/config/device/compute/OS/arch/语言/输入/transform完全在获批范围；未知范围不代表无限，int8回退/GPU/跨OS/漂移不继承",
+      "binding_or_evidence_limit": "真实Operation/ASR/resource查回及registry匹配；资格/资源真实审批pending",
+      "actual_product_execution": "not_run"
+    },
+    {
+      "id": "V03-04",
+      "links_to_old_cases": [
+        "T15-21",
+        "T15-23",
+        "T15-24"
+      ],
+      "category": "trusted_registry_and_authority",
+      "criterion": "policy/qualification/authority必须可信issuer/审批/corpus/method；普通payload/owner字符串/恒True/本地hash或自产approved不能install或授权",
+      "binding_or_evidence_limit": "新EvidenceRegistry install/resolve/verify端口实际签名pending；仅真实批准资格可做positive",
+      "actual_product_execution": "not_run"
+    },
+    {
+      "id": "V03-05",
+      "links_to_old_cases": [
+        "T15-23",
+        "T15-25",
+        "T15-28"
+      ],
+      "category": "revocation_release_same_writer",
+      "criterion": "执行前与publish同writer事务内再核expiry/revoke/fence/cancel；撤销先入writer必阻发布，发布先提交保不可变历史，旧token不跨run/preparation",
+      "binding_or_evidence_limit": "真实独立进程同步闩锁/read-only journal；不是fake snapshot、假钟或SQL修业务",
+      "actual_product_execution": "not_run"
+    },
+    {
+      "id": "V03-06",
+      "links_to_old_cases": [
+        "T15-23",
+        "T15-25",
+        "T15-38"
+      ],
+      "category": "durable_revision_replay_backup",
+      "criterion": "registry跨重启持久，重复同identity异正文拒、旧声明/撤销回放不复活；一致备份恢复后不得忽略已知撤销/费用；不要求产品账号",
+      "binding_or_evidence_limit": "实际admission/revocation日志及墙钟，可信更新渠道pending，秘密配置不入包",
+      "actual_product_execution": "not_run"
+    },
+    {
+      "id": "V03-07",
+      "links_to_old_cases": [
+        "T15-10",
+        "T15-11"
+      ],
+      "category": "max_endpoint_N_true_service",
+      "criterion": "0.2strict和新真正测量/benchmark都按每unit=max两端/N/nearest-rank且<=200000us；10unit仅一端300ms须拒错误2N20/P95=0报告",
+      "binding_or_evidence_limit": "当前数学pure sanity可执行；真实BundleService/新registry反证另批，不借owner静态缺口计产品红",
+      "actual_product_execution": "not_run"
+    },
+    {
+      "id": "V03-08",
+      "links_to_old_cases": [
+        "T15-10",
+        "T15-11"
+      ],
+      "category": "all_units_before_mapping",
+      "criterion": "全量原Alignment/reference/report严格ID/每range/数量/集合一一对应，重复坏先好后/同值/缺项/额外/乱序/空N全部核；未准sampling不得缩集合",
+      "binding_or_evidence_limit": "旧RV17原fixture不改；新schema parser/service独立运行待final",
+      "actual_product_execution": "not_run"
+    },
+    {
+      "id": "V03-09",
+      "links_to_old_cases": [
+        "T15-03",
+        "T15-27",
+        "T15-29"
+      ],
+      "category": "persistent_material_allocation",
+      "criterion": "material_allocation重启同preparation/artifact同material ID；Allocation无SHA/size/decoded/validated或未来ready证据，旧materials仅ready Receipt",
+      "binding_or_evidence_limit": "B10提议私有接口尚无实现；不能猜ID/从SQL拿slot/先stage占位再改",
+      "actual_product_execution": "not_run"
+    },
+    {
+      "id": "V03-10",
+      "links_to_old_cases": [
+        "T15-25",
+        "T15-27",
+        "T15-29"
+      ],
+      "category": "allocation_lease_and_owner",
+      "criterion": "ordinary lease当前fence、run/request/slot归属每write/finish核；旧fence/异run/异slot/核实grant拒，固定原journal和字节不变",
+      "binding_or_evidence_limit": "新allocation+actualMaterial journal/read-only观测；不是核实grant扩大普通写权",
+      "actual_product_execution": "not_run"
+    },
+    {
+      "id": "V03-11",
+      "links_to_old_cases": [
+        "T15-03",
+        "T15-10",
+        "T15-27"
+      ],
+      "category": "acyclic_strict_material_assembly",
+      "criterion": "分配无hash report locator→AlignmentSHA→真report/Receipt→WorkValidation→Quality→Manifest，无循环、无假hash/placeholder覆写；report严格JSON和原音轨/参考完整绑定",
+      "binding_or_evidence_limit": "严格路径真实参考pending，阶段return/bytehash/journal精确观察，不拿合成reference做产品positive",
+      "actual_product_execution": "not_run"
+    },
+    {
+      "id": "V03-12",
+      "links_to_old_cases": [
+        "T15-09",
+        "T15-15",
+        "T15-18"
+      ],
+      "category": "qualified_without_per_work_reference",
+      "criterion": "合格方法加实际全量runtime checks可发布新策略，无逐片必选人标；Alignment仍有not_measured/null，WorkValidation引已完成四版本，Quality不反引循环",
+      "binding_or_evidence_limit": "当前无资格/真实基准不能发布；真正默认自动创作属R1必做，不挪R2",
+      "actual_product_execution": "not_run"
+    },
+    {
+      "id": "V03-13",
+      "links_to_old_cases": [
+        "T15-10",
+        "T15-20"
+      ],
+      "category": "old_invalid_2N_reports",
+      "criterion": "旧2N不符criterion禁止新release，历史原字节不覆写；更正产生新report/revision/corrected_from与原因，不改原request/费用",
+      "binding_or_evidence_limit": "实际旧0.2新release及更正链接口pending，既有历史包可用性另记",
+      "actual_product_execution": "not_run"
+    },
+    {
+      "id": "V03-14",
+      "links_to_old_cases": [
+        "T15-24",
+        "T15-30",
+        "T15-31"
+      ],
+      "category": "benchmark_export_binding",
+      "criterion": "embedded_full_report与provenance_reference按许可；reference Material记录原reportSHA和身份且reference_only，不冒完整基准/本地资格，不造URL，原音频/标注不默认导出",
+      "binding_or_evidence_limit": "新schema_kind method_benchmark_reference实际唯一DTO pending；真实许可/报告pending",
+      "actual_product_execution": "not_run"
+    },
+    {
+      "id": "V03-15",
+      "links_to_old_cases": [
+        "T15-03",
+        "T15-30",
+        "T15-31"
+      ],
+      "category": "full_and_projection_closure",
+      "criterion": "policy/qualification/workvalidation/quality及所选benchmark文档全索引/闭包无悬挂环；projection独立manifest依赖许可闭合；不可导出不默删自称完整",
+      "binding_or_evidence_limit": "真实publish材料再export，不能SQL造published来准备权限positive",
+      "actual_product_execution": "not_run"
+    },
+    {
+      "id": "V03-16",
+      "links_to_old_cases": [
+        "T15-34",
+        "T15-35"
+      ],
+      "category": "origin_snapshot_and_local_recognition",
+      "criterion": "import保持origin原byte/ID/hash，初始origin_snapshot_only；本地registry另认同才recognized_locally，仍不授不同OS/resource新资格；原作品读/索引与方法准入独立",
+      "binding_or_evidence_limit": "真实第二实例包；0.3import trust字段和唯一DTO未发布，拒foreign grant/authority继承",
+      "actual_product_execution": "not_run"
+    },
+    {
+      "id": "V03-17",
+      "links_to_old_cases": [
+        "T15-27",
+        "T15-38"
+      ],
+      "category": "schema4_to5_transaction_and_rollback",
+      "criterion": "schema5两表同writer事务迁移，失败回滚，旧五表/预算/Operation/JSON保留；旧schema4码拒5；SQLite/WAL/引用材料/公开信任身份一致备份，不降user_version",
+      "binding_or_evidence_limit": "真实迁移程序/0005未发布，不执行新migration；不会用SQL修改业务求绿",
+      "actual_product_execution": "not_run"
+    },
+    {
+      "id": "V03-18",
+      "links_to_old_cases": [
+        "T15-21",
+        "T15-22",
+        "T15-36",
+        "T15-37"
+      ],
+      "category": "real_transports_and_once_command",
+      "criterion": "一次目标资料触发完整自动流程，HTTP/MCP断开持续；服务/真正HTTP/真实MCP宿主通信分别证明，payload主体拒，Range304分页授权在前",
+      "binding_or_evidence_limit": "HttpAdapter仅调用自己loopback已启动API；MCP factory/SDK handler不是真host，实际argv与finalhost未发布",
+      "actual_product_execution": "not_run"
+    },
+    {
+      "id": "V03-19",
+      "links_to_old_cases": [
+        "T15-06",
+        "T15-13",
+        "T15-17",
+        "T15-18"
+      ],
+      "category": "runtime_whole_material_checks",
+      "criterion": "真实主音轨/完整ASR/全部unit/gaps/samplePTS变换/字幕/帧/语义/源稿差异/来源rights/默认8和附件全核，不信media.passed",
+      "binding_or_evidence_limit": "W10有限owner真ASR/材料及strict blocker不继承独立绿；0.3producer尚未实现，真实全作品待验证",
+      "actual_product_execution": "not_run"
+    },
+    {
+      "id": "V03-20",
+      "links_to_old_cases": [
+        "T15-19",
+        "T15-38"
+      ],
+      "category": "independent_benchmark_and_scope_limits",
+      "criterion": "方法独立基准、人听标注/裁决/authority必须审批；MM05>=30题60作品precision>=90%并reportrecall/refusal，全拒答不达标，词资格/跨OS/AV/R1R2另验",
+      "binding_or_evidence_limit": "所有真实基准/资格/fullBundle/MM05/视听/机器尚pending，纯数据sanity不授资格",
+      "actual_product_execution": "not_run"
+    }
+  ],
+  "trusted_data_state": {
+    "independent_annotated_listened_corpus": "pending",
+    "method_qualification_authority_issuer": "pending",
+    "full_V03_producer_and_consumer_contracts": "not_published",
+    "real_complete_package": "pending",
+    "MM05": "pending",
+    "native_per_work_timing_reference": "not_approved",
+    "cross_OS_resource_qualification_and_AV": "pending"
+  },
+  "permission_and_costs": {
+    "keys_read": 0,
+    "fees_cny": 0,
+    "validation_instance_access": false,
+    "SQL_business_repair": false,
+    "product_import_or_launch": false
+  },
+  "future_runtime_admission": [
+    "independent exact new criterion/adapter approval and root runtime authorization",
+    "unique V03 models/signatures and final producer/resource identities published",
+    "complete actual producer/test source bodies archived before import; no T14 backfill",
+    "own isolated instance, bounded real tree PID/Creation/ports/healthy sibling cleanup",
+    "positive qualified/full or strict measurement uses actual independently approved materials only",
+    "source/resource drift abort; keep raw failures/handles and no blind reruns"
+  ],
+  "no_self_close": [
+    "Gate0",
+    "R1",
+    "R2",
+    "real method qualification",
+    "product findings"
+  ],
+  "revision1_original_bytes_retained": true,
+  "approved_base_identity": [
+    {
+      "path": "G:\\开发测试\\Projects\\VideoCreator\\docs\\acceptance\\criteria\\gate0-v03-alignment-bundle-evidence-v1.json",
+      "sha256": "b3944783e8420ac742bfd55ea875d1f52109163efeef5c22fdb2f2ce72de2d20",
+      "size": 34168
+    },
+    {
+      "path": "G:\\开发测试\\Projects\\VideoCreator\\docs\\acceptance\\criteria\\gate0-v03-alignment-bundle-evidence-v1.md",
+      "sha256": "340514bfd9fb8b5bb126056f3143fd16d1bf725cc516a5465e005a50e9f55048",
+      "size": 13087
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\TestDevelopment\\T16CasePlanRevisionOne.json",
+      "sha256": "a6376d4bb782fc927c7303febae4ac9551677de91164bd23cf1a94a69f9306d6",
+      "size": 28501
+    }
+  ],
+  "ADR0017_increment": {
+    "path": "G:\\开发测试\\Projects\\VideoCreator\\docs\\decisions\\0017-per-work-reference-material-admission.md",
+    "sha256": "31265c04fee71ed285e25f3b941b96eba8cdf56c129ca3d8bd2cc1eda733f992",
+    "size": 9851
+  },
+  "reference_scenarios": [
+    {
+      "id": "REF-01",
+      "criterion": "版本/role/kind三元组严格分派precision_reference_v03独立PerWorkReferenceDocument，precision_report_v03无reference union；旧0.2 audit_summary原grammar/默认/hash保持",
+      "product_execution": "not_run",
+      "real_reference_qualification_or_positive": "pending"
+    },
+    {
+      "id": "REF-02",
+      "criterion": "真实受评原音轨在本run/request准备索引中唯一定位/hash/完整decode/samplePTS，不只接受调用方SHA或mix/脚本；有序units与固定Transcript全量ID，原boundaries每条strict ID/范围/数量/集合先核再map",
+      "product_execution": "not_run",
+      "real_reference_qualification_or_positive": "pending"
+    },
+    {
+      "id": "REF-03",
+      "criterion": "independent_listener_refs必须定位可得不变正文、真实人员/标注工具与独立性；arbitration_ref含真实争议裁决或无争议完整人口审核，单SHA/不存在placeholder拒",
+      "product_execution": "not_run",
+      "real_reference_qualification_or_positive": "pending"
+    },
+    {
+      "id": "REF-04",
+      "criterion": "issuer/authority获准对应scope/criterion/audio-work/listener范围并在registry当前有效未撤销；签reference不授policy/benchmark/资格安装，普通payload/万能sign callback拒",
+      "product_execution": "not_run",
+      "real_reference_qualification_or_positive": "pending"
+    },
+    {
+      "id": "REF-05",
+      "criterion": "HMAC签名输入canonical除signature/content_sha256；内部content hash除自身保signature；ready Receipt完整实际JSON字节SHA独立；不能混三个hash或排除units/audio/listener/issuer以解环",
+      "product_execution": "not_run",
+      "real_reference_qualification_or_positive": "pending"
+    },
+    {
+      "id": "REF-06",
+      "criterion": "有效HMAC仅认证issuer声明，不证明独立听审或ground truth；复制被评ASR/Alignment边界再自签不能准入，未配真实资源/可信根仍pending",
+      "product_execution": "not_run",
+      "real_reference_qualification_or_positive": "pending"
+    },
+    {
+      "id": "REF-07",
+      "criterion": "来源完成→reference正文/签名/readyReceipt→fileSHA reference_ref→无futureSHA测量locator→Alignment→真实measurement→WorkValidation/Quality→Manifest无环，listener不反引future参考hash",
+      "product_execution": "not_run",
+      "real_reference_qualification_or_positive": "pending"
+    },
+    {
+      "id": "REF-08",
+      "criterion": "默认完整测量/投影证据要求reference+measurement+必要listener/arbitration正文及许可闭包，缺授权不删后称完整；合法媒体文本projection另保父包/取得限制，benchmark provenance_reference不替本片参考",
+      "product_execution": "not_run",
+      "real_reference_qualification_or_positive": "pending"
+    },
+    {
+      "id": "REF-09",
+      "criterion": "import版本/kind/hash/fullunits/时基/闭包严格保origin原byte/ID/hash，HMAC无本地同issuer/key只能来源声明；origin_snapshot_only即使能核签也需本地registry证据/范围/revoke，导入不安装root/key/authority或授新制作",
+      "product_execution": "not_run",
+      "real_reference_qualification_or_positive": "pending"
+    },
+    {
+      "id": "REF-10",
+      "criterion": "qualified runtime无本片参考仍not_measured、reference/N/P95/measurementlocator全null且无reference/reportplaceholder；strict缺参考alignment_required/waiting_user，不换策略或拿benchmark顶替；max/N/200ms/MM05不变",
+      "product_execution": "not_run",
+      "real_reference_qualification_or_positive": "pending"
+    }
+  ],
+  "bootstrap_guard_candidate": {
+    "RV18_P01": "first remediation candidate, independent RV19 decision pending",
+    "binding": "separately out-of-band hash-frozen complete actual BootstrapBinding, not admission-defined source list",
+    "pre_import": "nonempty exact required source/resource maps, target/module/package canonical paths, every original source and complete prelaunch body/hash",
+    "construction": "approved Test bootstrap function only after full preflight/path-resolution; reject already imported producer/preconstructed service",
+    "sentinel_limit": "same finite identity predicate plus own no-op sentinel, not actual importer or real complete dependency proof",
+    "actual_V03_binding": "not published/frozen; runtime admission remains unavailable"
+  }
+}

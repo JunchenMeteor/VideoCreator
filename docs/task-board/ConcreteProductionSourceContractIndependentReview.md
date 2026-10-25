@@ -1,0 +1,30 @@
+# ConcreteProductionSourceContractIndependentReview
+
+QUEUED_NOT_ACTIVE，唯一原integration_review。前置是原架构0072完整普通设计及Handoff/Impact/接口/真实工具终态停止，全输入固定后Root收取；不是消息草案或热ADR。实际槽释放后由Root明确followup激活。
+
+## 目标与输入
+
+独立评审本地自有素材制作与独立发行资格解耦的具体方案，完整R1后连续R2保持，界面预览不代表制作。输入为架构ConcreteProductionSourceContract正式交接（待补精确身份）、原10/11与01—09产品规格、0070/0071独评保留边界、Backend143停止实际接口/RequiredSourceInputs、Native48停止实际接口/MissingProductionSeams、Media48 AppliedStage停止真实production_drivers/current_engine_production/production_edit/bundle_producer及原Owner装配入口。
+
+不得把Root阅读/作者矩阵/消息结论当独立批准。原SOURCE/runtime/失败次数/费用记录不回写、不抹除。旧非qualified main自身标UNAPPLIED，观察仍拒not_ready；已有LocalTemplateRenderer是实验模板；recipe仅修订消费者。方案必须解决真实初次本地制作，而非仅放开一个门。
+
+## 必核具体行为
+
+- 真实安装实例/用户授权/已上传原Asset、输入权限与权利来源、Owner/current/lease/fence/CAS仍有效；不伪造qualified、不以任意回调或JSON身份授执行权限。
+- 独立测试角色签名/发布资格没有继续成为本地素材制作前置；生产/发行qualified通道原语义与历史约束不偷偷变宽。新适配器的真实原source与关闭/失效/首次安装顺序可实现。
+- local-owned-assets-v1是固定代码工厂和明确typed capability：已授权音频/视频按同Operation规范化和真实decode、原输出分配与原子提交；费用为0路径不切成Piper/Wan未知收费。完全模型模式与≥3新生成镜头仍保留，旧上传视频不能记新生成。
+- 真实三clips/旁白和四master/作品包调用点必须完整；不能固定10秒色块模板、只改第三镜头恢复函数或body填“成功”算实现。缺素材时准确校验，不凭角色签名消除缺输入。
+- actual transcript与源稿分别存储，真实字幕/时码/RAG、导出引用固定版本、单HTTP/MCP共引擎、客户端断线后台继续等完整后继仍有具体接点；ASR或生成资源未具备不得宣该阶段通过。
+- 本地免注册/数据实例持有，官方订阅独立可选，旧支付额度与未知受理不重交保护保持。接口恰好所需，不重新堆扩资格抽象。
+- 后端/Media/集成/前端职责及实际修改清单、错误语义/迁移/回滚和独立验收入口可直接给实现角色执行。未验证依赖/三OS/商业资源不能由设计报告通过替代。
+
+## 白名单和交付
+
+只docs/reviews/及自身Review/ConcreteProductionSourceContractIndependentReview/。不修实现/设计/测试，不执行候选、Python/Pydantic/native/SQL/HTTP/模型/安装，不访问密钥；原19三次/三binding/31/105及累计20元不重开。报告逐问题严重度/角色/原真实调用点/触发/最小修正，完整核正文和固定有限身份后真实末工具自然终态/全部reader释放。结果为设计支持或需修订，不能叫已制作通过。
+## 实际激活：0072正式停止交接已收取
+
+ACTIVE，唯一原integration_review。原架构43df6f/90fab8实际自然0、TRUEFINAL、无live且读写全释放。固定ADR0072 28206B/SHA1c4fc5782213a364b1504bb9b9456ede231f7f1cdac8d780e309cb0722aceec3已Root6a3d10全文收取；Root26803c全文Handoff.md/json，af974e全文Interfaces/Impact/Delta/Terminal并核六件身份，不自行代独评。
+
+正式过程根 Architect/ConcreteProductionSourceContract/。Handoff.md a915349bcf1d13e5657911f026d79933394a6a2738e6679cb63550da7237e01f；Handoff.json5b5fad86431da12b5489a46eecce907f6b6ba7e96fb3d5c61bcba4c0fcc153c8；Snapshot8d0ca7defa8d212050f6913766217dda1ecce123217be5a11d6d411af90e657e；Interfaces55db041dd5f18d804cc66d13ea3a2595efd7469d9bdf603085dadfe4876d9070；Impact2df07daf0162ac577165151a6571d26c3ef5851386da889fc569fba2498882ca；Terminal827e9e14cc34513740d9744797937616d21bddf23779df7ef7d3d3193d4e3db3。
+
+53固定普通输入及其完整路径在InputPins33b3413d46519995ac2a7796d8042de84ae8f361e34e70e5ad11ed154c992c74/OrdinaryIndexdbcdacdca892ef4257a0141fbaa6481e049d3cf1c27f21c6b64c53a34218c179。finite-after只finalizer interval，不称此前整个阶段无漂移。选择独评必需原调用源完整阅读，明确实际覆盖，避免仅hash/作者投影当语义证明。0运行/费用及原限制保持。评审优先给能否交原Backend/Media实施的明确设计结论，不把普通本地路径重新耦合独立发行签发。

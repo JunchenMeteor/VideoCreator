@@ -1,0 +1,110 @@
+# Qualified completion 31 项回归准备独立评审
+
+结论：**LIMITED_SOURCE_PREPARATION_SUPPORT / RUNTIME_NOT_READY**。本固定版本的表示转换、原类型/局部引用谓词和拒绝路径测试准备得到有限源码支持；未确认新的 P1/P2 源码缺陷。31 个方法均为 NOT_EXECUTED，不能写成31项通过。完整认证服务阳性、运行依赖和生命周期准入未具备；本评审不授权候选执行。
+
+当前任务卡为 `G:/开发测试/Projects/VideoCreator/docs/task-board/QualifiedCompletionRegressionPreparationIndependentReview.md`，SHA-256 `13804b3c5d6c87e18e1e7fe03244ed90dfb592d3a28d70d476e27ac85963a5dd`。只读停止 Test 材料，未读取热依赖、0067或当前生产源码。写入仅本报告和自身 `G:/开发测试/Codex/VideoCreatorImplementation/Review/QualifiedCompletionRegressionPreparationIndependentReview/`。使用自有 PowerShell 文件身份核对及自有 stdlib AST/JSON 解析；没有 import 候选、Test、被测模块、Pydantic、pytest，没有执行SQL/native/provider/model/network或收费操作。
+
+## 固定身份及证据等级
+
+唯一 Test 根是 `G:/开发测试/Codex/VideoCreatorImplementation/TestDevelopment/QualifiedCompletionRegressionPreparation/`。完整产品副本位于其 `SourceBodies/video_creator/`，六个 Test 副本位于 `TestBodies/qualified_completion/`；有限交接副本位于 `ReviewHandoff/Ordinary/`。正文阅读使用这些停止副本，不将索引的原生产 path 当作当前读源。
+
+|固定件|SHA-256|
+|---|---|
+|PreparationHandoff.md|211f488f6e9603f8218f236264e27c2c35cd7706cd25daf240f57ba56baa642b|
+|PreparationHandoff.json|33cde0800d041d2ba865ea3662c20564f65ba5f847c158cd6ee8adbafe90e772|
+|ActualInterfaces.md|bc5d27d3e9e33d8afbf5f969527b71d2259e6a582c01b502e35d7f84c895cbc0|
+|FinalToolTerminal.json|d63fab7d15c1ed4c871ffb825f78a7860b3ad995705865e2e5deac651a74eb8e|
+|SourceSnapshot.json|ae27586cf48e2a7fca9eedac698a420e60a7bfd1d68a0835cb0f243c6036cdb5|
+|OrdinaryIndex.json|aafbb4c099c66bd164cec4ab8475f3e3b7df976357395155b5cd4bc3169af402|
+|InputIndex.json|8126f234eb3b4e013da85112cca819dd9aa9abceda0cb1d5ea8e6d63f3e795e5|
+|LaunchRequest.json|c913ca04520453f3a22e90e6c9e46bce5f8a1b0b3c3f89f891fe8d16e12eba0f|
+|PreparationReceipt.json|c10c040081c1ea6a21216dbc80eed84a40ad4e96f39b975579dd1bf7231a85a4|
+|RunPreparedTests.py|a8bcaf915872565f3277ba04eb6a9f20e872719c5385b94ed13b73b3ff8687a3|
+
+独立有限身份核对195条路径：154个完整产品模块副本、6个Test副本、19个有限ordinary及16个治理/正式件，预期byte/SHA mismatches=[]。没有扫描999项runtime或359项package树。154个完整源仅作AST和身份核对，不声称全部源码逐行语义评审。语义正文完整阅读六个Test、Run入口、PrepareSources和Plan；完整阅读目标 provider/component_diagnosis.py、domain/component_diagnosis.py，并按分段补读 diagnostic_recovery 的类型正文。对于大型原服务，仅完整阅读相关局部谓词、原正常record和explicit recovery调用体、拒绝触发点及必要import链，没有重审未变全部服务。
+
+输入使用 Backend bb03b22b70fb4de8374512613d720e9b35bb7c33f67582f95f67f3f4d43edeea / Media e90b574d8d179c280bbdad5da413ef854f8cc5fdc89d91ab1205370a339f228d。没有用后继租约修复 b58c610f 替换本批字节。重要原源：provider `461a28d076c53d3a6c59ee11bd37ccebda3701f5a040580bd600e2c48cfc951e`；domain.component_diagnosis `1d3b07b9a253e56f812e99517841a30b509a584b473f4cce77c014bad871ac3b`；domain.diagnostic_recovery `705a548d339d67ef85c868c679524cb064d51ddba2cff914279ae264a241b7a9`；component_diagnosis_service `b73938149e2ba87daf9c4c88ef6b996dfa7b025db3acc922c248d363f0cf965b`。全部为固定普通字节，不是新运行身份。
+
+## 31项正文与真实调用
+
+自有AST枚举31个方法，名称、顺序、原行号与 Coverage.json、SourceSnapshot.json 每项相同；没有执行或抽取被测函数。RunPreparedTests.py 19–24通过正常unittest导入三完整Test模块并构造原suite，不将函数AST复制成镜像算法；authenticated_flow不是该suite的一部分。
+
+|组与方法|原Test行|直接目标与有限支持|
+|---|---:|---|
+|P01 all_three_kinds_retain_complete_utf8_and_original_reference|19|长UTF-8正文三actual DTO；检查返回完整文本、原ref identity和dump不变|
+|qualified_resource_has_no_invented_media_type|31|metadata无MIME字段，原helper直接完整UTF-8 decode|
+|ready_material_text_and_json_are_exact_text|37|text/plain、srt、vtt、application/json原文本分支|
+|nontext_ready_material_preserves_binary_upload_boundary|44|五个非text MIME原None边界，不把binary解码/上传称成功|
+|invalid_utf8_rejected_for_each_textual_kind|52|三kind的原422 encoding拒绝|
+|unknown_kind_does_not_infer_mime|58|故意model_copy坏kind，原422拒绝|
+|foreign_completion_with_same_fields_rejected|64|SimpleNamespace同字段不能通过原exacttype|
+|ready_material_cannot_use_duck_typed_receipt|68|故意坏ref不是原MaterialReceipt，422|
+|completion_subclass_is_not_original_type|73|非exact completion子类拒绝；Pydantic构造尚未实际验证|
+|P02 metadata_reexport_is_sole_original_class|28|recovery导入原class、RegisteredDiagnosticInputRef继承同class|
+|union_retains_all_five_prior_members_and_adds_metadata|34|TypeAdapter对原五member+metadata逐类型、值roundtrip；NOT_EXECUTED|
+|strict_metadata_rejects_extra_mime_and_bad_hash_size|51|7类extra/strict size/hash/id损坏，不宽松dict|
+|literal_qualified_membership_passes_only_local_predicate|58|原局部谓词的literal成员阳性，不是认证持有阳性|
+|equal_serialized_qualified_reference_remains_exact_value|62|相等原DTO值可成员匹配，不要求对象identity伪造资格|
+|undeclared_qualified_reference_rejected|68|无对应completion时拒绝metadata|
+|different_record_hash_or_size_rejected_individually|71|record_id、hash、size逐项变更拒绝|
+|equal_metadata_under_wrong_completion_kind_rejected|78|原qualified kind/value门，坏tag不得混入|
+|each_original_completion_must_be_consumed|83|三kind逐一遗漏时原every-completion门拒绝|
+|all_three_consumed_sources_keep_original_refs|90|原局部谓词三成员全消费，不是完整服务通过|
+|metadata_cannot_replace_actual_component_media|94|纯metadata不得代原cover media来源|
+|undeclared_ready_receipt_or_feedback_rejected|100|无原known/completion闭包时拒绝|
+|unavailable_cannot_claim_supported_even_with_typed_ref|106|原Check validator禁止unavailable+supported|
+|Refusal normal_record_refuses_unheld_input_before_any_database|34|原normal调用在custody门403，engine字段尚不存在|
+|append_record_refuses_same_unheld_input|40|原append进入同record custody门403|
+|completion_reader_does_not_mint_custody_from_typed_ref|45|原reader先查custody，typed ref不授资源|
+|explicit_current_reader_rejects_foreign_continuation_before_issuer|49|原continuation exacttype门409，issuer字段尚不存在|
+|wrong_observation_type_does_not_enter_custody_or_database|54|原typed observation前门422|
+|no_lease_qualified_observer_remains_not_ready|58|原no-lease observer明确503|
+|missing_immutable_record_is_unavailable|64|未来私有memory fault表无row，原503|
+|wrong_record_hash_or_size_is_rejected_before_fact_use|72|只插坏fault row，原bytes/hash先门422|
+|matching_hash_does_not_validate_a_damaged_fact|85|坏事实即使hash相同仍原DTO422，不伪造合法注册记录|
+
+上表组内省略统一的 `test_` 前缀；完整方法名及精确源路径保存在 StaticFacts.json 和原 Coverage/Snapshot。P01九方法源SHA `c985839cbb671b3642b50f42a0d4241cd4dada86d5fe35ee5eda8de420e2e431`，P02十三方法 `b7ee6353a6af923c9844efe057b09169889e85cf3053ce0213d3b82f2b23c0e9`，拒绝九方法 `c1fc52a088d3e7d1d25ad5e1bc7f6f921637b222d117fcab164113b96567ab68`。
+
+provider原31–53确切分支只对READY读取MIME；feedback/qualified resource由原exact completion class+kind判文本，返回完整decode或原encoding拒绝。原domain59–65定义唯一严格metadata及原五member+新增metadata union；recovery9–18只reexport/继承该class。FinalModel继承原PrivateModel，extra=forbid、frozen、strict保持。
+
+局部谓词原419–475真实消费known/completions：442–444要求qualified kind与相同ref值；452–457保实际media/角色；473–474要求every completion被观测。Test没有替换此方法。fixtures83–89的SimpleNamespace只是该局部predicate的形状，fixtures68–80的observation/source/route均是明确未资格化literal。不能用其assertIsNone证明实际Owner、资源、许可、已结算Operation或完整record成功。
+
+DenialOnlyService只继承两个原class，无方法override；仅安装真实RLock和空ports，没有engine/issuer。normal `_record_component_diagnosis` 原542先拒错observation，544进入 `_diagnostic_inputs_current`。其364–391先查实际id/lease/thread/owner ports/fence；held缺失时370–372短路403，不读取伪parent执行fence或进入数据库。原read_component_diagnosis 701–702在访问issuer之前拒foreign continuation。三个memory-row方法直接调用原681–694：缺row503、bytes/hash错422、原ValidationError映射422；故意损坏数据不能变合法fact。future sqlite3调用并未在本评审或准备中发生。
+
+## 完整认证消费仍未就绪
+
+正常record实际在557调用原_check_refs，explicit recovery在792调用同方法；Plan/Coverage保留的568/793是原估计行号错误，ActualInterfaces已单独准确纠正，不改历史。源码实际normal随后559真实ports verifier、579–615原issuer/current writer、Operation再核和原快照门；explicit744–806真实factory/issuer、原注册input/stable、Operation、同ref、实际verifier和末current门保持。局部类型测试并未走这些完整阶段。
+
+authenticated_flow.py SHA `ef581fb3965120d222570a2b843c1165f469975d34ce4dfa2135d26997fdb899`，11–27调用真实normal record、explicit immutable reader、逐completion reader并比较原fact/checks；没有构造Owner/issuer或返回True callback。它既未被31suite收集，也没有真实强来源fixture，因此保持NOT_READY，不能因为缺case/不收集/未来skip而计阳性通过。
+
+原实际Service observer接口还未实现：diagnostic_selection 146先custody，qualified分支163–164原503；diagnostic_resume 189–201的qualified分支同样503。不得伪MIME、伪bytes、删completion或关闭observer门让测试变绿。genuine current Owner/issuer/factory/final port、Registered V2输入、真实source/current/rights失效、同input全部completion的两个消费者、原settled analysis Operation与费用/unknown账本，都需要后继真实固定输入和独立运行证据。
+
+## 未来导入与原19耗尽链
+
+本31的业务assertions不是原GoalReceipt19的同名用例或相同lookup业务oracle。但其未来whole-module执行并不能据此自动成为获准的新运行目标。strict_reference 6直接import完整component_diagnosis_service；原该模块8顶部import Engine canonical/digest，固定Engine11顶部import Pydantic BaseModel/ValidationError。media Test及fixtures也在开始阶段import Pydantic类型域，而非跳过原完整模块。
+
+独立补充读取原第三次停止stderr5215B，SHA `79836b56314a993461b7885a6dc66960610d983938fe05ca01aa87c5bc529da8`，及既有第三次独立报告 `8bfcca1993de83003217f963fa4caa9302107c18e4fc9507c3d6f4920ca2aaed`。原trace确为G01→load_product→Engine11→Pydantic main36→_decorators164→dataclass→Test source-domain拒绝，1error/18NOT_EXECUTED；不是实际业务lookup或数据库失败。具体namespace变化成员原未capture，本轮没有补猜或重构。
+
+因此已经确认未来31包含原耗尽批次的完整失败导入段；当前证据没有证明其运行边界足够独立，不能用新namespace、替换guard、先加载Pydantic、换解释器/环境或新wrapper来补做原兼容性第四次。这里不宣布全部新的业务oracle等于原19，而是保持这个共享导入段及累计限制的准入阻断。后继若提出不同真实Gate，必须明确原target边界与完整import/observer/生命周期，不能缩导入、删除profile、改原断言或拿pure fixture当Pydantic兼容。Review不授权该Gate。
+
+当前Run入口28–43在任何suite target imports前验证index SHA、要求原flag仍false，然后无条件NOT_READY；不会因改flagTrue获得许可。run_suite_after_admission是未调用的未来函数，仅展示whole suite加载。它没有完整依赖审计、独立宿主wrapper、90s sticky失效、Process/Popen creation、双raw EOF、JUnit/Events/Methods或receipt保存生命周期；这些缺件已明确，不能将当前原LaunchRequest当可执行正式命令。
+
+## 依赖、Windows映射与生命周期界限
+
+自有AST解析154完整源，确认模块集合与ImportGraph一致；这不是实际动态imports或DLL加载。作者图保留函数内deferred import，故154保守closure不等154实际loaded模块，也不等所有系统调用被涵盖。静态thirdparty含anyio/crewai/cryptography/fastapi/httpx/keyring/mcp/pydantic/starlette/uvicorn，确切packages/RECORD/native ABI/许可与运行路径绑定尚NOT_ADMITTED。
+
+DependencyCandidates只引用自身999旧runtime记录和359旧package记录；当前全依赖hash_check=false，Pydantic2.12.5/core2.41.5等是旧观察版本，不是本批加载事实。keyring.exe历史missing、其他平台缺项原样保存，不新扫描或借已有声明授准入。
+
+CacheLookupMap的480项是(154+6)×三optimization。独立逐项核source path/size/SHA、cache_tag、完整Windows lookup键、None/1/2的原pyc名称及NOT_ADMITTED；不是OS返回记录或480次真实cache访问。自有解析还逐字核LaunchRequest decoded argv与原InputIndex解释器/Run路径/原indexSHA字符串一致，保-I/-S/-B/-X utf8。没有在此静默改路径；Metadata Handoff中的重复分隔表示不替换原LaunchRequest运行身份。
+
+独立七个已生成JSON原byte集合无CR：CacheLookupMap、Coverage、DependencyCandidates、ImportGraph、InputIndex、LaunchRequest、PreparationReceipt。仅该七件范围得到LF支持，不外推未来Test结果/所有环境文件或Process raw格式。
+
+原准备fcd057同步metadata tool自然0，只证明stdlib AST/hash/copy准备；其独立Process creation与raw EOF未capture，FinalToolTerminal也明确该限制。原作者末41a97a TRUEFINAL由统筹交接，冻结材料显示原metadata收口a681b2自然0/no live；本评审没有亲历这两个作者tool，也不从文件存在补造Process终态。31无JUnit/Method/Launcher实际输出；未来独立原handle/lifecycle和90s sticky责任仍归Test与准入owner。
+
+## 后继归属及正式边界
+
+未确认新的P1/P2源码缺陷；原行号估计错误保留为非阻断文档事实，不记产品红。Test负责未来真实suite/不可伪造的阳性fixture、oracle与全部生命周期证据；Backend负责真实当前typed input/issuer/持有和资源observer；Integration负责完整package/native/许可/宿主运行闭包。缺者保持NOT_READY，不能让Review或普通fixture代填资格。
+
+当前SOURCE支持不关闭完整认证消费/商业权利/Operation费用/unknown/fence行为，不将旧MDCP-P01/P02 SOURCE闭合改成runtime闭合，不授原19第四次、31运行、Owner/native安装、媒体精度或R1三OS真实作品/完整R2验收。后继所有执行必须另行明确准入，本报告不是runtimegrant。
+
+本轮合并输出1a5d93、fba241、e487e2、cc66b2有截断；随后仅定向补确实遗漏的入口尾段、类型前段、provider尾段、normal writer和observer，未据截断声称整个输出全文。c75532首次历史manifest字段投影无匹配，50499b按真实record.path纠正并精确定位原stderr；这只是读取定位，不是产品失败。全输入末核与真实最终工具终态由自身InputAfter、InputSupplement及FinalHandoff记录；全部读者在正式封存后释放。

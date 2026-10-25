@@ -1,0 +1,11 @@
+# Integration — WhisperX 自身检查目录修复补充
+
+ACTIVE supplement，原integration_release当前槽位，承接ed5116b9/0fe65a7c；不是产品/原19第四轮，原完整R1后R2与数据检查限制不变。
+
+原停止失败：380448自然1，InspectionRoundOne/CommandReceipt.json与InspectionReceipt.json；Root1e95ca读取完整JSON并投影实际child31100自然1双EOF/无timeout/错误FileNotFoundError TextViews/Wheel-0001.txt/results{}。没有取得source切片，不能说archive不合规。原61输入/归档无漂移，详细sha以原失败Handoff/receipt固定身份核对。原plan00632d7a91fd71ab94fc72a7d98deb1c295d0af0d9454199fac17b2da702bec9和原helper/failedbatch不得修改。
+
+只修自己的inspector输出目录创建/验证，保safe ZIP/CRC/RECORD/tar/gzip/EOF/path/link/metadata原标准、完整读取源码/license语义。新InspectionRoundTwo独立namespace与新helper/plan/pins，归属严格自身Integration/WhisperXAlignmentSourceSlice内；不把目录缺口当厂商失败或放宽安全检查。先核全部预期输出目录已创建且无跨根/碰旧文件，再冻结原2artifact+helper/runtime/61等必要输入和新精确命令；一次新data-only执行，原owner续真实进程至自然终态/双EOF，不由观察超时重启。
+
+复用已完整下载wheel16486941B SHA cb6d4fcd3fb6c42305cb8b222a33a0b78f6b657e9db3b714345fe43dc0a69c1f与sdist16490881B SHA d647aecaa6c2f413bb924d722d925878ef300c99093ca49cd6cb7840bdbffe0e；新增GET/HEAD/Range/metadata/版本切换全部0。两文件含厂商代码只按数据检查/AST或文本依赖分析，不import/执行、不pip安装或新模型权重/native/Pydantic/product/SQL/provider/ASR/key/fee/Owner/提交部署。完整fixed alignment/实际import来源/许可及wheel↔sdist对应内容ordinary交Media，tag association未核则保false不编造。
+
+保原错误原文、先红后修与完整原始命令/输入/源diff；原results{}不补写成绿。成功后新receipt全size/SHA/变更闭合/终态、完整普通源码+版权+索引/Handoff释放；全运行依赖/模型/license分发/200ms/三OS/R1R2仍未证明。失败再次保留并输出具体下一条件，不追加第三执行或再下载。只收本阶段证据，不能以工具正常退出代实际检查覆盖。

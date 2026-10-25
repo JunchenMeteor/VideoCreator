@@ -1,0 +1,20 @@
+# Backend — BCF-R01诊断输入缓存生命周期整改
+
+QUEUED_REAL_SLOT_AND_ROOT_ACTIVATION。唯一原backend_instance，当前四槽满，Root明确激活前不写实现。源码范围沿用户已明确授权的失败恢复/同任务续作及独评，不SQL运行、模型费、安装、平台发布或部署。完整R1后连续R2保持；不借整改重试原两拒绝hunk或新增0062待定合同实现。
+
+Root4a50ed全文并核固定Finding-BCF-R01.md SHA cdd63c85bd22e83aeed6414e0a6f13932c4eadfe700b643bf7c9964baea85e21，过程Review/BackendCombinedFailureRecoveryIndependentReview/；OPEN/P2/SOURCE_STATIC，没有运行复现。冻结130源index41b2f0e2650b10b97a7353a574e5f131164ae9a597d763435df11c5ab912c83d，SourceStage/SourceCopies在你CombinedFailureDiagnosticRecoveryImplementation正式根，旧ordinary与索引不可修改；127/128/130及全部diff/原红保护。当前原Review继续固定130其他审查，本任务不读取其热报告。
+
+触发：同service/Run/preparation/thread旧prepare输入，CurrentFinalEvidencePorts关闭清held但未清active；同Run新lease/fence尚未再次prepare，wholeverify后join优先旧active→原held/current合法拒403→遮挡当前selected。不能称所有fence失败，不靠强迫Media先prepare规避。
+
+白名单仅Backend已授权application/domain实际必要生产代码与自身Backend/DiagnosticActiveInputsLifecycleCorrection/过程。测试/Media/Integration/架构/标准禁止写。目标把active所有权真实绑定当前端口/lease/fence/thread并在原关闭生命周期移除，或进入active前严证其当前有效；选择最小可解释方案。原Worker finally真实close路径必须接通，不能另造影子close。保持已settled immutable fact/currentselected读取与同lease正常复用，不删_diagnostic_inputs_current门、不泛catch403/EngineError、不回latest、不借旧held当当前资格。不同线程/fence、unknown/source/current/rollback/预算原拒绝完整保留。
+
+先保存精确当前before与固定130差异，处理同一service中其他Run/端口同时存在的所有权隔离：close只能清本人准确拥有缓存，不清其他合法输入，不误删后来新lease输入。实际完整onceverify→join、真实port生命周期及索引因果一起核。公开契约/依赖不改；若必须跨合同给准确缺件，不静默扩大。
+
+允许有限stdlib AST/LF/hash/diff/普通source检查，不产品/Pydantic/SQL/Worker/API/MCP/native/ASR/provider/网络/模型/费或旧19第四等价启动。独立正反验证由原Test后继写跑，Backend不改测试期望；静态不判运行绿或自关finding。
+
+交完整新source index/ordinary copies/actual full diff、真实before/after、actual接口/生命周期说明、准确自有工具自然终态/读写释放。若当前其他Reviewfinding正式到达由Root另交，不主动读热件扩大修复。后继原Review独立复审→原Test实际scope准入→独立验收。无生产权限提升，失败与回滚保护不削。
+## 正式激活：BCF-R01限定源码整改
+
+原Architecture5bf3c0自然0 TRUEFINAL/no live/all reader writer释放，原清单completed；Root85c2a1全文架构Handoff MD8698c811/JSON1f91974c并核SHA，新0062正文此前301c10已全文。当前Root/原Review130源审/原Integration映射三槽，真实空槽恢复原backend_instance本卡。
+
+只整改已固定BCF-R01生命周期，不实现0062或qualified_resource，不重试任何被拒hunk。原Review/Architecture/Integration只读固定130SourceCopies，保持所有旧ordinary/index/ADR/任务卡不变；新源码与新停止交接写自身限定命名空间，准确before从当前仓库自身必要源读取并比固定130，不覆盖冻结副本。当前Review未正式报告不读取热输出，未来新增finding由Root另交。

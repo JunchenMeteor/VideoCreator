@@ -1,0 +1,19 @@
+# LocalMaterialPlanTopLevelContractApproval
+
+QUEUED，唯一原development_role_plan，待实际空槽Root明确followup。本角色只架构契约批准，不代写Backend DTO。完整R1后连续R2不变。
+
+固定输入：Backend/LocalOwnedMaterialBackendImplementation/PlanTopLevelProposal.md 4984B/a12dc74ff3a99b65903aabc4913be1635744a1581b6a1e0c481c15db5c8f6b4d，a198a9自然0/no-live/此片释放；Root53a832全文并核SHA。停止EarlyTypedAbi/Interfaces e309d56d6e2c9df661fe3edb289b0d9cf083d9ec09e02bebdedbb23ae32d0765、sole module9449B/7187ac4cf7dc0fd9fdfa941f1c88ae0c62bc03131c7fb88ccaf551f0679e92d4与Index178f3f0871b12833566f9aac87c6eb231f2495eab67367dc608d16f63766b963，fa284c自然0/本片释放，Root813cf4全文。原0072/0073及正式独评7856e21a/ae21a0bb保留，不遍历旧53/143源。
+
+## 精确批准任务
+
+只补0072§3.1遗漏的顶层字段/Ref类型：request_ref原instance/Production/Run/request revision/canonical request SHA；goal_ref准确accepted Goal SHA/derivation或仅真实direct production无Goal时null；material_refs真实完整AssetRecord与八字段绑定事实；script RevisionRef.kind=script与真实source_script_origin；preapproval ProductionRightsProposal；actualselected CapabilityRoute/outputs；早片fit/gain精确值。
+
+逐项给短唯一批准或具体修改，核proposal引用真实已有事实而非七种Creative Ref假充Goal/Asset，source equality不授权限，没Goal/null不容掩盖corrupt记录，postapproval rights不放入preapproval hash自循环。可凭既有冻结声明/本人已读源码明确缺字段，只读必需准确固定段，不重复无限索引。不能发空泛“待实现”替代决策。
+
+只docs/decisions/及自有Architect/LocalMaterialPlanTopLevelContractApproval/。保0072/0073/Backend停件不变，短补充决策/接口即可，不增加独立发行资格或第二账本/Engine。白名单实际Backend application host与sole grammar，Media workflows composer/driver/Bundle不变。
+
+0实现/测试/运行/ASR/模型/费用/安装，原失败/标准/20元不重开，不读热Backend/Media/Integration。正常工具真实自然终态/all读写释放，交短固定Handoff/Impact。Backend ordinary authority/首Goal及Media编辑内部段继续，顶层grammar/Flow消费待准确批准；必要独Review确认设计后，源码/运行各自另验，完整产品不由这份合同通过。
+
+## 实际激活
+
+ACTIVE，唯一原development_role_plan。原Integration6c3d1e自然0/TRUE FINAL/all读写释放，当前Root/Backend/Media三活跃，实际槽空出。Root53a832全文后端具体提案4984B/a12dc74f并核SHA，813cf4全文EarlyTypedAbi；仅这些独立停止片与原0072/0073/正式独评有限合同，不读后端/媒体热实现。现实际followup做短准确批准，不再补大源索引或独立发行资格门。

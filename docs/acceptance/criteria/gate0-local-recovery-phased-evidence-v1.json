@@ -1,0 +1,294 @@
+{
+  "version": "gate0-local-recovery-phased-evidence-v1",
+  "approval_state": "RV13 rejected candidate1; RV14 exact-hash revised actual standard+fixture approval required",
+  "owner": "test_development",
+  "architecture": {
+    "adr": "G:\\开发测试\\Projects\\VideoCreator\\docs\\decisions\\0011-local-recovery-phased-evidence.md",
+    "sha256": "02f1dfb8333c4529fee34fb74c8f560f2aca972651502206dadad85d2a14b174"
+  },
+  "scope": {
+    "workflow": "gate0-local-render-v1",
+    "reconciliation": "gate0-local-reconciliation-v1",
+    "fresh_original_run": 1,
+    "authorized_audio_inputs": 1,
+    "shots": 3,
+    "duration_us": 10000000,
+    "aspect_ratio": "9:16",
+    "feedback": false,
+    "approval": false,
+    "kill": "shot1 finish_output returned successfully before observe persistence"
+  },
+  "requirements": [
+    "G0-LEDGER",
+    "G0-REVIEW",
+    "ADR0009",
+    "ADR0010",
+    "ADR0011"
+  ],
+  "phases": {
+    "K": [
+      {
+        "id": "K-01",
+        "expectation": "1 original submitting/unsettled Operation,1 exact generated allocation; original request/input/binding/resource/route persisted."
+      },
+      {
+        "id": "K-02",
+        "expectation": "Ready complete exact file without partial; path/hash/size/mtime; true original shot1 renderer call returned exactly once."
+      },
+      {
+        "id": "K-03",
+        "expectation": "Persist root and target PID/Creation/tree before actual self-owned OS kill; old tree gone; real wall clock exceeds durable lease, no clock or business-SQL mutation."
+      }
+    ],
+    "R": [
+      {
+        "id": "R-01",
+        "expectation": "Actual finish_reconciliation successful return before normal dispatch; original1 Operation/1 allocation identities and allocation_fence unchanged; original Op succeeded/settled1/actual0/reserved0/confirmed_no_charge after real complete decode. Each matching original probe has unique paired callID/PID/targetRun, normalized input path bound to K's sole attempt/staging complete file, actual hash/size/mtime before-after unchanged, decode_requested true and actual returned decoded video/mp4/4s/720x1280/v+a; original manifest staging/MIME/source/rights also match. Unrelated probe, changed bytes or raised call cannot substitute for success. No extra probe is run for tracing."
+      },
+      {
+        "id": "R-02",
+        "expectation": "Original file path/hash/size/mtime unchanged; existing steps/assets/binding/Flow state unchanged relativeK. Pre-existing input/plan/render are not zero total."
+      },
+      {
+        "id": "R-03",
+        "expectation": "Only R increments: all render0, allocation/new rows0, Asset/Step commit calls/durable mutation0. Genuine decoder activity required and counted separately."
+      },
+      {
+        "id": "R-04",
+        "expectation": "Queued/workerNULL/lease0 and idle/activeRunNULL come from actual finish; reconciliation fence recorded/grant revoked; read-only latch after original return, no guard/heartbeat/status bypass."
+      }
+    ],
+    "N": [
+      {
+        "id": "N-01",
+        "expectation": "5 succeeded Steps: plain plan,3 shots,compose;4 succeeded settled0-cost Operations grouped one each shot/compose."
+      },
+      {
+        "id": "N-02",
+        "expectation": "5 generated allocations: shot1/2/3 video each1,compose(video,mixed)2;5 linked output Assets+1 input; actual media/Step/Asset/Flow mapping and separate controlled decoder. Ordered Operation.generated_files matches each original allocation attempt/staging/output_key/input; imported staging.asset_id matches actual Asset owner/hash/size/MIME/source/rights and stored decoded probe; Step ordered asset_ids and generated_files equal that original manifest/ordered results. Every expected allocation has exactly one linked output, five generated result Asset IDs unique; swapped/shared same-spec shot2/shot3 or orphan metadata cannot satisfy lineage."
+      },
+      {
+        "id": "N-03",
+        "expectation": "Original Op id/input/dedupe/route/created identity and successful manifest remain unique/unchanged; original allocation identity/fence unique; completed file unchanged K/R/N. Legitimate imported asset id or Step new execution fence may change."
+      },
+      {
+        "id": "N-04",
+        "expectation": "Same Run/binding/FlowUUID; fresh normal fence>reconciliation fence; actual >=6 Flow checkpoints and quality waiting_user/workerNULL/lease0; no fake approved/Bundle/Production succeeded. Actual checkpoint state id/run/binding SHA/planrevision must match fixed binding canonical hash and derived FlowUUID, real persisted plan revision/Step plan. Each shot checkpoint refs equals its exact ordered prefix; compose/review refs equal ordered three shots plus exact video,mixed outputs; quality revision matches Run waiting_revision_id and ordered artifacts. Wrong run/binding/ordered refs fail even same specs/UUID/count."
+      },
+      {
+        "id": "N-05",
+        "expectation": "N original shot1 render increment0; actual original render_shot for shot2/3 and compose each once; K shot1 generation total1. No mocked media; decode not generation."
+      }
+    ]
+  },
+  "process": [
+    {
+      "id": "PROCESS-01",
+      "expectation": "Real Windows Worker nononce/independent isolated instance; immediate creation/PID/presence/heartbeat/boundary raw; normal vs injected force exits distinct; live nonempty HTTP sibling protected, roots/descendants/own port terminal."
+    },
+    {
+      "id": "SOURCE-01",
+      "expectation": "After final stop-writing+RV13 approval+root launch, exact criteria/fixture/source/library/tool/resource before-after; no drift, actual handles/exit/JUnit/raw. Historic failures preserved, no WIP baseline now."
+    }
+  ],
+  "old_assertion_mapping": [
+    {
+      "old_line": 47,
+      "old_expression": "len(after.operations)==1",
+      "criteria": [
+        "R-01",
+        "N-01",
+        "N-03"
+      ],
+      "change": "Move literal whole-Run1 to actual post-finish R boundary; N allows4 required operations but original operation/dedupe remains unique."
+    },
+    {
+      "old_line": 47,
+      "old_expression": "len(after.generated_attempts)==1",
+      "criteria": [
+        "R-01",
+        "N-02",
+        "N-03"
+      ],
+      "change": "Move literal total1 to R; N groups5 exact outputs and original allocation/fence remains unique."
+    },
+    {
+      "old_line": 47,
+      "old_expression": "original operation/allocation id equality",
+      "criteria": [
+        "K-01",
+        "R-01",
+        "N-03"
+      ],
+      "change": "Preserve original identity at each phase; strengthen run/step/input/dedupe/route/created identity."
+    },
+    {
+      "old_line": 47,
+      "old_expression": "file_after==file_before",
+      "criteria": [
+        "K-02",
+        "R-02",
+        "N-03"
+      ],
+      "change": "Preserve exact path/hash/size/mtime K/R/N; staging imported/asset_id and normal Step execution fence are legitimate later mutations."
+    },
+    {
+      "old_line": 48,
+      "old_expression": "Run waiting_user",
+      "criteria": [
+        "N-04"
+      ],
+      "change": "Keep final quality wait; R queued/grant withdrawal is intermediate evidence, never substituted for final recovery."
+    },
+    {
+      "old_line": "36-40",
+      "old_expression": "replacement nononce Worker configured12s",
+      "criteria": [
+        "PROCESS-01"
+      ],
+      "change": "Keep historic12s/raw failure. Proposed new Worker70s/quality wait55s permits required remaining production after reconciliation; explicit observation-window change, not original literal all-pass."
+    },
+    {
+      "old_line": "stronger new evidence",
+      "old_expression": "no-rewrite/no-duplicate observation",
+      "criteria": [
+        "R-03",
+        "N-05"
+      ],
+      "change": "Require genuine original renderer calls recorded without substituting output; decoder/version activity separate from generation."
+    }
+  ],
+  "finite_observation_seconds": {
+    "historic_T13_replacement_window_preserved": 12,
+    "K_worker": 70,
+    "RN_worker": 70,
+    "K_latch": 30,
+    "R_latch": 30,
+    "K_latch_wait": 45,
+    "R_return_wait": 30,
+    "wall_lease_wait": 40,
+    "normal_quality_wait": 55,
+    "natural_child_wait": 85
+  },
+  "media_expectations": {
+    "shots": {
+      "1": 4000000,
+      "2": 3000000,
+      "3": 3000000
+    },
+    "compose_video_and_mixed_audio_us": 10000000,
+    "video_width": 720,
+    "video_height": 1280,
+    "video_has_audio": true,
+    "mixed_is_audio_wav_without_video": true,
+    "decoder_scope": "Exact hash-verified Object byte copies into observer-owned controlled Staging"
+  },
+  "proposed_case": "tests/gate0/test_t14_recovery_phased.py",
+  "fixture_versions": {
+    "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\TestDevelopment\\T14PhasedFixtureVersionsRevisionTwo.json",
+    "sha256": "a7382bc0590b28d0ad40b0c376e34f1b66074aacee9d69689c4283e702ba0cc1",
+    "files": [
+      {
+        "file": "tests/gate0/t14_process_helpers.py",
+        "sha256": "fcfaff96a9bbd9d35d39ad99f7419a3f823af28819a774883d4b61dd119b9db7",
+        "bytes": 5830,
+        "validation": "AST only; proposed product case not imported/executed"
+      },
+      {
+        "file": "tests/gate0/t14_evidence.py",
+        "sha256": "c91f05efdd92db5fb4a283c7305c4d735adc6aef84012801ee4b9a36a411bb9d",
+        "bytes": 1850,
+        "validation": "AST only; proposed product case not imported/executed"
+      },
+      {
+        "file": "tests/gate0/t14_phased_assertions.py",
+        "sha256": "f7436124fa7927e2fa5bb15f7353b3aeb97fb0f1aa4864750cf6aae44689a72e",
+        "bytes": 14210,
+        "validation": "AST only; proposed product case not imported/executed"
+      },
+      {
+        "file": "tests/gate0/test_t14_recovery_phased.py",
+        "sha256": "e44654f749d4a1faae675a1cc9f8295156a146f483f67a94be0e1de44b59ed28",
+        "bytes": 14534,
+        "validation": "AST only; proposed product case not imported/executed"
+      },
+      {
+        "file": "tests/gate0/T14Fixture/PhasedTrace.py",
+        "sha256": "cb60cdbef4b47e2b69db48f8c7ab6a1f0de2cae07334081ffc8920a9939775ea",
+        "bytes": 4117,
+        "validation": "AST only; proposed product case not imported/executed"
+      },
+      {
+        "file": "tests/gate0/T14Fixture/PhasedWorker.py",
+        "sha256": "fa86095584df33235d4a18ad456ab62f09e0111fa3b1ecb3c7eddd2a6435a728",
+        "bytes": 2140,
+        "validation": "AST only; proposed product case not imported/executed"
+      },
+      {
+        "file": "tests/gate0/T14Fixture/SuccessLatch.py",
+        "sha256": "5a7f33533e9be3013064d40fff1214be03d5b02661d5c66a839dcb688cca0a56",
+        "bytes": 2433,
+        "validation": "AST only; proposed product case not imported/executed"
+      },
+      {
+        "file": "tests/gate0/T13Fixture/OwnedSibling.py",
+        "sha256": "e8db5d8c8f35e96ce139644268ccb8449c9c4f70482dc487de583ce8d04556ab",
+        "bytes": 735,
+        "validation": "AST only; proposed product case not imported/executed"
+      },
+      {
+        "file": "tools/testing/run_recorded.py",
+        "sha256": "5094d5829d7e1a76540334d1f48763d18836c581b907ac2af89124e8a5bfdbba",
+        "bytes": 4784,
+        "validation": "AST only; proposed product case not imported/executed"
+      },
+      {
+        "file": "tests/gate0/T14Fixture/ProbeTrace.py",
+        "sha256": "71637068ae8f323f46f81d6157515d34bc6936c49cf2ba04544806bae00ac198",
+        "bytes": 2598,
+        "validation": "AST only; proposed product case not imported/executed"
+      }
+    ]
+  },
+  "original_test_preserved": {
+    "path": "G:\\开发测试\\Projects\\VideoCreator\\tests\\gate0\\test_t13_kill_window.py",
+    "sha256": "03966d95f336c6f14cff14ac7653aaaba26317a9f9eb1963d371cb7c40bf2a52"
+  },
+  "approval_chain": [
+    "A8 direction approved",
+    "RV13 candidate1 NOT_APPROVED preserved",
+    "RV14 independent exact candidate revision2 criteria+fixture approval pending",
+    "Final B7/W7 stop-writing and source/resource before-after + root launch still required",
+    "Independent real new K/R/N execution",
+    "Separate RV/AV evidence closure"
+  ],
+  "rollback": "If approval fails, preserve candidate and original raw; do not execute it. Revise explicitly with new fixed hashes and renewed review. If runtime has drift/fixture failure, retain failed exit/JUnit and stop dependency batch; never erase unknown, change business SQL or lower thresholds. Test role performs no production data rollback.",
+  "limits": [
+    "Totals apply only this fresh single-output shot1 gap, not generic video creation.",
+    "Multi-output/partial/missing/tamper/oldfence/cancel/idempotency/one-slot fairness/Step-vs-Flow require independent samples.",
+    "70s/55s are finite experimental observations, not production SLA; CLI0 never means target recovered.",
+    "AST/proposed code is not product pass; no execution without RV13 and final inputs.",
+    "Template/reused authorized speech is not model autonomy, complete Bundle/RAG/Portal integration, three-OS install or Gate0/R1/R2 acceptance."
+  ],
+  "fees_cny": 0,
+  "real_key_reads": 0,
+  "product_executed_before_approval": false,
+  "candidate_revision": 2,
+  "revision_reason": {
+    "report_sha256": "3928fb12ccf3ec14025bd7c729b85c1f0933d38d1951a7a36da2a4d23588935a",
+    "findings": [
+      "RV13-P01 exact original decode input proof",
+      "RV13-P02 ordered end-to-end artifact and Flow lineage"
+    ],
+    "normative_threshold_lowered": false,
+    "candidate1_archive": {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\TestDevelopment\\T14CandidateOneArchiveManifest.json",
+      "sha256": "41c84e1219fcdbea3ee91dc3dec16c09a9e4cf84703e91804ad034d5bd8f23fb"
+    }
+  },
+  "non_product_sanity": {
+    "receipt": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\TestDevelopment\\T14AssociationSanityRevisionTwo\\CommandReceipt.json",
+    "sha256": "8028648bb45ab38996164d7670620a2c9ca8ec8ebdf86ea0e8356e3d6f24d9a1",
+    "scope": "4 pure fixture tests, not production/media/recovery pass or approval"
+  }
+}

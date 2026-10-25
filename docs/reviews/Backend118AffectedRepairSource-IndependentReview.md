@@ -1,0 +1,52 @@
+# Backend118 修订与子级作品包独立源码评审
+
+结论：SOURCE_REVIEW_FINAL。新增一项 P2（B118-P01，OPEN，归属 Backend）；当前118版本不能证明纠正原作者意图在正常校验/发布与恢复链中一致。其余下述范围有源码实现支持，既有角色选择性生成缺口保持 OPEN。没有实施、测试、产品导入、SQL、ASR、Win32、模型、安装或发行运行；不授第四次原19目标、RuntimeBinding、完整R1或R2。
+
+## 固定输入与实际核对
+
+新根 `G:/开发测试/Codex/VideoCreatorImplementation/Backend/AffectedRepairAndCorrectionContextImplementation/SourceStage/`，只读索引 ordinary_copy，从未以 source_path 当前生产文件替代：
+- SourceIndex.json：db3403175d6bec860cbe4b9aacc9a07300d1d1e9387c3b481a4a6b815baeda1f；118普通件全部大小/SHA匹配、107 Python仅AST解析。
+- Changes.diff：d709a8605857fc6a10236169613c1b478c81176d8ee5de10ff4376ea03abb388；完整19文件75hunks独立按旧/新正文在内存比较，全部精确字节相符，未应用任何patch。
+- 原111唯一索引 `G:/开发测试/Codex/VideoCreatorImplementation/Backend/CurrentFinalEvidenceRecoveryImplementation/SourceStage/SourceIndex.json`：c8480592bacfde5d886267e8afd467b84e12ebdc9b903bfeafe0f78f2e1d0033。111普通件全部匹配；独立结果7新增、12修改、99不变，与before_sha256一致，不依赖作者计数。
+- ADR0053：8d03886c3cb905ae5399811b7e2e0f95bcdbea62f81c396e58c6771d3522477e；ADR0054：615fff067a1a377b6f16a4d3a7e671b853a24d59350f9b170faa03786d4c7797。
+- 完整正式Handoff/Interfaces/FailureNotes及原Gap已读。133新版本/治理输入与112原比较输入共245独立固定路径，末核全部无变化；InputAfter SHA222b414be21e0b829b67739dca3175ec83838ad448e85d1a353ce37518725788。
+
+本轮完整审读新增7模块、12改变文件的完整变更方法、相关类/导入及必要原guard/事务/成包关系；QualifiedChangedMethods.json按类限定名定位，避免旧同名__init__ inventory混淆。原99不变不是99业务已运行。118是本Backend停止源码范围，索引不含 current_engine_production/autonomous_production/bundle_producer/local_asr/asr_worker 五个跨角色实现模块，不能当完整可安装Engine闭包；没有追读热0056或Media来填空。
+
+## B118-P01 — 正常完成路径未比较不可变v2纠正pair（P2 / OPEN）
+
+精确普通源前缀：上述新根下 `SourceCopies/services/engine/src/video_creator/application/`。
+- current_final_evidence_recovery.py SHA6873d40114b1ae3b1b73b4b41cf40fe7b52ad62257d67282bec6891e8619bdff，213–216提交时调用事实/原件校验，120–185没有当前measurement与v2pair比较；189–210验证的是context选定原件及其许可复制闭包。
+- 唯一明确的两个字段比较在该文件331–335，需先进入continuation reader。
+- current_final_evidence_service.py SHAd4d87ce096b0fc9214b2fadffb1764a058ca7f23423f92980e2d9d76745aa5f8，第264–303正常manifest分支直接调用271的self.verify。
+- bundles.py SHA201010fc5715c95ec12d4ac39272a084cdf6ffa6880f61e4265eb1298afc110f：verify1266–1330、_verify_v03_documents2522→_verify_per_work_precision2445–2447检验实际当前report及原件闭包；publish1354–1427检验实际token/current/完整文件许可，但均未重获原assembly比较pair。完整相干自调用关系已独立读取，不是局部检索推断。
+
+最小条件：同合法preparation、同真实CorrectionOriginRef和完整合法原件/许可闭包；不可变v2context的原作者理由A，与随后当前READY measurement的不同非空理由B，两份材料各自完整hash/record/quality/manifest关系合法。也可在measurement已READY时提交不一致context。其他真实资格/权限均须另行满足。仅continuation拒422，直接当前verify或verify→publish链缺少同一拒绝，因此错误关联存在源码可达条件。没有构造模型、运行SQL或证实真实published成功，不能称已复现OS漏洞或伪造的合法正向。
+
+修复归Backend：共同的当前preparation校验应重获不可变assembly和实际READY measurement，v2时逐值比较corrected_from/correction_reason；保存时已有measurement、正常/当前verify、选中child与continuation复用同规则，发布绑定已验证原context/measurement身份及必要当前事实。保持原v1普通作品兼容/缺意图语义，不改READY bytes/ID、不猜作者理由或原件，不削原license/current/双authority/TTL。详细早单 Finding-B118-P01.md SHA78b6c42ec75a8e70325f8953480b39f77ac700fe5891dce237edb5c8cdfb0285 已交统筹。
+
+后继独立Test：同origin不同reason、不同origin、null/non-null冲突，分别覆盖保存前后、直接verify与恢复；一致pair真实正向、v1兼容、撤销/许可或原件缺失拒。必须真实原服务与合法来源，不SQL造授权。本报告不授运行。
+
+## 有源码支持的实际调用链与保留边界
+
+1. 方案与权限：plan_repair_service.py20–133从实际已提交同Run源稿/分镜、真实registration/resources/routes/right proposal重算目标；domain/plan_repair_targets.py固定递归JSON/fullrevision SHA及有限DAG。Engine832–863提交v2及production_admissions649–693、production_ports146–162批准读取均独立验证源，原quality approval不生成生产权。144–162短writer原current/lease/source前后检查；原Database.transaction179–189确有异常rollback。未实跑并发/OS replacement，不扩大为原子TOCTOU安全。
+
+2. 命令与效果：media_registration261–350实际factory对象/Engine/Worker/Bundle/executor、同lease/thread/原ports绑定；affected_repair_service365–522从实际失败报告/单位/范围/源plan生成不可变command，再发11字段held Execution。Engine585–717与affected_step_guard逐prepare/claim检查实际registered recipe、route、input/dedupe/claim/current，原Operation账本/unknown/预算保持。生成效果仍需Media实际recipes/builders及合法安装资源，私有类型/配置/SHA不是资格。
+
+3. 实际母版来源：affected_repair_service220–363检查成功settled实际source Steps/Operation/generated manifests、受控Asset bytes/MIME/真实decoder及free index master Step，committed Observation恢复重读原记录不新增writer或counter。574–682有同Run有限v1/v2 lineage与有效四母版resolver，源/角色/文件绑定；Bundle.verify1288–1292与publish1360–1361在当前注册held路径再次消费该resolver。Bundle._all_operations1259–1264和publish1386仍拒本Run失败/未settled及历史unknown；因此先前“观察后源Op变unknown仍发布”的inspection没有成立为新Finding。真实渲染/媒体映射/kill窗口全部未运行。
+
+4. 原子child及ASR：current_final_evidence_service308–435复核真实parent/failed subset/held command/Observation与effective4 IDs；原prepare writer877–900分配新的material IDs，lineage/command child身份/共享revision_cycles同一事务，重放同command不再增长。真实音频变更以SHA/size/MIME/probe判断，注册唯一child ASR key/input/route；没有变化的音频沿原证据。affected_asr_binding与RegisteredOperationExecutor312–337拒任意repair-asr前缀，prepared Operation先allocate+commit原context，随后原executor claim效果；未知只走原受限reconciliation，不重新ASR。parse_original_context70–89及commit98–174采用新递归encoder，原settled/read/reconcile调用完整validate_original_asr_result入口保留；实际provider/worker正文不在本Backend索引，不以调用存在冒充本轮已执行或再次完整验证其兼容性。
+
+5. 恢复与Correction：runtime86–129/196–304原journal CAS、current lease/fence/原source approval/撤销/require_settled与claim保持；恢复选中child而非新Run/新command，publication观察仅清实际已published的原checkpoint。recovery61–93保存全文格式/fileSHA并严格dispatch v1/v2，187–242真实原件所有报告/祖先/许可复制及READY bytes与原short writer前后源检查存在；当前报告pair冲突恢复331–335已实现，但不能代正常链B118-P01。原作者pair不是权限或精度依据。
+
+## 已知角色缺口与原保护
+
+原 RejectedRoleIntersection/Gap.md a3940fa25dbdf783328a04a6aec73302192334d20c040a959090bf652512a5db、JSON63d0a97204a44747d90dbd9421315e34753137aed7fdda8d518f21fc8590c755；被拒 exact→intersection/subset patch未应用。本118真实affected_repair_service428–429仍要求dependent roles恰等changed roles且不超actual failure；plan_repair_service218–219在后续writer再同等拒绝。固定配方shot依赖video/mix（首shot还有cover），纯video失败只改video因此guidance_required403，不能算video-only regeneration通过。需要真实选择性输出配方与来源权限，由Backend/Media/Architecture后继解决；Review不缩角色检查或绕自动拒绝。本条是已知未完成项，未重复伪造新运行缺陷。
+
+独立 ProtectedBodies.json 16项限定名AST与111完全一致：Engine原canonical/digest/observe/cancel/pause/submit_decision；Bundle严格精度/每作品精度/权利发布/Correction闭包/_all_operations；ASR原完整read/observe/valid_observation/settled事实。实际精度authority两处2302/2304仍在，第二次False仍经原service62–67拒403。Worker、CLI、公开contracts及旧迁移等99不变。数学200000整数微秒、原sample count/nearest-rank、许可/TTL/unknown原要求没有因本源评审被降低。
+
+## 原工具及交接限制
+
+自身纯读取失败保：574e05/1误把source_map当records；e18c71/1与fe77ec/1为Review自身纯数据脚本syntax错误，后42638f/0、5085e7/0修正解析；未运行任何产品。大段b0c545/642be0/2658ef/e956f4/ed5efb/2e25c0输出曾截断，只对确实遗漏段定向补读，未从截断输出宣称全文。75hunk全数据校对不等75测试；16AST保护不等运行验收。
+
+末245固定输入4b6e67自然exit0，无漂移；无活产品/测试进程，无费用、钥读取、安装、网络或新权限。读者已经释放，不等待后继修复或全平台条件。原全部失败、三次19累计耗尽、Media realignment/资源/current producer/完整Package/三OS真实作品及独立Acceptance缺口保持；完整R1后连续R2目标不缩。

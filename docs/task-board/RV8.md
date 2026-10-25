@@ -1,0 +1,11 @@
+# RV8 T10正式证据独立评审
+
+永久评审角色已分派；只读T10Handoff.md/json、100普通副本manifest、固定I7四源副本与三批原raw/退出码/依赖记录。只写docs/reviews/RV8-T10EvidenceReview.md及自身Review过程，不执行测试、不改实现/标准。
+
+输入身份：JSON ff395377d257e1d00cae3939fec5b4ce97b7004797d3d5726c91ba2f46f364f9；MD 258b2f6dde76b6ee5082e8267351da0e58b03ad3feca62849bef1d88043982ca；manifest 19fc54c9a4cb97cea243f5889e0b001d550db838dc3a7a11c39fedd891e3fae9。
+
+核1+4+13共18通过/0skip、三批Node与UTF8包装实际0；源码范围296/298/298前后变化0及282运行文件身份。核普通副本可读且哈希对应实际证据，不以后续I9源替历史。
+
+限制必须分列：首positive端口为产品观察+独立PID终态，protocol另有独立TCP；默认off/EOF测试force收尾不是产品normal；真实TTY、Windows handler-signal及部分异常并发未测；早帧绿不替代reader静态前序。非空自有兄弟保护与旧22508缺失分开，旧I7强制退出和历史观察缺口不倒填。
+
+RV7-P01/P2与I01/P3待I9新源独立验证另复审，本阶段不提前关闭。报告结论仅支持明确实验范围，不等Gate0、完整R1/R2、安装、真实作品或商业生产通过。失败交归属者，有限核验完成正式FINAL。

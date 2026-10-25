@@ -1,0 +1,15 @@
+# Architecture — 画面局部修订与实际配方依赖差异核对
+
+QUEUED，原 development_role_plan；只在真实空槽恢复。范围为架构只读差异分析，不授实现、更改原ADR或执行被拒补丁。完整R1后R2目标不缩。
+
+固定输入：原0053 8d03886c3cb905ae5399811b7e2e0f95bcdbea62f81c396e58c6771d3522477e、0054 615fff067a1a377b6f16a4d3a7e671b853a24d59350f9b170faa03786d4c7797；停止Media37完整交接与选择输出配方；Backend停止RejectedRoleIntersection/Gap.md a3940fa25dbdf783328a04a6aec73302192334d20c040a959090bf652512a5db、Gap.json63d0a97204a44747d90dbd9421315e34753137aed7fdda8d518f21fc8590c755。Gap根 G:/开发测试/Codex/VideoCreatorImplementation/Backend/AffectedRepairAndCorrectionContextImplementation/RejectedRoleIntersection/，内两完整ordinary sources身份由JSON列出。Root57f4b4 FULL说明/JSON并核SHA。Backend完整118停止正式交接后可另附精确身份，不读热实现。
+
+实际差异：原Wan要求ambient，FFmpeg剪辑bed混旁白并嵌视频，初始投影shot依赖video/mixed_audio/(first cover)。只允许video或video+cover的修订不能匹配actual全部deps，现原exact fail closed guidance_required。Media选择输出保留原mix仍未被真实准入/验证。这与纯picture不动TTS/原mix和按真实recipe dependency的要求需严格同解释。
+
+自动审批已拒绝且未执行：initial dependencies &= actual_roles与resolver changed_roles<=dependencies。不得应用、重试、换工具或建议等价间接绕过；现原exact严格语义保留。分析不能替人批准此权限边界变更。
+
+任务：从真实固定source/recipe/target/command全关系区分授权范围、执行输入依赖、实际写出角色、未影响资产身份及恢复后检查，核0053/0054是否合同歧义或实现缺项。列允许请求与严格应拒场景，保unknown/source/两authority/预算/子级/审批绑定及所有未影响资产；识别旧命令/旧审批需保留的语义。不得用“quality失败即授权”、所有资产重做、整体退化仅导出或永久不支持纯picture来缩目标。
+
+交付只读分析/问题归属/具体尚需审批或独评的方案比较与影响，不实施方案、不自批准拒绝补丁、不改冻结标准。若合规的全新明确配方/版本方案需要合同变更，先给完整可审差异与独评任务，不直接写成授权已生效。未知运行行为保NOT_TESTED。
+
+白名单 docs/decisions 内新增分析文档（不改旧ADR），自身Architecture/RepairRoleDependencyAnalysis；不改产品/测试/锁，不网络研究、下载、运行产品/Pydantic/SQL/native/ASR/provider/收费/密钥/安装/提交/部署。不得耗第四原验收目标。完整停止读取/输入SHA/真实命令终态/Handoff，供原Review与Backend；问题关闭须独立证据。

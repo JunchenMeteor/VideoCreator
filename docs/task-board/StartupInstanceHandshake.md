@@ -1,0 +1,13 @@
+# Startup instance ID handshake — actual first-use dependency
+
+ACTIVE Backend implementation by /root/backend_instance after Architecture trueFINAL345322/0. ADR0042 fixed5ce102204593390e421a4f50af4c0fb3c8c2fe78c071dd950502620ed42c4f13 fully consumedcf5e23; architecture stage complete only, no runtime qualification. Scope is the existing R1 startup/first-project path, not a new commercial feature. Integration I62 will supply its fixed exact seam handoff; do not invent a new instance.json file or allow frontend/native JSON to mint instance authority.
+
+Observed current dependency: EngineService obtains instance_id from actual SQLite metadata creation/read. The existing six-field startup record and installation/confirmation locator bindings require the exact instance_id before the native child launch. I62 lacks a trusted pre-API Backend producer returning this exact value. This prevents default driver assembly, but safe four-command UI source can be handed off independently.
+
+Architecture must resolve the ordering from the existing ADR0038/0039/0040/0041 and actual B42 applied86-module ordinary source. Specify the minimum two-phase initialization and original-child binding, real installation/OS Owner and protected data-root source, authoritative producer of the persisted instance ID, permitted initialization effects, idempotency/unknown/crash/EOF/failure behavior and reuse of the same first saved Goal. Avoid new arbitrary callback/factory trust, direct UI DB reads, fabricated IDs or permanent503 closure. Approve exact contract for Backend/Integration; no implementation by Architecture.
+
+Backend subsequently implements only its CLI/domain/application/infrastructure and exporter whitelist. Integration remains sole owner of desktop launch/pipe/UI and generated contracts/SDK. No overlapping role writers. First fixed schema/interface/source handoff; actual original-process/Owner/normal-flow tests belong Test and independent Review/Acceptance. No new model/fee/key/provider calls, installations, production deployments or simulated authority accepted as real.
+
+Deliver one clear decision/interface and necessary source increments with exact retained evidence. Preserve complete Gate0 → independently accepted R1 → full R2 scope; this local code dependency is not a reason to mark the whole goal blocked.
+
+B43 SOURCE_STATIC_FINAL298ae8/0,88ordinary/78AST/84unchanged/_requestASTsame; Root2e7659 FULLfixedHandoff/Interfaces. Integration now consumes exactprivateABI88 fornativehandler/driver/indexedpayload. IndependentB43sourceReview queued afterT57. Sourceonly, realOS/DB/Owner/GUI/qual/restart/3OS notaccepted. Synchronousstdout deadline gap explicitlyOPEN; preservefinalsourceStage not earlierretainedsnapshot.

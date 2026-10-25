@@ -1,0 +1,13 @@
+# 原实例源 writer 独立数据库与来源验证
+
+状态：PREPARATION，原Backend DailyIntentWriterStage真FINAL释放槽。角色：原TestDevelopment，仅测试白名单、COMMANDS与自身过程；不改生产/SDK/native/依赖/架构，不自行评审或授完整验收资格。
+
+固定唯一新后端：Backend/QualifiedIssuerAndWriters/DailyIntentWriterStage/，Handoff544671153c3dc0f150197d2d3b3e9d260c10ddff7b9dbe9368cc237917234b2f，Freeze a213ebff5d1abc6133d75c48c0ad7a9e22de16a0c4a16db59857489cf1cc4dd2，Indexe5c5bf1fc69186f81c01d93e47b7996c1c938409b346eb80adf69342541b8ef4，Diffb25461f4b14e7cbe2958ca4b989bae8b188ffa677e1ed4721c23dbc8954cbf63。由Index定位89完整ordinary，不读热实现替换。原WriterStage、正式DG-P01及DG-WRITER-P01问题单作为历史基线。
+
+先核现有可用目标Python/依赖与真实源码调用链，提出完整有限Case、实际入口、工具/源固定索引和成熟进程持有runner方案。不安装/复制其他角色私有环境或绕floor/修改依赖；兼容或合法原source欠缺据实列，不把AST解析当导入/运行通过。
+
+必须验证实际SQLite原事务中的Command+locator前后Rows与异常rollback，不仅断言调用次数或源码字符串：合法原source新意图与相等重放；外部预检后到writer前metadata改变/删除；同connection写后到commit前身份失效→原409及原事务无提交；Project/Command、accepted及新增V2意图窗口；异Engine/文件/source绑定拒绝；原合法业务人审超过初始化20秒且业务期限未到仍有效、真实超期仍拒。预算/pending/floor/历史回执保留，原外部文件不谎称SQL回滚。不得声称外部SQLitewriter可越过BEGIN IMMEDIATE。
+
+机制故障fixture与实际OS/heldpeer/file来源分层。fixture可以局部控制故障或时间，但不能用True/假scope/伪qualified记录冒充真实Owner及原实例来源，也不能替换整个真实业务writer来得到绿。保守列真实source路径尚不能执行的原因；不悄悄缩成调用次数测试或把机制当真实安装。真正OS/来源原成员阳性与负例仍属完整目标，欠缺时继续合法机制验证并保留未测。
+
+准备阶段产出具体Plan/源码固定/实际argv及可达与未达矩阵交统筹接收，随后一次边界明确本地免费运行；沿原Process/双原始字节EOF/实际端口关闭/超时sticky机制。首失败保留，不当前批热修、自动重启重跑或改阈值，不重跑已通过无关T57/UI。无模型/凭证/付费/外网/生产数据库/发布/安装。独评后继复核测试与真实证据，完整安装资格、创作媒体/多模态/API-MCP、三OS及R1→R2独验不由本批替代。

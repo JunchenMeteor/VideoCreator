@@ -1,0 +1,9 @@
+# T1候选测试期望纠正记录
+
+2026-10-07，尚未冻结的测试中将工具显示名`Delegate work to coworker`当作实际发送的注册名，导致一次误报。原测试和失败已保留于TestDevelopment/TestCorrections/DisplayNameAssertionOriginal.py、T1LlmAndCrashRoundTwo/Stdout.txt及XML，不删除旧证据。
+
+锁定CrewAI1.15.23的实际源码：`DelegateWorkTool.name`是带空格显示名；`crewai.utilities.agent_utils.get_tool_names`调用`sanitize_tool_name`，实际注册名是`delegate_work_to_coworker`。测试改为读取锁版工具的默认name并使用其官方标准化函数，继续要求真实首个ReAct发送prompt包含实际注册名和coworker/context参数。完整prompt及收据保存于独立测试实例目录。
+
+这是注册名识别纠正，不降低自主协作门槛。MockTransport不注入Action委派；合法Final Answer仍须被guardrail拒绝，实际delegations=0不能算自主协作通过。此前“工具未暴露”的生产缺陷判断已撤回为待核验，后续实际结果另报。候选测试修订须由独立评审确认，标准仍未冻结。
+
+同一轮记录`source_changes=1`（B1正在增加定价规则），明确不作为稳定源码整体冻结证据。之后源稳定复跑，保留before/after哈希。记录工具的provider_calls改为not_measured_by_wrapper；实际外部提交数由每个隔离transport用例断言，记录器不编造调用测量。

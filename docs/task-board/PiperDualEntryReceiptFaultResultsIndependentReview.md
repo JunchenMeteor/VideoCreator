@@ -1,0 +1,24 @@
+# Review — 首次四case真实收据故障结果
+
+QUEUED_TEST_TRUEFINAL_ROOT_FULL_AND_REVIEW_RELEASE。唯一原integration_review；当前117材料SOURCE审继续不切卡。Test70334→616c8c本人自然0，无live，正式raw/COMMANDS/Handoff仍收口；Root只读取进程已止原BatchResult/InputAfter，不读热formal。待本人TRUEFINAL/Root全文精确交接及Review释放后另激活。本轮只独核固定真实结果，不重跑任何目标。
+
+白名单docs/reviews与自身G:/开发测试/Codex/VideoCreatorImplementation/Review/PiperDualEntryReceiptFaultResultsIndependentReview/。输入停止TestDevelopment/PiperDualEntryReceiptFaultTestPreparation/ExecutionRoundOne及四CasePackages原输出、原完整runner/Host/standard/oracle/inputindex、原方法报告76f0479e与Finald6af4336。过程前缀G:/开发测试/Codex/VideoCreatorImplementation/；正式Test新MD/JSON身份由Root激活补，不能凭当前概述自授结论。
+
+Root fccb56已全文原BatchResult SHAd6d958dc040fce4e44ae3ea88843c1fa2fb2d1789a1cf5eaa688a46235951171、InputAftere026c685cde653221aa33078eec5dac458d986e79ad9851b2b01c2f0d2059b83核actualSHA：四EXPECTED_MECHANISM_OBSERVED/原exits0,1,0,1，candidate_business_pass=false，archive_or_http_validation=false，1059after changes[]/externalc458。这些是待独核结果，不Root关PDM问题。
+
+独核全部四原/外层CommandReceipts、双层PID/creation/精确argv/cwd、实际naturalexit/stdout和stderr双rawEOF/sticky/errors、fourcallsite SaveCheckpoints、priorOwner与完整真实保存对象、正常finalreceipt、故障真实FileShare.None锁和实际ReceiptWrite/type/message、故障旧receipt bytes保持但stale不可称末可信收据。inner expectedexit1与aggregate0分层，rawstdout/stderr真实内容和hash相符；不靠作者bool/文件presence代OS终态。
+
+核准确1059启动前和末input/index关联、不把999runtimehash等当native/安装资格；全原source/标准未改，先前setup/locator错误及统筹卡漂移保。只能判这四case真实末保存/收据生命周期的有限结果，running-save/requiredbatch消失/stderrtransport仍未覆盖，117新关联runner不同对象不得沿旧通过自授批。benign形状6/10字段不得计归档/网络/Owner；0产品/Pydantic/87/provider/模型/SQL/安装/费用，旧19三败/CNY20保。
+
+检查有限普通文件/raw/hash/JSON/fullsource，绝不重跑fixture/runner/helper/parser/网络/SQL/native/生成或改测试/标准；不读热Backend或下一材料审输出。交report/finding与完整输入BeforeAfter、scope边界及PDM实际问题可闭合的精确范围；不授完整资源/作品/Gate0/R1/R2。末真实自然工具终态/allreader release后Root另安排必要原对象实际批准入，不以独评模拟替真正生成。
+## 正式激活：固定结果独评
+
+原 Test 已以 d285df 自然 exit 0 正式 TRUEFINAL，全部工具、进程、读写器已释放；原 Review 的材料关联审以 89bb25 自然 exit 0 TRUEFINAL 释放。Root 012603 已全文读取材料审报告2927dde3da3c33f77db1a04e88b71112bc1e3664213cb53f57ebebb2212a1de2和Final2673bc199aa58f6179a85954f4883456bfbcdbd2ebc44b894544b1f1023d6a35。
+
+正式测试输入根：G:/开发测试/Codex/VideoCreatorImplementation/TestDevelopment/PiperDualEntryReceiptFaultActualValidation/。
+- ExecutionHandoff.md SHA256 a47a3334bf728cb3532c48d35994dd8e316853632b679c947ba85f6dd3a9f46e。
+- ExecutionHandoff.json SHA256 c78e5701a48301e1cf3dd0374a3dfe756eb32fdfb8f63061421d9527162896fb。
+- ReviewHandoff/OrdinaryIndex.json SHA256 ac94aebe8bcd2fbf223d1f09e095c0b494ccfb533101968488c241be566f79e2，67个有限普通文件。
+- ActualCaseEvidence SHA256 25ecf12c2e2d2993ccbd8274aa200f7b07caad4cc05b9391294c145a75949835。
+
+Root 45f1f8 已全文读取MD；JSON原输出截断保留，经81cd64及8c8683完整字段分段补齐。原始stderr编码尚未独立确定，不以UTF-8乱码投影修改原字节；最外层工具自然exit0不能替代独立捕获的最外层PID/creation/双字节EOF。完整核对这些证据边界。仅固定结果独评，禁止重跑；新117语义材料绑定准备在另一个不可变命名空间进行，不借本卡授权实际运行。

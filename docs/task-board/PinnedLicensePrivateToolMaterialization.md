@@ -1,0 +1,29 @@
+# PinnedLicensePrivateToolMaterialization
+
+QUEUED_NOT_ACTIVE。唯一原integration_release；不得中断当前NativeCoverageProducerCompletion live工具或修改其热源。前置当前窗正式停止和读写释放，由Root实际激活本卡后才做本卡动作。后继私有events SOURCE卡独立，不互改输入。完整R1独验后连续R2不缩。
+
+## 已完成具体前置及授权边界
+
+新13普通body已Root全文；1524e5全文Acquire/Inspector/Owner actualdelta，a78699全文Loader修改行，d78a6e全文Commit修改行，49d6cd全文Wheel修改行；18e19d有限原13对大小SHA核六改七同、完整Impact再收取。255769B作者全文件替换diff未Root逐行重读，完整实际六对变更已从真实冻结文件用readonly git diff全部收取，未以截断77c4a7当全文。独Review74d0cf TRUEFINAL/allrelease，正式报告41eedd075b86b3568bb1f19293032fe46d92a1d2c63e90af5593e55ff67ce01b已Root236b93全文，两PLEE仅源码关闭。
+
+用户总实施授权包含本项目独立环境准备；本卡将具体动作限为以下实际物理核验和29成员本地复制，Root激活后原集成可实施，不额外要求用户重复授权。不是执行两网络Plan、故障测试或产品导入的许可。若实际auto-review拒绝，不换工具/分片等效重试，记录准确拒绝与未受影响工作。
+
+## 固定输入和目的地
+
+仅消费已停止 Integration/PinnedLicenseExecutorLifecycleCorrection/SourceStage/SourceCopies/LoaderProposal.json22676B/1c802acdc45f014cdbcab84832b4afe8c091d6d0fdf1281676be5216d393d2b3 及对应两完整Plan46517B/d432deb4、41532B/457b6695/正式Impact和独Review。完整source/target29白名单以原Loader实际完整字段为准，不能重新猜文件。原28历史源只在 Integration/EngineDistribution-I26/StageMoved/Runtime/Python 的明确5binary、19source、3encodings、1linecache；第29是本任务停止CandidateSources/PythonPathProposal.txt6B/82cfe92f04fbacfdcb908eccc04c6c9bfb662bd6e554615a67e53d573d544387。
+
+目的地精确Loader.private_root：G:/开发测试/Codex/VideoCreatorImplementation/Integration/PinnedLicenseExecutorLifecycleCorrection/CandidateSources/ToolRuntime/Python。必须创建全新排他根，原任何existing member/partial/reparse/candidate工具根已存在即停止，不覆盖、不补写或删后重建。只创建29所需父目录和29文件，不复制1.65GB环境、ZIP/site/pyc/原153Bpth或其它未列入成员。旧source/Plan/receipt/finding等字节只读。
+
+## 实施结果及检查
+
+先核每个完整绝对source/target及全部祖先物理regular/no reparse/符号链接，确保目的地在精确根内、来源在固定白名单。有限28历史源逐文件实际size/SHA必须全匹配后才开始复制；source licence实体可读仅按先给出的明确有限入口，不扩整树或下载，不因文件存在就称权利闭合。第29自有pth实际字节也须匹配。若一项不符，原样记录NOT_READY，不旧计数归零、不以参数/空工具绕过。
+
+复制使用CreateNew/无覆盖，只读有限sources，不安装/注册/执行。保source before/after和destination整文件实际size/SHA、完整source-target对应及目的地恰好29普通成员（允许所需目录），原28源和自有pth无漂移。失败保原错误及自有partial，只标缺件，禁止无范围清理或用相同失败动作盲重试。若普通工具IO时间超时继续观察本人原实际工具句柄，不重启。写自有过程 Integration/PinnedLicensePrivateToolMaterialization/ 的脚本、日志、manifest、Impact、终态/释放和Handoff。
+
+结果只能MATERIALIZED_BYTES_ONLY或NOT_READY；CP ABI、实际builtin/frozen/DLL来源、工具许可/NOTICE原文闭包、实际Python/HTTP/ZIP/OS行为均不由复制证明。新身份事实不修改旧Loader state或原Plan字节，不声称独立runtime资格。缺任何门记录准确后继，不执行验证器来伪造全部green。
+
+本卡0Process启动（除本人已授权有限文件IO shell工具）、Python/AST/import、owner/fixture/Acquisition/Inspector、网络/归档解释/SQL/Native/install/模型/费用。原19三次与三binding不重开、31/105NOT_READY、20元及所有原失败不改。命令输出只成员路径/大小SHA，不接触.ssh或凭证；不是让用户另配BYOK。完成后冻结source/target事实，经独Review及Root具体后继运行卡才可能进入两个future网络/data-only阶段，运行不在本卡。
+
+## 回滚与下游
+
+无生产变更，回滚是不使用本私有工具根，保留失败原证据；不删旧环境或他人文件。原Review只按本物理映射审，不继承为合法安装资格；Test的T26独立环境不复制或借用此工具。后续产品与多平台实际行为、费用和媒体验收归独立职责，不能用本材料化完成替代完整R1后连续R2。

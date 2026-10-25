@@ -1,0 +1,11 @@
+# Review — 未来JSON写入LF窄修独立复核
+
+Task PiperRepresentationFutureJsonLfIndependentReview。QUEUED：原Test ae6c0751窄修TRUEFINAL、Root完整消费正式Handoff及固定新源后，当前原Review实际停止释放，Root再显式激活。唯一原integration_review，不代修/验收。完整R1后连续R2保持。
+
+仅docs/reviews与自身Review/PiperRepresentationFutureJsonLfIndependentReview/。固定旧问题Finding-PDRTC-I01.md SHA919b5bdf2a2ea6480ae3c176ee61a4fb791398759c314e2e676987ff1f506326，原Probe604a94e5527ac83fc223bfc45f6ee94174e9a83c8774d88f754bf90537065e26，旧普通82 index22f8defd785deafc0fc634b13e243fa796e76329012b74835365897111891d7b；原修正独审ddf14e17ce8aec381fadf0aa8a456cc06321455f7e41e19fb5a84fc3a21fdd01只关闭P01源码，P3未关闭。新源/index/request/Interfaces身份由Root正式激活补充，不读热文件。
+
+全文beforeafter/fullDiff核只有未来共同save明确UTF8/LF/noBOM及必要不可变新root/身份变更；保json.dumps数据/escapedCRLF/异常原文和87原oracle/Cases/parser/16固定输入。核原1041独立成员、364cache关系、999仅声明原runtime、index外部SHA和原physical path/size同bufferparse/末独立重读、reader允许范围、sticky失败均不退化。原Run同Process/creation/双原byte pumps/EOF/90s永久失败与killonce不变，末收据失败不伪成功，不调PDM标准。
+
+用有限停止源读取/身份/PSparse或独立byte检查审，不启动Python/Probe/parser/87/fixture/HTTP/archive/产品PydanticSQL/native/模型/费用/密钥/安装。没有实际future结果不称runtime LF验证；P3最多CLOSED_SOURCE_STATIC_ONLY，全部87仍NOT_RUN。保所有原红、原19三次失败和CNY20不重置。
+
+交真实覆盖矩阵、severity/归属/来源、固定input身份/末核、正式报告与Handoff MD/JSON、实际工具natural终态/all读者释放/no live。新源必要逻辑缺陷返回原Test，不自行修、降标准或跑第四等效target。Root全文消费通过的固定源码后才按601cdf85任务卡明确一次真正87启动。发现其他necessary问题保具体阻断，不把source绿推完整业务/安装/R1/R2。

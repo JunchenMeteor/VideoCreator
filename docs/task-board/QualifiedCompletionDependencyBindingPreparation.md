@@ -1,0 +1,13 @@
+# 引用回归完整依赖绑定准备
+
+ACTIVE_DEPENDENCY_PREPARATION_ONLY；唯一原integration_release。当前统筹/Architecture资源协议/Review租约复审三角色，原Test与Backend真实FINAL释放，使用第四槽；不新造集成角色。完整R1后连续R2及三OS发行目标保持。
+
+固定输入：TestDevelopment/QualifiedCompletionRegressionPreparation/正式MD211f488f/JSON33cde080/Interfacesbc5d27d3/Launchc913ca04，Root d36f57全文核身份；InputIndex8126f234eb3b4e013da85112cca819dd9aa9abceda0cb1d5ea8e6d63f3e795e5，154完整模块及31用例全NOT_EXECUTED，未来执行未准入。仅读停止SourceBodies/TestBodies、ImportGraph和DependencyCandidates，不能改原Test runner、冻结输入或标准。真实强observer缺件不靠依赖准备假通过。
+
+目标是消除具体依赖不明，给后继原Test一份完整且闭合的解释器/stdlib/第三方/原生库绑定：各直接和递归依赖精确版本、实际文件/RECORD/native扩展及DLL路径、包namespace、许可与Windows CP313 ABI关联；报告哪些实际存在且属于本项目自有集成环境、哪些仅历史候选、哪些缺失。不要只列十个直接名字、空schema或把999runtime/359package声明当actual load。原依赖锁与Gate0候选不因准备擅自升级。优先消费本角色既有停止资源/缓存，不能借其他会话私有环境或运行别人的Test目录解释器。
+
+只集成白名单依赖/构建配置和自身Integration/QualifiedCompletionDependencyBindingPreparation/。可实现/运行纯stdlib文件/metadata解析与绑定准备工具；若包材料确缺，精确列实际下载/安装材料动作及影响供正常后继申请，本阶段不下载/解压/安装/复制整套runtime，不重复1.65GB复制、不改共享环境或有读者的.venv。Piper六归档旧失败及限额保留，不以换名字重试tokenizers红。
+
+0被测/helper/Pydantic/crewai/第三方import、pytest/产品/SQL/native进程/模型/费用，不启动原19第四等价或假翻runtime_approved。必须明确新执行是否同耗尽链，独Review裁定与真正执行准入前不得导入。执行wrapper及Process/EOF归原Test，这里只依赖材料/可消费绑定接口，不代写测试脚本。
+
+交完整实际绑定/缺失清单和准入边界、必要工具源码/输入普通副本、有限beforeafter、真实末工具自然终态/no live/allreader释放。独Review后继确认，再在获准全依赖边界内实际验证；prepared不能写COMMANDS通过或资源资格/安装已完成。

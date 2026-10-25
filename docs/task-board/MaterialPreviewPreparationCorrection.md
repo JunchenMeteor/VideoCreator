@@ -1,0 +1,13 @@
+# MaterialPreviewPreparationCorrection
+
+Status: ASSIGNED_ORIGINAL_TEST_PREPARATION_ONLY. Sole writer original TestDevelopment; no runtime grant. Complete R1 then R2 unchanged.
+
+Finding: independent EarlyFinding-MCCR-P01 b0eeaa158b240194321b393e26bad6cbe0551f904e560db62b231b4ed494e6c4, Rootda4dcf/0 FULL with actual matching SHA. P2 OPEN_TEST_PREPARATION. Fixed Casesa849ada622f96d56c95ef389790e917811efacf850a624cee633eb335cc0b1c6:229 navigation then fill without expanding native details. Workbench180f205942ee3185f213aa4da7a3ce6d5f2d06c4df9d3cf8b7bbde0558b3b5fb:425 has no open attribute; input invisibility actually observed, details.open/trace absent. Metadata/content/held target absent, no Frontend defect inferred. Preserve original13pass/M14failure/natural1 and all older batches.
+
+Write only own TestDevelopment/MaterialPreviewPreparationCorrection process preparation and Test-owned test helpers if necessary; no production/locks/SDK/standards alterations. Reuse entire approved Fixed ordinary source/dependency identity, new finite preparation namespace and future unused output namespace. No duplicate environment tree copies or broad import/cache discovery.
+
+Fix only M14 actual user-like summary activation and observed details.open plus visible/enabled input before original fill. Preserve14 names/order/all34 full original assertions, original A metadata held -> B replacement -> deliberate A release -> zero stale content target, all other preparation predicates and 5s/240s/300s sticky bounds. No force-fill/set DOM open/injected state/fake caches/product-default changes. Capture actual prerequisite observation in future result without asserting nonexistent old DOM evidence.
+
+Deliver complete original-to-new diff, assertions/order semantic retention, exact files/index/entry argv/input-write closure/bounds/new namespace absence and source/static syntax actual outputs, finite ordinary handoff/terminal. Independent oracle source review precedes separate exact new runtime admission. Preserve no repeat of previous failure batch; no models/keys/fees/DB/native/install/publication. Rollback owned new preparation only. Downstream independent Review then original Test runtime, independent runtime Review/Acceptance.
+
+Formal independent Review TRUE FINAL2ec2e4/0/readers released; Root1c5a4d/0 FULL report6e6dbbd13fce120d71127cc670f6314e59ecced027b93d73d2a1c6798b40e25d and FinalHandoff848e7c01f1875b2d09018921411ab73201ad16ef2a11985ee97573fed8f8e8f2 actual2SHA match.83finiteinputs unchanged;13component evidence bounded, M14 targetnotreached/P2testpreparation remains. This card will remain unchanged after Test freezes it; later grants recorded separately.

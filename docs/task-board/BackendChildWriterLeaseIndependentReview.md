@@ -1,0 +1,9 @@
+# 子级选择写租约修复独立复审
+
+ACTIVE_SOURCE_REVIEW；唯一原integration_review。原作者8cfd2f自然0 TRUEFINAL/no live/all读写释放；Root d49c82全文正式MDab700702/JSON4a7bda26/Interfaces31f43774/Static4de0eb9c并核实际身份。当前统筹/Architecture新资源协议/本Review三角色，不换身份代开发。完整R1后连续R2保持。
+
+唯一停止根Backend/ChildWriterLeaseCorrection/AppliedStage/，SourceIndex b58c610f5d6228cda30e0014bff77c18249a302836e24b2aaeb03c1ada0fd93a完整131普通源；FullDiff1b4e5f2b95164b349387d6688fb003fd6d59de887c14bb0d5dfdd241df379854。基线后端P02 bb03b22b完整131，原DST-P01 MD6af3e7e4/JSONc27c8e8a及0062报告5fa82a15保持。Root36f241全文最小候选ba2ab1cd及Impactd9abf25a，仅收件不独审；原正常apply实际{}，不要拿未应用部分资源候选或未来协议填此代码缺口。
+
+完整两源差异重建与真正上下文审查：park传原guard、child commit原issuer._guard同connection及原assertChild，实际qualified lease/current/source/thread/fence/expiry/action/parentchild/captures/settled/CAS完整保持；不得外部observe/file/nativebegin进writer、不新租约/connection/第三writer/True假guard。缺/foreign/退出guard仍拒，原Native重入门不松，first_publish/非child兼容及postCAS活lease检查保持，unknown/预算/原两authority200000us保护不改。只据固定普通实际caller裁定DST-P01源码是否修复，不能由AST授SQL/OS行为或全链通过。
+
+仅读停止普通，写docs/reviews与Review/BackendChildWriterLeaseIndependentReview/。0产品/Pydantic/SQL/native/模型/费用/安装/旧19第四次，不代修测试或标准。交有限beforeafter、完整最小diff与必要链、独立SOURCE裁定及真实未运行项、末工具自然终态/allreader释放。后继P01/P02修复及31回归准备另卡，完成本阶段后Root全文交接才接续，不热读0066。

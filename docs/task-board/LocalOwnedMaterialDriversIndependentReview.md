@@ -1,0 +1,9 @@
+# LocalOwnedMaterialDriversIndependentReview
+
+ACTIVE. 独立评审原 integration_review，仅读实现及固定源码候选，仅写 docs/reviews/ 和自己 Review/LocalOwnedMaterialDriversIndependentReview/ 过程材料。完整目标仍为 R1 独验后连续 R2；本卡不代产品运行或验收。
+
+固定停止输入：AgentMedia/LocalOwnedMaterialProductionImplementation/RevisionTwo/，Handoff.md SHA 5cd5781a2667c372d2922dbadda435c1d48d91156cad5324474b1a539563d0e8，SourceIndex.json SHA f939763decb1a9e18fc0dffcd19e8758ed4664b54e77e8855520492d55dfe929，Interfaces.md SHA 2f326bb66c62bafdda0dc2683fec379ab59f9c35db2332ee85fcf5f3cd7a2012，FinalCandidate.patch SHA fa4f0ccefec6699525e9d525fb1c09f92cc342ddc9335ad9a101175378665404，RevisionDiff.patch SHA a588f75313c4c2485fdfd20d9b34fac137dfdcc5a3684f96ba9356a7c0a0277e。首批候选缺陷scratch不是安装根已在RevisionTwo窄修，但未实跑，不预判关闭。原Media f54c19自然0且候选读写释放。全部51文件=48旧保护+3新增；生产未应用/运行。后端sole EarlyTypedAbi/Interfaces.md SHA e309d56d6e2c9df661fe3edb289b0d9cf083d9ec09e02bebdedbb23ae32d0765，module SHA7187ac4cf7dc0fd9fdfa941f1c88ae0c62bc03131c7fb88ccaf551f0679e92d4 已停止。0072/0073冻结设计供边界核对。Backend/Architecture当下热源码不得读，未批准top plan不冒版本。
+
+评审责任：全文审实际3新增模块及其与停止Backend ABI/旧相关生产端口的调用一致性；有限读取实际原引用，而非只看diff/hash/AST。重点审manifest.parent containment/link/race与trusted config/root，路径/源Asset/current lease/rights/route/zero-fee边界，原已记账Operation+fence/unknown处理，输入输出实物校验、partial完整解码、音画范围/帧/样本/ still图片显示范围、背景音与原片音轨、FFmpeg固定argv/注入、取消、截止时限、失败清理与成功观察。尤其检查三类输出是否真的保持独立旁白及完整视频音轨；不要把计划值误当实测值。逐个问题给具体源码行、严重度、复现条件及原归属角色；区分本候选缺陷与已列Gaps.json 4项（top plan/Flow、still语义、Integration资源、其他适用输出及Step lineage），不靠静态评审关后者。
+
+输出实际来源/字节/SHA/有限读取覆盖、finding报告和回滚范围，按P1/P2/P3/无新问题明判能否进入受控源码应用候选。零实现/测试/模型/媒体/FFmpeg/Pydantic/服务/费用/安装；不改标准或费用阈值，不自行应用代码或独立验收。全部工具原句柄自然终态、读写释放后给Root正式Handoff/Impact；若所需已停输入确有缺失，准确指出并继续可评项。

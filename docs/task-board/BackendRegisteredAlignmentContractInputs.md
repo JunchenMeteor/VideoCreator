@@ -1,0 +1,9 @@
+# 后端对齐实现：停止契约输入
+
+补充BackendRegisteredAlignmentImplementation.md SHA2a680ac11b56cd2c9dc8e94c225cb4a048aafd6cc7c6bf74e7f89acd9af020bc，原白名单和限制不变。
+
+架构停止契约：G:/开发测试/Projects/VideoCreator/docs/decisions/0056-registered-alignment-operation-closure.md，26428B，SHA-256 d4e651f07f982b77469ca73de143a1b2fec691909647b56b36c9f314534cb144。原作者c9002a自然0完整读回并声明正文停止；Root eb990a自然0全文消费并核SHA。状态APPROVED_CONTRACT_ONLY，不能代SQL、媒体、精度、资源分发或三平台运行。
+
+sole CurrentFinalEvidencePorts八方法以0056全文为准：affected intent/request/commit/read四方法；initial register/request/commit/read四方法。后端维护唯一strict grammar与canonical bytes，不让Media另造授权类型。初始使用真实settled ASR/context、same preparation及未READY来源登记；修订使用原held Execution/command与不可变companion。原executor/Worker JSON reservation/settle/Step commit及真实current来源不变。估计时码、独立reference、假成功或新child不能代首次CTC。
+
+本补充只固定已停止正文；架构正式Handoff、完整输入身份与reader release仍在收口，未给运行或开工授权。统筹收到正式终态及核验后才在实际空槽恢复原后端并附正式交接身份；之前不能读取架构WIP过程源或猜缺失接口。原118/38停止件、三败目标、被拒role intersection及全部R1/R2标准保留。

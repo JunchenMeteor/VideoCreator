@@ -1,0 +1,7 @@
+# Media44 Review — 固定WhisperX许可证定位
+
+原Review请求的停止上游LICENSE普通copy：G:/开发测试/Codex/VideoCreatorImplementation/Integration/WhisperXAlignmentSourceSlice/OrdinaryCopies/InspectionRoundTwo/TextViews/Source-0001.txt，1297B，SHA cddc25bce26226b4a04ed12839d9006b7a4403da9020ef6428ef7282a6567441。同SHA/size另有Wheel-0003.txt普通copy。BSD2-Clause Max Bain2024，Root5c01b1全文读取核SHA。
+
+唯一正式索引同根WhisperXAlignmentSourceSlice/OrdinaryIndex.json SHA6073e835b174bd7863d46b1393544b6419c3470e8087887ac164c0d8788ccb5c，100 entries数组，每项.original/.ordinary有path/size/sha256；Root55aae6按已知licenseSHA精确投影兩记录。它们匿名TextViews名称不含LICENSE，先前fd1120/ce6348名称筛未命中并非许可证缺失；6c83db有限目录输出截断保留不称FULL。3506eb只确认entries实际Object[]结构。无新HTTP、vendor运行或产品/发行许可资格。
+
+供正在执行的原Media44独Review新增独立InputSupplement，不回填冻结Before或扩大任务。完整44源码/算法与许可证对应由独Review核；此定位不代运行验证或商用全资源资格。

@@ -1,0 +1,11 @@
+# Review — 表示测试准备修正独立复核
+
+QUEUED_TEST_TRUEFINAL_AND_REAL_SLOT。唯一原integration_review；当前e0bd2bb8停止释放、原Test68bf523b完整停止交接被Root全文消费后，Root明确激活。仅docs/reviews/及自身Review/PiperDependencyRepresentationCorrectionsIndependentReview/，不读热Test/Backend，不改实现或标准。完整R1后连续完整R2保持。
+
+固定原问题：PDRT-P01 P2 Finding SHA f5c811ba19a7aef1f6ca73aa0a10eac262f889a03a6fc31d7c45e13df3962a39；PDRT-I01 P3新JSON换行。原独审报告ade49490c0e0c716262fe3f587e7e028a192021201802c34f76d43e345a51a36与FinalHandofffe4894e96d709684771a40ea0b6b0f91394202905866f89878ec010ed9dd3ce2均Root99335d全文核实。新停止source/Plan/index/request/交接真实SHA由Root激活补充，不用作者bool代实际读取。
+
+全文独核before/after普通件、完整diff、两个真正入口首末actual index物理路径、外部预期size/SHA、同buffer验证解析及1041成员前后检查。缺失/读取错误/漂移必须sticky非零并不记未证明input_after_verified；不能递归selfhash、随读取刷新预期、去掉records末核、宽放audit。保原whole parser9eae0ad968c464189810a62e0ecf2579a2dc5ef11de1fc6dd3b523e3018ac382、87独立oracle/raw边界/历史12 literal红，原old停止副本/失败bytes不改。新writer实际UTF8/LF无BOM，合法JSON字符串escaped换行/第三方raw保留；逐项核新所有自有文本。
+
+复核新真实Windows argv/cwd、1041路径/364cachemap、独占输出不存在、原完整模块真实调用、首错停止/90s/原Process与双byte EOF/最终receipt错误传播；只root必要关联/index guard/LF改变，不能暗换算法、抽AST、Mock或弱化标准。有限source/身份/AST独审，不候选/import/parser/87/launcher/archive/HTTP/product/SQL/native/model/费/安装。原19三败/20元保持；PDM-P01另任务不关闭。问题最多CLOSED_SOURCE_STATIC_ONLY，actual index-only漂移和保存故障仍待后继真实测试。
+
+交实际beforeafter输入、完整source事实/角色finding/报告与末本人自然工具终态、无live、全部读者释放。不自授首次87或整体R1资格。

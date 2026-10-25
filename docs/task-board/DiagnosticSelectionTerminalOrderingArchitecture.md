@@ -1,0 +1,14 @@
+# Architecture — 子级选择与耗尽失败出口的安全状态合同
+
+唯一原development_role_plan架构角色，DESIGN_ONLY。完整R1独验后连续R2、本地数据/免注册/可选官方能力、五步不变。读取workspace/repo AGENTS及01—11；只写docs/decisions/新0062-diagnostic-selection-terminal-ordering.md及自身Architecture/DiagnosticSelectionTerminalOrdering/。旧0060/0061及全部源/拒绝/测试标准只读，不修改实现、测试、依赖、旧报告、统筹记录或执行运行。
+
+目标是闭合两个准确状态合同接缝，使真实同Run恢复/子级有限修订仍可完成，不能把not_ready/409当可用产品。依据冻结Backend完整130源index41b2f0e2650b10b97a7353a574e5f131164ae9a597d763435df11c5ab912c83d，根G:/开发测试/Codex/VideoCreatorImplementation/Backend/CombinedFailureDiagnosticRecoveryImplementation/SourceStage/SourceCopies；完整Handoff e680c9fd/JSON658a8f8c/ActualInterfaces f3b71198/OpenSeams49609474由Root ee058e/ee98f2全文并核，Backend e00af7 TRUEFINAL/所有读写释放。当前独Review核源码，不能读其热输出。
+
+1. 合法原selected affected child首次选择：现prepare_current_diagnostic_selection对journal准备与candidate不同仍409、原diagnostic_ref相等门存在。完整读取既有parent-child权利/FullPlan/current/fence/lease/journal/source选择与CAS代码及0061，仅park/首次publication两writer。提出完整真实状态/持有事实和调用顺序，定义如何证明子级归属、准确old parent/selected source/input/ref、原子转移并保持所有旧守卫。不能沿被拒第二hunk单独重试、削除拒绝门、泛化exception或造第三writer。
+2. 有限限次耗尽，Worker调用finish_current_final_evidence_failed时pending first/successor尚未选择：0060需要真实失败source companion，0061仅park与first-publication改selection。设计原park/失败journal/source的安全终态排序，崩溃/响应丢失/回滚/同Run续作语义；禁止消耗额外生成限次、fake lease/operation、第三selection writer，禁止遗失历史/错误以409永久掩盖应完成失败出口。
+
+完整原RejectedResumeConversion/OriginalToolInput.txt8a5f68b2、OriginalToolOutput.json728e1e76、两个UnexecutedPatch1/2（302ae410/38eb1c88）固定。自动审批Reason：needs_reconciliation改retry_final_validation可能绕ledger/state一致性门，与保留质量/权限/current/rollback冲突；两hunk均未落。新合同必须保持unknown原needs_reconciliation，不queue/claim/dispatch/收费；真正settled输入变化恢复与未知核实明确分开。提出真正不同且有证据的安全设计，不求绕过审批或弱化许可。
+
+只设计与有限source/JSON/hash静态观察，不Python/Pydantic/SQL/产品/API/MCP/模型/native/网络/安装/费/发布。合同须列需求/旧finding/实际签名、state table、准确capture/CAS/rollback/幂等及跨角色最小改动与独立正反用例建议；不写测试、实现或降标准。资源observer/Media消费只标明确跨角色依赖，勿扩大本合同。无完整运行通过，无自关BDE/R1。
+
+完整新ADR及MD/JSON交接、输入BeforeAfter/hash/原旧合同保留、实际工具自然终态/全部reader writer释放。后继原Review独审设计→原Backend限定实现→原Test真实作用验证→独立验收。遇安全硬冲突准确报告可审阅具体方案，不推用户配置API或收缩总目标。

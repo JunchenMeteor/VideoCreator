@@ -1,0 +1,40 @@
+# RV46 B27实际契约导出有限独立评审
+
+结论：LIMITED_SCHEMA_EXPORT_EVIDENCE_SUPPORTED。本固定切片未发现新增阻断；支持一次实际 schema-only 导出及其原 JSON 的声明相干性，不能当认证、SDK、canonical、业务内容、作品、RuntimeBinding、原生/三OS或Gate资格。R1独立验收后连续R2总目标保持。
+
+## 固定身份和范围
+
+固定根 G:/开发测试/Codex/VideoCreatorImplementation/Backend/CopyScopeContractExport-B27/。ExecutionHandoff MD c5446d5f46466e7963e8e3767f6a11233a74f53503a406b6b86e8d1250d193e2 / JSON 2ecbe8201a4f3a48a0e7c4c5ef770a460ff81676b70b8e8816e3fda42e801b5d；SourceSnapshot 0bf4b36135ba2f1328cfec3fa4bea0dd0a6c5fd10a4b8a7cdd6eb69f15c66521。
+
+独立核29个固定文件记录与3个补充文件，前后无漂移。只读取5份相干声明源码：domain/contracts.py、domain/local_copy_input_scope.py、api/transport_contract.py、api/app.py、cli/main.py，全部来自SourceCopies；未读I33/T34活源，也未重hash原4008环境。固定source_map完整53项是原B27保存身份范围，本Review没有把其余48份业务实现当已审或已运行。
+
+openapi.json 563396bytes / ce125131181cc86a2a30a02cb3245f4cdc0f96f11341efef31de132d6f96cda5；schemas.json 753605bytes / 6e4974a50ee3a99e3f1ebb619c888e79708b3095688e60d5272f9060c87f2bf1。两文件实际严格UTF8、无BOM、无CR、无重复JSON key。完整路径/bytes/前后SHA见RV46InputPins.json、RV46SourceAfter.json。
+
+## 原实际导出与失败分层
+
+Execution/CommandReceipt.json SHA 4b2280654cdc8abb8df151cf7776509ca634526200f0bd4e1e9cbae1cf5ad568、LaunchReceipt及ProcessObservation、ToolCommandReceipts相干：一次原tool4b95e6自然0；owner47520，Popen包装器7856 public wait0，communicate EOF/stream_closed/raw_file_saved=true，sticky/forced/deadline/events均无，after_input_drift=null。这些只支持同原Popen/pipe范围；actual_schema_pid_observed与OSJob/后代证明显式false，不能改称实际schema进程创建时间或整树清理通过。
+
+固定runner923fc356f36716077db97eda9882957a76929e84f583d0cf3abb84ce7eccff50：
+29–43行前核ExpectedInputs；77–99行保留同Popen communicate/wait及60秒失败粘性；108–126行单次新目录/5项闭环境/原argv；132–149行持有到finally原排空并关闭；165–190行后核输入、原字节hash和原失败。保存的child argv与LaunchReceipt及ExpectedInputs逐值一致。owner LaunchReceipt使用sys.argv不会记录解释器-I/-S；顶层原ToolCommandReceipts保存完整调用，不把两种argv口径当漂移。
+
+原 stdout 60bytes / 2e6ac631e7145c83f3a6444750e674a63aa68461bc7b74ca908ae9d61c5aa924，声明contract0.3与147schema。原stdout保留CRLF一个CR，不改raw；ContractExport两JSON为LF。原stderr35158bytes / ca89510c208ddabbc7e9b9c229da8a9b6dcf52f0ccbf2665d75be210c275ca0d，543行importtime严格UTF8保留；名称/耗时日志不是模块实际路径、动态权限或完整运行闭包证明。
+
+原checker41abb44b1830e87df343ff1b1f99b26e0891d215bc3c1139f0ba6fbedd88af70在266177实际1，83行读取不存在的schema_version而KeyError；后续refs/关系检查当时未达。该异常保存在原工具输出与DeclarationOriginalFailure定位记录，未另造原进程raw。实际获准修订c07685f910d9e091a812a5bb2a144f7fcc1257254e220dc0a9c5d4c9c09e74cd在33b51b自然0，ReceiptRevision e7b53d5709ec164155a68455d9ab1a1b5c9bf4ec5da51d1e68f2071b119f015d保存58passed/0fail。实际原/新全文产生的diff与固定24f866831311316bf87a7c3351e0a9b08479bdae8c73f8820432d084ac110dc0一致：只改真实版本字段核法及新增收据目标路径。原导出/JSON/原脚本未重导或改红。
+
+## 独立声明核对
+
+实际147 standalone、97 OpenAPI components、40paths、43operations/43unique IDs；18个本地copy类均有唯一schema。OpenAPI全583个refs按整个OpenAPI根解析；每个standalone schema以自身根解析419个refs，0未解析/外部引用。不能用聚合schemas.json根误解析其#/$defs引用。
+
+版本分别为API info0.1.0、contract set0.3.0-candidate、supported request0.2.0-candidate/0.3.0-candidate、独立copy scope0.1.0-candidate。固定contracts.py133行真实legacy字段request_format_version为nullable Literal0.2，default=null且非required；148–154行serializer静态省略None。V03于1422行Literal0.3且required，实际JSON一致。旧Plan“默认0.2”不代表存在schema_version或应回填null；本报告不代实际serializer/canonical/hash回归。
+
+六management操作由api/app.py397–425实际路由和management_dependency对应。135–144行静态声明拒绝安装token并交给实际管理authenticate端口；transport_contract.py169–174、200、220–226声明独立ProductionManagementBearer、installation_session_accepted=false及production.authorization.manage，六JSON均一致且422引用原ErrorEnvelope。声明只说明要求，无实际Owner签发、调用/拒绝或权限运行证据。
+
+六content→metadata组为资产content、Bundle原manifest、Bundle artifact、export content、import manifest、import artifact。实际app.py装饰器297/320/330/352/378/388绑定真实函数；Review按实际method/path唯一定位，完整path/query参数对象、同名binding、security及authorization逐组一致，metadata GET单一200 DeliveryContentMetadata引用一致。transport_contract.py59–97及253–261限定这些关系、effective purpose规则与metadata非capability；没有把元数据快照当许可。完整六组见RV46FactsCheck.json。
+
+## 源边界和下游
+
+固定cli/main.py71–95实际轻量ExportEngine/ExportDatabase→create_app→OpenAPI/model_json_schema，143–147为schema-only分支；不构造真实运行Engine/DB连接或安装Owner，不启动API监听/lifespan/Worker/ASR/provider。公开copy类型字段、refs与管理要求与原源声明相干，未执行Pydantic验证器、请求serializer或权限方法。
+
+本Review只执行自有stdlib JSON/AST/字节分析；未重跑原checker、导出、产品/Test、Node/Cargo/native/DB/网络/钥/费用。自有首次函数前缀匹配歧义已在RV46MappingCorrection.json保留并改为实际method/path唯一匹配，未称产品缺陷。原90280c误目录rg IO3/最后shell0仍按原收据保留。
+
+下游Integration只能消费这两个精确生成JSON及同源声明进行新contracts/SDK生成；SDK编译、真实消费者、安装Owner/management、rights/current/final、copy/N-R-H、canonical、作品及三OS仍需各自固定版本独立验证。原失败、未接真实port与旧冻结不因本声明绿消失。

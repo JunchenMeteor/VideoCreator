@@ -1,0 +1,47 @@
+# Backend selected-child CTC只读组合独立评审
+
+结论：SOURCE_STATIC_ONLY / PARTIAL_SUPPORT / BSC-P01 P2 OPEN。新增held读取口和共享纯来源链的主要机制得到源码支持，但最终writer缺原affected CTC父preparation快照，不能将本版本判为完整来源闭环。本轮未运行产品、SQL、Pydantic、native、模型、网络或测试，不批准第四原耗尽目标，不授安装/资格/R1/R2通过。
+
+## 固定版本和实际核验
+
+唯一输入为任务卡0c54e9bb3cfabb24fa80f8927ed1825c2926c92f12bef2cbaac3c05b077f0489、ADR0057 19472f7635a40be25630d0a84e0426bbd06283522f513128caa437e2499c1b57，以及已停止SelectedChildCtcReadComposition与原RegisteredCtcWorkValidationRepair普通副本。无热Media/后续架构或生产源码读取。
+
+独立核120基线+121新普通件：bytes/SHA无差异；新110个Python AST成功解析。新三变更为added committed_alignment_read.py、changed current_final_evidence.py和registered_alignment.py，其他118件逐字相同。完整50264B差异按正式before/after标签独立重建，SHA7b3bc59dab6d7acae481af48526d842e59a745b267375b97a251f63ea56d09ba匹配。输入前后253个固定path记录无变化，正式6件预期SHA一致；详见本过程InputBefore/InputAfter和RebuiltExactChanges.diff。这是源身份/语法结果，不是服务运行。
+
+| 三模块 | SHA-256 | bytes |
+|---|---|---:|
+| application/committed_alignment_read.py | 30d3d413ca810a166979064fabd7bf2af839ef55565a298f624b73fd78694a40 | 34544 |
+| application/current_final_evidence.py | 3bb553e32516c504fd7011979791611a75eea1d6e9eb8bf5074a4f815674a678 | 8676 |
+| application/registered_alignment.py | dd0e31fda18b6359ce84adb23fbfb8147a2e83d6fd8d793d4bf7fe50b651c3cb | 79678 |
+
+完整ordinary绝对路径均在SourceStage/SourceIndex.json c0ab833f165fb5cde13f23f54e6c7041107f115e3868b92f0b29f2f3a8d2acdf的source_map；本文不使用当前生产文件替代。原120索引9a22dec995223337c8221ab6c3b14733a2413716426e73b3625142cd0ed2172e保持。
+
+## BSC-P01：最终writer未重核实际affected CTC源父intent
+
+P2 / OPEN / SOURCE_STATIC；唯一修复归属Backend。完整固定Finding为本过程Finding-BSC-P01.md，SHA821b9f48b54f0690b0867025941807b980f6ab7258d7f362666f00d7e6f7aba4。
+
+committed_alignment_read.py53–54只捕获当前循环节点的bundle_revisions投影。68–71读取parent并核其intent/revision；最近节点是realignment child时98–99立即返回，parent不会进入后续循环快照。guard114–120核请求中parent intent，composition210–211再次读取source_row，但两者均未把源parent preparation row加入最终snapshot；fact_rows326–365补的也是两Op、CTCStep、ASRcontext及allocation/staging/assets。registered_alignment.py451–472最终同连接门只比较已经captured的行，不重新select/guard。
+
+最小静态条件：真实合法child及其他已捕获来源不变，在最后共享来源读/父intent检查完成之后、最终writer之间改变原父preparation.intent_json。该变化使原请求/lineage父intent来源失效，但最终快照没有父row可比较。bundles.py1319–1333和1419–1464实际调用该快照门；检查selected child本身或原companion字节不能替代其source parent。getter返回前的367–377 recheck确实再核父源，所以本项只限定最终writer窗口，不把所有read门说成失效，不声称自然合法writer会修改不可变父intent或已实测SQL竞态。
+
+修复须捕获实际读过的source parent不可变身份/intent投影，并在原最终writer connection检查；保留合法status/manifest更新和后附asset rows的排除，不回调用repair-only执行guard、不创建Execution/child/Operation、不放宽资格或预算。后续独立Test用自己真实合法来源，在明确读后→writer窗口注入父intent变化，证明原拒绝/rollback；正常版本与合法manifest/asset更新保持。评审不实施或授权运行此测试。
+
+## 本版本其余有限源码支持
+
+1. 新口current_final_evidence.py119–123只接受原lease/continuation，通过原_current保对象注册、线程和lease，再委托service；旧全部21个已有port方法AST相等，包含原九口和登记/commit/initial来源。原11成员readset、公开DTO/SDK/migrations不变。
+2. claim10–41约束同binding、executing、原fence与retry continuation；仅私有normal初始路径可在无journal且真initial/无lineage时读取。repair同步child使用原_selected_affected_child，不返回或登记可执行对象。原assert_alignment_writer/affected_claim的repair执行门AST未变。
+3. selector43–101检查原同Run preparation、v1/v2 child/parent关联、主command摘要与最近initial/realignment冲突、cycle和min(32, revision_cycles+1)界。最近源注册/command残缺进入明确error，不落祖先或ASR-only。selected masters沿原resolve_preparation_masters核实际四角色/真实settled主Step/Op/decoder；返回祖先CTC还核相同ASR、mixed audio与完整mapping。
+4. guard、_alignment_sources和_registration保原canonical grammar、ASR真实context/Operation、全序unit/scalar/audio clock、资源与route/qualification、原plan/quality人审或预授权、实际current issuer。结果复用原完整generated JSON、success+settled Op、READY allocation、实际Observation身份及成功committed Step；MethodEvidence从该Observation/Op/音频构造，不从qualification伪造实际执行。无首份WorkReport前置依赖。
+5. 新组合中的SQL静态调用均为SELECT；无新register/commit、Worker.begin、allocation、UUID、推理派发或费用代码。原执行路径的_load_alignment/preflight/register/commit/assert_alignment_writer等AST保持。完整结果helper在移除原preflight取得语句与新增docstring后AST等价；成功Step读取提取体AST等价。此静态审查不替代实际零写账本测试。
+6. report source与getter共用组合，保ASR和CTC两个实际Op、报告identity/qualification；仅允许Alignment的独立precision与派生contentSHA差异，旧数学与两authority路径、200000us、MM05、READY不可变等其余118件字节保持。legacy None有专门原ASR身份/当前policy/assembly/doc检查；unknown、未settled或未Step commit仍error。不能用None洗掉最近CTC缺失。
+7. 最终writer仍走原verify/publish同连接快照门；bundle投影排除合法manifest/status，text_materials仅比较原非asset allocation/READY行，避免合法后附asset触发误拒。该改善不关闭BSC-P01遗漏父row；实际SQLite rollback/race、合法发布与旧raw保存均未测试。
+
+## 后续与证据限制
+
+M44-I01消费者恢复仍OPEN：本轮不读取或修改Media新消费，不能由getter存在推断首份child report已能形成。需另固定Media消费并由Test独立证明无candidate/report的child retry、初始/祖先/legacy、现有READY复用，以及wrong port/thread/fence/current、nearest corrupt、audio/text/mapping变化、unknown/未commit不重发、两Op保留、read/write窗口来源变化和零新账本副作用。
+
+真实CTC质量、资源/许可证资格、两authority/200ms、ASR运行、原SQLite/HTTP/MCP、实际Owner/native、安装完整流程、三OS含Intel Mac与全制作多模态交付均NOT_RUN/未验收。原三次目标耗尽和历史失败不重置；角色recipe和被拒intersection不在本任务；完整R1独立验收后连续R2仍保留。
+
+工具记录：2f3e63/0完整读卡；da37e3/0聚合输出截断，后续仅定向补读相干正文；7c5893/0包含错误猜根下MethodLocations/Checks的非终止定位错误，Handoff.json随后确认为SourceStage；20ac7c/1因旧rg.exe路径不存在，之前源正文读取结果保留，后续用冻结索引+stdlib AST定位；均不当产品失败。14dd22/0原重建标签a/b导致比较false，151b2f/0只改自有重建标签并得到完整一致。486f43/0原结果体比较错误跳首语句得到false，95b07c/0按原实际strict_json import/preflight位置修正比较，原false记录不擦除。所有动作仅静态读/自有数据与评审写入；无产品import或执行。
+
+最后固定source末核51395b自然0、253pins differences=[]，无live读者；正式writer返回与最后工具终态由FinalHandoff/FinalizerTerminal单独记录，不从文件存在推定终态。

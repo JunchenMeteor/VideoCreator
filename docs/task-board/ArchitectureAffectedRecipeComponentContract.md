@@ -1,0 +1,13 @@
+# Architecture — RRD-P01 修订配方和组件范围契约
+
+QUEUED_REVIEW_FORMAL_AND_REAL_SLOT，原development_role_plan。待当前RepairRoleDependency独评TRUEFINAL完整报告/输入与实际终态消费，并真实空槽后恢复。只原Architecture白名单docs/decisions/与自身 Architecture/AffectedRecipeComponentContract/，不改实现/测试/资源/旧停止件，不product/SQL/Pydantic/网络/模型/fee/secret/第四耗尽目标。只合同批准，不代Review/Test/Acceptance。
+
+独评RRD-P01 P2 OPEN SOURCE_STATIC_ONLY：Review/RepairRoleDependencyIndependentReview/Finding-RRD-P01.md SHAf5e2fcf6e3c7f4da06a562705f4432f535982e6a0654843902b92019e99c63cd、JSONc278ca6f81b3fd955e97efacd0b0d5ee4762617087496c1ecaa3bccdb4ba7644；Rootf58ad0 FULL两件/hash。完整原30ordinary及37/38 recipe源来自你停止RepairRoleDependencyAnalysis，正文4e35939e01d9291f501db95086519a24d4147d1dd052e651c3439eeddcd6db8b。正式完整独评身份待后继补充，不混Backend118/120或Media38/44冒当前运行；如需当前源对照仅固定停止索引/精确方法保护比较，不读热Backend0057或Media后继。
+
+精确问题：Media37/38提议仅pure-video填shots；合法含声音组合/cover-only且实际失败范围与storyboard有非空重叠时，Backend118全部提议求shots→422。只补shots将video+shots派生成画面而声音编辑不该再生画面，cover-only+非空shots又403。原strict exact、实际failed roles范围、原被拒intersection/subset不动，不能通过原target依赖取交集或统一全范围重做解决。
+
+按完整独评§1–5裁定必要最小新版本合同：明确失败影响timeline-shot闭包与实际获准重生成组件/可复用父asset的区分；一份唯一immutable recipe/projection/target+完整approved plan(body/version/SHA)控制Proposal/authorizer/short writer/dispatch/recovery/current验证，全域Backend sole型/解析/mapper，Media原消费者仅按真实target执行。视觉only保原mix/cover路径、声音组合不错误派图片/视频、cover-only可明确真实模型输入却不误用shots作picture权限；合法依赖和source media clocks/许可/来源不缺。所有旧recipe/fullambient exact和旧unknown恢复须version dispatch保持。
+
+具体定义申请/Plan/批准如何绑定新完整目标、独立人审核或原Owner预授权条件，禁止用设计hash获得权限；如果新公开Schema/持久化/新recipe确需变更，清楚唯一版本和迁移/旧兼容，不能静默更改旧contract。保counter/budget/幂等child/先Op账本后效果/原UNKNOWN、两个authority/200ms/MM05/null范围，不能永久拒绝视觉修订或顺手重做所有音频。供应商选择仍现真实注册资源/BYOK或官方服务权益，不假Wan/Qwen/Kimi视频权益。
+
+输出一个正式停止ADR（编号按现仓库实际空号）及精确Backend/Media职责/真实映射/审批/负例/兼容/安装closure要求；原0056/0057只解决CTC读取，勿扩其权限或推理。固定全部有限来源/完整ordinary/保护/自然工具终态Handoff读者释放。具体不确定source/权限缺口如实记录，不凭候选支持自宣实现、运行或全R1后R2通过。

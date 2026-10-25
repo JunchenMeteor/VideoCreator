@@ -1,0 +1,23 @@
+# Backend — ADR0059真实诊断与0058执行链续接
+
+状态：QUEUED_CORRECTION_INDEPENDENT_REVIEW_AND_REAL_SLOT。唯一原 backend_instance 后端。先完成 de430758 的ARP-P01/P02窄修、完整停止交接及原Review独审，Root核实结论和实际槽位后再激活本卡。不能把此卡当提前写源码许可；00f8111c只读准备不等于此实施任务。
+
+目标：补齐实际服务执行链，不以新增类型、纯函数、guidance或归档代完整自动制作。完整R1真实本地创作/API/MCP/多模态包/三OS独验后连续R2不变。数据归实例、本地免注册，前台五步。
+
+固定输入：ADR0059 docs/decisions/0059-affected-recipe-diagnostic-source-contract.md SHA1e4246a331060b4d940d6745af9d972f06302d375a3e69630f9b2ab262473e60；正式 Architecture/AffectedRecipeDiagnosticSourceContract/Handoff.md SHA30b7ae5e46344c437e67b9142d6bc59470aadfd8fbc22a102222000d314763d9、Handoff.json SHAb024c2bff56d48b9043e7385a34d0567e5f9ac2951d0706978425539db0292f8，原05039f/64cb09自然0且全读者释放。保ADR0058原a2660ba5完整合同。后端起点为修复独审后的完整停止源，其实际index/SHA由Root激活时补充，不读取正在改的候选或覆盖原124停止件。
+
+角色白名单：仅repo AGENTS后端生产源和迁移；自身过程 Backend/AffectedRecipeDiagnosticExecutionImplementation/。不能改Media/providers/workflows、SDK、资源/依赖、测试/Fixtures、阈值或验收。跨界只交真实接口和缺口归原角色。
+
+实施范围：
+1. 同domain唯一维护0059 strict正文、引用及frozen eq=False held输入/记录，沿实际CurrentFinalEvidencePorts增加四私有端口 prepare_component_diagnosis、record_component_diagnosis、read_component_diagnosis、prepare_affected_recipe_proposal。从真实parent/Asset/Operation/probe/mapping/script/storyboard构建source闭集；不接受caller路径、shot猜测、模型recipe或bool作为认证结论。
+2. analysis_intents沿原Worker/Executor及先账本后效果；登记真实方法/资源及同Run settled Operation，提供Media实际验证callable的受控接缝。模型意见保真实response ref、attributed_model_assessment与不确定性，不能替独立测量、听审或许可；不可变fact由Backend验真重建，而非照存模型结论。
+3. prepare→分析→record挂在真实masters/assembly ready后、final publish前；恢复按journal明确ref读取并重建当前held身份。原unknown先reconcile，不换key重复分析/扣费。稳定输入键排除未来child/command和当前fence；原authored fence留在fact。短writer外读文件/分析，writer内同connection重核source/current/lease/fence/operation/record，409冲突不覆写。
+4. 持久component-diagnosis.<inputkey>.<recordSHA>及显式diagnostic journal/diagnosed execution新版本，严格dispatch贯穿continuation、final verifier、proposal、admission、registry、claim、effect、observe、recovery和child/current publish。旧v1/v2格式及canonical bytes不能重解释。组件诊断失败不伪装MaterialReceipt，precision缺失保null而非0；timing-only仍原realignment，组件QC不能替代precision最终检查。
+5. 补齐原0058未完成的V2 proposal/授权registry/command/held readset、repair2 step实际dispatch、四recipe执行读写边界、masters与atomic lineage-v3及0057祖先resolver。sole mapper从真实fact计算actual failed-role闭包/源shot/clock，exact ordered写集，不从changed roles倒推许可，不把audio/cover/visual变全量。whole-plan真人或原Owner execute_plan/continue_bundle_validation授权独立于诊断，真实rights/budget/current/cost均核。
+6. information_required给闭集具体缺口及可信恢复，不永久以guidance代自动路径、不制造假批准；严格403/422/409/503。必要media_diagnosis能力须真实本地0成本及注册门，模型分析仍原预算，不增额度。资源v3-diagnostic实际loader/producer资格交Media/Integration，不造verified配置代安装。
+
+保护：原CTC与ASR真实Operation/资格、两authority、200ms/MM05、counter/预算/限次、selected child父源快照、旧合法edit fallback、未影响资产/调用及unknown全部保留。修复完成仅源码可用，不自行关闭RRD或R1。
+
+验证与交付：完整有限修前/修后普通源及index、full diff、ActualInterfaces（实际定义和调用者，不只设计）、真实静态检查及未实施/下游接缝清单；末工具自然终态与全读写释放。仅现有有限AST/Ruff/标准库来源检查，不写测试、不运行原19三败或等价第四次，不Pydantic/product/SQL/native/model/网络/secret/fee/install。真实业务验证由原Test按新固定范围与独立标准后续执行，不能用AST替运行。实际权界拒绝保原证据交统筹，不换名绕过。
+
+后继：原Review独审完整停止源；原Media消费四端口、真实诊断producer及四recipe；原Integration完整source/resource/runtime资格闭环；原Test独立新算法和实际业务入口；原Acceptance真实作品与整包。缺任一项保持OPEN，R1通过后继续完整R2。

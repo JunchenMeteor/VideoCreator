@@ -1,0 +1,168 @@
+{
+  "role": "acceptance",
+  "scope": "Read-only user file/component observation; no product completion",
+  "time": "2026-10-10T00:09:59.209Z",
+  "checks": [
+    {
+      "path": "G:/新建文件夹/红色圆形移动测试视频(1).mp4",
+      "bytes": 33729,
+      "sha256": "1fedf39432f5e0c7401915dc295c8305e7ebdde16e6d41bf51babdf310abec39",
+      "expected": "1fedf39432f5e0c7401915dc295c8305e7ebdde16e6d41bf51babdf310abec39",
+      "matched": true
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\AgentMedia\\KimiDownloadedAsset-W21\\W21Handoff.md",
+      "bytes": 4473,
+      "sha256": "3931bd826b710d864827ecac6072c3b1cd7b01a691d1c668d1a2ca2e28b4d14b",
+      "expected": "3931bd826b710d864827ecac6072c3b1cd7b01a691d1c668d1a2ca2e28b4d14b",
+      "matched": true
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\AgentMedia\\KimiDownloadedAsset-W21\\W21Handoff.json",
+      "bytes": 2655,
+      "sha256": "e8390c244e43ba8ca8a121a30a9dc8796062e0ebf14c28f7a5e2a02a21149eed",
+      "expected": "e8390c244e43ba8ca8a121a30a9dc8796062e0ebf14c28f7a5e2a02a21149eed",
+      "matched": true
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\AgentMedia\\KimiDownloadedAsset-W21\\Raw\\FfmpegVersionStdout.txt",
+      "bytes": 2446,
+      "sha256": "eb6e3f8430fe14d239fe1dacc5306a3ea763342e6c3d51c4e4649ba4479c0341",
+      "expected": "eb6e3f8430fe14d239fe1dacc5306a3ea763342e6c3d51c4e4649ba4479c0341",
+      "matched": true
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\AgentMedia\\KimiDownloadedAsset-W21\\Raw\\FfmpegVersionStderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matched": true
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\AgentMedia\\KimiDownloadedAsset-W21\\Raw\\FfprobeVersionStdout.txt",
+      "bytes": 2419,
+      "sha256": "359a6adddc06916fda685360e74b60a0d35da9a3623c198f4dcb486af6f42686",
+      "expected": "359a6adddc06916fda685360e74b60a0d35da9a3623c198f4dcb486af6f42686",
+      "matched": true
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\AgentMedia\\KimiDownloadedAsset-W21\\Raw\\FfprobeVersionStderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matched": true
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\AgentMedia\\KimiDownloadedAsset-W21\\Raw\\FfprobeStdout.txt",
+      "bytes": 2740,
+      "sha256": "a7347d5170af91d373d1d05485f570cf2d6aba507bff1c3d9e3854803120aff7",
+      "expected": "a7347d5170af91d373d1d05485f570cf2d6aba507bff1c3d9e3854803120aff7",
+      "matched": true
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\AgentMedia\\KimiDownloadedAsset-W21\\Raw\\FfprobeStderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matched": true
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\AgentMedia\\KimiDownloadedAsset-W21\\Raw\\FullDecodeStdout.txt",
+      "bytes": 180,
+      "sha256": "5ac29094cbf3f8c3579f91489d569162fb8ae865f6413792f4528332ba20fba9",
+      "expected": "5ac29094cbf3f8c3579f91489d569162fb8ae865f6413792f4528332ba20fba9",
+      "matched": true
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\AgentMedia\\KimiDownloadedAsset-W21\\Raw\\FullDecodeStderr.txt",
+      "bytes": 1268,
+      "sha256": "0c0c5cf8cfb8f5d503de54a4640f35f7dd3aa7d72123853ad0530ab8dd42468f",
+      "expected": "0c0c5cf8cfb8f5d503de54a4640f35f7dd3aa7d72123853ad0530ab8dd42468f",
+      "matched": true
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\AgentMedia\\KimiDownloadedAsset-W21\\Raw\\ExtractFramesStdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matched": true
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\AgentMedia\\KimiDownloadedAsset-W21\\Raw\\ExtractFramesStderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "expected": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "matched": true
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\AgentMedia\\KimiDownloadedAsset-W21\\Frames\\Frame-01.png",
+      "bytes": 8142,
+      "sha256": "28331a20a9f8cd3d8b9aa367cecff5bf89228411ad4860f4915954178ee6e10d",
+      "expected": "28331a20a9f8cd3d8b9aa367cecff5bf89228411ad4860f4915954178ee6e10d",
+      "matched": true
+    },
+    {
+      "path": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\AgentMedia\\KimiDownloadedAsset-W21\\Frames\\Frame-02.png",
+      "bytes": 25258,
+      "sha256": "c06bc272f6bcd47c3cf751e436cc6984fef3b3bc0981fce01b3a1d0db1f01a6f",
+      "expected": "c06bc272f6bcd47c3cf751e436cc6984fef3b3bc0981fce01b3a1d0db1f01a6f",
+      "matched": true
+    }
+  ],
+  "original_command_records": [
+    {
+      "label": "FfmpegVersion",
+      "pid": 34388,
+      "returncode": 0,
+      "terminal_observed_by_communicate": true
+    },
+    {
+      "label": "FfprobeVersion",
+      "pid": 32708,
+      "returncode": 0,
+      "terminal_observed_by_communicate": true
+    },
+    {
+      "label": "Ffprobe",
+      "pid": 2292,
+      "returncode": 0,
+      "terminal_observed_by_communicate": true
+    },
+    {
+      "label": "FullDecode",
+      "pid": 13724,
+      "returncode": 0,
+      "terminal_observed_by_communicate": true
+    },
+    {
+      "label": "ExtractFrames",
+      "pid": 30872,
+      "returncode": 0,
+      "terminal_observed_by_communicate": true
+    }
+  ],
+  "original_full_decode_progress_end": true,
+  "original_decoded_frames": 97,
+  "audio_streams": 0,
+  "visual_observation": {
+    "tool": "view_image",
+    "actual_pixels_returned": true,
+    "selected_frame_ordinals": [
+      0,
+      50
+    ],
+    "dynamic_playback_observed": false,
+    "full_video_viewed": false,
+    "observations": [
+      "n0: no visible red circle, near-white textured background, bottom-left AI生成 text",
+      "n50: visible red circle center-right, near-white background, bottom-left AI生成 text"
+    ]
+  },
+  "model_network_asr_fee_secret_calls": 0,
+  "business_writes": 0,
+  "full_r1_r2_pass": false,
+  "markdown": {
+    "path": "G:/开发测试/Projects/VideoCreator/docs/acceptance/reports/KimiSampleAcceptance-W21.md",
+    "sha256": "86af4a44e58c730cfbf46ebc269a8fde7feecd13e88be488d6b090459153b56b"
+  }
+}

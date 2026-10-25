@@ -1,0 +1,16 @@
+# LocalMaterialPlanTopLevelIndependentReview
+
+QUEUED，原独立评审 integration_review；待原架构0074完整正式停止且本角色当前Media独评自然终态之后由Root实际followup。仅写docs/reviews/与自有Review/LocalMaterialPlanTopLevelIndependentReview/。完整目标R1独验后继续R2，不代运行/验收。
+
+固定已停止架构正文 docs/decisions/0074-local-material-plan-top-level-contract.md 8841B/SHAfe82d5db54489e48080efa4bbda03fe7c4d5c6f76bdd56c395f48d321fbd953e，Root c70e9e全文。Backend停止提案 PlanTopLevelProposal.md SHAa12dc74ff3a99b65903aabc4913be1635744a1581b6a1e0c481c15db5c8f6b4d；Backend EarlyTypedAbi/Interfaces.md SHAe309d56d6e2c9df661fe3edb289b0d9cf083d9ec09e02bebdedbb23ae32d0765 与 sole module SourceCopies/domain/local_material_production.py SHA7187ac4cf7dc0fd9fdfa941f1c88ae0c62bc03131c7fb88ccaf551f0679e92d4。原0072/0073及其正式独评作为冻结边界。架构Handoff/Impact/Inputs准确身份待原角色正式停件消息追加为新输入；不读热Backend/Media或扩大旧源图。
+
+独立核11字段与两个新Ref能否从现有真实Production/Run/Goal/Script/Asset/rights/capability事实装配，无伪造Creative Ref/Goal null、source equality冒权限、旧fence冒当前许可或postapproval自哈希；确认strict parser、纯验证与受控application reader/admission分离及422/403/409/NOT_READY。核0074 fit/gain与已停Media candidate冲突的分工：设计能否直接消费、是否需归属角色源码修订；still图片的display-hold/source_media_range语义在此合同是否有确切约定，缺的必须具名，不能默许伪媒体时间。逐项给具体段落/原事实/严重度/归属/能否进入sole DTO源码，不能靠SHA或表面字段名给通过。
+
+0实现/测试/媒体/第三方import/费用/安装；不更改合同或标准、不开重复授权门。正式报告/有限输入覆盖/Impact及原工具自然终态交Root。合同独评仅审设计，不宣R1通过。回滚为不消费合同，保留原件。
+## 停件补充与激活条件
+
+原Architecture 025234自然0/TRUEFINAL/all读写释放；正式 G:/开发测试/Codex/VideoCreatorImplementation/Architect/LocalMaterialPlanTopLevelContractApproval/Handoff.md SHA3252105da96f750937dbac50bd0f677f280e287b0396ab4e299c61363af39509、Impact.json（Root806d9d全文）、Interfaces.md（Root806d9d全文），ADR原SHA不变。当前原独Review正核Media停止三源，须其正式结束/读窗释放后Root才实际激活本卡，不能并发复用同一Reviewer。
+
+## 实际激活
+
+ACTIVE，原Media独Review 49e8f0自然0/TRUEFINAL，报告9803f879a3fc363ea2c94193ee59d5910489a44839358ca0b0bc3d06d1fd63d7，所有源读写释放。Root a32643/c75cdd全文正式报告/FinalHandoff/Terminal，0074及架构正式停件已Root全文。当前Root/Backend/Media三活跃，Review槽释放；立即followup原integration_review此短合同评审，绝不把Media两P2当已修或设计合同通过。

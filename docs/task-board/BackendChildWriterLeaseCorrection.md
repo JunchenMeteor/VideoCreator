@@ -1,0 +1,21 @@
+# 子级选择复用真实外层写租约
+
+## 已停止完整候选的源码申请
+
+ACTIVE_SOURCE_ONLY。原Backend ad2ce0自然0/TRUEFINAL无live/all读写释放；Root36f241全文正式MD77a6dc04/JSONec2558a1、Impactd9abf25a及完整2625B FullProposal.patch ba2ab1cdc8a06e853e8241ea817350c774e48fb28f33db22ddcd58636c7eb74b并核SHA。现有SOURCE修改及独评授权内，原Backend正常工具申请唯一两源完整补丁；若拒绝保全文停，不拆分/换工具重试，Root不代独Review。
+
+仅park传真实既有guard，child commit消费原issuer._guard(sameconnection,guard)再原assertChild，不重取租约/外部观察；所有旧保护与原first_publish/非child兼容保持。原131/P02/候选和finding不覆盖，资源partialcandidate不混。实际应用后交完整131普通/index/diff/接口和必要stdlib静态/真实末终态，0产品/Pydantic/SQL/native/费/旧19第四次，独Review/Test后继不得自关P2。
+
+## 当前激活
+
+ACTIVE_PREPARATION_ONLY。原Review405464自然0 TRUEFINAL/no live/allreader释放；Root81f754全文正式报告5fa82a15a4ca7b19ddc699b1329663afd282eebb38eaece6fe8ac32deaf4f284和Final b5c2455a688adf04a569cc719b85987e5b378f5b43065aea30af9c2edc0e791e并核身份。404固定输入无漂移/6完整diff重建，仅有限接点SOURCE支持且DST-P01 OPEN；原作者124与实际125不变计数误差保持非阻断。恢复唯一原Backend第四槽，当前Root/Architecture两grammar/Test引用回归/本Backend，不同时恢复Review成第五。
+
+先准备完整最小新patch/影响与准确实际caller，Root收取后现有SOURCE授权内正常申请。基线为已停止P02 bb03b22b，资源部分候选NOT_FOR_APPLICATION保持不混。复用真实外层held lease/local writer的所有检查，不松原重入/权限/rollback，不代Media/Native或测试。正式冻结后原Review复审，原运行限次不重置。
+
+QUEUED_CURRENT_REVIEW_TRUEFINAL_AND_REAL_SLOT；唯一原backend_instance。当前四槽为统筹/Architecture两grammar/Review0062/Test引用用例，不启动第五。完整R1后连续R2保持，已有SOURCE授权不含数据库/模型费/发布/部署。
+
+固定finding：Review/BackendDiagnosticSelectionTerminalIndependentReview/Finding-DST-P01.md SHA6af3e7e4ec33348e5c4b09004842ea3b4a38222da5b16ca6f84367bd0bf8bc94，同名JSONc27c8e8a71469028717339737529155b4734bb72a4d59fb7e4fb78f95e46e173；作者f57953自然0，Root1a6f93全文核身份。定位原最终0062/131的park已经持current_guard和原transaction，commit child选择再次current_guard导致same-thread qualified lease_conflict409，并引外部观察进短writer。是源码P2，不是实际SQL红或越权提交。
+
+准备时基线取最新已停止P02 AppliedStage完整131/bb03b22b，保0062/BCF/DALI/P02全部修复，媒体48/e90b574d不代改。只后端白名单及Backend/ChildWriterLeaseCorrection/。最小完整候选复用同一真实原connection外层持有lease/local guard，子级proof current/identity/thread/fence/expiry/action/source/CAS原保护完整核；外部观察在事务之前。必须全部实际caller接线及精确成员来源，不放宽重入、不吞409、不用True或任意callback、不新增第三writer或洗unknown/预算。初次发布及非child原路径保留。
+
+先固定完整patch/影响及来源、正常工具审批，拒绝不拆分或工具切换重试；保旧finding/131/候选，不改标准或代Review。0产品/Pydantic/SQL/native/model/费用/旧19第四次。本卡仅QUEUED，正式激活后才准备。交实际源码/完整普通index/diff/接口和未运行项、真实终态/allreader释放；独Review/Test后继，不源码自关P2或R1/R2。

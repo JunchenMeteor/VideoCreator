@@ -1,0 +1,11 @@
+# Review — 登记CTC作品运行来源修复独立复审
+
+QUEUED_STOPPED_INPUTS_AND_REAL_SLOT，原 integration_review。仅在原BackendRegisteredCtcWorkValidationRepair真实TRUEFINAL、完整停止输入及自然终态由统筹消费，且实际槽释放后激活。不读取热Backend/Media，不因missing文件、mailbox timeout或状态意图宣终态。
+
+独立finding B120R-P01 SHA07acfa0d625dc6a9874fbd6db547bafbcb11ccbb880592262d822fb9f20ff386及正式报告0dd87ed32f3046d1357b6782e8417e02d9315b07dd68f7af0e5ab6e11c75416e为反例输入；旧最终P03完整120索引124c951d82c25f000bc9541117a6938b8c872ee321588fff2e0b7028236cb6fd为完整基线。新源/完整diff/接口/Checks/失败/Handoff的实际身份待后继补充，不提前宣作者修复成功。
+
+独核旧ASR-only _validate_work_runtime gate被真实登记CTC分支替换的完整调用链，初始与affected/current/verify/publish一致；原ASR文本/区间/context与成功Observation仍独立存在，CTC method来自实际registration/request、同prep/run或合法child、成功settled Op、committedStep、single完整JSON文件/请求SHA/实际执行身份。不同ASR A和CTC B合法路径不能因ASR predicate误拒；错Op/method/prep、caller虚造、未settled/Step、撤销权限、过期lease/fence、文件篡改均不可获得准入。旧合法ASR-only作品兼容有真实判据，不伪CTC或改ASR身份。
+
+完整源审计与重建diff，逐一保原三修复：initial原ASR单位/方法精确比、writer默认严格snapshot与首次validated绑定唯一例外、独立precision/contentSHA唯一派生与完整8列材料快照。保原quality资格/两独立authority/参考report/N/P95/200ms、immutable methods/来源、current token前后检查、权限/取消/fence、child/counter/预算unknown；新权源或Schema变更需架构明确裁定，不能作者自授。
+
+白名单只原Review报告 docs/reviews/BackendRegisteredCtcWorkValidation-IndependentReview.md 与自身 Review/BackendRegisteredCtcWorkValidationIndependentReview/。不得改实现/测试/冻结历史，不自跑产品SQL/Pydantic/ASR/CTC/网络/安装/收费/第四原目标。仅自有stdlib有限pin/diff/AST可运行。结论区分精确源码反例关闭、完整合法来源支持与NOT_RUN；有新问题按具体反例/严重度/归属落固定finding。完整输入末核、读者释放与工具自然终态后正式交接，不能替Test/Acceptance或R1后R2验收。

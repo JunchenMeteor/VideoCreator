@@ -1,0 +1,11 @@
+# Backend — B118-P01正常路径纠正pair检查修复
+
+ACTIVE，同原backend_instance当前RegisteredAlignmentImplementation阶段的归属修复，不新开角色。R1作者意图/来源固定版本、正常与恢复一致；完整R1后连续R2保持。
+
+固定输入：Review/Backend118AffectedRepairSourceReview/Finding-B118-P01.md，3549B/SHA78b6c42ec75a8e70325f8953480b39f77ac700fe5891dce237edb5c8cdfb0285。原Review46a073自然0，无live；Root92241e自然0全文消费核SHA。源码源于停止Backend118，原finding列三完整sourceSHA及ADR0053；不读热Review或改原118冻结件。
+
+问题P2/OPEN/SOURCE_STATIC：原v2 corrected_from/correction_reason仅continuation reader比较，正常persist/verify/publish缺与原assembly的一致性核验。原后端共同当前preparation路径重获不可变assembly与实际READY measurement，有v2时逐值比较原pair，冲突422；覆盖保存时measurement已存在/随后才READY、正常verify/current verify、selectedchild及continuation。发布保持经验证context/report身份及原current事实，不让仅restore校验代正常校验。
+
+仅后端原白名单内必要实际实现，过程沿Backend/RegisteredAlignmentImplementation。原v1/缺源语义、许可原件、权利/两authority/TTL及READY不可覆盖保持。不能改理由/locator使冲突消失、删测试或改标准；不涉及被拒role intersection。保存完整差异、源/接口/静态命令与失败，原测试/SQL/产品/Pydantic三败限制不变；此卡不授第四运行、收费或安装。
+
+归属修复可随0056阶段交付；不以修复自闭问题，交原独Review复审及Test新范围必要验证，Acceptance按原标准。回滚仅本卡归属变更，不reset其他角色工作。无运行复现证据不称实际发布漏洞或已经修好。

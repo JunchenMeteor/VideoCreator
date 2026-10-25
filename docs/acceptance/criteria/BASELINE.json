@@ -1,0 +1,875 @@
+{
+  "schema_version": "1.0",
+  "criteria_version": "0.1-candidate",
+  "freeze_status": "pending_independent_review",
+  "source_sha256": {
+    "01-项目需求文档.md": "062f57391792f8d52530949450a2591f8f7825537b0a9a9e665e3b5c6a91731d",
+    "02-技术规范.md": "6d59ed7d3eedd12dc6666e2ce3ea02fbdb191566eb0a86a328ff20d50f0e4eed",
+    "03-AI实施细则.md": "a268b7473124c32e9c5ab4e84d34e76a65913aee3184c87727e5520d686cc7e1",
+    "04-Agent框架与技术选型调研.md": "44aaf0c27104280a09fe680f6c11d8441a34e92d2f36d275d4aa19af80c37eb2",
+    "05-Portal代码复用与接入清单.md": "36b739b145258cad0f5a01afef1389f0cf640152ce053627f338826320da4784",
+    "06-界面与交互规范.md": "f20959d755a7c56348971c02b0d188752efaebb2a4684a6b1b6c74bdf5ae6118",
+    "07-版本与兼容性决策.md": "eb5282dfe0754473e359828a16a062a199c9c8cc4751505234bd1a510d352322",
+    "08-演示音视频分析.md": "6f0c647e77cc448b1d594fc085c89154003a800170c706e20a7c886eaba807f5",
+    "09-自动制作与多模态交付规范.md": "a866f31c05ca0ab28c83fba92496e99feb378cd7a2477fe9b4e2adabe69d95b0",
+    "10-项目目标任务书.md": "3e345b4f295ad5bb8015e288b0476621d5f6a889b0fb43946d4f13a219e07df5",
+    "11-研发角色与交付协议.md": "010c1f70c2aa2b9b22e5b13dda83b82f7c36c65db9e6544c2a8254688d6b1da0"
+  },
+  "counts": {
+    "FR": 21,
+    "AC": 24,
+    "MM": 11,
+    "CM": 8
+  },
+  "product_test_baseline": {
+    "executed": 0,
+    "passed": 0,
+    "skipped": 0
+  },
+  "gate0_criteria": [
+    "G0-ENV",
+    "G0-ORCH",
+    "G0-REVIEW",
+    "G0-LEDGER",
+    "G0-BOUNDARY",
+    "G0-MEDIA",
+    "G0-ALIGN",
+    "G0-DESKTOP",
+    "G0-LINUX",
+    "G0-CONTRACT",
+    "G0-UI"
+  ],
+  "requirements": [
+    {
+      "id": "FR01",
+      "source": "01-项目需求文档.md",
+      "statement": "免注册启动、选择工作目录、环境诊断、备份和恢复",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "AC01/02/13；免注册、目录、诊断、另实例恢复",
+      "implementation_owners": "集成/后端",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "FR02",
+      "source": "01-项目需求文档.md",
+      "statement": "配置自有模型服务和已有本地模型，测试能力、切换模型",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "AC24/MM11；实际能力连接、路由、明确目的地",
+      "implementation_owners": "后端/Agent媒体/前端",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "FR03",
+      "source": "01-项目需求文档.md",
+      "statement": "创建项目、导入文字/图片/音频/视频，记录来源与使用权限",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "AC13/MM04；导入哈希/来源/权利、路径边界",
+      "implementation_owners": "后端/前端",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "FR04",
+      "source": "01-项目需求文档.md",
+      "statement": "Agent根据目标与资料主动完成选题、构思、创作提纲和多个剧本候选，用户审核指导",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "AC21/MM01/08；仅目标资料，真实模型洞察/3候选",
+      "implementation_owners": "Agent媒体/前端",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "FR05",
+      "source": "01-项目需求文档.md",
+      "statement": "管理角色、声音和风格参考；镜头引用这些设定",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "R1参考设定版本；R2真实角色/声音一致性增强",
+      "implementation_owners": "Agent媒体/后端/前端",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "FR06",
+      "source": "01-项目需求文档.md",
+      "statement": "生成结构化分镜，含画面、旁白、动作、运镜、时长和素材策略",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "AC21；结构分镜含画面/旁白/动作/运镜/时长/路线",
+      "implementation_owners": "Agent媒体/后端/前端",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "FR07",
+      "source": "01-项目需求文档.md",
+      "statement": "旁白生成或上传、字幕对齐、素材编排、竖横屏成片",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "AC07/17/MM02/03；真实旁白、混音、字幕、两画幅",
+      "implementation_owners": "Agent媒体/集成",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "FR08",
+      "source": "01-项目需求文档.md",
+      "statement": "镜头独立生成、版本对比、局部重做、依赖失效提醒",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "AC04/22/MM11；第三镜头局改、旧资产/调用数不变",
+      "implementation_owners": "后端/Agent媒体/前端",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "FR09",
+      "source": "01-项目需求文档.md",
+      "statement": "一种真实图片生成和一种异步视频生成适配器，能力缺失明确提示",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "AC03；真实图片及异步视频提交/查询/下载/校验",
+      "implementation_owners": "Agent媒体/后端",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "FR10",
+      "source": "01-项目需求文档.md",
+      "statement": "短动画故事：角色参考→关键帧→视频片段→配音字幕→合成",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "R1≥3新生成动画镜头；R2参考一致性真实样本",
+      "implementation_owners": "Agent媒体/后端/前端",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "FR11",
+      "source": "01-项目需求文档.md",
+      "statement": "持久化任务、预算、取消、恢复、重复请求去重、失败诊断",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "AC05/06/20/MM07；去重、lease/fencing、崩溃、预算",
+      "implementation_owners": "后端/集成",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "FR12",
+      "source": "01-项目需求文档.md",
+      "statement": "版本化作品包：视频、独立旁白/混音、源稿、实际转写、字幕、封面；可迁移项目包与授权引用",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "AC08/13/17/MM02/04；固定包、export/reference",
+      "implementation_owners": "后端/Agent媒体/集成",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "FR13",
+      "source": "01-项目需求文档.md",
+      "statement": "HTTP API、MCP一次触发连续制作、Portal连接、事件和回调、受控嵌入工作台",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "AC10/16/MM01；一次HTTP/MCP、断线继续、受控嵌入",
+      "implementation_owners": "后端/集成/前端",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "FR14",
+      "source": "01-项目需求文档.md",
+      "statement": "Linux无图形部署、实例管理员与成员、项目权限",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "AC11/12；Linux原生headless、实例身份/成员权限",
+      "implementation_owners": "后端/集成",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "FR15",
+      "source": "01-项目需求文档.md",
+      "statement": "官方账号、订阅权益、额度账本、官方能力路由",
+      "required_phases": [
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "AC09/CM01—05；真实官方账号/订阅/额度/Gateway",
+      "implementation_owners": "后端/前端",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "FR16",
+      "source": "01-项目需求文档.md",
+      "statement": "经用户授权发布到支持的平台、发布状态和回执",
+      "required_phases": [
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "CM06；抖音、小红书分别实际授权与作品回执",
+      "implementation_owners": "后端/前端",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "FR17",
+      "source": "01-项目需求文档.md",
+      "statement": "音色克隆、数字人口型、高阶时间线和模型资源包管理",
+      "required_phases": [
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "R2冻结音色克隆/口型/高阶时间线/资源包，真实样本",
+      "implementation_owners": "Agent媒体/后端/前端/集成",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "FR18",
+      "source": "01-项目需求文档.md",
+      "statement": "大型三维场景、游戏引擎自动制作、分布式GPU调度、公共插件市场",
+      "required_phases": [],
+      "status": "not_run",
+      "check": "后续范围；不得自动扩大本次R1/R2",
+      "implementation_owners": "不派发",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "FR19",
+      "source": "01-项目需求文档.md",
+      "statement": "选题/文章版本绑定、语义片段和时码、可移植RAG文本元数据；可选实例内索引",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "AC18/19/MM04—06；精确来源及新选题匹配分别测",
+      "implementation_owners": "后端/Agent媒体",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "FR20",
+      "source": "01-项目需求文档.md",
+      "statement": "主动研究目标平台同类内容/赛道、受众偏好、选题与表达机会，结合资料及授权历史数据形成有证据的InsightRevision/CreativeBriefRevision",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "AC21/23/MM09/10；平台/赛道洞察、来源缺口不造指标",
+      "implementation_owners": "Agent媒体/后端",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "FR21",
+      "source": "01-项目需求文档.md",
+      "statement": "审核与自然语言指导形成FeedbackRevision，Agent重规划、定位改写/重做，主动匹配授权模型路线",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "AC22/24/MM08/11；指导版本/定位修订/模型协同",
+      "implementation_owners": "Agent媒体/后端/前端",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "AC01",
+      "source": "01-项目需求文档.md",
+      "statement": "Windows/macOS干净系统无Python、Node、FFmpeg时可安装、编辑项目和合成已有素材",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "Windows/macOS干净系统无Python、Node、FFmpeg时可安装、编辑项目和合成已有素材",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "AC02",
+      "source": "01-项目需求文档.md",
+      "statement": "不注册、不连接厂商服务，完成已有素材加上传旁白的本地视频导出",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "不注册、不连接厂商服务，完成已有素材加上传旁白的本地视频导出",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "AC03",
+      "source": "01-项目需求文档.md",
+      "statement": "使用真实自有服务完成一条口播和一条含至少3个生成镜头的短动画作品",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "使用真实自有服务完成一条口播和一条含至少3个生成镜头的短动画作品",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "AC04",
+      "source": "01-项目需求文档.md",
+      "statement": "修改第3镜头，其他镜头成片资产哈希及未受影响调用次数保持不变",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "修改第3镜头，其他镜头成片资产哈希及未受影响调用次数保持不变",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "AC05",
+      "source": "01-项目需求文档.md",
+      "statement": "重复提交相同请求仅创建一个逻辑任务；恢复不会盲目重复已接收付费请求",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "重复提交相同请求仅创建一个逻辑任务；恢复不会盲目重复已接收付费请求",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "AC06",
+      "source": "01-项目需求文档.md",
+      "statement": "杀死进程并重启，已完成步骤不丢失，不确定的上游请求进入待核实状态",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "杀死进程并重启，已完成步骤不丢失，不确定的上游请求进入待核实状态",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "AC07",
+      "source": "01-项目需求文档.md",
+      "statement": "导出的MP4存在真实音视频流，字幕和配音匹配，支持至少9:16与16:9",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "导出的MP4存在真实音视频流，字幕和配音匹配，支持至少9:16与16:9",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "AC08",
+      "source": "01-项目需求文档.md",
+      "statement": "引用可到期、撤销；固定版本不会因后来修改项目自动变化",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "引用可到期、撤销；固定版本不会因后来修改项目自动变化",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "AC09",
+      "source": "01-项目需求文档.md",
+      "statement": "官方退出或订阅失效后，本地项目和已有结果仍可使用及导出",
+      "required_phases": [
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "官方退出或订阅失效后，本地项目和已有结果仍可使用及导出",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "AC10",
+      "source": "01-项目需求文档.md",
+      "statement": "Portal/API/MCP一次提交触发后续无人交互制作，仍支持修改、查询、取消和结果访问",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "Portal/API/MCP一次提交触发后续无人交互制作，仍支持修改、查询、取消和结果访问",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "AC11",
+      "source": "01-项目需求文档.md",
+      "statement": "Linux无桌面环境完成同一制作任务；本地磁盘保存数据库和媒体",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "Linux无桌面环境完成同一制作任务；本地磁盘保存数据库和媒体",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "AC12",
+      "source": "01-项目需求文档.md",
+      "statement": "浏览器刷新后从持久化事件恢复状态；不同成员无越权访问",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "浏览器刷新后从持久化事件恢复状态；不同成员无越权访问",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "AC13",
+      "source": "01-项目需求文档.md",
+      "statement": "项目备份恢复到另一实例，现有媒体完整，密钥不在项目包中",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "项目备份恢复到另一实例，现有媒体完整，密钥不在项目包中",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "AC14",
+      "source": "01-项目需求文档.md",
+      "statement": "R1参考项目50镜头的列表编辑无明显阻塞；API普通元数据请求本机p95目标500ms以内，不含生成/渲染",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "R1参考项目50镜头的列表编辑无明显阻塞；API普通元数据请求本机p95目标500ms以内，不含生成/渲染",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "AC15",
+      "source": "01-项目需求文档.md",
+      "statement": "初始支持1080p；合成耗时、安装体积和显存需求按实测记录，不虚报保证值",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "初始支持1080p；合成耗时、安装体积和显存需求按实测记录，不虚报保证值",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "AC16",
+      "source": "01-项目需求文档.md",
+      "statement": "无人交互模式无需界面点击即可在授权预算内交付完整作品包；客户端断开后任务继续",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "无人交互模式无需界面点击即可在授权预算内交付完整作品包；客户端断开后任务继续",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "AC17",
+      "source": "01-项目需求文档.md",
+      "statement": "独立旁白/混音可播放；源稿与实际转写分别保存，字幕、镜头和语义片段时码符合声明精度",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "独立旁白/混音可播放；源稿与实际转写分别保存，字幕、镜头和语义片段时码符合声明精度",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "AC18",
+      "source": "01-项目需求文档.md",
+      "statement": "文章/主题版本可精确查回作品；导出包能重建索引，引用和重做不混淆旧版本",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "文章/主题版本可精确查回作品；导出包能重建索引，引用和重做不混淆旧版本",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "AC19",
+      "source": "01-项目需求文档.md",
+      "statement": "固定正负样本评估自动检索，记录匹配质量并允许拒绝不合格结果；验证纯引用和Portal索引两种选择",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "固定正负样本评估自动检索，记录匹配质量并允许拒绝不合格结果；验证纯引用和Portal索引两种选择",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "AC20",
+      "source": "01-项目需求文档.md",
+      "statement": "缺目标/必要事实/权限、超预算、质量超限、未知付费请求及事实撤销产生明确可恢复状态；缺构思/风格/分镜不误报阻断",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "缺目标/必要事实/权限、超预算、质量超限、未知付费请求及事实撤销产生明确可恢复状态；缺构思/风格/分镜不误报阻断",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "AC21",
+      "source": "01-项目需求文档.md",
+      "statement": "只提供目标和资料，在已授权能力/预算内由Agent完成洞察、构思、剧本、分镜及作品包，无需人写中间产物",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "只提供目标和资料，在已授权能力/预算内由Agent完成洞察、构思、剧本、分镜及作品包，无需人写中间产物",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "AC22",
+      "source": "01-项目需求文档.md",
+      "statement": "审核退回“表达更年轻”等指导，形成FeedbackRevision，Agent定位修订并保留事实/约束及未受影响资产",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "审核退回“表达更年轻”等指导，形成FeedbackRevision，Agent定位修订并保留事实/约束及未受影响资产",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "AC23",
+      "source": "01-项目需求文档.md",
+      "statement": "Portal已提供的洞察、文章/主题版本及目标可复用并追溯；自动生成主旨或新表达不新增企业事实",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "Portal已提供的洞察、文章/主题版本及目标可复用并追溯；自动生成主旨或新表达不新增企业事实",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "AC24",
+      "source": "01-项目需求文档.md",
+      "statement": "Agent根据任务和能力自动选择许可模型路线，路由、费用和回退有记录，不越过白名单/预算/外发权限",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "Agent根据任务和能力自动选择许可模型路线，路由、费用和回退有记录，不越过白名单/预算/外发权限",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "MM01",
+      "source": "09-自动制作与多模态交付规范.md",
+      "statement": "只调用一次制作命令，在既有授权范围内只给目标和资料，无需人写主旨/构思/剧本/分镜即取得合格作品包；HTTP/MCP断开后继续，幂等重试不新建付费任务",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "只调用一次制作命令，在既有授权范围内只给目标和资料，无需人写主旨/构思/剧本/分镜即取得合格作品包；HTTP/MCP断开后继续，幂等重试不新建付费任务",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "MM02",
+      "source": "09-自动制作与多模态交付规范.md",
+      "statement": "视频、旁白、混音各自可播放，资产用途正确；真实说话内容与源稿差异可检测；音乐/静音不伪造台词",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "视频、旁白、混音各自可播放，资产用途正确；真实说话内容与源稿差异可检测；音乐/静音不伪造台词",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "MM03",
+      "source": "09-自动制作与多模态交付规范.md",
+      "statement": "全部时间范围非负、不越界，音轨映射正确，字幕与抽样听检同步；默认语句边界误差目标P95≤200ms，未达标不得标精确",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "全部时间范围非负、不越界，音轨映射正确，字幕与抽样听检同步；默认语句边界误差目标P95≤200ms，未达标不得标精确",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "MM04",
+      "source": "09-自动制作与多模态交付规范.md",
+      "statement": "固定版本导出后校验哈希并导入另一实例，能重建来源关系、文本索引和媒体片段定位；无凭证或本机绝对路径",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "固定版本导出后校验哈希并导入另一实例，能重建来源关系、文本索引和媒体片段定位；无凭证或本机绝对路径",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "MM05",
+      "source": "09-自动制作与多模态交付规范.md",
+      "statement": "使用至少30个选题、60个候选作品的固定人工标注集，包括同题不同事实、过期信息、不同受众和画面不符负例；自动返回适配结果的精确率目标≥90%，同时报告召回率及拒答率，不能靠全部拒答达标",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "使用至少30个选题、60个候选作品的固定人工标注集，包括同题不同事实、过期信息、不同受众和画面不符负例；自动返回适配结果的精确率目标≥90%，同时报告召回率及拒答率，不能靠全部拒答达标",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "MM06",
+      "source": "09-自动制作与多模态交付规范.md",
+      "statement": "同源文章的准确版本关系100%保留；新版本不覆盖旧包，撤销/失效事件能让索引停止推荐相应旧作品",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "同源文章的准确版本关系100%保留；新版本不覆盖旧包，撤销/失效事件能让索引停止推荐相应旧作品",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "MM07",
+      "source": "09-自动制作与多模态交付规范.md",
+      "statement": "缺目标/必要事实/权限、超预算、修订超限、未知付费请求和索引导入失败均有可恢复记录；缺主旨/风格/构思/分镜不会被当作缺输入；不无限循环或偷偷降级，不把投放混入制作命令",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "缺目标/必要事实/权限、超预算、修订超限、未知付费请求和索引导入失败均有可恢复记录；缺主旨/风格/构思/分镜不会被当作缺输入；不无限循环或偷偷降级，不把投放混入制作命令",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "MM08",
+      "source": "09-自动制作与多模态交付规范.md",
+      "statement": "review_guided使用现有interactive协议值；Agent先生成产物，人仅审核或给“表达更年轻”等意见，FeedbackRevision驱动相关内容自动修订及新版本",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "review_guided使用现有interactive协议值；Agent先生成产物，人仅审核或给“表达更年轻”等意见，FeedbackRevision驱动相关内容自动修订及新版本",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "MM09",
+      "source": "09-自动制作与多模态交付规范.md",
+      "statement": "Portal已有洞察可复用并溯源；只传文章资料时可自行洞察；原文章目标、事实和约束不被改写成新事实",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "Portal已有洞察可复用并溯源；只传文章资料时可自行洞察；原文章目标、事实和约束不被改写成新事实",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "MM10",
+      "source": "09-自动制作与多模态交付规范.md",
+      "statement": "洞察目标平台同类内容/赛道、受众偏好和选题机会的来源/版本可回查；平台工具不可用时标source_gaps，不虚构热度/点击/受众数据；未授权联网时可基于已有资料提出方案",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "洞察目标平台同类内容/赛道、受众偏好和选题机会的来源/版本可回查；平台工具不可用时标source_gaps，不虚构热度/点击/受众数据；未授权联网时可基于已有资料提出方案",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "MM11",
+      "source": "09-自动制作与多模态交付规范.md",
+      "statement": "Agent自动配模型路线并记录选择/回退，执行器拒绝越白名单、预算和外发权限；无关镜头/音轨不额外重做收费",
+      "required_phases": [
+        "R1",
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "Agent自动配模型路线并记录选择/回退，执行器拒绝越白名单、预算和外发权限；无关镜头/音轨不额外重做收费",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "CM01",
+      "source": "11-研发角色与交付协议.md",
+      "statement": "官方注册/登录/退出、会话及账号权限有效；本地免注册与服务器实例身份分别可用，无越权",
+      "required_phases": [
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "官方注册/登录/退出、会话及账号权限有效；本地免注册与服务器实例身份分别可用，无越权",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "CM02",
+      "source": "11-研发角色与交付协议.md",
+      "statement": "实际支付服务沙箱完成订单、支付签名确认、订阅生效、到期/取消及按冻结规则退款；伪造、重复、并发、乱序回调不能重复结算或授予权益",
+      "required_phases": [
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "实际支付服务沙箱完成订单、支付签名确认、订阅生效、到期/取消及按冻结规则退款；伪造、重复、并发、乱序回调不能重复结算或授予权益",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "CM03",
+      "source": "11-研发角色与交付协议.md",
+      "statement": "官方额度预留/结算/释放/退款有request_id，可与实例逐笔对账；重复、重启与角色交接不重复扣减、不重置预算；未知费用进入核实",
+      "required_phases": [
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "官方额度预留/结算/释放/退款有request_id，可与实例逐笔对账；重复、重启与角色交接不重复扣减、不重置预算；未知费用进入核实",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "CM04",
+      "source": "11-研发角色与交付协议.md",
+      "statement": "官方Gateway只有授权输入，执行目的地/临时媒体留存与删除规则可核验；结果回实例后组成完整固定版本作品包",
+      "required_phases": [
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "官方Gateway只有授权输入，执行目的地/临时媒体留存与删除规则可核验；结果回实例后组成完整固定版本作品包",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "CM05",
+      "source": "11-研发角色与交付协议.md",
+      "statement": "退出、到期、官方认证服务不可达时仍可编辑、用自有能力及已有素材合成、导出；已付款/已接收结果按冻结窗口查询和取回",
+      "required_phases": [
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "退出、到期、官方认证服务不可达时仍可编辑、用自有能力及已有素材合成、导出；已付款/已接收结果按冻结窗口查询和取回",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "CM06",
+      "source": "11-研发角色与交付协议.md",
+      "statement": "抖音、小红书分别验证账号授权/撤销、明确发布指令、幂等与恢复，取得实际作品ID/状态/回执；草稿、受理、成功准确区分；无发布授权的制作任务不发布",
+      "required_phases": [
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "抖音、小红书分别验证账号授权/撤销、明确发布指令、幂等与恢复，取得实际作品ID/状态/回执；草稿、受理、成功准确区分；无发布授权的制作任务不发布",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "CM07",
+      "source": "11-研发角色与交付协议.md",
+      "statement": "Windows/macOS/Linux交付物在支持矩阵独立安装、升级、备份/恢复；官方服务有可复现部署、迁移/回滚与配置说明，秘密不在包或仓库",
+      "required_phases": [
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "Windows/macOS/Linux交付物在支持矩阵独立安装、升级、备份/恢复；官方服务有可复现部署、迁移/回滚与配置说明，秘密不在包或仓库",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    },
+    {
+      "id": "CM08",
+      "source": "11-研发角色与交付协议.md",
+      "statement": "商业参数、资源使用条款、TTL及部署/运营所需条件有明确记录；沙箱验证不能标正式可收费上线，缺商户/平台权限/证书/机器的必要项不记通过",
+      "required_phases": [
+        "R2"
+      ],
+      "status": "not_run",
+      "check": "商业参数、资源使用条款、TTL及部署/运营所需条件有明确记录；沙箱验证不能标正式可收费上线，缺商户/平台权限/证书/机器的必要项不记通过",
+      "implementation_owners": "按关联FR；测试开发维护测试；独立验收判定",
+      "minimum_evidence_kind": "real"
+    }
+  ],
+  "thresholds_pending_gate0_measurement": {
+    "alignment_utterance_p95_ms": 200,
+    "retrieval_precision_min": "0.90",
+    "retrieval_topics_min": 30,
+    "retrieval_candidates_min": 60,
+    "source_exact_version_preservation": "1.00",
+    "api_metadata_p95_ms": 500,
+    "ui_shots": 50,
+    "animation_generated_shots_min": 3
+  },
+  "snapshot_runtime": {
+    "python": "3.13.16",
+    "platform": "Windows-11-10.0.26200-SP0"
+  }
+}

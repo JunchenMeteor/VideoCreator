@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "status": "no_code_reused_yet",
+  "source_baseline": {
+    "repository": "gdzc-labs/geo-brand-portal",
+    "commit": "906e6f5c2d4aea9bf53e1809a559f19db0b6ecc4",
+    "evidence": "05-Portal代码复用与接入清单.md",
+    "distribution_rights": "pending_confirmation_before_distribution"
+  },
+  "required_entry_fields": [
+    "source_repository",
+    "source_commit",
+    "source_path",
+    "source_blob_sha",
+    "target_path",
+    "adaptations",
+    "license_basis",
+    "validation"
+  ],
+  "entries": []
+}

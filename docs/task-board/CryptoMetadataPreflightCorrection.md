@@ -1,0 +1,9 @@
+# CryptoMetadataPreflightCorrection
+
+Status: ASSIGNED_ORIGINAL_INTEGRATION_PREPARATION_ONLY. No HTTP/Cargo/build/source execution grant. Full R1 then R2 unchanged.
+
+Original exact grant attempt be506c natural1/no session failed before original runner line21 output creation, line25 Process construction and line41 Start. Original owner52fb94/0 actual94 input identities found exactly one difference: Root-owned CryptoSelectedGraphPreparation.md expected2504B/49f9e725f007249d3ae0537d8b228f692d4846f1c8cad52a3a2e1a37d500b8c4 became3877B/cb3a114088e2595ac792b8f9d9ab191b4397f6cc6a9ca0c6fcdd1b87479a0c12. Root7ff7e7 added exact grant to that fixed input after check, causing the drift. Other93 equal; no GET/child/streams, EOF not applicable. Preserve oldPlan/be506c/raw; not a remote failure or product defect.
+
+Original Integration solely prepares new fixed RevisionTwo Plan/runner and unused metadata output namespace. Preserve39 URLs, original helper16fd10fe871dfa8f0dbcf1a57144413e7fe40042127b0fccd585303a17412e6c, all previous graph/optional-target/407locked identities, caps and process ownership. Keep94 source/rule coverage; rebind current fixed governance card3877B or its explicitly identified frozen ordinary copy, never dropping code/rule checks or hiding old mismatch. Root will not edit CryptoSelectedGraphPreparation.md further. Subsequent admission records must be separate from candidate fixed inputs.
+
+Whitelist own Integration/InstallationTrustProducer-A45 preparation only. Deliver exact changed-file diff, intended sole governance-input change versus original94, actual old/new identities, static parse outputs, full new command/read-write closure and same1MiB*39/900helper960sticky/no auth/proxy/redirect/retry bounds, new output absence and original tool terminal. Root consumes new Plan before separate actual execution grant. No automatic retry of originalPlan, no reset of old errors, no ownership/authority/product qualification inferred.

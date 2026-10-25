@@ -1,0 +1,74 @@
+# Backend0062 最终131源码独立评审
+
+结论：SOURCE_REVIEW_FINAL_HAS_OPEN_P2。最终停止源码具有子级来源、同事务选择/终态及Worker接线的实际实现，但确认新的DST-P01：真实 qualified writer lease嵌套重入会阻断合法child park。该问题保持P2 / OPEN_SOURCE_STATIC / Backend，不能将本版判为全链源码通过。本评审没有执行产品、SQL、Pydantic、native、模型、网络或测试；没有安装、资源资格、作品或R1/R2通过证据。
+
+## 固定版本与独立核查范围
+
+唯一任务卡为 BackendDiagnosticSelectionTerminalIndependentReview.md，SHA d1a0e5a49dca076c5b8bd66df9520e039df33419b91fd846d83968b2f373c505。唯一最终索引为停止 SourceStageRevisionTwo/SourceIndex.json，SHA 68df7b4e54f9a4431645349df1d3cd1bd6b1154f86f87552b559acde336ffda1。所有实现读取来自索引的ordinary_copy，不从source_path生产源取证。后继MDCP-P02修订bb03b22b、Media候选及0065均未用于替换本版。
+
+正式Handoff.md a321cbbaf1423a95b5de890a703eebb1270916a1dbe7965f7a3082b57f7bcfb4；Handoff.json fd277206641f7dd20ed99a7241004308dbee12ba515864f13faef89eb44bedf9；ActualInterfaces.md 84b369b14f75e35e88f9080660bff73847a954bf7b33a6aa2f0e0c759e7a0cb1。原e380索引 e38057e30a5576180d39950667318356354a800bf3ad3cd5434038dc45fd26b7 与本阶段SourceBefore的130份逐件相同。ADR0062原23412B/SHA8ca4b139804905d6ddacd67de7fabe5417d68db23abf5f2f71e69edc48178496为本次合同依据，未以未激活后继设计代替。
+
+InputBefore.json 保存404个有限准确路径：当前131、停止基线130、SourceBefore130及13项规则/正式材料；初核mismatches=[]且before_vs_e380_differences=[]。InputAfter.json对同404件大小/SHA末核differences=[]。没有重新扫描环境或复制runtime。这是交接身份核查，不是行为验证。
+
+78203B FinalFullDiff.patch，SHA23f5ffa91ee10237f3b999dd63d8b3d3794c14fad2c7e10caf7e3b1636ad29e8，独立解析完整旧context/removal、新hunk长度和偏移，并重建六份完整UTF-8/LF字节。六件均匹配最终索引的大小/SHA，missing_diff_members=[]。实际5修改+1新增+125不变；原130与最终131数量相符。完整六增量body与相关原caller实际读取；125不变件以完整字节保护核查，不宣称重审所有不变源码的每行业务语义。全部差异记录见DiffReconstruction.json。
+
+## DST-P01：原writer中再次取得真实qualified lease
+
+准确早单为 [Finding-DST-P01.md](G:/开发测试/Codex/VideoCreatorImplementation/Review/BackendDiagnosticSelectionTerminalIndependentReview/Finding-DST-P01.md)，SHA6af3e7e4ec33348e5c4b09004842ea3b4a38222da5b16ca6f84367bd0bf8bc94；同名JSON c27c8e8a71469028717339737529155b4734bb72a4d59fb7e4fb78f95e46e173 保存5个完整普通路径、大小/SHA。
+
+`application/current_final_evidence_runtime.py:102` 原current_guard先于db.transaction；131–132调用原选择writer。实际非空child_transition在`application/diagnostic_selection.py:420–425`再进入issuer.current_guard后assert_child_writer。`production_admissions.py:205–258`先实际installation观察，再原store/control guard；_issued_guard默认inside_writer=False，在真实NativeInstallationAuthority及exact NativeQualifiedInstallationIssuer条件下再次current_writer_lease。`native_qualified_issuer.py:99–100`明确拒同线程已有_leases，409 lease_conflict；原外层lease到finally121–123才释放。
+
+因此合法原park仍可能被重入拒绝：完整child来源、两action、人审、settled和CAS均正确，并不能解除真实同线程lease冲突。如果更早installation观察/control锁先拒，也不能当该重入路径已安全。本结论是固定源码可达条件推导，未观测实际SQL/Win32/409；普通fixture issuer不能代该真实authority条件。重入还把外部installation观察放进已启动短writer，违反原不在writer内外部IO的边界。
+
+`database.py:179–189`保持BEGIN IMMEDIATE及BaseException rollback；child selected INSERT在selection.py:431以后。因此确认的是合法子级选择/来源发布阻断，不能虚称已发生越权、部分提交或泄露。
+
+后继由Backend复用原外层实际guard/lease，在原同一connection消费本地current/identity/thread/fence/expiry/action/source/CAS检查，外部观察仍置于事务之前。不能放宽qualified重入、吞409、伪True guard、另开writer或清unknown预算。本版finding不关闭；后继新停止源码及真实合法/故障批次分别由Review/Test处理。
+
+## 其余六接点的有限源码支持
+
+1. **真实parent→child held proof与原材料。** diagnostic_terminal.py:82–195核原executing journal、同lease/fence、整Run settled、实际affected command/lineage/父子intent、parent选源或absence及同factory。原两action与真实人审仍必需。父/子bundle revision、command、Step与text-material集合由原captures保护；registered_alignment.py:451–474在原connection逐项重核不可变父事实和材料集合。30秒、sameobject/lease/thread以及原binding/source检查存在。没有把父status/manifest所有可变字段全部冻结，也没有从qualification伪造实际ASR/CTC或人审。此支持受DST-P01合法writer阻断限制。
+
+2. **原两个提交入口与v3历史。** diagnostic_selection.py:349–445在真实prepared child来源下取得原proof，拒不合法successor ref，保same-input/ref规则；selected/parent journal与source在原park或首次publication的同connection处理。467–477保持finish retain-only，pending不得由finish偷提交选择。479–500的strict v3含实际child或有限terminal；502–532重新按严格原grammar解析拷贝；556–576首次publication要求原absence，不用失败诊断代成功published来源。diagnostic_terminal.py:222–303历史依赖实际不可变command/lineage/intent/ref及SHA，并限制循环/最大链；不要求已经终态的旧parent仍持live lease。旧v1/v2保护及strict source拒绝没有改成布尔qualified。
+
+3. **成功child等待及once finalverify。** diagnostic_terminal.py:279–303从本次真实Verified与实际child proof形成等待诊断事实，不持久保存旧Verified对象作新Run/fence验证依据。current_final_evidence_service.py:242–324保持原完整verify调用一次；只对原_FinalEvidenceProblem/CurrentQualityFailure精确分类join，泛EngineError不会吞为诊断成功；scope finally撤销。后续使用原resume/queue/newfence与实际同input settled来源复用，不能据此重新制作或收费。新状态与scope定义不等于Media观察器、资源consumer、完整产品均已实现或运行。
+
+4. **有限失败终态的真实cap。** diagnostic_terminal.py:306–436排除repair=None、guidance_required及信息/成功状态；只原precision_failure/quality_incomplete/legacy_diagnostic_block等真实失败关联可进入finite路径。它取实际原批准plan及其strict v2/v3投影、request cap，使用min限制，核plan字节/SHA、binding/resources/rights、原execute_plan及continue_bundle_validation两action或human事实。held缓存保本次counter/request/source与期限，writer不得把同assessment静默换预算观察。整Run submitting/pending/unknown/unsettled仍由require_settled拒绝，不能由失败终态消除未知成本。
+
+5. **释放顺序与纯观察。** current_final_evidence_runtime.py:94–195在原park transaction中核live lease、selected/source/journal CAS，必要finite终态的live验证先于worker清空/lease归零；其后核真实failed状态、source/terminal事实及原issuer局部guard，任异常rollback。410–492 finish保持retention和原限制。diagnostic_terminal.py:439–528的observer只读真实failed、无owner/live lease、实际event/journal和selected/source或原ordinary assembly/report；没有新queue、claim、收费或伪continuation。真实并发、崩溃恢复和外部撤销窗口均未测试。
+
+6. **Worker实际出口及原lifetime。** media_registration.py:754–763三种v2等待/repair出口取得实际assessment/full materials后均调用原park；它不再先按旧counter直接finish跳过current诊断来源。原renew、control、heartbeat/reconcile与finally关闭仍在实际Worker链。current_final_evidence.py仅给原按lease/thread清理的held registry添加child/terminal两项；125件原源完整字节未改，旧BCF/DALI关闭身份、闭端口世代、防stale close、unknown与onceverify保护不由本补丁替换。上述是源码调用关系支持，没有实际Worker执行证据。
+
+## I01及未关闭范围
+
+I01为非阻断P3交接计数错误：Handoff/接口摘要称124 unchanged；实际前后索引和完整补丁是5modified+1new+125 unchanged，FinalStaticCheckReceipt本身也记录125。该差异不能称产品失败、源码漂移或新增runtime红；本Review不改原作者正式件。
+
+原MDCP-P02（DiagnosticMetadataRef与原strict evidence union接缝）属于已固定继承条件，本131不能借后继bb03b22b或Media新版本关闭它。原BDE/CFDJ及资源、observer/Media消费等剩余运行要求仍分层保留；本Review不把局部SOURCE支持写成整体关闭。0062实现存在不等于0065及其后继资源合同已消费。
+
+SQL事务竞争/rollback实测、qualified native lease与实际current/撤销、Worker进程/崩溃、新fence恢复、生产API/MCP、完整Bundle/人审/许可、真实两authority/200000us精度、多模态实际作品、安装整包与三OS、完整R1后连续R2均NOT_RUN或需原后继证据。没有本轮完整制作流程或安装整包通过的独立证据。source AST/owner静态0、重建字节或缓存计数均不能授上述资格。原历史红、失败次数及旧19第四次禁令不改。
+
+## 读取与工具限制原样保存
+
+所有读取与写入仅有限冻结源/治理材料及Review自身过程/docs/reviews。原06e8ee合并输出截断及误猜SourceBefore/BeforeIndex.json定位错误保留；随后按真实根BeforeIndex定位。4fe0be stale rg入口exit1后610606使用Get-Command现有路径；4891fa同basename错误匹配产生ReadAllLines错误/残余变量展示，4a01be按exact repo key补读实际所需段；826b7f宽投影截断后123f15只补必要native段；17ece2对不变service尾部多取造成展示截断，不据它声称未显示段已FULL阅读。本评审没有为这些错误重跑产品。
+
+functions cell90写finding时自动审批审查超时，未启动进程、未有live句柄；be8eda读取确认finding当时absent。fe0017自有PowerShell false字面错误exit1仅MD已落/JSON未落，f57953正确保存同名JSON，原MD未回填。以上为Review工具/元数据问题，不产品失败；定位/截断修正不伪造同期raw收据。本轮source读者已释放，最终自然工具终态由独立FinalizerTerminal和FinalHandoff记录。
+## 六增量精确普通来源
+
+- services/engine/src/video_creator/application/current_final_evidence.py · 11711 B · SHA256 794b22034d06afe62f9f1e97a18ed876c54b9385a626482d7a9c1d37f7c4f6a2
+  Ordinary: G:\开发测试\Codex\VideoCreatorImplementation\Backend\DiagnosticSelectionTerminalImplementation\SourceStageRevisionTwo\SourceCopies\services\engine\src\video_creator\application\current_final_evidence.py
+
+- services/engine/src/video_creator/application/current_final_evidence_runtime.py · 40199 B · SHA256 19a61013c6c0c7401ba689818043ad1cccd75b3552324ad370df408b58e325bd
+  Ordinary: G:\开发测试\Codex\VideoCreatorImplementation\Backend\DiagnosticSelectionTerminalImplementation\SourceStageRevisionTwo\SourceCopies\services\engine\src\video_creator\application\current_final_evidence_runtime.py
+
+- services/engine/src/video_creator/application/diagnostic_selection.py · 48020 B · SHA256 a0f8208fdd39a652e82e2e3aad9b3f39538352cc2797e0d3f5fbf250dd8dd794
+  Ordinary: G:\开发测试\Codex\VideoCreatorImplementation\Backend\DiagnosticSelectionTerminalImplementation\SourceStageRevisionTwo\SourceCopies\services\engine\src\video_creator\application\diagnostic_selection.py
+
+- services/engine/src/video_creator/application/diagnostic_terminal.py · 40986 B · SHA256 536bba1e5bdd85313ac6863beb768c30f247bda81c003b59845a8360c73ead7c
+  Ordinary: G:\开发测试\Codex\VideoCreatorImplementation\Backend\DiagnosticSelectionTerminalImplementation\SourceStageRevisionTwo\SourceCopies\services\engine\src\video_creator\application\diagnostic_terminal.py
+
+- services/engine/src/video_creator/application/media_registration.py · 60631 B · SHA256 e5e0747af2df54f01235c15d660713e8c90c4e67657b9fcf77e0acc96c35edc3
+  Ordinary: G:\开发测试\Codex\VideoCreatorImplementation\Backend\DiagnosticSelectionTerminalImplementation\SourceStageRevisionTwo\SourceCopies\services\engine\src\video_creator\application\media_registration.py
+
+- services/engine/src/video_creator/domain/diagnostic_recovery.py · 12760 B · SHA256 b5abe4fe51665474177d178f9c9732bf6f2a36c194342df0928043bab4334e2a
+  Ordinary: G:\开发测试\Codex\VideoCreatorImplementation\Backend\DiagnosticSelectionTerminalImplementation\SourceStageRevisionTwo\SourceCopies\services\engine\src\video_creator\domain\diagnostic_recovery.py
+
+

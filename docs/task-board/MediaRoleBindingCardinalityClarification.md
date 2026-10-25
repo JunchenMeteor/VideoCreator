@@ -1,0 +1,9 @@
+# 四制作角色与可选证据角色的基数澄清
+
+ACTIVE_ARCHITECTURE_DESIGN_CLARIFICATION_ONLY。唯一原development_role_plan；原0068已227863 TRUE FINAL/全读写释放，正在原独立Review，不改变其任何正文/普通输入/索引。当前有真实空槽，完成原MRPL-I01非阻断P3澄清，保持四角色制作目标。
+
+固定0065 docs/decisions/0065-media-role-attribution-and-parent-lineage.md26704B/c88eb3620d0567cb3aa349c1fd4bd952e8c944342e19546c7e8f27da803fd313，已停止；独评 docs/reviews/MediaRoleAttributionAndParentLineage-IndependentReview.md13180B/bfcd0aa77a4f1d885152a9409685d3a4d4e2c03c9d3e1baf1c800af14d1f1a75，Finding Review/MediaRoleAttributionAndParentLineageIndependentReview/Finding-MRPL-I01.md1234B/d51277b3c50377f380fc58b43f6edcd14a15102e5b72aa4bf26c6d1afcc04050。Root已全文report/finding，Review96efd3 TRUE FINAL。第29行先“恰四项”后允许第五evidence，严格消费者口径歧义。
+
+只在新 docs/decisions/0069-media-role-binding-cardinality.md 作明确增量，不覆写0065/0068冻结源。保director/visual/sound/editor四required固定顺序，各真实不同method/intent/Operation；允许另有零或一项末位evidence，所有引用唯一且已登记，明确总数4或5及未绑定methods处理。若根据原完整合同须另一选择，给具体语义理由，不能删四角色、冒一回复四Op、扩成新流程/能力/authority或加前端技术字段。
+
+白名单仅docs/decisions新0069与自身Architecture/MediaRoleBindingCardinalityClarification/，0实现/标准修改/产品/第三方/SQL/native/网络/模型/费用/密钥/安装。仅以上三停止正文加必要治理做有限read/index；不要扫描重读137/45或当前热候选。交短完整合同、实际差异/Impact/唯一基数接口、beforeafter及自然末工具/allreaders释放。仍需原独Review单独确认才能闭DESIGN P3，不关MDG功能或完整R1/R2。

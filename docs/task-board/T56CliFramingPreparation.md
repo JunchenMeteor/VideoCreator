@@ -1,0 +1,19 @@
+# T56 完整CLI请求帧消费者 — 限定准备
+
+ACTIVE：原CLI及缺失缓存修订两批均自然退出1，十二组目标断言均未启动；原失败固定。原Test仅准备新独立namespace的可选distribution metadata读者修订，尚无此后继runtime准入。不重跑已绿DTO/DB，不把本片当真实业务或Owner阳性。
+
+先消费原T56ParserPreparation正式交接和Integration I61现存keyring普通源索引 fa7c0546446e8634b3e055e7e2e16203a733370ed121a0182347763f4dd1b03e，定位实际路径核身份。完整CLI本体、请求/错误消费者及全部真实imports必须读全；六分发126普通只作明确数据输入，不借集成私有运行环境。
+
+允许原Test自主source/AST/PSparse/纯stdlib metadata/hash/index准备；不准产品CLI/keyring/native实际导入或测试批执行，不pip/install、不vault/DB/Owner/provider/网络/模型/费用。自身package有限材料如需要必须逐普通文件映射provenance/hash/完整RECORD；不伪造Scripts/keyring.exe，LinuxSecretStorage/jeepney缺口保留。不能由缺件绕到假module、AST抽取helper或用户证明stub。
+
+目标是实际完整CLI _request 的帧/字节上限/UTF8/JSON拒绝及新版DTO原字段保留；计划说明整体真实导入链、入口边界、实际工具/runtime/pkg/native组件固定身份、独占输出、同原Popen/创建身份/双EOF/超时不重跑与逐目标到达矩阵。不执行服务业务，不SQL造授权阳性。
+
+真实B42 state恢复/三代Owner/独立资源资格继续由原B42计划等待合法输入，不缩水或替代。固定有限新执行申请/全部源停止/原准备命令terminal后正式交接FINAL。只写Test原白名单和自身过程。
+
+## 固定运行准入
+
+Rooteafbda完整读Plan/Request/Boundary/Cases，29fa44完整读两个runner及Probe；c10e8b实际1604pins无漂移、RoundOne输出均不存在。固定Index c39aebe020b43b4911cfe8975bb88079e4a6823e3054fd838fef59286f597f40；Request dd851fb4f52dbf3bd5fd2a73f851a114c87136fba3ac7af02e116a8d6b809d64。已给原Test在原源/PSparse/最新86组件对照完成、全部准备工具reader终态且输入不变条件下EXACT ONCE系统pwsh RunCliFramesT56.ps1主批准入，不再重复内部等待。若改pins或静态错误，则本固定准入失效；12真实_request grammar，禁止main/业务/SQLite/Owner/vault/网络/费用，standard kernel32冷初始化以及platform._node一次本地hostname仅各自原caller；运行不授资格。
+
+## 原主批实际失败，后继独立准备
+
+原2c93d5/session15058本人9deca2自然1，wrapper24968/child19172双EOF/forcedfalse/1604input_changes空。Root674b77完整读stderr：frozenimportlib._bootstrap_external.get_data缺失__pycache__/__init__.cpython-313.pyc尝试被audit拒，12NOT_STARTED、nullSummary/noJUnit，未到CLI业务。不改原批；Test先正式有限交接，然后独立新namespace精确缺失cache-reader/source映射窄修准备，不准广目录/通配/任意missingpath或现存未pin读取，不改十二caseAST/业务guard，新runtime固定申请另准。

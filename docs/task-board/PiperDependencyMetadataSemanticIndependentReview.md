@@ -1,0 +1,15 @@
+# Review — 六归档依赖元数据语义表示检查工具独立评审
+
+QUEUED_INTEGRATION_TRUEFINAL_AND_REAL_SLOT。仅原 integration_review，写 docs/reviews/ 与 Review/PiperDependencyMetadataSemanticIndependentReview/；只读实现，不修实现、测试、fixtures或标准。完整R1后连续R2目标保留。
+
+前置：原Integration/PiperDependencyMetadataSemanticPreparation正式停止Handoff/full diff/完整有限输入及工具自然终态被Root全文消费；2553e2/0仅停止四源声明，不代正式交接。正式源与索引身份由Root激活时补充，不能读热文件。
+
+已声明停止源定位：SemanticInspectionRevisionTwoPlan.json SHA292edfd85fd5fe08c5a4cfed501f2b1dfdf92ac8db26584c81eaf07e75a10327；InspectSixWheelsRepresentationRevisionTwo.py SHA85446bdb3783653d1b5fa997848d59c778ba6f95ea4eda6515092d0f90146143；RequirementRepresentation.py SHA9eae0ad968c464189810a62e0ecf2579a2dc5ef11de1fc6dd3b523e3018ac382；RunSemanticInspectionRevisionTwoRoundOne.ps1 SHA9fd3b5af423e2f3505c843bd5acb7a60763ca95c85a54812f388649884bdb24d。原六归档Plan与保存原始PyPI JSON、实际归档bytes/RECORD/metadata原索引仍为来源，正式逐项核准，不依赖作者bool。
+
+范围：独立全文读完整parser/helper/runner/Plan/grammar及full diff；核对102有限before/after实际无漂移和源路径归属。确认表示比较覆盖169原Requires-Dist（按实际原件重新核数），保留raw原字符串、重复条目、规范包名与extras、operator/version、marker AST/分组/顺序、supported grammar和拒绝边界。不做环境marker求值、extra激活、递归抓包、笼统strip/正则删约束或把不同范围判等。只允许合同明示的表示变化，真实约束差或未支持语法必须失败，不吞错误。
+
+检查原ZIP/CRC/EOF/RECORD/成员大小/SHA和上限仍有效，六份全部数据检查后继计划覆盖原未执行两份。stdlib parser及原有限固定包装源/许可证来源真实，不import第三方/vendor、不把Source SHA当ABI或发行权。比较前后有限数据规模/最大成员/expanded ratio/metadata text caps和超时/原子收据/双EOF/失败传播不降。26 cases只能是建议资料，无Test所有的可执行标准或测试入口混在Integration实现。
+
+原实际124c3e/1 strict tokenizers12条写法差異及后两未执行永久保留；语义新版本准备不追改旧红，不宣已等价。原c6271d after-hash PinFile整对象错误/partial保留，新RevisionTwo修订有完整差异和真实边界。不运行新归档检查/parser案例/产品/native/安装/网络模型/付费；本评审有限source/AST仅证明其范围。不能调用等价第四次旧19测试。
+
+交付：正式独审报告、每项finding严重度/归属/精确源身份/修复建议、完整输入冻结/末核/diff/工具自然终态和读者释放。SOURCE_STATIC结论与未运行清楚分开，不自授运行或关闭安装资格。下游原Test建立独立支持/拒绝oracle并实际执行其新定范围，原Review复核测试后，Root另派一次固定六归档实际数据检查；安装及真实配音再单独验收。

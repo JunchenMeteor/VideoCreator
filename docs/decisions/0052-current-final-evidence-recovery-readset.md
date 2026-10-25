@@ -1,0 +1,86 @@
+# ADR0052 — 最终证据的受控恢复读取与原始上下文
+
+状态：APPROVED_DESIGN_ONLY；2026-10-10。仅补 ADR0051 的原记录读取、必要上下文持久化及受控修复消费，不改冻结 Early ABI/旧源码/旧规范，不批准产品、ASR supervisor、模型或费用执行。完整 R1 独立验收后连续 R2；五步 UI、本地免产品注册/BYOK、一次预授权 API/MCP 自动到完整成片、实例持有数据和三 OS 保持。下面是实施合同，非实现/资格/运行验收。
+
+## 固定来源及现有能力
+
+任务卡 `877b1b2938cf683769094b3f5544e839983df87b69904c3754a5e509bac81c67`；ADR0051 `a76d1fbf921a4d72d096d2df4ab82d5034d9662acc3a9f78bb08006534c6e6d3` 保持。BackendReadSetGap.md `4049a65c62b6e35c399b7c0c0f01de0b0e2f5fdb6d4b4103869845df0f34c569` / JSON `ed3d62487e625027a4076f9477c21d966af140b0125cfff5e88e74c2ed87977f` 的七份完整普通副本已核身份，只读必要方法。Backend正式109源Index `cc8af9a0f4d828ca096260cdb5d288c8132d722ac034d76d6f05826c58f43806`，Handoff `f6220996b26876a23a879626e839222e8b2e637adc56905494411f6d9f392e50`，SourceStage/Interfaces `d097cdbd56860b46baeb85cee299b5f250da5a8190e6e850d2aa4cd697623fc3`；都是source-stage，非运行通过。
+
+Media RecoveryPortsGap `012daeb0212ea668c4767dcaf00eba07a1790cfca7281ac66e3f34f56a2a7ab1` / JSON `42768aead29ab8b39f51e1f83d4db98c50cf7e354e7c9f082846cc0905e95767`，Handoff `c1dbc8fdb387cc2296d6cf8bc7414e21aa379e821d11aa621c6e26d84da80006`，FactoryConsumption `65e97eac1e72430366bccfe8906ab26041c5d4f5b9c00bd35283f3c371e7ba62`，34普通源Snapshot `19ed596ee1eb4112d0d52a53e1e0f76d48fef5172527d2fe2e74bf1c9de36f2e`。现初始v2已接持有port/实际resolved/shared verify，ready continuation/repair仍具体缺实现，不将503占位算完成。
+
+原 `recover_preparation` 给原ID/READY receipts；`read_material` 重核READY全文SHA/size/grammar；`material_allocation`读指定allocation；`context/creative_revisions/approval_refs/feedback_refs/asset/content_path`给原scope来源；`read_step`只读Step。继续复用，Media不私读SQL/_preparation/_file/缓存，不新增公有get_operation，不用prepare_operation猜原ID。intent_json、ordered bundle_items、READY材料、settled Operation.observation_json及CurrentFinalCandidates完整文件已经持久；组装上下文及完整ASR原验证请求未证明持久，必须按以下写序补齐。
+
+## 1. 唯一私有 read-set ABI
+
+Backend在同一个服务持有 `CurrentFinalEvidencePorts` 增加：
+
+`read_continuation_inputs(ordinary_lease, continuation:CurrentFinalEvidenceContinuation) -> CurrentFinalEvidenceReadSet`。
+
+默认不新增其他公有route/Manifest/status/访问票。原resolve_inputs/verify/revise签名保持。ReadSet是Backend唯一的frozen、eq=False、非序列化服务对象，成员恰为 binding、execution_fence、preparation、intent、allocations、materials、candidate、assembly、asr、strict_materials、missing_facts。
+
+- preparation为原BundlePreparation；intent为原BundlePreparationIntent完整原字节解析值；allocations为原intent顺序的完整MaterialAllocation元组，包含未READY的原slot；不能按当前请求重造slot/ID。
+- materials为 `(原MaterialReceipt, 原bytes)` 元组，调用原read_material逐件重核。strict_materials只是其中实际独立参考/听审/仲裁/测量/纠正源的明确完整闭包投影，不能返回另一套正文或新增grant。
+- candidate为 `(完整原Manifest bytes, 完整文件SHA)` 或null；SHA定位原CurrentFinalCandidates/candidate-SHA及scope中的journal。实际无候选时null有真实原journal依据；journal声称有SHA而文件缺失是503，正文/绑定/grammar不符422，不降成null。原已verified Manifest也必须读原对应完整文件，不能用canonical对象SHA顶替文件SHA。候选不能因存在就成为发布许可。
+- assembly为第2节受控原组装记录或null；asr为第3节受控原settled读取或null。missing_facts仅Backend从实际缺失记录产生的安全Identifier元组；数据损坏/伪来源仍抛错，不塞入missing。
+
+每次入口执行原port对象registry/thread/current ordinary lease检查，并重核continuation的真实当前claim、新fence、同instance/Production/Run/request/registration/preparation/原intentSHA及完整journal关联；不是仅type/字段相等。只在当前原scope/source access下读取。read-set不能外部构造后交回授信，不跨lease/fence使用。ResolvedEvidencePolicy保持原registry实际返回对象，通过原resolve_inputs另取，不能把reference/ASR/assembly塞进resolved增加authority字段。
+
+ASR读取缺原上下文时可返回asr=null和具体missing；有完整candidate却没有ASR验证依据仍不能通过。缺pre-candidate assembly只能保具体待补/指导，不猜映射/重ASR或四masters。Backend把这些真实依赖交原0051 assessment；其resume预检也必须核真实上下文/报告producer可达性，不能仅qualification资源到达就盲queue。旧历史上下文缺失保持缺失；只有真正已经独立持久的原请求/原组装来源可由受控历史兼容解析器验证接入，禁止事后从result/current host补expected。
+
+## 2. 成包前的实际组装记录
+
+新增私有 `CurrentFinalAssemblyContext` strict/frozen/extra-forbid，format=`current-final-assembly-context-v1`；完整字段为 binding、preparation_id、preparation_intent_sha256、authored_fence、manifest_created_at_us、timeline_duration_us、creative_revision_refs、approval_refs、feedback_revision_refs、source_refs、outputs、media_artifacts、audio_mappings、methods、rights、quality_ref、document_artifact_ids、asr_operation_id。前四身份/时间来自实际作者lease；所有复合字段沿原BundleManifest对应唯一schema，不另造宽dict。document_artifact_ids只允许该实际intent/固定full-eight profile的原角色→artifact ID映射；未知/重复/跨prep拒绝。media_artifacts只包含实际原四masters已验证的完整artifact/spec；报告待分配的地址来自原allocations，不能填假SHA/size/报告占位。
+
+音视频坐标/mapping来自原实测decoder；字幕/转写/对齐/work/revision IDs来自已READY原文档的实际字节，不能因进程恢复重新生成。created_at/原clock也从首次实际组装记录保留。methods的实际ASR观察版本/config及原原始Operation引用不能由当前host填；rights/审批引用是原数据，不是新的当前许可事实，恢复后仍须真实post-plan rights/source重核。
+
+唯一写入口：`CurrentFinalEvidencePorts.persist_assembly_context(ordinary_lease, preparation_id, context:CurrentFinalAssemblyContext) -> AssemblyContextRef`。Ref成员恰为 preparation_id、preparation_intent_sha256、content_sha256、size；并非授权票。仅原注册Mediaproducer实际组装路径调用，端口重核原作者binding/fence、原context与prep/全部实际READY文档/四masters/ASR原ID关联，不收模型/renderer的声明context。
+
+原producer在普通材料READY之后、resolve可能返回无候选等待 **之前** 写入该记录。先原controlled immutable file写/fsync，后短writer记录同prep的ref和原作者关系；file I/O不在SQL writer。唯一metadata key `current_final_assembly:<preparation_id>`，value为format、binding、ref的封闭canonical对象；物理文件使用原安全 `_write`/content-addressed key。文件可在writer前存在，但没有真实metadata commit不能作为恢复来源。失败保持未提交，不返回“已保存”；重复相同记录幂等，不同bytes409。存储文件/metadata与完整文件SHA无自哈希环，不进入输出/导出授权。
+
+生成完整candidate后仍按原CurrentFinalCandidates保存；恢复优先从候选和原READY材料读实际已存字段，assembly补成包前缺失输入并重核一致性。有冲突422，不任择较方便版本。当前permission、quality/rights结果或verification token不作为assembly的永久授权内容，最终都重新验证。
+
+## 3. 原ASR请求提交与纯读取验证
+
+复用固定Media `providers/local_asr.py` 的原 `LocalAsrDriver.validation_context_bytes()` 和纯 `validate_original_asr_result(result, original_context_bytes)`，不新造expected格式。已有context精确为canonical UTF8，format=`local-asr-original-validation-context-v1`、provider_sha256、worker_sha256、request，≤2MiB，拒重复key/nonfinite。request原必需集合为audio_path/storage_root/model_dir/model_revision/audio_sha256/video_audio_offset_us/max_audio_duration_us/model_file_sha256；有资源身份时仅另含require_execution_identity/resource_manifest_path/resource_manifest_sha256。model_file_sha256保持原实际字典类型，不误改为单SHA。仅私有本地记录，路径不当访问授权，不能导出/日志泄漏，绝无credential/账号/secret内容。
+
+Backend原AsrResultJournal增加 `commit_original_validation_context(ordinary_lease, original_handle:AsrResultHandle, original_driver:LocalAsrDriver) -> AsrValidationContextRef`。只由原固定注册RegisteredOperationExecutor/受信工厂调用，driver必须原固定注册来源，不能一般ducktype/callback或外部注入validator。该入口从原driver读取原冻结context，核原handle/allocation/Operation确为prepared且未dispatch/未settled、同Run/原inputSHA/dedupe/route与binding、资源/runtime和实际音频Asset；Operation输入必须与原request.audio_sha256及原resource SHA按原确切JSON/hash算法相符，不能从result反推。
+
+AsrValidationContextRef完整成员为 operation_id、run_id、input_sha256、route_sha256、binding_sha256、resource_manifest_sha256、runtime_manifest_sha256、context_sha256、size、provider_sha256、worker_sha256。原controlled文件不可覆盖；唯一metadata key `asr_validation_context:<operation_id>` 的canonical value保format=`asr-validation-context-binding-v1`、完整Ref、真实作者fence。先immutable文件写/fsync，后原活lease短writer重核所有来源+prepared状态并commit该ref，**然后**才原claim_operation/ExecutionPermit/dispatch。无ref/未commit不得跨副作用边界。prepare/allocate仍是原首次正常操作，不新增预算；恢复读禁止调用它们。
+
+原ASR journal/result commit、Operation观察/结算顺序保留；原result持久含真实allocation/Observation。Backend新read-set按实际绑定明确读取原Operation，显式核operation.run_id和production_id，不只用原 `_operation` 的production过滤；要succeeded且settled，step/dedupe/route/input与原记录精确相符，完整Observation与原结果文件/READY receipt一致。asr成员为原Operation身份/route/input状态、完整typedObservation、原allocation、原原始context字节+Ref的服务持有投影。Step结果只作额外一致性检查，不代Observation/请求证明。
+
+Backend在已准原完整安装source/qualification中固定调用上面纯validator，核provider/worker源码SHA确为原受控请求producer及被支持的原验证实现；这是实际原安装来源，不凭任意source hash/模块名判断资格。无需构造LocalAsrDriver/启动子进程来读取。旧path仅原请求数据，不跟随它读取越权文件；原资源版本已变化而没有真实获准兼容验证实现时503，不偷用当前expected。原child runtime identity、OS/config/compute、实际音频PTS/sample clocks和完整时间/文本/版本检查全部保留。
+
+原 `read_asr_result` 的envelope校验不能冒完整恢复attestation。只有新增原请求记录commit和固定真实validator实际核完，才能用共享helper补它缺的纯验证边界；原reconciliation仍使用其受限invocation，普通read-set不能observe/settle unknown。prepared/submitting/pending/unknown/unsettled保持具体needs_reconciliation/409；缺context仍asr_recovery_validation_unavailable/503，不生成另一个ASROperation补证明。原被拒ASR supervisor/启动方式/实际执行审批不重开；本节只规定必要安全持久化和读取，不授权运行ASR。
+
+## 4. 独立参考与两个真实authority
+
+strict_materials从原实际allocation/READY bytes遍历独立PerWorkReferenceDocument→听审/仲裁源→实际测量/纠正祖先，保原distinct schema_kind/roles/完整fileSHA/internal record/signature区别、原listener单位和audio身份及完整许可闭包。实际原registry/source/current/许可验证仍走原scoped入口；外来origin只是历史来源，不能授本机读取/复制/再分发。Backend提供read-set仅限原scope，不借内部读取公开依赖grant或转发私密源。
+
+原精度authority两次真实调用及第二次false→403拒绝保持；不缓存首true顶替第二次，不以HMAC、模型、真人批准或完整context哈希代独立来源。没有真实参考及其完整来源时旧strict等待；显式获准0.3无本片参考保持null与完整实际WorkValidation/algorithm benchmark来源，不能制造reference/测量或吞掉实际P95失败。
+
+## 5. 人工和政策的真实admission接线
+
+固定109普通 `application/media_registration.py` `920a69592ddc0150c5240649a8af30be1d7729ba0b58b163acd9a39e4d9bad39`:245–303 已有唯一路线：unattended由原issuer.execution_ports(registered)产生PolicyExecutionPorts；interactive由真实Runtime `_current_services` 产生原ProductionPorts。实际current安装guard、request/原Owner及资源身份先核，不是模型或构造一个同类型对象授信。
+
+保持已冻结bound continuation关键字 `policy_execution_ports` 的调用兼容，但后续consumer按照原request.automation.mode识别 **实际Runtime交入的** PolicyExecutionPorts或ProductionPorts，不能要求human分支伪造policy。政策分支用原begin_execution/production_admission/production_rights及owner_policy/delegated_project；人工分支用原current_production_admission/current_production_rights，原真实ReviewDecision approve/target/revision/SHA/source完整关联，source必须human_review。人审缺失时只原wait_for_review路径，无自动伪造ReviewDecision或Owner确认。
+
+重取实际原候选/assembly中明确的plan/quality等revision refs，再核原committed字节及真人/当前政策来源，不挑最新无关修订或凭“autonomous”名称授权。恢复后的新fence重新获得同目标plan/quality admission和真实post-plan rights事实；read-set/allowed_action/assembly/ref均不是许可。原Media `_admit`保持，新增consumer仅调用对应既有真实来源。Backend在真实Runtime caller及工厂绑定此来源，不能让renderer选择human/policy对象。
+
+## 6. 有界affected repair及崩溃边界
+
+continuation的原resume_mode/失败报告/单位/affected子集是进度，不授执行。Media在原bound continue_current_final_evidence 内按固定enum分派realignment或regenerate_affected_media，driver只能来自同实际注册工厂/原Step-Operation执行器及获准完整资源，不接受任意callback、shell、外部路径或模型工具扩大权限。原真实新begin/plan/quality/rights/action范围、共同预算/修订限次、deadline/cancel/fence和unknown guard先核。guidance_required不执行；缺真实aligner/生成route/license返回具体resource_not_ready，不把stub或模板算修复。
+
+从read-set还原原失败报告/单位及真实shot/资产依赖，重做必要受影响闭包并明确校验其子集；不重跑上游Crew/四masters/ASR来猜原事实。若实际允许动作确需新的ASR/media副作用，用原正常Operation写账、保旧费用/失败报告且先写新的独立原context，绝不重发unknown或清共享预算。真正修复输出必须生成新的真实测量/验证报告，再过原相同阈值和完整publisher。
+
+继续复用ports.revise_preparation的签名。Backend须把同parent/实际repair来源/affected intent的child allocation、完整lineage和revision_cycles一次计数放在同短writer原子commit；若采用原prepare共用helper必须保原v1语义。仅prepare child先commit再单独lineage不满足崩溃合同。相同实际repair command/parent/reportSHA/affected子集重复返回同child，计数一次；不同intent混同来源409。原READY父材料/Manifest和全部旧allocation/副作用ID保留，新child只按合法复制/许可复用未受影响材料，直到lineage commit不得stage child。
+
+崩溃：context文件写完但DB未commit不作为证明；commit后未dispatch仅原prepared Operation，正常原执行或取消，不再造ID；ASR结果有文件但未observed沿原受限核实，不冒settled；assembly commit前不得返回无candidate wait，commit后kill可原read-set恢复；candidate真实缺失/变更拒，不重建其同ID；子修订writer回滚不留可用孤child/重复counter；queue/claim/publish沿0051保checkpoint、新fence/current和原真实成功观察。所有writer内仍不做provider/ASR/文件RPC，外部真实held/source观察跨writer保原current机制。
+
+## 7. 实施次序与独立证据
+
+Backend先唯一实现read-set/held port、contextRef及受控file+metadata写序、原ASR共享纯验证接线、实际Runtime人审/政策caller和原子child lineage；新109之外的加入必须交Integration完整source/qualification闭包。Media随后消费固定唯一类型，初始producer先persist原ASR/assembly，ready continuation从真实候选或assembly+READY恢复，生成实际报告并完成原verify/publish，repair用实际有限driver。Integration纳入完整producer/worker/原context验证源码、实际资源及许可，不以source检查授运行。Frontend只呈现具体缺证/待修复/真正人审，保五步。
+
+独立Test/Review/Acceptance须覆盖：原getter复用/intent顺序/候选无或缺失/完整文件SHA；跨Run/prep/fence/thread/伪port拒；原ASRcontext先commit后dispatch、缺失/伪造/result-derived expected/更换source/真实child identity缺失拒；全部context/assembly/candidate/lineage各crash窗口；settled读取不写账/不ASR，unknown只核实；strict完整独立闭包及第二authorityfalse；原人审来源与policy分开且无伪决定；实际0.3/null自动完整成片、报告到达后同Run恢复、实际P95失败受控修复后真达标；子修订原子性/重复计数/许可/预算/期限拒与原资产保留。此ADR不改criteria，不以source AST/模拟/部分pass宣完整功能通过。
+
+实际历史上下文、独立参考/算法资格、合法资源/机器或审批缺项保持具体NOT_READY/指导来源；实施角色必须接通本轮R1的真实自动路径，不能永久missing-readset/repair503作为成品。旧失败、自动评审拒绝和ASR审批边界保留；本阶段仅架构普通源读取/文本写入，无产品import/运行/SQL/provider/keys/fee。

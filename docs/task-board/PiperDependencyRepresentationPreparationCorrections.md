@@ -1,0 +1,15 @@
+# Test — 表示核验准备的索引完整性与LF修正
+
+QUEUED_REVIEW_TRUEFINAL_AND_REAL_SLOT。唯一原test_development，只repo测试白名单及自身 TestDevelopment/PiperDependencyRepresentationPreparationCorrections/。原Review624127d0正式finding/报告/停止工具被Root完整消费后明确激活，当前不改热source或运行。完整R1后连续R2保留。
+
+修前停止源来自 PiperDependencyRepresentationIndependentTestPreparation，Handoff MD28f4d6aad227a8f3e0548472c9a9dcc286832f4178dd97198f206b29849e3b3d/JSON64f6e6bce8a2d8f702b1616245e14bb4fa4fbb27d65b46bc8b7ca9034d68aed0、SourceSnapshotcc1cc727/完整source diff4f12c7c4/32ordinary index4396ea5a，Root2c337a FULL正式交接。RepresentationInputIndex SHA97bdacd950b14fcc4938c731dbc33f8b9ce12243aeb0e2a33d85f1b5d032a633，1041records/999own runtime/16source copies/364cachemap。原87outer NOT_EXECUTED，future Requestc08b60f1 false，不变原19三败/20元/tokenizers原12行红。
+
+原Review报告的实际source缺口：launcher51仅前核index SHA、137末核只Assert-Pins index.records；Probe224仅前核index、290末核只verify(index)。index在records冻结后生成、未入1041，因此末证据未覆盖index文件本身。正式finding ID/path/SHA由Root激活补充，不将作者或Root判断代正式独评。
+
+窄修：launcher与whole-parser driver各自保存实际固定index身份并在最终声明input_after_verified成功前从原准确index路径再次读完整size/SHA核验；比对外部固定ExpectedInputIndex/实际原件，索引错/缺失/变化必须非零、保原错误且不能输出未受证实成功。不能只核cached index object、往records塞自己的最终SHA制造递归hash，不能随读取刷新期望消除变化；原实际1041成员末核继续，不以索引hash替成员。原Process/双raw EOF/sticky90/no killreplay/exclusive输出与source读取边界保持。
+
+新Agent生产JSON/text实际UTF8/LF/noBOM，尤其索引/请求/快照/准备脚本输出规范化；JSON字符串内合法escaped CRLF测试内容不能删，原第三方/原raw/旧固定副本与失败byte内容保持。不要修改原停止index/Request/source/cases/oracle，交独立新候选namespace与固定新input/request/source map SHA/原→新完整diff；只因root/序列化/末hash必要的对应关联变更，87标准及原parser9eae0ad9bytes/预期不降低，PDM收据问题另Integration后继，不混此任务。
+
+不修改被测Integration parser/helpers、依赖/生产源/测试阈值，不替Review自close。可必要自身PS parse/metadata/hash/复制有限非秘密src；不启动Python AST/import/parser/case/launcher/归档/native/HTTP/product/Pydantic/SQL/models/fee或旧19第四目标。本轮SOURCE_CORRECTION_ONLY，COMMANDS只记实际元数据动作，future auth false不回写旧件。
+
+交完整必要before/after普通件/index/full diff、具体原guard兼容与新增末核调用点、LF实际byte检查、真实count/路径/未来一次命令提议与未测范围、末自然工具终态/无live/全部读者释放。原Review复核固定新标准/入口，原Test另Root卡真正首次有限87验证；归档/安装/TTS/视频/R1/R2仍未验，不能用源修代运行正反例。

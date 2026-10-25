@@ -1,0 +1,15 @@
+# Test — GCTS-P01 创建前置回调来源修复
+
+QUEUED，原 test_development；原Review完整formal停止释放后才恢复，不新增第五角色。独立评审提交问题，Test只修改自身来源守卫/测试与过程材料，不改产品、依赖或验收标准。原完整R1后R2不缩。
+
+固定问题：G:/开发测试/Codex/VideoCreatorImplementation/Review/GoalReceiptClassTransitionSourceReview/Finding-GCTS-P01.md，3642B，SHA7abe9ecb69abdcfa300cb097dc5a393431166700d81d51efc2ab9fb242e769ca；Root858381 FULL读取核SHA。P2/Test/OPEN，SOURCE_STATIC，不是实际反例运行或权限绕过结果。原review停止formal身份需另附，不能先改已被读取源。
+
+基线：停止ClassTransitionHandoff45071db0e975d26a16e40d30a855397b6d7ac19ceac4cef29acefa5bec4fed3a/JSON7b30d10bdad6ea12600ca89d50cbe329fda8d64ecf281bd35f4f8511577794f6；普通47记录，future候选3714含全部旧3695/3677。原ClassCreationTransition.py8162B SHA8d49a0947ffe9e4479521b7b185ab48c5ccbddcc82bcd50d04a11ef5f29188bb；原11PASS保留不重写。
+
+缺口：原build_class episode body=None阶段有非原class-body Python callback时，没有来源认证或计数，之后checkpoint仍记authenticated。按真实语言事件保原class-body精确认证，并覆盖body出现前后的完整callbacks强CodeType/module/globals来源；缺真实允许记录时失败关闭。不得库名/函数名豁免、接受未知回调、无条件刷新snapshot或删原audit/profile/protected-builder。旧Pydantic失成员未capture不重构；c_return仍不宣取得class，保持wrap首绑定实际对象和同一compiler强身份。
+
+仅本问题的源码修复与有意义自有stdlib新正反向：真实允许前置回调、同内容foreign CodeType或globals应在其敏感body前拒绝；普通继承/Generic合法创建仍有固定来源证明。新增小批先固定原源/输入/命令，运行仅自有fixtures+真实stdlib，不重跑已通过11，不吞错/降标准。保全部旧19名称/断言/顺序90s5s、旧纯17+1/2/12/11和三次红证据。
+
+严禁Pydantic/product/SQL/HTTP/MCP/OS/native/Owner/provider/ASR/网络/密钥/收费/安装/第四原目标或等价路径。未来runtime请求仍false；源码修复与新pure不授第四业务验证。缺合法callback不能靠放宽得到绿色，明确source gap。
+
+白名单 tools/testing与自身Test辅助/fixtures原路径，COMMANDS仅登记实际新纯批范围；过程仅TestDevelopment/ClassCreationPreBodyCallbackCorrection。用新ordinary快照，不覆盖已冻结前阶段输入。完整diff/新来源身份/原始结果和真实自然终态双EOF/未变输入/完整Handoff及释放供原Review复核；GCTS-P01与GRTSD-P01均不自行关闭。最终真实Pydantic/业务/平台资格仍未证明。

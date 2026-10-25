@@ -1,0 +1,15 @@
+# LocalMaterialBindingIdentityClarification
+
+QUEUED，唯一原 development_role_plan。待Root核实际空槽明确followup激活；不得读当前独Review热报告。完整R1后连续R2不变。
+
+固定输入：停止ADR0072 28206B/1c4fc5782213a364b1504bb9b9456ede231f7f1cdac8d780e309cb0722aceec3与架构既有完整交接；独评已停止Finding-CPSC-I01.md 2081B/37c52afbe4e92b29a80c83826da825f7f6f67ec3a452497cd79fcddeaa8044e7，过程 Review/ConcreteProductionSourceContractIndependentReview/。Root65506c已全文并核SHA；它是P3 DESIGN连接语义歧义，不是运行失败或已关闭源码问题。
+
+仅澄清 registered-local-material-plan-v1 的 input_binding_id 唯一连接：当前input_bindings固定七字段无binding_id，shots/audio_tracks引用却使用input_binding_id，同一有视频音轨Asset可合法visual/background_audio两个usage。选择一个唯一稳定规则，给准确字段、类型/编码/作用域/不可变性、合法复用与重复/悬空/usage错误拒绝语义。不用只许一个asset_id误拒合法复用，不让Media另造解析算法。保同资产SHA/size/probe/source_ref/current/rights/lease/Operation核验，不增加本地发行资格门。
+
+只架构白名单docs/decisions/及自有新过程 Architect/LocalMaterialBindingIdentityClarification/。原0072和其停止普通文件不修改；以短新ADR及完整接口补充、Impact/独立输入beforeafter/正式工具终态交后端唯一grammar和Media消费者。此补充须独立设计审查，不扩真实ASR/四masters/Bundle门槛，也不等此澄清阻断authority/首Goal固定factory的独立实施。
+
+0实现/测试/产品/安装/模型/扣费/候选执行。原失败次数、标准、20元与所有资源缺口不重开；签名与商业发布语义保持。回滚是不采用新补充。后继Root收正式固定件、原Review有限独评、Backend实现唯一公开领域 grammar、Media消费。
+
+## 实际激活
+
+ACTIVE，唯一原development_role_plan。原Integration9efb4d自然0/TRUE SOURCE FINAL/无live/全读写释放，角色FINAL已收到，实际槽空出。只读已经停止的CPSC-I01早单与0072；原Review正式收口窗仍热，不读。Root65506c全文早单，本文f7cb6233既已全文收取，现实际followup架构，仅做一个连接键语义补充，不扩权限抽象。

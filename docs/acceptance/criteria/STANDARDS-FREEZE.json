@@ -1,0 +1,114 @@
+{
+  "record_version": "0.1-scope-evidence-review1",
+  "active_criteria_version": "0.1-candidate",
+  "freeze_status": "scope_and_evidence_approved",
+  "review_scope": "Requirement IDs, phases, source SHA256, real/synthetic/inspection distinction, permissions and budget recovery, bundle required items, anti-cheating and independent acceptance rules",
+  "review_report": {
+    "path": "G:/开发测试/Projects/VideoCreator/docs/reviews/RV0-Gate0Review.md",
+    "sha256": "715aa5fee537d903255f9732d9e2ba1145a62bb1151ff5ba85becf3f0846cded"
+  },
+  "review_snapshot": {
+    "path": "G:/开发测试/Codex/VideoCreatorImplementation/Review/RV0Snapshot.json",
+    "sha256": "8e3a536b9f112cbe62f1e30d48b27d30a30a1eb3172e309fb1d075c113dceb90"
+  },
+  "reviewed_criteria": [
+    {
+      "path": "docs/acceptance/criteria/GATE0.md",
+      "sha256": "f7bfa7cf75defd88976726a2e2d808f2f2b9c637be09dd63b92483d782973310",
+      "immutable_archive": "G:/开发测试/Codex/VideoCreatorImplementation/TestDevelopment/StandardsArchive/ScopeEvidenceV01/GATE0.md"
+    },
+    {
+      "path": "docs/acceptance/criteria/ACCEPTANCE.md",
+      "sha256": "1302a9921f16e3b44a92eac209d9c03f7b4147f34f6d7c0028985ee2764f3155",
+      "immutable_archive": "G:/开发测试/Codex/VideoCreatorImplementation/TestDevelopment/StandardsArchive/ScopeEvidenceV01/ACCEPTANCE.md"
+    },
+    {
+      "path": "docs/acceptance/criteria/TRACEABILITY.md",
+      "sha256": "c011340ce6a023b26e0faea6d1169d4bc0e29e769798df22efaa09c7f0e4c68a",
+      "immutable_archive": "G:/开发测试/Codex/VideoCreatorImplementation/TestDevelopment/StandardsArchive/ScopeEvidenceV01/TRACEABILITY.md"
+    },
+    {
+      "path": "docs/acceptance/criteria/BASELINE.json",
+      "sha256": "1c94708cf495e4f49833b446b2280cec1a492553eb81d7b95b4bd4f859c9607e",
+      "immutable_archive": "G:/开发测试/Codex/VideoCreatorImplementation/TestDevelopment/StandardsArchive/ScopeEvidenceV01/BASELINE.json"
+    }
+  ],
+  "source_specification": [
+    {
+      "file": "01-项目需求文档.md",
+      "sha256": "062f57391792f8d52530949450a2591f8f7825537b0a9a9e665e3b5c6a91731d"
+    },
+    {
+      "file": "02-技术规范.md",
+      "sha256": "6d59ed7d3eedd12dc6666e2ce3ea02fbdb191566eb0a86a328ff20d50f0e4eed"
+    },
+    {
+      "file": "03-AI实施细则.md",
+      "sha256": "a268b7473124c32e9c5ab4e84d34e76a65913aee3184c87727e5520d686cc7e1"
+    },
+    {
+      "file": "04-Agent框架与技术选型调研.md",
+      "sha256": "44aaf0c27104280a09fe680f6c11d8441a34e92d2f36d275d4aa19af80c37eb2"
+    },
+    {
+      "file": "05-Portal代码复用与接入清单.md",
+      "sha256": "36b739b145258cad0f5a01afef1389f0cf640152ce053627f338826320da4784"
+    },
+    {
+      "file": "06-界面与交互规范.md",
+      "sha256": "f20959d755a7c56348971c02b0d188752efaebb2a4684a6b1b6c74bdf5ae6118"
+    },
+    {
+      "file": "07-版本与兼容性决策.md",
+      "sha256": "eb5282dfe0754473e359828a16a062a199c9c8cc4751505234bd1a510d352322"
+    },
+    {
+      "file": "08-演示音视频分析.md",
+      "sha256": "6f0c647e77cc448b1d594fc085c89154003a800170c706e20a7c886eaba807f5"
+    },
+    {
+      "file": "09-自动制作与多模态交付规范.md",
+      "sha256": "a866f31c05ca0ab28c83fba92496e99feb378cd7a2477fe9b4e2adabe69d95b0"
+    },
+    {
+      "file": "10-项目目标任务书.md",
+      "sha256": "3e345b4f295ad5bb8015e288b0476621d5f6a889b0fb43946d4f13a219e07df5"
+    },
+    {
+      "file": "11-研发角色与交付协议.md",
+      "sha256": "010c1f70c2aa2b9b22e5b13dda83b82f7c36c65db9e6544c2a8254688d6b1da0"
+    }
+  ],
+  "counts": {
+    "FR": 21,
+    "AC": 24,
+    "MM": 11,
+    "CM": 8,
+    "Gate0": 11,
+    "R1Required": 51,
+    "R2Required": 63
+  },
+  "excluded_requirement": "FR18",
+  "approval": {
+    "architecture": "approved_scope_and_evidence_only",
+    "technical_stack": "not_approved",
+    "gate0": "not_assessed",
+    "r1": "not_assessed",
+    "r2": "not_assessed"
+  },
+  "outside_this_freeze": [
+    "Specific providers and advanced R2 capability implementation",
+    "OS minimum support measurements",
+    "Alignment and retrieval measurement methods and candidate thresholds",
+    "Final production orchestration and packaging choices"
+  ],
+  "history": "T0 candidate and all historical test failures preserved; COMMANDS is append-only execution history and does not backfill tested commits",
+  "recorded_at": "2026-10-07T16:03:37.310Z",
+  "architecture_approval": {
+    "adr_path": "docs/decisions/0002-scope-evidence-approval.md",
+    "adr_sha256": "96890611c77d8017b9f9d90d38a9bfa50cda0b6d4339789c97b36921c7b5d854",
+    "observed_at": "2026-10-07T17:00:36.345Z",
+    "scope": "Previously reviewed scope and evidence only; technical choices and Gate results not approved",
+    "prior_record_sha256": "a49171838247288e962009118de928abb923c70e6b0d5ed02a2ba6edf225578b"
+  }
+}

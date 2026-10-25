@@ -1,0 +1,13 @@
+# Integration — 六固定配音依赖归档获取准备
+
+QUEUED_REAL_SLOT，原integration_release。原metadata阶段ad56d8/2b022c自然0 TRUEFINAL全读者释放，待actual list_agents completed空槽恢复；不新增角色。只准备，不HTTP/归档执行/安装。过程Integration/PiperSixSelectedArtifactsPreparation/，保持原Integration白名单。
+
+唯一输入上阶段Integration/PiperRemainingDirectMetadataSelection/UnrequestedThreeExecutionStage：HandoffMDbcac33e2ace326199d117c4f83928fc906798072a6ee2465180132e9b0dddc02/JSON75f901b4ae67da4d55b2a2fc0ce9fd669fe884c8637478ae319ffd19be961c9e；SourceSelection7fd9a6defa523b7df03ff47c543fe6d073c0d3bdda81971eec268e08cde04030、NextAcquisitionPlan373db24b4f8a2c63c0f782a5ef863ea9dc397b06c0578518b6d0b73dba2eb6ca、OrdinaryIndex86c38394d7f63477b988cd46cb828a1f52f477ee67a86b1a01cf5fb19d6c0e99、Freeze7ea10e0141688455ac03194001048454470a104904563e7e6494d3d5690f36de。Root3171b6 FULL Handoff两件并完整解析Next仅投影六准确URL/size/SHA与四平台/缺件；ee4f81聚合Next全文截断保留，不称FULL。
+
+仅固定windows_candidates六原URL、filename、bytes、SHA，不换release或cache/镜像，total4425126B。tqdm4.70.1 80199B；HFHub2.2.0 839884B；PyYaml6.0.3 154090B；Tokenizers0.23.3 2872101B；Typer0.27.3 123312B；Safetensors0.8.0 355540B。py3any及cp313/cp310abi3仅文件声明，不是安装资格，也不删另三平台source/native路线。Windows样本仅供source/LICENSE/METADATA数据检查，四目标发行仍待实际资格。
+
+复用已核原有限data download helper结构，准备独立exclusive round/唯一Plan/helper/runner/完整diff与系统工具/source pins/parse收据，未来每URL恰1GET/normal TLS/identity/no redirect/proxy/auth/retry/HEAD/range/recursive，确切body cap=该文件声明bytes并最终完整EOF/size/SHA，六总4425126B，单源120s/owner780s sticky。无杀/重启/观测到期重发，owner持唯一原柄到自然终态/双EOF。新实际argv与目录必固定forward，batch absent前置，原失败/计数/所有停止早formal保持。
+
+准备不启动HTTP；停止Plan/helper/runner身份/完整diff与parse/前后pins交接后Root另卡才一次执行。后续ZIP/CRC/RECORD/WHEEL/METADATA/LICENSE/NOTICE/native imports源码的数据检查另固定计划，不安装/import/eval/execute_vendor。Regex原partial保留且不请求；8新unmarked+colorama/hf-xet仅缺件，不递归联网，voice/G2pw/model/tokenizer/config隐式资源/许可证仍未闭，不获取模型或运行provider。
+
+不改仓库实现/锁/旧快照，不productSQL/Pydantic/ASR/native/secret/fee/第四原目标；最多标准工具parse/有限source/hash检查。完整输入/actual自然工具终态与读者释放；不能以下载计划或archive数据算TTS/CTC/三OS或全R1后R2完成。

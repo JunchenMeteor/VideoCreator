@@ -1,0 +1,28 @@
+# LocalOwnedMaterialProductionImplementation
+
+ACTIVE，唯一原agent_media。0072独评6988b4与0073窄独评c19929均实际自然0/TRUEFINAL/no-live/all释放，Root218139/0dfeba全文正式报告。实际现Root/Backend/Integration三槽，使用第四槽；原Media48已停止，不读后端热源。
+
+## 固定输入/接口
+
+ADR0072 28206B/1c4fc5782213a364b1504bb9b9456ede231f7f1cdac8d780e309cb0722aceec3；0073 5227B/8aa56933bb0f3d285f598b309a1f327e67cf4715d4276913ee1f565f7ae837a0；正式独评7856e21a742eb5e62b89b746670f9e86fac97c027de116d3eed0fae30facfa14与ae21a0bb7d8a78b9785b7fa4f8b58cee160d279fd5fb5175caf59576eb5fb6ed。只设计支持，不是真实运行pass。
+
+原已停止Media基线 AgentMedia/QualifiedCompletionKindCorrection/AppliedStage/SourceIndex.json e90b574d8d179c280bbdad5da413ef854f8cc5fdc89d91ab1205370a339f228d；production_drivers6395B/3ed2a7511ee1f4d1c2f9dd7798cf739012b044cffe31e5254816b83810ab8a67；production_edit20021B/4e5d4f04d8327f49286ba25c92aca0c313a18bd980e0d83093c68591261bad66；current_engine12033B/858883a22eb556c10cdde870e84e4c5e3f7bfb424639747913cb8a9949d283d9；bundle_producer52201B/6253c04e9e7e5d89f21944672ee6c9063312d3ef98a265f3bb059abb362bb2cd。本人核准确ordinary路径/完整实际当前自有源，固定before并保全部旧候选。不得把AppliedStage目录名推为整产品已运行。
+
+Backend当前准备唯一 video_creator.domain.local_material_production 模块：LocalRegistrationV1、LocalMaterialResourcesV1、RegistrationConfigLocalV1、parse_local_registration_config(data:bytes)、parse_local_material_resources(data:bytes)。这是已明确职责/名字的接口通知，typed正文尚待停止交接；local plan和canonical binding方法也只Backend定义。等待该正式固定正文再实现依赖段，不读热Backend或自造公开DTO/第二parser/连接键算法；独立FFmpeg素材规范化与edit纯内部实现可先行源码准备。
+
+## 白名单与真实制作SOURCE任务
+
+新过程 AgentMedia/LocalOwnedMaterialProductionImplementation/只本角色。完整before/new源码候选限workflows/providers/media。无api/domain/application/infrastructure/cli、DB/迁移、SDK、Native、UI、依赖/锁或测试写入。先完整SOURCE补丁与Impact交独Review、Root全文后另明确应用；本卡不执行候选/模型/FFmpeg/产品/数据库/安装。
+
+1. 固定 create_local_material_production_drivers，沿原factory真实上下文返回同ProductionDriverBuilders。上传配音Asset真实全decode/指定范围规范化成新PCM WAV，已有图片/视频形成受控derived clip，原input/output不同ID且保存实际lineage。
+2. LocalMaterialEditDriver支持可变镜头数、原整数微秒半开区间/真实帧量化、1080p两比例、图片动效和实际视频clip/音轨混音。复用FFmpegRuntime/permit_scope/install_output/reservation/decoder；内部受控argv，不接模型shell/module/任意路径。保旧FfmpegEditDriver三片兼容，不能固定10秒三色块或永远三镜头。
+3. local Flow和composer消费Backend sole config/plan/binding/资源接口，不另写公开契约。复用原begin_step/allocate_output/OperationIntent/succeeded Observation/settled fenced finish、同Run/current/lease/fence/rights与零费本地路由。request/plan/输入SHA/resource/route/timeline纳入原dedupe；已成功恢复不重render，unknown进入原核实。
+4. Media四独立masters video/narration/mix/cover真实语义，新clip不是模型新镜头。最终mix按实际选择背景音/音乐或明确无背景音构造，不复制旁白文件冒混音，纯无旁白适用模式不能假填master。
+5. workflows/current_engine_production.py的composer/factory与bundle_producer新显式local plan/version mapping消费归本角色。Backend application/media_registration.py真实host dispatch/typed/final-context归Backend。本地planner能按实际媒体和约束提方案，方法和限制明示，不能造模型洞察/六Creative版本骗旧硬门。
+6. ASR未选时普通服务/编辑准备不eager load；请求完整转写/字幕/RAG缺资源时真实中间输出保留并等待，完整Production/READY不成功。输入音频ASR派生稿、最终mix实际转写、原对齐/参考测量分别保存，源稿不当转写；原质量/P95/whole verifier/two authority/原子Bundle发布与export/ref不降门。完全模型Piper/Wan/BYOK路线保持原保护，上传旧片不算三新生成镜头。
+
+## 交接、失败与后继
+
+分小完整可评切片，独立driver源可先交，ABI依赖必须正式停源接口就绪才消费；缺项具体给Backend原角色，不等重复大索引。交完整before/new/diff、Impact/versioned Interfaces、call/错误流、有限输入beforeafter和真实工具终态/all读写释放。可已有stdlib源码语法检查，不import/Pydantic/第三方/19或候选运行，无mockpass和自编测试。
+
+原19三失败/三binding/31/105、预算累计20元与已耗调用次数不重开；0新增费用/秘密读取/下载/账号/发布/生产部署，40920预览不动。回滚为不采用候选，保已有源/Step/unknown/资产。后继原独Review、Root完整收取和明确应用、独Test真实有限零费素材及独验；全R1真实模型创作/多模态/API-MCP/三OS后连续R2目标不缩。

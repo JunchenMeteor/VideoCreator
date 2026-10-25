@@ -1,0 +1,55 @@
+# ADR0047 — 同一安装子进程的真实生产v2来源承载
+
+状态：ARCHITECTURE_SOURCE_ONLY，2026-10-10；只闭实际firstGoal尚缺的一条来源连接，未运行/授资格。固定Backend Gap67c7b951…与Integration SetupContinuationAbi-Early a87a0fe…均证实：init6、bind6、observer locator5、seq5七键没有production locator；不能引用ADR0045“可复用”假设当实际连接。精确路径/fullSHA/读取范围见自身InputPins。原v1/trust8/snapshot6/v214/init6/bind6/seq4/5、七runtime plans/四资格profiles、单Engine/BYOK免账号/full147+24/三OS/独评独验、R1后连续R2不改。
+
+## 1. 直接复用哪些实际接口
+
+Backend冻结新101普通SourceStage：cli/native_qualified_setup.py3699a38b…全文143行实际TrustCommittedSetupState持原Engine/Bundle/source/binding/stream/trust+record对象，qualified_authority=None；continue_setup100–119直接同Bundle将该authority传OwnerSetupService。application/native_installation.py197–213的connect_qualified_native_installation(*,engine,bundle,locator_bytes,context,installed_native_image,installed_native_image_sha256)已经是闭合同Engine连接入口，返回authority/build。不能调用main_qualified（它转cli.main构造普通启动Engine），也不能调用其_factory先寻找尚不存在的日常current execution登记。
+
+Integration冻结9普通copy实际PendingQualifiedAuthority::create_qualified(registry:Arc<QualificationRegistry>,child_image_relative:&str,context:FactsContext)->Result<Self,&'static str>，其locator/start及single-use QualifiedRegistration::register(original_process:Arc<Mutex<OwnedProcess>>)可直接消费原OwnedSetupRun.process。当前无生产caller，不能假设创建过。此方法用真实原Registry/三SHA/instance/childimage和actualrole source，创建原受保护pipe；child自行打开原pipe，不继承客户端handle。InstalledSetupDriver/current_registry仅返回seq5 ready后同原Registry Arc，不能由descriptor重建。
+
+选择：只在既有owner-setup-qualified-install计划的seq5完成后补一个独立私有seq6继承输入。新增方法不增加启动计划、不改前五阶段、不另起子进程/Engine，不给observer或record pipe改role。原owner-setup/owner-setup-trust/普通api-worker-mcp-asr和所有旧entry均不等待seq6。
+
+## 2. 实际计划与API资源profile的关系
+
+实际启动计划仍owner-setup-qualified-install，实际entry=video_creator.cli.native_owner_setup.initialize_bind_admit_trust_and_record；它是pre-API安装/首次Goal continuation，不伪称其primary entry是cli.main或已启动HTTP监听。
+
+生产context.role固定api，对应record.profiles中的api资源资格。该profile普通entry仍video_creator.cli.main/command serve，adapter仍video_creator.cli.native_startup/main_qualified；setup actual entry不替换其字段或新增第五资格profile。api/worker/mcp/asr全部真实独立资格仍必须完整。
+
+Native在原prepare_role/PreparedLaunch/launch_owned链保留实际选择的ChildRole::OwnerSetupQualifiedInstall及原IndexedPolicy/ResourcePins/PreparedLaunch对象关系，不能收到seq6后按路径/字符串补造。唯一crate-private IndexedPolicy::hold_setup_api_continuation(prepared:&PreparedLaunch,pins:&Arc<ResourcePins>,record:&QualificationRecord)->Result<SetupApiContinuation,&'static str>核此关系并返回借用原资源的强member（无Deserialize/Clone/从DTO构造）；Integration在原OwnedSetupRun保存它及原Registry observation。它只说明已真实qualified的api资源可供该固定同child continuation使用，不创建ProductionPolicy、Owner权限或execution注册。
+
+至少核：实际setup计划、可信bootstrap/callable/固定解释器及原args/source_carrier未变；与record api profile的原executable实际相对名/wholeSHA/size、CPython3.13.16/cp313/GIL、bootstrap/archive、LoadPolicy SHA、module/native/distribution/data/tools/migration完整闭包一致；api required_files包含该实际setup entry及同Engine connector/continuation源码和依赖。所有文件从原held pins匹配，不能仅看同Python basename或sameSHA重开别的文件。原安装独立host/build/record/current和完整两分区亦相合。
+
+若setup计划与api有额外模块/工具/ABI，必须由原完整api required map及真实suite覆盖，不临时并子集宣称相同。API资格报告须实际覆盖这个固定setup→api生产continuation的原source/current/firstGoal路径，沿ADR0043/44已有完整入口/workflow和额外setup测验要求，不新增report JSON格式或字段。只有普通serve报告或被裁剪资源不足，准确not_ready；源检查/这份设计不能替代报告。既有build七plans与四profiles计数/entry校验保持，Integration补实际强关系检查，不把role字面相同当资格。
+
+## 3. 唯一seq6字节输入
+
+继承原samechild stdin/stdout、uint32LE长度/canonical UTF8 sorted compact/noLF，完整body≤32MiB，不截断；duplicate/unknown/noncanonical/bool数字拒。新独立wire=native-owner-setup-production-carry-v1，闭集仅下述bind及success/error；不扩record-handshake wire的seq允许值。它仅该fixed新计划的seq5-complete状态可读取一次；不得公开API/MCP/env/renderer提供或作为CLI任意module selector。
+
+stdin恰六键：wire/event/seq/instance_id/startup_record/production_locator。event=bind_production，seq严格整数6，instance_id=实际同Engine。startup_record为原canonical十键native-startup-binding-v1对象（format/instance_id/role/installed_native_image/installed_native_image_sha256/registration_sha256/resource_manifest_sha256/runtime_manifest_sha256/expected_files/engine_file_names），role=api；禁止encoded string/bytesarray/partial map。production_locator为原五键pipe/session/instance_id/role/server，role=api，server为原pid/creation_filetime/sid/image/image_sha256。沿原真实v2 producer/locator family，不让carrier自选pipe或服务端；这里的JSON只描述原已创建session。
+
+成功stdout恰wire/event/seq/instance_id，event=production_bound、seq=6。它只是连接完成关联，不授source。失败stdout恰wire/event=error/seq=6/code/status，闭集setup_production_frame_invalid422、setup_production_frame_limit413、setup_production_source_denied403、setup_production_binding_changed409、setup_production_unavailable503、setup_production_unknown503、setup_production_timeout503；原详细安全诊断stderr，不回显locator/maps/secret。帧读取10s绝对期限、禁止提前pipelining；原v2 peer startup20s及单exchange10s不变，Native只有限等待ACK，无自动重试/新session绕过。EOF/截断/断线在绑定受理未知时为unknown，限界413，错误身份403/409。
+
+Native seq5收到原四键ready后：从同Driver真实current_registry取得原Arc并核原committed record/action/current；持上一节SetupApiContinuation原对象，child_image_relative取其原实际解释器名（必须同api profile）。FactsContext固定api+实际ID/原三SHA，由原NativeInstallationInputs生成，不来自renderer。调用实际create_qualified→拷贝locator canonical data→start→register同OwnedSetupRun.process Arc一次，再发送seq6。start/注册失败不发Goal；所有返回原session thread/guards与parent原child同scope持有。不得为此再launch api child、reopen PID、从祖先替代原Arc或parent先打开client。
+
+NativeStartupRecord从原完整NativeInstallationInputs投影十键，expected_files/engine_file_names取其完整原map，不从observer/recordreply改组。server实际身份仍等初始化原server/host及同原OS session，已有locator关联不能覆盖独立expected host。Windows保持原实际HANDLE/creation/SID；Linux headless沿ADR0033/45真实POSIX peer/version/原FD，不能伪装Windows字段或新增账号/GUI硬依赖；未有该平台实现/报告仍not_ready。
+
+## 4. 同State接入、实际验证与首Goal
+
+Backend唯一私有cli/native_qualified_setup.bind_production_authority(state:TrustCommittedSetupState,*,carrier_bytes:bytes)->None；只读上述完整新帧的canonical bytes，State原member/thread/seq5 receipt/current检查在前。旧entry和其它函数不能调用未经该状态认证的setter。方法不创建Engine、Bundle或任意issuer/callback，不建立public可配置装配入口。
+
+复用唯一NativeStartupRecord.parse及真实connector，先逐字段核startup instance/api/三SHA/full map/两分区/installed host完全等state.binding.startup.installation及初始化独立expected_host；locator.server完全等state原bootstrap peer，actual连接仍核实际server OS peer/原受保护build。state.record_receipt/已提交record/current/ref/registry/floor必须同该v2 observation的真实qualification binding，不能接受另一个candidate或同hashforeign source。
+
+再调用connect_qualified_native_installation(engine=state.engine,bundle=state.bundle,locator_bytes=canonical production_locator,context=startup.context,installed_native_image=startup.installed_native_image,installed_native_image_sha256=startup.installed_native_image_sha256)。对返回原authority实际observe/assert_current，沿Concrete issuer/原live trust+材料源核完整资格及record；bind_facts_only成功码不能代qualified observe。所有OS/file/hash/签名/pipe验证在OwnerSetup及短writer之前，首次绑定不持writer lease跨人工审核。
+
+只有这些成功后同State持有原authority及build，设置qualified_authority并发送production_bound。增加私有qualified_build与绑定成员/closed epoch，不能裸赋来自外部DTO。continue_setup沿实际100–119行给同OwnerSetupService installation_authority与installation_session_guard；原observer仍只安装事实、confirmation仍原人审，正常Owner/rights/policy/预算及native execution registration按原步骤。不能直接调用普通_native_startup_factory或store.current来跳过尚未创建的首次execution identity。
+
+Native消费exact production_bound后才发送原SetupPreparationRequest；Backend此前不读Goal、不prepare/execute OwnerSetup。之后原prepared→accepted→goal_accepted输出不变，无新业务步骤/第二审批。已有两个安装intent窗口是实际Integration实现，seq6不要求再人审。
+
+## 5. 生命周期、失败、恢复与交接
+
+State保持v2 authority/Concrete issuer/build/connection直到OwnerSetup服务结束及原拥有scope清理；先service/短writer真实结束，后issuer/authority关闭、原build资源收尾，再State原record/trust/source/stream。Native保持v2 registration/thread/原Registry/SetupApiContinuation/pins/OwnedProcess/Job直到同真实子进程和原后代终态。正常stream close/marker/成功帧不能提前释放；get/end writer lease未知仍沿ADR0044真实guard保留，不因seq6失败假清空。
+
+seq6失败/ACK丢失不撤回真实已commit trust/record/floor、不重新安装确认、不重发Goal或费用。不可重连/造新session说旧未受理；原parent核真正child/session/terminal后走既有exact安装/acceptedGoal恢复，新次启动重新验证current/original sources，不Deserialize carrier当live authority。pending/较高floor/expiry/revoke/record变化/source缺失拒绑定/新writer；原accepted媒体/unknown账本保真。恢复不能把原InstallationPendingRecoveryGuard提升成生产lease。
+
+Backend：实现固定seq6 parser+唯一sameState bind函数、full匹配与live qualified observation、authority/build成员生命周期；调用continue_setup前绑定，不改原frames。Integration：在原OwnedSetupRun/7th plan新增上述强API资源关系和实际PendingQualifiedAuthority caller/single register、seq6发送/ACK/guard/thread清理；不创建新child、计划或v2方法。Test/独Review/Acceptance：同原child/Engine/API-profile/actualparent来源成功与负例、endpoint/host/profile/map替换、跨State/thread、seq6丢失/超时/revoke/current变化、unknown lease清理、完整真实firstGoal/后续媒体闭环。缺真实Windows资源/合法许可/独评报告仍not_ready，源码/语法/本文不是qualification，完整可用Windows/R1/R2未完成。

@@ -1,0 +1,55 @@
+# RV54：B28 原受理恢复接缝独立源码评审
+
+结论：**SOURCE_REVIEW_FINAL / LIMITED_SOURCE_SUPPORTED**。固定两处修改及相干调用链未发现新的阻断源码Finding。它们可以作为Frontend后继消费的明确恢复语义来源；尚不能批准真实并发、SQLite/API/MCP行为、生成SDK、完整制作恢复、RuntimeBinding或R1/R2。原来源和所有未测保持。
+
+## 固定输入及边界
+
+B28正式MD bbb24087d114e225e61aeba0fa5ca160777f191f015d589c49100402bf0c88d5；JSON bfb1cff81aac08bd4aa8963800fdb4093007daf8632b00e4f693868d801713b8；Interfaces 1c4c72aff8dabee03c5009d36e2f3b8eee253fd244d126eab19897a84dbb6bde。
+最终SourceSnapshot 6644cbee7b0da890d183268ba742eb2dbaaf6b3233dd76acfb83eef76bb2c2f2，FinalSourceStage/SourceCopies完整53普通源全部大小/SHA匹配；本轮共62固定输入。完整路径/SHA见RV54Snapshot.json，结束核对见RV54SourceAfter.json。
+
+最终engine.py SHA 3cfb8351560e53b97cded1fcc26748479da70694ca69d2e45c7506d86c59b823；app.py SHA 5ec7b2d786f17e2441f9a6ee10b698cb1a0cd0089ac73fd53030777373616e56。最终diff 5342d7344ab07dbba985b48c90dad6c7d8aff7ad6f7d17ff5dd92a1f4408fbc1，只有这两处源变更，其余51份的before/after hash声明一致。只实际核固定副本，不读当前生产源。53份身份核对不表示逐行审查全产品；语义检查限受理、鉴权、事务、回执、公共入口和对应表/DTO，并保存21个相干方法正文。
+
+首静态d041c5与最终35d7f9为不同engine身份；ReadSnapshotAddendum 9b7663b2cbee4c27e769b9ea03d8876f437caa10936700c8eb54f633f7f9b16b明确新增读BEGIN，原首静态及其副本保留，不继承为最终验证。最终StaticReceipt 8789368e02c3305c9ca373d8be9f6dc2362fe191cd1795cfd141c57e3f3aa93a的53源/46AST/Ruff0只是owner静态证据，本Review没有运行Ruff、SQLite、Pydantic、产品或测试。
+
+## 相干源码判断
+
+### 当前权限先于重放
+
+固定 [app.py](G:/开发测试/Codex/VideoCreatorImplementation/Backend/ProductionRecovery-B28/FinalSourceStage/SourceCopies/services/engine/src/video_creator/api/app.py:118)，118–127、192–212行：Origin和会话/注册principal在公开POST之前；接口仍唯一ProductionRequestAny、必需Idempotency-Key与202 ProductionAccepted。
+
+固定BundleService.create_production 1456–1465先调用_actor；_actor 1401–1407重新取当前principal并检查installation、operation=production.create、purpose=derivative；显式项目还核真实owner及配置范围，缺显式项目时要求owned_projects权限。然后才调用EngineService。MCP 77–94同样取可信AccessContext并转发同BundleService，没有绕道另写回执。这里只证明公开调用链；原始内部EngineService的subject参数不是一个新公开授权端口，也没有被冒充当前principal认证。
+
+### 调用方输入与resolved输入不覆盖
+
+固定 [engine.py](G:/开发测试/Codex/VideoCreatorImplementation/Backend/ProductionRecovery-B28/FinalSourceStage/SourceCopies/services/engine/src/video_creator/application/engine.py:338)，47–52、279–305、338–409行：
+command scope=production.accept，键为owner/scope/key；command.request_sha256来自调用方原Pydantic规范输入，在resolve前计算。production.request_sha256仍来自实际resolved请求；两者分开存储，不在重放时覆盖。canonical使用model_dump(mode=json)和排序JSON，故字典顺序/空白不会产生新身份；这不是任意输入都相等的承诺。
+
+有journal时先核合法64位输入SHA，再比较同规范输入；不同输入idempotency_conflict，不更换原记录。同键同body只读取原回执，不根据后来的默认政策、反馈Run或任务列表猜测身份。V03原null和实例resolved策略的分离在源码成立；实际serializer/版本等价边界仍待真实合同测试。
+
+### 两次查重与同一个首受理writer
+
+249–260的第一次读取显式BEGIN，Production、commands、事件与Run共用只读快照。Database.connect仍isolation_level=None，但该批已主动BEGIN；_Connection.__exit__自然结束并关闭此连接。原未命中后才进入新身份准备。
+
+338–343在Database.transaction的BEGIN IMMEDIATE内再次查重。首次写入Production、原Run、production.accepted事件及真实等待/策略绑定后，406–409把完整canonical回执写入commands；transaction 159–169在yield之后commit，任意BaseException rollback/close。Production UNIQUE(owner,key)与commands PRIMARY KEY(owner,scope,key)是已固定的表约束。代码结构支持同一首受理事务和并发查重设计；未实跑互斥、锁等待、commit前后中断或崩溃恢复，不把SQL文字当实际一次性证明。
+
+### 原回执、原事件、原Run及latest分开
+
+311–336要求唯一production.accepted事件、原request_revision相等、其Run确属同Production并存在。journal回执必须str、通过真实ProductionAccepted验证、canonical原字节一致；实例/Production/project/request revision/原Run/定位等与持久记录派生回执比较。受理status作为已保存快照保留，不拿原Run后来status覆盖。
+
+缺Production的孤儿command、非法SHA、坏回执JSON/类型/非canonical、缺/多/错revision事件、缺原Run或身份不一致会走拒绝分支，不能当未命中新建。并不据此声称可发现任何任意有效值的存储篡改；既有其它历史损坏存储错误未在本片重新分类。
+
+历史无journal只能比较原persisted请求，省略delivery默认用原持久值；然后使用唯一原事件绑定Run，返回该Run当前status。它无法重建原初始status，也没有写一份假历史回执。此限定已同时写入接口及route description，不能用历史路径声称新journal的完整不可变快照。未知无回执也不能证明未受理。
+
+436–460的_accepted默认仍取latest Run；GET/list使用该默认，不被恢复回执强制退回原Run。POST恢复则显式选原Run。接受快照和当前进度因此有各自职责，Frontend需恢复后读status_path，而不是用旧queued/waiting状态驱动执行。
+
+### 不把回执变成执行权限
+
+已提交重放在新身份的authorization/current-policy绑定之前返回；不会恢复执行、审核、重授权、建立Operation、结算unknown费用或重置预算。新first acceptance仍走既有授权/等待路径。这是相干源中的分支与写入范围，不是对整个媒体/账本产品的行为验收。任何再次拒绝、当前权限失效或损坏响应仍不证明第一次未受理，调用方必须保原意图。
+
+## 契约与真实后继
+
+app.py192–210的新description与以上源码一致；原DTO/route/版本及GET最新语义未换。当前旧I33生成文件没有这段新描述，本Review不借旧SDK证明新生成契约已交付。Integration应按正式固定源/独立闭包重新导出生成；Frontend再消费其原body/key恢复，明确原受理快照与当前状态的区别，不因一次拒绝解锁旧unknown。
+
+独立Test仍应实际验证同规范输入重放、反馈后仍原Run/初始快照、首次并发、commit前后中断、字典顺序与默认等价/真实字段改变、当前权限/到期/项目范围、V03政策变更后的已提交重放、合法历史无journal及坏原事件/回执、unknown成本/reserved/spent和Op数量不变。不能仅以AST或mock次数关闭。未读T38/T39活输出，也未读尚未正式F7源；本批不等待它们。
+
+费用、真实密钥读取、网络、API/MCP/DB/模型/媒体/ASR/产品/测试执行均0。只自有stdlib读取固定artifact与AST提取正文，2d812b实际exit0，无分析失败。大段元数据/显示截断由完整JSON解析和具体方法读补足，没从省略部分或未来源倒填结果。完整R1独立验收后连续R2保持；native/真实媒体/ASR/权源/三OS缺口不缩。

@@ -1,0 +1,17 @@
+# Test — 依赖要求表示比较的独立测试准备
+
+PREPARATION_ONLY_FIXED_SOURCE，唯一原 test_development。Root激活且实际槽位确认后可实施准备；运行必须等停止实现独评、独立测试标准评审及Root新定范围任务，不运行原19或其等价第四次。
+
+目标：为完整依赖检查提供真实独立支持/拒绝用例，不能按实现算法镜像期望。此任务不算安装或配音通过，完整R1后连续R2不变。
+
+输入：Integration/PiperDependencyMetadataSemanticPreparation/SourcePreparationStage/Handoff.md SHA24d02497196bfb2d4a8fc36bf1806c1f00661533f36266707359b5e87ad08ed7；Handoff.json SHAf229ab326ce65988b687240e7111f59660813d7cb7e80bf2f31a7598e5ebf344。已停止parser RequirementRepresentation.py SHA9eae0ad968c464189810a62e0ecf2579a2dc5ef11de1fc6dd3b523e3018ac382、helper85446bdb、Plan292edfd8，准确路径/成员原件以Handoff为准；原owner025078自然0、无live、读者释放。当前原Review并行只读相同固定源，可提出变更但不能热改测试输入。原26cases仅提议，不当已批准期望。
+
+白名单：repo AGENTS全部测试路径（仅本任务新命名文件，不动旧标准和失败）；过程 TestDevelopment/PiperDependencyRepresentationIndependentTestPreparation/。禁止改实现/锁/资源/依赖/源parser或共享环境，不借其他私有环境。先固定有限Before/源身份，使用真实完整停止原件，复制只非敏感source。
+
+准备独立fixture与oracle：完整raw/重复条目、version conjunction仅顺序差、operator/边界/version变更、完整marker变量/字符串/引号/空格/布尔优先级/显式分组/order、extras、未知或不支持语法、转义literal、空/错误类型、输入深度/节点/条数/字节/输出上限。区分合法表示变化、真实约束变化及未支持拒绝；不求值platform/extras、不把marker truth相同但结构不同判等、不丢重复、不删literal内部空格。不要求支持合同明确未支持语法，只验证确定拒绝。
+
+独立标注原tokenizers12条差异及至少一个真实约束不同反例，保存originalraw与来源；期望须来自原完整grammar/约束定义，不从parser输出反填。设计未来执行真正停止parser模块的有限入口，不extract AST函数替产品算法、不mock被测实现、不import vendor或另搭等价旧19/Pydantic/SQL入口。冻结此新目标与旧19的调用范围/被测模块对比，明确不是绕过三败；旧19和20元账本不重置。
+
+本轮只写/检查测试准备源码、固定样本及计划；不运行parser、样本/fixture、Python AST/import、归档/HTTP/native/模型/fee/install。未来runtime来源、标准库source-map/startup与实际import限制如有未知如实列缺口，不编已通过入口。COMMANDS.md只登记真正执行过的命令，本轮不写虚构测试结果。
+
+交接完整普通测试源/样本/index/full diff、独立预期来源、具体新定范围运行提议及停止标准、保护边界、有限输入末核；末工具自然终态/无live/全部读者释放。当前实现Review finding需归Integration，测试不能降低oracle变绿。原Review后继独审停止测试与标准，再由Root另卡安排真实有限验证及六归档数据检查。未执行项明确NOT_EXECUTED，不自行验收R1/R2。

@@ -1,0 +1,15 @@
+# ADR0043 真实安装资格合同闭合
+
+状态：QUEUED，待原Backend早期slice真FINAL释放实际并发槽。角色：原Architecture；仅架构白名单和自身过程。输入：既有ADR0043 b8ec30bc75070acbe1e5b5a370e6177d9d389912af1b86a5fe40078d8fa3b2bd；Backend/QualifiedIssuerAndWriters/IssuerStage/AbiSlice/Interfaces.md d5eaf1256ec8240241b2364aa3dd901b52da465bcc2511cd21c095624b45e921、SliceIndex.json 6e89e339425668140a7baefca387f7c9bdc74871988349b2b7751bb3c51b2cf4。WriterStage另由独立评审处理，不混关闭DG-P01。
+
+目标：一次性解决早期Interfaces明确A—E，形成后端与集成可直接实施的唯一精确类型、原强对象来源和生命周期合同，避免猜测底层后再替换。
+
+A. 精确target/os/arch/conditions有限嵌套类型与真实安装目标来源。
+B. api/worker/mcp/asr完整四profile原启动身份、entry/version/全部文件与报告关系；bootstrap不能替代ASR或截断原147生产+24ASR及原完整范围。
+C. Ed25519精确signature/trust_mode；publisher与local_verifier锚必须来自原受保护安装动作及原Registry/build持有来源。明确现有factory没有anchor参数时的唯一强对象传递路线和接线边界，不能由record/locator/env自供公钥或新增任意setter授权。
+D. 复用原ProductionAuthorizationControl的资格状态/command/同步锁序；精确SQL/受保控制int64与record uint64边界、revocation/floor/pending/离线可信verifier准入。真实缺件诊断保留，不以初始化文件冒充资格。
+E. 原nativeRegistry/资源读lease、同Engine本地epoch/row、assert_current到实际短writer的持有/撤销/关闭协议；writer纯本地检查不得调用v1 transport/OS，也不能用bool或peek冒充lease。
+
+安装在哪儿数据留在哪儿、本地/BYOK免产品注册、离线合法路径保持；真实独立资源/许可证/构建/媒体suite+Review+Acceptance仍是资格前提，不用设计或签名替代。旧v1事实链/public API/单Engine与原Daily不重复；总目标R1独验后连续R2不缩。
+
+架构可只读必要原合同/源和现有资源清单，先固定实际路径/有限来源，工具/源码/许可证或接口不确定时按官方文档用Firecrawl与Context7，不安装工具或读密钥。所有实现/锁/SDK/native producer归各原owner，架构不代写、不运行产品、不签发真实资格。交付一个精确补充决策、typed示例/字段表、原对象传递时序、Backend/Integration/测试交接和明确仍缺实际材料，固定SHA与原工具真实终态、读者释放后回报。

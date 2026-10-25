@@ -1,0 +1,11 @@
+# 七包许可原文来源与精确获取计划
+
+ACTIVE_INTEGRATION_DATA_SOURCE_PLAN_ONLY。唯一原integration_release；两P2修正89055f/3a6679 TRUE FINAL、全读写释放，候选冻结等待原Review，本任务不改它们。当前有真实空槽，独立推进安装包许可材料缺口，完整R1→R2目标不变。
+
+只针对crewai、crewai-cli、crewai-core、flatbuffers、lance-namespace、lance-namespace-urllib3-client、tokenizers。固定停止 Integration/DependencyRuntimeMaterialCompletionPreparation/RepairPlan.md7159B/a24f40a29f659a1e5d5667e92035fe5c1cdab91af9d1904c631ee11ece8ed3fe，LicenseDeclarationMap.json378005B/2b173b9f459ced8fe032774ae713ab1d81620d2419d712849eeee308b8378a8e，CausalAnalysis.json173388B/2bafb73d85e7759c320c53172b39b663d5be476ab26d0872f770687a76130a7b；Root72ae8b全文计划、核三身份。不要扫描原.venv或runtime目录、引用其字符串冒已取得材料。按停止metadata/uv锁原件确定七包实际版本、原Publisher artifact URL/size/SHA、原License-File/RECORD/source/NOTICE关系；完整许可字符串/classifier不是原body。
+
+工作分两类：自身purestdlib读取固定已保存JSON的七包数据/明确引用的停止ordinary copyright材料；通过官方公共资料调查对应精确版本/发布tag和完整许可证/NOTICE来源，形成可复核的精确材料获取计划。按用户要求应用Firecrawl与Context7（先读各SKILL，只官方primary资料），网页转换文本不宣原artifact byte/SHA或已解决分发义务。不得凭项目首页最新LICENSE代固定旧版本。不联系厂商/管理员/发布任何消息，不启动模型或付费生成；现费用和模型限次不重置。
+
+本阶段不执行新archive/body文件获取或材料化，不安装/加载/导入包、不运行候选或函数、不启动metadata语义求值、不第四绑定/旧19第四次/31Test。先把每项确切artifact/member/原sha/bytes/URL/来源身份/获知方式、是否已实际取得、须保NOTICE与分发条件、累计获取cap/原历史计数、全成员核对方法及不可用原因写成完整计划/Impact，供Root具体收件后由原Review核完整关系，再作下一步具体执行范围。不存在原hash/bytes时明确未知，不编数，给可验证原发布关系和验证顺序。七包用途不得变成整个147重装或解析新版本。
+
+白名单仅自身 Integration/PinnedLicenseSourceClosurePreparation/。不修改repo、旧198/18普通版权件、元数据collector及三个修正候选、不复制私密文件。源码/许可候选只是普通证据，不能授issuer/source/runtime/legal clearance。交实际public资料链接/时间/读取方法、准确七项材料及未取得声明、有限inputs/beforeafter、完整短plan/Impact/索引与真实自然末工具/allreaders释放。若工具缺认证/无法访问，保原错误并继续固定资料分析，不另装插件/依赖或消耗模型预算。

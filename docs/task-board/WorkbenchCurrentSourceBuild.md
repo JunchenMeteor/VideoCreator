@@ -1,0 +1,19 @@
+# WorkbenchCurrentSourceBuild
+
+ACTIVE，唯一原integration_release；原V2任务9efb4d自然0/TRUEFINAL/all读写释放。实际当前Root/Backend/独Review三槽，使用第四槽。完整R1后连续R2；本任务只生成最新工作台静态构建，不称制作接通。
+
+固定停源：Frontend/GoalMaterialsCurrentStateContinuation/Handoff.md c9a606453eaad78ee1ec098687fe6c4fb65e305a4967448e19a3a6eebd6d8a5f；SourceIndex.json3b6a18634a44c65cfd69323c6289d4b254f014e80619f2dd45f8cd729b9ae27c（14当前完整生产源+5 observed）；公开schema d20e700ce75189157869e0c505e27b604958f5a0a0830af39802646b32b8ab1f、routes a25a29ec1ea8215cb87ad4432916110d1fdfa60ce39d8f7a1725eabaaf08dd87、OwnerSetupPort df713a887e9da3388a886d2264be9e9cec1466d5e6aa36c05371d83ff4231d28。Rootddf8cd全文交接，f8d915全文Index和现package脚本。
+
+当前用户预览只F8/F10旧构建，当前14源/生成SDK与该构建不同，当前SDK也不是原绿typecheck基线，因此这次新有限typecheck/build有必要；不重复旧绿，也不冒SDK观察hash为运行准入。
+
+## 具体执行
+
+仅自有新过程Integration/WorkbenchCurrentSourceBuild/写工具/log/artifact。源码与SDK完整before pin并保持不改；从原F8真实构建交接定位本项目已有独立Node依赖和实际tsc/vite入口。不得借其他任务私有环境、修改共享node_modules/安装依赖/下载/npx自动安装/改锁文件。缺实际工具先报具体不可用，不盲修技术栈。
+
+运行一次现有类型检查（无emit）及通过后一次真实Vite构建，固定当前源/tsconfig/SDK/构建配置与实际依赖版本，Dist仅本任务BuildAttemptOne/Dist，不覆盖F8 Dist或仓库源码。命令必须真实调用编译器，首失败原raw/exit保留，由原Frontend或SDK归属角色修；不得集成修改UI逻辑/测试期望或绕过tsc把失败假绿。有限语法/build失败至多三轮，未明新修正不重跑。
+
+保存完整实际argv/cwd/source与工具pins、退出码/raw输出、构建产物有限文件大小/hash和Input before-after；若工具仍live本人持同handle续取到自然终态，不因观察超时重启。TS/build只证明此次界面可编译，不证明UI交互/上传/API/native/模型/媒体/安装/源码评审通过。
+
+0产品后台/Python/Pydantic/19/SQL/模型/费用/安装/平台发布。不要启动替换或停止用户40920服务；新Dist交原Frontend另接预览，不自行改其服务。旧失败/标准与20元不重开，未生成作品不能伪播放。回滚是不采用新Dist，旧F8预览保留。
+
+完成后SOURCE/BUILD准确分开，真实工具终态/all读写释放，交可消费最新Dist固定路径和manifest。下游Frontend可展示新构建并独Test/Acceptance交互验证；后端/媒体真正制作流程仍优先，不能因新UI构建代R1/R2通过。

@@ -1,0 +1,9 @@
+# I57安装观察接缝的角色职责补充
+
+不覆盖已pin的I57卡、B39协议或架构设计。11/仓库AGENTS的唯一写入者始终优先于任务书“Integration供给adapter”的简写。
+
+Integration实际实现自身Rust/desktop/native/build白名单里的独立host/control及Engine payload真实held guards、原对象/epoch/完整资源事实与close通信接缝，并给固定普通源/接口/producer receipts。不得写services/engine/src/video_creator/application/。
+
+Backend在自己的application/cli白名单中实现Python NativeExecutionInstallationObserver的具体消费器与Owner/bootstrap装配，调用Integration正式固定的原生接口；维持原observe/assert_current(外部完整观察)/assert_local_current(短writer本地事实)/close强原件绑定。双方直接对齐唯一native观察/epoch/localfact/close接口，不各猜JSON/bool资格，不跨写，不以永远unconfigured503交付。
+
+Root只协调责任、输入与正式交接，不代写实现、不兼任评审。B39现同writer实际mutators/currentlookup仍在实现，I57新BuildNativeInstallation.py只源码落地，尚未执行build或真实安装。真实Owner、资源/ABI/ASR/许可资格、三OS和完整R1→R2独验要求不变。

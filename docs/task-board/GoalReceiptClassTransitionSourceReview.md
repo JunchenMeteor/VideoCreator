@@ -1,0 +1,15 @@
+# Review — class-transition 修复独立源码复审
+
+QUEUED，原 integration_review；仅在原Test cfe9b08完整源码/正式交接停止并释放后接棒，不新增第五槽。Review只读实现与测试，仅写docs/reviews及自身Review过程材料；不代修、不兼验收。
+
+目标：复核原GRTSD-P01 P2/Test，不以纯测试通过直接关闭业务失败。原实际三次19项均1error/18NOT_EXECUTED，失败证据保留。完整R1后连续R2不缩。
+
+固定已停输入：原report SHA8bfcca1993de83003217f963fa4caa9302107c18e4fc9507c3d6f4920ca2aaed、FinalHandoff b0ea64b48057139fcceb0e531bc91dcd9acb4137f6bbd8fa49669a499b1f9d4d；新candidate Index45ff2d6ee58747d80b452fce5a22771a3a0a594a032123d29e019da32809fd21，future runtime=false Request bf536f20dadb72931b8215501980e9fbc56d7f107729ff027cb1dce3f681a8d9；纯输入pins f35a0c5b164fb9934750ca81eddddf28cba802a6bf3cd61483dd9b52f1d56de2。完整停止源码及formal身份必须由统筹正式补附；不得读热helper。
+
+原Test58632→585d44自然0。Root8a32d3 FULL读取TestDevelopment/GoalReceiptClassTransitionSourceCorrection/PureRoundOne/Summary.json与PureLauncherRoundOne/CommandReceipt.json：11tests/0failure/error/skip，11节点，changes{}，pid11380自然0双EOF，无timeout/errors；Pydantic/product导入0、original19 NOT_RUN。0.768619秒wrapper与原unittest0.351秒分层，不能改为同一种计时。
+
+复核完整原helper→新helper、class-body原记录到builtins.__build_class__语言生成/装饰器episode的身份、owner/module/globals/loader/code/compiler真实性，实际合法Generic/继承转换和伪造对象/代码/namespace/来源等反例。不得盲允任意namespace变化、按库名/键名豁免、删除protected builder或猜此前实际差异。新11用例须覆盖真实守卫入口与有意义边界，不能mirror实现自证；保留原3695全部输入及19assertions/order/runner/期限和既有红结果。
+
+只读源码/既有原始输出与有界数据静态核对；不授权新pure、产品/Pydantic/原19或等价第四轮、SQL/native/provider/ASR/网络/密钥/收费/安装/提交/部署。不得因源码支持宣Owner/平台/业务通过。区分SOURCE_STATIC_SUPPORTED与实际失败未运行关闭，runtime=false不转换执行许可。
+
+交付：逐条严重度/归属/证据的复审报告、完整读取输入与未变索引、实际工具终态和reader release。缺项回原Test修，不放宽标准；无confirmed问题也只给相应源范围结论，后续运行需另行依法处理原三次限制。全部产品与独立验收仍未完成。

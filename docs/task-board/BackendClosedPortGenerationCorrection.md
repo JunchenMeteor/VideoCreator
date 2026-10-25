@@ -1,0 +1,19 @@
+# 旧端口重复关闭的代际隔离修正
+
+QUEUED_REVIEW_TRUEFINAL_ROOT_FULL_AND_REAL_SLOT。唯一原backend_instance；当前四槽满，不自行激活。此项优先于0062新状态实现，后者不得使用未经复审的新基线。
+
+输入：停止的Backend/DiagnosticActiveInputsLifecycleCorrection/SourceStage/SourceIndex.json ebb818fa78044533eb8ca924a445f732e02c8f8feed5eae48d2291140d06e9f1及完整130普通源；独立Finding-DALI-P01.md 52ada4a069c164a4dff72f4d9391acce633eda60e87539917fb679e70ed1493c经Root38c852全文及actualSHA核对。原Review current formal未停止，不读热报告；正式终态与完整报告由统筹补充。
+
+实际问题：A首次关闭、同仍有效lease原真实factory重新登记B后，A二次close虽不注册，仍按lease/thread删B factory及records/selections等；已新增active/input owner保护不足。这是继承缺口而非上一patch新引入，仅源码带条件反例，没有SQL/Worker复现。
+
+仅后端白名单实际生产源码和自身Backend/ClosedPortGenerationCorrection/。使旧已撤销port重复close不再清后来合法owner的实际状态；首次真正关闭仍完整释放本人登记/inputs/active/held，不能保留旧权限。真实同对象/registration/lease/thread/fence和锁边界保持；不能删current门、catch403、强迫Media再prepare，不能清整Run或后来lease。评审明确原A/B不需同时注册，不能用多port拒绝规避此合法代际。
+
+只SOURCE窄修与有限静态/full diff/完整ordinary before/after；不改Media/tests/标准/架构/依赖，不运行SQL/Pydantic/产品/native/模型/收费/安装/旧19第四次，不碰0062或原被拒hunk。保原ebb818fa窄修，不覆盖其他源或热读Media。
+
+交完整基线→新源码/index/diff、实际close/注册/Worker finally链和未变guard、有限检查、formal真实终态/no live/allreader release。由原Review判断DALI源码关闭；原Test真实A→close→原factory/B→prepare/record→A二次close，以及B自身关闭/new fence/new Run隔离尚须后继，不以AST或静态反例替代运行。完整产品目标保持。
+
+## 正式激活
+
+原Review6807bc自然0 TRUEFINAL/no live/全部source读者释放；统筹5744d8完整正式报告e600e660048b297a4683f7a266a5fb96d83700d90a0c708717ff07f0b97a77c3与FinalHandoff0aa76e7e21214c66d59f2f8491aa97fd5b5ac8da4890b23127b7a68eb4363780并核actualSHA。150有限输入无漂移，原BCF-R01仅源码静态关闭、DALI-P01 OPEN，均无实际运行关闭。
+
+当前Root/Media/Architecture三个角色，原Review停止形成真实第四槽，明确恢复唯一原backend_instance实施本窄修。状态ACTIVE_SOURCE_ONLY；正常工具审批，不扩原授权到运行/费用。当前资源0063停止正文已统筹全文，但formal架构未释放且未独评，不消费新合同或修改observer；0062仍QUEUED。仅读原固定ebb818fa与此正式报告/finding，不热读Media。

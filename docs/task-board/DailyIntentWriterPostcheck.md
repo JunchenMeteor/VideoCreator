@@ -1,0 +1,11 @@
+# 私有 V2 Goal 意图 writer 后置检查修复
+
+状态：READY，原Test正式冻结释放槽，交原Backend。白名单：原后端生产路径及自身过程；不写测试、native、SDK、依赖、架构或Frontend。
+
+固定问题：Review/GoalWriterCorrection/EarlyFinding-DG-WRITER-P01.md 4f8c07f28a0efe49d708bab166768a8395a348d5b0942ce2e378326095d34485；正式DG-P01-WriterStageIndependentSourceRecheck.md d258f80efa59de5c2f200cf156577df4be4ade2952860a3e258394c93744fd8e。原WriterStage88完整件不可修改；daily_projects.py固定08bd9b43520b230abfe5b6adba2fd25be09260c0ff169e330031040e1b670d9a:833—849意图事务写Command/locator后缺同source/sameconnection后检，935校验已晚于commit。
+
+在原私有事务的正常及原意图重放退出前补既有source同connection后检，让失败自然由原Database.transaction rollback。审相干transitive mutator是否还有同类提交窗口；不globalhook/任意callback，不修metadata/换Engine/重造source/新key/新Run/清pending与floor，不扩大权限，不改变普通public API与预算、合法重放、人审业务期限或原20秒初始化语义。缺口为SOURCE_STATIC条件，不声称外部SQLite能越过BEGIN IMMEDIATE或实际Windows复现。
+
+独立新stage固定完整必要后端源和原基线差异，保既有WriterStage/AbiSlice、历史失败及副本。现有资格namespace是另已冻结源，不混成运行资格或补齐A—E；Architecture并行裁决，未给精确强来源合同前不猜实现issuer。必要现有源语法检查记录真实command/退出；不自关DG-P01，不借AST或机制fixture报DB/Owner安全。
+
+交付完整source/diff/有限前后输入、exact接口/行为、原工具自然终态/读者释放。独立Review后继复核源，Test另核合法原source路径、commit前窗口拒绝码/Command+locator Rows rollback、合法重放/人审期限；真实OS、资格与完整R1→R2验收不省略。无模型费用/秘密/安装/外网发布/正式部署。

@@ -1,0 +1,9 @@
+# RV4 固定Node host独立评审
+
+永久评审owner；前置RV3 FINAL及I4正式固定交接；完整Gate0→R1→R2保持。只读实现/测试，写docs/reviews及自身Review过程；不运行测试、不修改源码或标准、不读密钥或ValidationInstance、费用0。
+
+固定输入：I4HostPhaseHandoff.md/json（JSON SHAfc24ee61697c85e45bae033e743ee43a52152cb1a2cc2cdf615338dcce161a02）、ADR0005、B4/B5、RV3报告。EngineProcess.mjs SHA7e94a02e9cdc12254d0cb4af4a9954eae353f724dffc69be23974853d455ceca；DevRuntime.mjs SHAd900d689d960ade8f3c13bc9f495922f3890436bd58a03752f8a5dd44a4898c5；RuntimeContract.md SHA00814447e397c868235acf66d5bd07f982df53067611d62b9248765761f0fa7f。
+
+核可信控制默认/精确帧、marker完整有界解析、actual close/exit/signal/端口/捕获PID创建身份组合、失败分类、EOF不取消、限时owned清理和兄弟保护。有限快照及taskkill身份核验的TOCTOU不能称JobObject/原生父崩溃保证；检查异步事件竞争、启动失败/Vite失败清理、重启数据路径和错误传播。owner两轮探针只称自查；T7运行中，不能提前借其通过。旧22508不重启，旧安装包不继承绿。
+
+先完成固定源码及owner证据静态评审，输出实际发现/归属/触发/固定身份和明确未测范围。测试WIP文件只作为待定输入，不计固定结论。若T7最终证据在本批结束前送达，另按冻结身份补审；否则静态批正式FINAL释放槽，再由后续批核T7。不得等待未确认进程，不能自签Gate或验收。

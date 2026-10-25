@@ -1,0 +1,13 @@
+# Review — ARP-P01/P02窄修独立复核
+
+QUEUED_BACKEND_TRUEFINAL_AND_REVIEW_SLOT。唯一原integration_review，写docs/reviews/与Review/BackendAffectedRecipeCorrectionIndependentReview/，不修实现或测试。须当前依赖表示工具独审完成并释放读者、Backend修复正式停止交接经Root消费后，由Root明确激活。不得读取热候选。
+
+固定原124输入：Backend/AffectedRecipeComponentImplementation/SourceStageRevisionTwo/SourceIndex.json SHA9b050d8eb5fc14c3c34a2bf121ad9f7cb4fc9f640317b8646149e83b3911b177。原独审正式报告ccb8eb237d7c50ee314d37aed7f52ed2a14435ccefad3f77925418b47f240d1b，P01 finding80f3cf01/P02 finding3a6f4c88。原Backend de430758仅窄修；当前作者报告493a04自然0冻124Before/124After/113AST，修后index16d94d493f3b5e77690a501703c7c713376c233629fb428d1fb97c99dbe4f4bb。此消息仅定位，不代正式交接；源/actualInterfaces/Handoff/full diff身份由Root激活补充。
+
+复核完整before/after实际普通源、完整diff及原119/新增保护边界，不依作者Checks bool。P01在实际初始完整catalog/domain与prepare投影中必须精确覆盖原narration、原顺序所有clips和唯一ambient edit；缺任意项、重复、多项、错顺序拒绝。保合法后续audio/cover/visual局部selection，不能强制修复全量生成或caller补route/source。
+
+P02两个strict parser固定表查找前精确非string拒绝，array/object/null/bool/number不能泄unhashable TypeError或stringify；未知string保原422/503，合法v2/v3路径保持。源级推导不冒实际Pydantic/HTTP复现，不用AST抽取独立函数代产品运行。
+
+核对仅domain/affected_recipe.py和application/affected_recipe_plan.py必要改动，其他122源完整bytes，去四窄修后原方法AST保护及完整旧version/mapper/repair2/source rights/CTC/parent writer/200ms/两authority/unknown/预算限次不变。原source v3 loader和0059实际服务未接通仍缺，不把小修关闭RRD/整制作。
+
+本轮只有限来源核实/source/AST，不runtime/product/Pydantic/SQL/native/网络/费用或旧19第四等价目标，不写测试或降阈值。交finding状态及实质理由、完整固定输入末核、正式报告/工具自然终态/无live/读者释放。仅允许SOURCE_STATIC关闭本两项，运行资格明确OPEN。下游原Backend继续已批准0059真实执行链，原Test新纯算法测试按新范围准备；完整R1三OS真实独验后连续完整R2。

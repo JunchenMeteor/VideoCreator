@@ -1,0 +1,13 @@
+# 修正安装 RECORD 后的唯一纯数据核对
+
+ACTIVE_ONE_PURE_DATA_PREPARATION_ENTRY。唯一原 integration_release；不是产品、Test或第三方运行准入。原路径独评a73839自然0/TRUEFINAL/no live/全部读写释放，Root2aa9fa全文13039B报告b7b98e0f13d4e19bd3056592daf9274ccf43a8ff790b13459dcd86c55d427b49与Final f500c3a3b587ca2e202f0ddd2febc0c07b3c4c9e636bcbdda51f768e90368e57。结论仅LIMITED_SOURCE_STATIC_SUPPORT，原两次真实失败完整保留。
+
+本卡在已有纯数据准备范围内准入一次新固定入口，不从独评自行推runtimegrant。停止根 G:/开发测试/Codex/VideoCreatorImplementation/Integration/QualifiedCompletionDependencyBindingPreparation/RevisionThree/。Plan BindingPreparationPlan.json 1251908B，SHA 3e7a38dafcd48f52cad9234fa0051af09e72a3ec50821d98294dd667c22b778b；runner RunBindingPreparation.ps1 5239B，13e04410df75d3bd4c2d47087db8cfbba03e23f7d8e3cda87401203e22a75485；helper 27130B，3c8b8ba70795bdd0c65985291ae6d5ace8e225585ae50ea71967e8d182458f55。不改三件或生成新Plan。
+
+精确命令：使用 C:/Program Files/PowerShell/7/pwsh.exe，login=false，cwd为上述停止根，执行 `& './RunBindingPreparation.ps1' -PlanSha256 '3e7a38dafcd48f52cad9234fa0051af09e72a3ec50821d98294dd667c22b778b'`。唯一新输出 BindingPreparationRoundOne/；Root7b01cc核该目录不存在。不得改namespace再跑或覆盖旧两批。
+
+固定2284输入/2264自有工具runtime声明；runner全部实核后启动自有CP313 -I -S -B -X utf8纯stdlib helper。仅原StageMoved manifest Runtime/Python范围与147第三方/唯一122B内部metadata、154+6停止源；不读密钥，不借Test候选runtime执行。输出仅Plan23条白名单。caps/lifetime原1800s deadline/1860s sticky和no kill/restart/replay不变。
+
+由原owner保持同一实际exec session/process至自然终态、双原始byte EOF与前后身份；观察超时不终止、不重启。真实Process PID/creation、原stdout/stderr、runner error和missing/unsupported全保留。任何exit0仅是数据观察完成，不能代147闭包/ABI/许可/路径案例通过。失败先停止交接具体原因与Impact，不授权第四批或等价变体。
+
+0第三方/被测import、候选抽取函数伪测、31/原19测试、SQL/native load、网络、下载/安装/复制runtime、模型费。原19三失败及禁止第四次等价运行、31 authenticated/qualified observer NOT_READY保持。完成后冻结完整普通输出与准确索引/报告、真实原handle终态及所有读写释放，供独立评审；不启动产品或自行授资格。

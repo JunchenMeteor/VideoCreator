@@ -1,0 +1,15 @@
+# Integration — PDM-P01终态收据错误传播窄修
+
+QUEUED_REVIEW_TRUEFINAL_AND_CURRENT_TASK_STOP。唯一原integration_release。先完成e447269a剩余依赖输入准备并正式停止；原Review39e44e73完成正式独审且Root消费后，再由Root明确激活本修复，不读热评审或改停止原件。当前不运行。
+
+固定finding Review/PiperDependencyMetadataSemanticIndependentReview/Finding-PDM-P01.md SHAc9ca1fb0a5220adbb813d8f7c6c3a01ccfbd8a899b0dc81422c158864e07d68b，Root6f4910全文/actual SHA核；P2 OPEN_SOURCE_STATIC、仅Integration归属。新停止runner Input100普通副本与实际RunSemanticInspectionRevisionTwoRoundOne.ps1 SHA9fd3b5af423e2f3505c843bd5acb7a60763ca95c85a54812f388649884bdb24d。最后finally SaveOwner失败仅追加错误，成功actual_exit/state已设且原errors检查在最后SaveOwner前，随后exit0；旧入口同分支原bytes保留，不改历史红。
+
+目标：在终态收据保存失败时原进程不能维持成功退出/成功状态。保首次ReceiptWrite原错误，最终写失败也必须stderr可观察且非零退出；不能清错误、丢receipt、读旧成功文件、重复归档或盲目重写重启。成功仅在自然子终态/双EOF/检查完整/输入不变/必要收据实际保存等全部原条件成立。保持sticky timeout、no kill/replay、原句柄生命周期和所有archive/metadata/parser安全上限。
+
+白名单仅集成生产工具所属与自身 Integration/PiperDependencyMetadataReceiptCorrection/。原SemanticPreparation与三停止stage、原full diff/Plan/helper/parser/runner/ordinary/receipts、原literal红与c6271d准备红 immutable。交新独占修订Plan/runner及确实必要配套source身份与闭map；优先复用完整原helper/parser bytes，只有若新Plan默认路径/输入绑定确实需要才最小改并说明。不能把原fixed Plan hash/auth状态回填，新版本记录旧→新完整diff与停止普通副本，所有103/105等实际数重新核而非抄数字。
+
+不改语义比较算法/期望、169原raw、10依赖任务、其他产品源码/Media/Backend/Test/SDK/许可门。需要新stdout/stderr最终收据形式时保持原可核验信息和精确成功语义；保存失败不将自身receipt当已存在。不能伪造actual operation/ready/qualification，不变CNY20/旧19三败范围。
+
+本轮SOURCE_REPAIR_ONLY：可有限PowerShell解析/字节与源身份/完整差异检查，不能运行候选/parser/cases/归档/HTTP/产品/Pydantic/SQL/native/model/secret/fee/install，不替Test写注入fixture或标准。无四次旧目标。只交完整源/ActualInterfaces/failure handling及原方法保护、固定输入Before/After、完整差异、失败/未测范围和工具实际自然终态/无live/读者释放。
+
+下游：原Review独审窄修，原Test独立准备真实入口最后写失败及正常保存分支验证（其余条件用Test明确工具范围，不能用Mock代真实被测收尾），标准独审和Root另卡后才执行。完整六归档实际批必须等本P2源码复核和必要新测试通过，原失败不抹除；安装/TTS/三OS与完整R1后R2仍缺，不自行close finding或完成总目标。

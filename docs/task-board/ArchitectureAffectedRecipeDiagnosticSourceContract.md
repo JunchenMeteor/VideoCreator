@@ -1,0 +1,24 @@
+# Architecture — 自动修复的受认证诊断来源
+
+QUEUED_TRUE_FINAL_AND_REAL_SLOT；仅原 development_role_plan 架构角色。白名单 docs/decisions/0059-affected-recipe-diagnostic-source-contract.md（如编号已被占用，先明确新空号）与 Codex/VideoCreatorImplementation/Architecture/AffectedRecipeDiagnosticSourceContract/。不代写实现/测试/评审/验收，不读热生产代码、不调用产品/SQL/model/fee/网络/密钥，不新增第五槽。
+
+先读仓库规则及已完整规格，保完整R1后连续R2。ADR0058已有停止合同 a2660ba525f88fc81539e238fafb9c7c51eaf7b3c46f70f4726db785f44b6857，不把版本更新变成旧unknown命令重放或新增执行权。
+
+## 固定来源
+
+Backend/AffectedRecipeComponentImplementation 根的 EarlyInterfaces.md d772406a377646e998e7c7e1f327aa602375a538b652fc69b4f66b2791069a58、FailureDiagnosisGap.md 703dcedf246dbe886d4f0bf70b05350f0f40d5e049580d5834c1bd223180e52f、FailureDiagnosisGap.json f5e84d4dbc2015b137495c32f55d898004531e2e29b74cd279845584bc0ed812 均 aa7fc8 自然0/readers释放/no live停止。
+EarlySourceStage/SourceIndex.json 7a0f9fc0ae35d4e973f7d93fb310f8eac239cca1779dc12e3098c4686dbb362e 列124完整ordinary、113AST，原53cb7d自然0且这些普通源不再写。只通过index的ordinary_copy读取必要完整来源，不读取source_path指向的后续生产源，不因目录存在推停止。
+原 repaired121父源快照修复Index094612107d288c485a66d7466793830e3ff22f9a9f3401cc1050a790fb2a3060保持；Backend0058其他实现仍继续，不扩此架构合同范围。
+
+## 要解决的具体问题
+
+现authorize_current_affected_execution读取受认证READY PrecisionEvaluationReport，boundaries只证明字幕时码偏差。不能从>200ms推出旁白错误、重做TTS、镜头错误或cover失败。WorkAlignmentValidationReport自由reasons/source_gaps没有闭集不可变组件诊断与boundary，不能直接替代原测量来源。
+新sole mapper已有四种精确recipe和失败影响范围/实际重生成组件区分；缺实际受认证failure_component、source_shot_ids、speech是否必须变更、clip ambient是否必须使用的来源。未知guidance_required是缺口，不是完整自动流程。
+
+确定最小唯一已有来源；如实际没有，定义一份private immutable diagnostic fact及真实生产/验证/持久入口，精确绑定原失败报告/实际material/Operation和父revision/current、坐标/failed units/source shots、诊断方法/可支持断言与不确定性、完整canonical正文/ref。需要模型参与分析时说明模型意见如何成为有出处且可验证的诊断资料；不把模型输出本身当权限或精度证明。
+明确Media/Agent产生诊断、Backend唯一类型和记录/读取/同writer核、原短事务/持租约/current/fence核、只读prepare得到proposal的职责。诊断不能造成生成效果；完整新plan的人审核或原Owner政策execute_plan授权独立满足rights/routes/resources/cost，保未知成本累计/原Operation账本和原失败限次。不能新增公共caller bool或后门信任标记、交互人为常驻筛选，或永久拒绝cover/audio/visual合法自动修复。
+cover/audio/visual/ambient真实输入和source provenance分开，保证两authority/200ms/MM05/null未测仍诚实；检测不足须明确可恢复请求资料/审查建议，不能冒已通过质量。旧v1/v2注册/命令/审批/lineage和已有canonical bytes不重解释。
+
+## 交付
+
+一个可实际实现的有限ADR、唯一类型/来源/记录调用链/反例及Backend/Media职责。先固定有限原始来源与普通副本，正文完整不引用热源，记录实际工具自然终态与停止。合同不授运行资格，不声称源码实现、成片、安装或完整R1/R2通过。无需重新泛化系统架构、框架调研或扩scope。

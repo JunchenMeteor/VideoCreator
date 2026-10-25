@@ -1,0 +1,11 @@
+# 原安装 RECORD 路径表示修正准备
+
+ACTIVE_SOURCE_PREPARATION_ONLY；唯一原 integration_release。原ba43ff自然0/TRUEFINAL/no live/全部读写释放；Root98529d全文ExecutionFailureStage正式MDfe632f38/JSONb3a9bbba/31631B Impactb396a387核SHA。原两纯数据失败保留，第三次未授权。当前Root/Architecture执行伴件/本Integration三活跃，原Review0066已释放。
+
+固定起点 G:/开发测试/Codex/VideoCreatorImplementation/Integration/QualifiedCompletionDependencyBindingPreparation/RevisionTwo/ExecutionFailureStage/。原Plan24ea1240/helper999df7ee/runner8ceadc47、原148/147选择和两批raw全冻结；SourceIndex7d394c4b/Ordinary58cabd3c/Partial9d152cff定位实际普通源。真实失败为原pendulum3.2.0 RECORD的126条backslash行，10787B/eb31205b，原128总行、exact METADATA/WHEEL和manifest身份均匹配；不判上游wheel/spec坏包。
+
+只准备最小完整候选diff/Impact及未占用后继RevisionThree计划：为实际已安装RECORD表示提供受限路径解析，保三元raw原行/ordinal和准确规范化关系。不得仅删除backslash拒绝；须保drive/绝对/UNC/device/colon/NUL/逃出原Runtime/Python拒绝、原受保护site-packages基准及合法../../Scripts语义、规范化后alias/casefold重复拒绝、准确原manifest成员/物理文件/hash/size/RECORD全部门与link拒绝。只新增解析真实Windows分隔符的必要规则，不任意重写原包或补虚拟RECORD。完整147第三方/唯一内部metadata、许可证raw body、markers/extras、PE静态/限额和当前材料关系不改。
+
+仅本角色自身Integration/QualifiedCompletionDependencyBindingPreparation/的独立新revision/准备材料，不改原两版本/helper/Plan/raw或原Test源码/运行时。0候选parser函数执行/实际绑定batch/第三方或被测import/SQL/native load/网络/下载安装/runtimecopy/模型费/密钥。必要纯stdlib AST/文件字节准备可做，不称测试通过，不抽取函数伪测。
+
+交停止完整候选补丁和Impact、真实输入/输出/全Plan scope、正反路径边界要求、真实末工具自然终态/allreader释放。Root全文收件后唯一原Review先独评候选和全部路径门；以后第三次纯数据入口须另固定准入，不在本卡自动执行。原19三次禁止等价复跑、31 NOT_EXECUTED/runtime_approved=false、真实qualified observer缺件/完整R1→R2都保持。

@@ -1,0 +1,9 @@
+# Integration — Piper剩余直接依赖官方元数据选择
+
+原integration_release，前阶段TRUEFINAL后原槽恢复。源码/元数据阶段，完整R1后R2保持。Root94cefc FULL FinalDataStage/Handoff.md cab4a3ea834d888197dbaea3972469d825477b9bde31dbfb1e40bd033bfddc8e、NextMissingInputsPlan.json3f781c9c8a053faffdf93056b75218025fb0e15c9d7c594d81da7bc6c14ccc28核SHA。146ordinary停止、原失败不覆写。
+
+实施先读完整当前固定METADATA/source/许可证索引及实际caller，保持Python3.13标准GIL和四平台目标。按计划七精确官方PyPI JSON URL（tqdm、huggingface-hub、pyyaml、regex、tokenizers、typer、safetensors）执行一个独立元数据批，每源恰一普通TLS GET，无HEAD/redirect/retry/range/auth/proxy绕过/递归请求。本卡明确准入该七请求；旧proposal currently_authorized=false不修改。完整历史发布JSON可能超过旧1MiB提案，因此新固定执行计划每源上限8MiB/总56MiB，响应超过即fail保原partial、不第二请求；准备时列精确URL/7固定输入来源/原工具身份、有限超时与结束证据。无wheel/model下载、pip/install/import/vendor/native/推理/秘密/费用。
+
+真实响应完整保存bytes/SHA/HTTP/EOF及每源actual失败。从实际满足原精确Requires-Dist约束且可用的正式非撤回版本中选择，优先目标CP313匹配wheel；标未知ABI而不假兼容。若最新版本不满足上界，实际完整release metadata允许有限选择已有记录，不请求任意不同版本URL。保存版本选择理由、四平台实际artifact候选URLs/SHA/size/tag、全部Requires-Dist/markers/extras。有限直接缺件候选仅提案不继续递归或下载。原voice目录TLS失败不重试/换接口；G2pw/tokenizer/许可资源来源只列实际已有证据与明确缺件，不冒模型权利或关闭Piper运行。
+
+白名单原Integration依赖/构建所属及自身Integration/PiperRemainingDirectMetadataSelection/。优先只过程材料/精确Plan/收据/普通件交接，不改Media或Backend。原8产物、FinalDataStage与旧失败均immutable。自然终态/双EOF、每源attempt及source_before/after证据；完整SourceSelection/NextAcquisitionPlan、Handoff与读者释放。只有后继另明确卡可artifact获取/安装；归档静态不代真实中文TTS/许可/三OS/200ms及产品验收。

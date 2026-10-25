@@ -1,0 +1,11 @@
+# 资格执行伴件闭合合同
+
+ACTIVE_DESIGN_ONLY；唯一原 development_role_plan，真实第四槽。当前 Root/原Integration依赖修正proposal/原Review0066/本Architecture。原Architecture13bcb3已TRUEFINAL/all释放；只针对原Review固定QCOR-P01，不重写正在审的0066或改原36输入。
+
+固定发现：G:/开发测试/Codex/VideoCreatorImplementation/Review/QualificationCoverageAndOwnerReplaceIndependentReview/Finding-QCOR-P01.md，3498B，SHA996b5b403ac1d82ef5028682a118dfea319ef536fc59c0e5674a86bb38204ee4；原Reviewa4bd00自然0/no live，Root834219全文及核SHA。状态OPEN_DESIGN/P2，不是运行失败。0066正文593569ba和其停止InputPins/Ordinary为准确起点。
+
+只补最小执行伴件注册表：request/result、operation、consumption、source-before/source-after、invalidation-attempt的唯一format/version/exact fields/strict types/允许状态/cross-ref与真实来源定义SHA；受保护raw bytes读取、原Step/Operation/账本settled/deadline与原实际消费者消费成功、失效拒绝且无新增提交/费用/完成事实的导出接口及对应原owner。完整来源按停止Backend索引（最新131/b58c610f，P02此前bb03b22b）和0066的Native/InputPins精确定位ordinary_copy，不扫热source或猜已存在导出。源导出不存在须明确NOT_IMPLEMENTED并给唯一必要私有合同，不能捏造旧DTO、任意dict/callback或仅outcome/signature当证明；不新增第二issuer、授权factory或测试通过结论。
+
+保原Operation/unknown/预算/两authority/current/许可和角色隔离。真实运行记录不能由用户或Test fixture构造权限；Test负责原始执行事实，Backend/Integration只导出真实受保护源。原业务公开DTO/测试oracle/费用不改，缺件not_ready而非absence。范围只QCOR-P01，不重做0065或提前处理Review尚未正式固定的其它发现。
+
+只docs/decisions及自身Architecture/QualificationExecutionCompanionContract/，新未占用后继ADR/补充材料，0066及旧交接全部冻结。0业务源码/测试/SQL/native/第三方import/网络/模型/密钥/费用/安装。给完整小合同、来源精确身份/实际有无、普通停止副本/有限beforeafter、实施责任与正反验证要求；TRUEFINAL/实际自然末工具及全部reader释放后Root全文，原独Review另审。不能以新设计授候选应用或真实资格。总目标完整R1独验后连续完整R2不变。

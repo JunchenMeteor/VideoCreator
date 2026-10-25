@@ -1,0 +1,19 @@
+# Integration — 语义批历史资料的精确关联补齐
+
+Task PiperSemanticHistoricalMaterialBindingCorrection，QUEUED_READINESS_TRUEFINAL_ROOT_FULL。唯一原integration_release；512f67ea执行就绪任务正式停止、Root全文Handoff/精确缺口并明确激活后执行。当前不修改原冻结root/Plan/helper或启动任何批。完整R1后连续R2、实例持有/本地免注册/官方内部资源/自有API可选不变。
+
+白名单仅自身G:/开发测试/Codex/VideoCreatorImplementation/Integration/PiperSemanticHistoricalMaterialBindingCorrection/新不可变修订；原所有Semantic/Metadata/Test/结果/环境/产品只读。没有新仓库实现、vendor import、依赖或测试标准写权。
+
+精确问题由原作者静态核实：Correction/SemanticRevisionOne下helper584实际读取TASK+'/HistoricalTokenizersLiteralComparison.json'，新TASK路径该文件不存在；原Plan110仅声明SemanticPreparation旧位置2050B/SHA17ad8f872c4a53295529be5998d03a5ee32d7a3b326b108b0f4a22891b178e9f。不能只靠已过PDMfault或87组件绿运行缺材料的原命令。readiness正式request/事实身份由激活补充，预备简称不授运行。
+
+固定原停止两family源审报告8d10e573/Final0998ca3f；原parser9eae0ad9/87独评bf0e5b0f/Final09cef652支持限定表示行为。原Semantic runner441ae75d/helper7f904e8f/Plan96abae4e完整身份须由作者核，所有原六归档及tokenizers literal红/后两NOT_EXECUTED保持。Metadata family完全不变，不顺手扩10URL或修其source。
+
+目标只补真实资料读取与input绑定：精确定位旧原Historical全文/大小SHA、原读取代码与Plan/guard/source-map关系；新不可变namespace持该历史资料的逐字节副本、准确新路径size/SHA和来自旧原件的来源关系。若改新TASK/root，完整helper/runner/Plan/argv/cwd/allowed output/mapped readers全接缝匹配，不能只让裸读获得未固定文件。原旧110inputs保持各原路径/size/SHA，必要新material与治理source关联明确新增；实际资料读取位置必须进入真实读集合/守卫，source-map闭集不能放宽。原完整helper/runner只允许必要位置/Plan关联变化，逆变化恢复原完整bytes并独立固定diff；比较器/CRC/ZIP64/RECORD/WHEEL/native/licence/169-row/所有caps/首错停/双EOF/sticky900与收据保护不变。
+
+不得改历史比较资料、重解释原literal红、降原比较/许可门、缺文件时fallback旧任意path、换算法、放宽文件/目录/loader权限或覆盖旧fixed输入。新两个独占outputs必须明确仍未执行的观察，原输出永久不重用。不能通过修材料顺手执行helper/archives/parser/87/Python/fixture/HTTP/安装/native/模型/费用或第四原19，不扫runtime/借别角色环境。
+
+检查只完整普通源/资料字节与有限身份、必要PS源码静态parse/自己元数据JSON/UTF8-LF；不运行候选preflight或任何业务批。准备并固定新完整Plan/helper/runner/SourceMap/历史资料/完整BeforeAfter及全diff、精确FutureRequest/runtime=false、输入边界/输出absence，保存实际源工具argv/cwd/exit与准确接口。原准备缺件是source关联缺口，不算包或实际语义检查失败，不自关闭独立问题。
+
+正式Handoff MD/JSON/完整索引与本人末工具真实自然终态/no live/全读写释放后，独Review新关联→原Test必要全runner故障方法与actual→Root另精确运行卡→单次新semantic六件数据检查。未经过这些门不得授执行；若目标归属环境/真实input仍不足精确NOT_READY。回滚仅撤回未批准新修订，不清旧资料/失败/部分结果。三OS/TTS/模型权源与R1R2独验不由本修订授资格。
+
+2026-10-11 Root明确激活：原Integration fde6b1自然0 TRUEFINAL/no live/all读写释放已交；Root869724全文Handoff.md SHA2d2b7270a682120582cc3aca00f6c48c09dd9da008e8cebe55306d056405f19e及Handoff.json SHA110d652b4694ca650f982330f422a7db6a33ba0f79021b7e770419547436d925并actualhash核。精确Semantic request39e91c5e/source材料17ad8f87已记录，本卡仅新不可变source/material绑定修订，禁止批运行与改旧冻结根。唯一原integration_release按正文接续。

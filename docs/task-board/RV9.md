@@ -1,0 +1,9 @@
+# RV9 I9停止来源与reader顺序复审
+
+永久评审角色；先静态最小复审，不运行测试、不改源码或标准。只写docs/reviews/RV9-I9HostReview.md及自身Review。输入ADR0008、RV7两项、I9正式SourceFreeze/Handoff及最终四源，T11未完成不继承独立绿。
+
+固定Dev c45c5132bcc457afdbb84808809873511a05c78a09199a52af6d962bec53b034、Contract4ea9615f3d26ead3cb5b127ed14eb933a5ae6704ae52c8c4e456e230882970bf，Engine3b6716/Vitec5cf未改；SourceFreeze SHAa30fde8e46caca7c325424678186c645efe64764fddce58b38d8cf7f4b4b18fd、HandoffJSON398eefab00d6fd3db5c9e8a9da1f71cf958cc826e60c2ceb7bd0528054da885b。
+
+核RV7-P01来源分类及异常先于同Promise复用，RV7-I01 reader先于异步资源准备/engine创建，无engine早帧的pending/初始化/返回及创建后交接；EOF/非法帧不误停、默认off及9/64边界保持。清理实际事实与host分类分列，合法受控Vite ownedforce不当意外退出，异常来源不能被清理成功洗掉。
+
+owner正向15/早帧5/机制11仅自查；机制process.emit不证明Windows真实信号，原边界脚手架exit1/缺stderr/整批ended缺口不倒填。静态复审先正式交接并释放槽，T11正式证据随后另有限补审，不为等待全部历史而拖实现。报告问题关闭范围与尚需独立证据清楚区分，不签Gate0/R1/R2或完整安装。

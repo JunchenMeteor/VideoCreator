@@ -1,0 +1,71 @@
+# ADR0070 覆盖生产者准入修正独立评审
+
+DESIGN_REVIEW_FINAL。CPAI-P01、CPAI-P02、CPAI-P03 分别 CLOSED_DESIGN_ONLY。未确认新增 P1/P2。此结论只表示停止0070对三个原合同反例给出了明确、有限且与实际原caller相对应的设计转换；新增实现、真实source/角色工作、阳性资格、应用及运行均未通过，原finding文件不覆写。
+
+## 本轮固定输入与方法
+
+活动卡 G:/开发测试/Projects/VideoCreator/docs/task-board/CoverageProducerAdmissionCorrectionIndependentReview.md，2689 bytes / SHA-256 0c3e8395fe5dcecbe6a5c04e889b1a0ebe38ca03a736371e67cacf9c4b442ae5；工作区/仓库 AGENTS 全文分别 af69f90a45d8b3ed80bc9b5e2cc4243ac8e2cc6f53785aa28ae2d423f93a17ec 和 6de878f514b02788f8af5ba512f71c56bb053f6800d76cf19f3cdd955b7f6a0d。
+
+唯一新合同普通副本 G:/开发测试/Codex/VideoCreatorImplementation/Architecture/CoverageProducerAdmissionDesignCorrection/Ordinary/Decision/0070-coverage-producer-admission-corrections.md；与仓库停止正文同为25351 bytes、131行、SHA-256 1a0a6eb7af84dd72841c6837d462564125a69ca1c6b7e8e7bc947dfe8266647a。全文读完；第100–124行另行补齐聚合输出遗漏。完整旧0068普通件35781 bytes / 08d067c3d842699c64f5e5633a79e11e44e7d8c3bb2f6921a212a78cebe8224f，全文分批读。0066仅必要36–135行，未合并0069语义独评。
+
+原Architecture Handoff.md 1502 bytes / 0e19a668ee06ac789db20af9c685c11ac7119d90f3951b13d886b02d78b3e62f；JSON3518 bytes / cb58941dbcae4212cbd3d78b9014b67b3e2038a1b0772d57ca09fb164ea1d994；InputPins.json12983 bytes / a6998c18043b515689e46ca12377b5bf470bc736dcbea2f4be122f641166f8e2；OrdinaryIndex.json13016 bytes / a73251c00399866cb08355c56226a588396f672e6636cc53adb01a8787a19c79。正式Handoff、索引、ActualInterfaces/Delta/Impact/Snapshot/ReadHistory全文已读。架构23声明输入、24普通件及本轮规则/card/formal去重形成59固定实际路径，逐件大小及完整SHA符合声明，末核differences=[]；这不是全runtime盘点或所有137源码语义复审。
+
+本人InputBefore.json SHA d3f2e9c3efcee522266e4449e853dc7044b0841d5dab2fc8fb83edce5c67583b，InputAfter.json SHA 158b11cd778c9c7996a92252e13e8edfa280420c8bf62f138846e77be1e6ce7c。原三finding全文读取：P01 cbdaf084d918eeab3013b7f0d9b8a0aa40680690b0c63bd666f45590d1198ab6；P02 5238cee68ad8985817c01496ae860044eb1f58099a73901d4dc85b43affc0ac7；P03 9b729c6d2f85e41655b906b14604022f2a1ad131f101a8fb1ffc550730b28a69。旧独评报告f8d0a672a65b41da16093caa91cdc9c7f6cc3e56867b968db4a2648d6d2e93f6保留，仅核身份，没有覆盖原结论。
+
+## CPAI-P01：工作前成员与事后报告来源
+
+原停止 Capture.py第105–157行在case执行前登记header；第127行按check角色读suite.producer_ref，第130行又将suite的producer放进header。旧0068 report-bound reader第112–120行必须已完成report_ref/work proof。合法S.role=suite与C.role=check不能将S当C，也不能先提供未来check报告。这是原P01触发条件，不是本轮产品复现。
+
+0070第23–25行使用明确index-v2语义：producers entry的work_proof_refs允许0..4096，空只表示实际已准入C职责尚无完成工作；S及其真实suite proof已存在。没有把空集合视为资源pass，也没有更改index-v1历史非空语法。第25–27行根仍须原TrustAdmission或真实安装/Owner动作接受；签名、同锚、文件存在不能自授来源。真实发行实例/已接受local verifier源与首次未qualified受限installer资格入口分别声明，普通Worker资格不放宽。
+
+第31–37行新增私有open_coverage_check_work(check_source,attempt,suite_ref,binding,check_id,at_us)只由原_TOKEN/受认证bootstrap建立。绑定原source/check_source/有限attempt/lease/control/deadline、完整Engine/Bundle/instance/epoch/thread、真实C职责及suite/case/source/资源许可预算。eq=False注册表按原对象identity校验，不能从JSON或相同字段构造。SQL外真实current检查与短writer内纯local/current captures分开；source关闭、根/epoch/thread/租约变更均失效。
+
+第41–45行具体转换原begin_capture：新增check_work，真实header.producer_ref取C，suite_ref仍原S正文；原run/input/suite/check registration key不变，同key保原execution_id与完整header，不匹配C或body409。登记writer前后核check_work_local、原issuer guard、registered inputs/lease；capture强持member，claim、消费、导出持久点保current/local门。原Executor/Operation先执行，再生成真实正文及逐refproof，事后report-bound reader不授首次dispatch。失败/unknown不改pass、不换key扣费。
+
+判定：上述分层消除原未来报告前置环及S→C误读，CPAI-P01 CLOSED_DESIGN_ONLY。具体首次受限installer资格check入口仍NOT_IMPLEMENTED。实际停止hold_qualification_attempt_source第65–82行要求真实RegisteredMediaRuntime、当前AttemptControl及有限deadline；begin_capture第106–115行还要求登记输入、真实原Worker attempt/qualified issuer。不能仅追加一个dataclass参数便声称首安装路径能执行；后继Backend/Integration必须实现被合同明确限定的实际入口、原成员注册与账本连接，未实现仍NOT_READY，不能伪runtime绕门。
+
+## CPAI-P02：两个check投影与唯一父证明
+
+实际停止CoverageTypes.py第92–99行CheckSection有binding/results；第156–178行单observation只有一个case/binding/execution/timing及五维观察；第244–247行完整check报告有suite_ref/coverage。CoverageCaller.py第298–302行report loop和第315–321行observation loop分别读取不同ref，所以原0068一份CheckSection投影不能自行沿用给单observation。
+
+0070第51–53行沿原签名/单role/有限binding及真实source，只给work-proof-v2两个check format variant；原七伴件仍是实际工作闭包材料，不各mint独立role报告。相同producer/role/binding/report_ref最多一份immutable proof，竞争拒绝。
+
+第57–61行check_report work从该完整report中恰取当前binding的CheckSection，分别重算原SuiteSection.cases和完整结果section的canonical SHA。允许真实合法case分片，但合并后原validator仍要求全部case恰一次，无遗漏/重复/有利子集。observation_refs/execution_ids及真实required dimensions的七伴件并集按原refs排序唯一；case/source/时间/执行类型逐项相等，同观察或execution用于不同case拒绝。空执行集合不将红/error/skipped/not_run/unknown变资格pass。
+
+第65–69行check_observation work明确parent_check_report_ref、parent_report_work_proof_ref、check_id、execution_id、case_source_ref、case/result/section/body SHA和本观察companion_refs；外层suite与check_report_refs明确指该父。父只来自已接受index中本observation/binding/C资格的唯一v2proof，不扫描材料猜父。父proof与父report/suite/body完全核，父section恰一个result引用本ref且同case/timing，suite恰同case。两个proof或候选父争抢同obs即409，不选有利父。来源投影只属于实际本capture/exporter/case/签发代码图，不能借父其它case扩大。
+
+第71、75–79行固定无环顺序：observations正文→check报告正文→父check_report proof→各子observation proof→index。父投影读取原observation/companions并重算section，不递归要子proof；外层完整coverage loop仍逐obs核自己的proof与前面实际父关系。Closure.producer/report-bound reader保report_ref/at_us/usage；suite/review/acceptance各自原ref，七伴件走原Closure.companion/shared execution verifier，全部origin进入原注册及writer/current检查。
+
+判定：原无法从单obs确定完整section/父、以及报告和伴件角色混用的合同缺口均有封闭且无递归的定义。CPAI-P02 CLOSED_DESIGN_ONLY。新strict unions、parent关系、multi-binding/multi-case caller和实际角色signer/work receipt未实现；不同key/source标签不能代独立职责，红和unknown仍必须保持，尚无实际多case阳性或冲突运行。
+
+## CPAI-P03：同T的动作接受根与提交恢复
+
+原TrustTypes.py第246–259行T.material_refs属于完整不可变正文；TrustConsumer.py第130–133行拒绝首次路径替换T，第186–199行真实trust/event/command/current持久化。NativeTrust.py第334–338、405–406行核原trust ref并保T全部原材料。原I1/A→Owner补B的新I2不能回填T，也不能仅凭材料存在/同锚/更高revision选I2。
+
+0070第85–87行明确来源分派：trust-only初期取T中唯一bootstrap职责根；首次record或replace准备只取该真实action接受的selector；提交后C取当前RecordCommit action同字段，H取其原接受event/archive。旧action无selector仅允许T原材料中恰一已真实接受且完整归档根；零份与多份、I/O/缺archive/unknown严格区分。可信legacy确无根才expected=null，不据异常造absence。
+
+第91–99行冻结first record-admit request/admission-v2以及Owner replace request/replacement-v2完整字段。first保持原真实installer/首次无Owner binding与empty record范围；replace沿0066完整expected registry/record/floor/Owner binding/material index，新增new root和expected old root。完整新request自身intent及command SHA分别重算，不沿用v1摘要。Owner显示旧/新根与资源差异，真实确认同intent，原120秒窗、strong drain、实际后代终态、同T issuer/anchor/key及角色/报告完整验证不减。原五字段material index不加可写pointer，T/I1及历史档案字节保留。
+
+第103–105行新增明确held-installation-record-v2及replacement-v2分支；purpose、locator/真实peer、4-byte LE/FRAME_LIMIT、10秒、seq、原闭错误payload和四replace方法保留。版本从真实初始化source选，不在失败后换版本重试。原first-v1-candidate字节/分派仍保，replacement与first不同来源不能用kind字符串互换。
+
+第109–117行Prepared root selection只由真正installer/Owner/action/source登记，冻结完整T/issuer/anchor/host/instance/action/request/newrecord/material/expected captures/root。原control.reserve→同短writer前后local检查及全CAS→record/event/commands/current和完整接受root/proof/report archive同事务；rollback不提交部分根。实际五键lossy路径明确被禁止：原ExportApplication.py第30–34行_request只有action_id/kind/trust_ref/record_ref/expected_revision，新v3必须从原完整receipt按strict版本重建新request，并逐项核event/command/body/action/ref，不能直接丢selector或expectedroot。原snapshot/QualificationBinding不复制旁路root，只从对应原子提交action受控读取。
+
+第119行同owner/scope/action/key/request SHA恢复原commands/event/fullreceipt/archive/floor。同body重用原提交，不同body409；未commit且真正source有效才继续同writer，已commit仅原导出/control/Native收尾；丢Owner/action/drain需原0066真实恢复确认，不从receipt造能力，不改accepted_at。根/proof缺件只可补回同bytes后核实，真正missing/unknown不宣完成、不换key收费。
+
+判定：新增root在真实接受action、current/archive和唯一v3reader中的确定关系弥补同immutable T下I2无法选择的原设计缺口。CPAI-P03 CLOSED_DESIGN_ONLY。实际v2source/consumer/recovery、v3export/current/H reader/Registry/强drain全部待实现；停止旧RecordConsumer.py第78–80行、NativeTrust.py第119–120行和ExportApplication.py第30–34行仍五键旧request，不能把正文设计当已运行新selector。
+
+## 真实源读取范围与未实现责任
+
+本轮按新ordinary索引读取，不使用生产source_path。完整CoverageTypes.py316行、NativeTrust.py420行、RecordConsumer.py166行、ExportApplication.py126行、ExportDomain.py82行、RecordWire.py114行。Capture.py仅必要1–185行，CoverageCaller.py仅1–135及274–354行；TrustTypes.py230–320、TrustConsumer.py110–205为必要immutable/current范围，不称全文137实现评审。真实原签名/project/code/provider/许可、两authority、原时钟/deadline、lease/thread/fence/current、same-object观察handoff、unknown预算和完整R1后R2保护从旧0068/66保留。
+
+Backend唯一负责exact grammar/签名/版本dispatcher、check prework/capture与五reportcaller、父关系验证、local/CAS及archive/v3current/H；Integration负责同源Native、真实peer、role bootstrap/受保护key句柄和实际Owner/installer/drain/Registry完成，不持独立工作签发权。Test真实两入口产生实际case/work；Review和Acceptance从各自独立受限源/实际读或观察完成对象签发自身工作，不能一份回复三观点冒真实角色。具体source/key部署、受限installer执行与实际proof/current reader仍NOT_IMPLEMENTED/NOT_VERIFIED。
+
+后继独立源评/标准至少核S/C合法pre-work及错误S/假attempt拒、红/unknown不签pass；两个check union/唯一父、多binding/case分片与漏伴件冲突；T/I1/H和真正OwnerI2/C切换、未被action接受同锚根拒绝、writer前root/current变化rollback、合法ACK丢失/冷恢复不新增event、旧v1字节兼容与unknown不当absence。这里只列合同要求，不写或批准测试oracle、不授任何运行。
+
+45 Native、137未应用候选、原scope/locator三SOURCE修复及新Integration executor均未倒填本合同能力。0069、许可方案另窗口；没有读取其语义或任何热source。old19 exhausted、31 NOT_READY、完整依赖/source/资源资格/Owner/API-MCP/媒体/三OS/完整R1→R2仍开放。
+
+## 原记录与工具终态
+
+Architecture原metadata观察错误只在ReadHistory中保留，未推产品失败。本人40c1de/df8cf1合并输出出现聚合截断，新0070缺段以36fbdb定向补齐；e07272实际缺失类型/提交/开头及caller段以e03c83补齐；ed495d缺失trust/current边界以68f337补；f41ed3旧0066第45–64行以84df79补。完整必要源片已读，未通过重复目标执行弥补输出。所有本人读取工具均自然0，没有启动目标进程、候选函数、第三方/Pydantic、SQL/native、模型、网络、费用或安装。
+
+末59身份核84df79自然0/no live，全部source reader停止。正式writer自然返回与最终交接使用实际工具结果记录于FinalizerTerminal及Agent FINAL；不能从报告文件存在推终态。设计关闭不授应用或SOURCE/运行资格，不改变原finding历史。
