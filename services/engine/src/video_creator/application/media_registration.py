@@ -127,8 +127,17 @@ def _package_sources(root):
 
 
 class RegisteredMediaRuntime(CurrentFinalEvidenceRuntime):
-    def __init__(self, engine: EngineService, configuration_path: Path, expected_sha256: str):
+    def __init__(self, engine: EngineService, configuration_path: Path, expected_sha256: str,
+                 *, resource_manifest_hashes: frozenset[str] = frozenset()):
         c.AssetCandidate(staging_id="trusted-config", sha256=expected_sha256, size=1, media_type="application/json", source="installed", rights="local")
+        if (type(resource_manifest_hashes) is not frozenset
+                or len(resource_manifest_hashes) > 16
+                or any(type(value) is not str or len(value) != 64
+                       or any(character not in '0123456789abcdef' for character in value)
+                       for value in resource_manifest_hashes)):
+            raise EngineError('evidence_configuration_invalid',
+                              'Trusted ASR resource manifest hashes are a bounded set of exact SHA256 values', 503)
+        self._resource_manifest_hashes = resource_manifest_hashes
         path = Path(configuration_path)
         if not path.is_absolute() or str(path).startswith(("\\\\", "//")) or path.is_symlink() or path.is_junction():
             raise EngineError("production_resource_denied", "Production registration requires trusted local installer configuration", 403)
@@ -174,7 +183,8 @@ class RegisteredMediaRuntime(CurrentFinalEvidenceRuntime):
         self.decoder = lambda file, mime: decoder.probe(file, decode=True)
         media = BundleMediaEvidence(resources.python, engine.db.data_dir)
         self.bundle = BundleService(engine, TrustedBundleValidators(media_validator=lambda file, mime: decoder.probe(file, decode=True),
-            frame_validator=media.frame_validator), audio_clock_authority=media.audio_clock_authority)
+            frame_validator=media.frame_validator,
+            resource_manifest_hashes=self._resource_manifest_hashes), audio_clock_authority=media.audio_clock_authority)
         self.worker = WorkerService(engine, workflow_version=PROFILE)
         self.journal = AsrResultJournal(engine, self.worker, registration_sha256=self.sha256,
             resource_manifest_sha256=self.config.asr_resource_manifest_sha256,
@@ -239,7 +249,8 @@ class RegisteredMediaRuntime(CurrentFinalEvidenceRuntime):
         # actual native full-map observation covers it; not an ASR Python/model.
         media = BundleMediaEvidence(Path(sys.executable), engine.db.data_dir)
         self.bundle = BundleService(engine, TrustedBundleValidators(media_validator=self.decoder,
-            frame_validator=media.frame_validator), audio_clock_authority=media.audio_clock_authority)
+            frame_validator=media.frame_validator,
+            resource_manifest_hashes=self._resource_manifest_hashes), audio_clock_authority=media.audio_clock_authority)
         self.worker = WorkerService(engine, workflow_version=PROFILE)
         self.journal = AsrResultJournal(engine, self.worker, registration_sha256=self.sha256,
             resource_manifest_sha256=self.config.asr_resource_manifest_sha256,

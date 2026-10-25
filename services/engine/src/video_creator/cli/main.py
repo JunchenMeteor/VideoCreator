@@ -226,7 +226,18 @@ def main(*, installed_service_factory: InstalledServiceFactory | None = None,
                 )
                 engine = EngineService(args.data_dir)
                 install_local_evidence_trust(engine)
-                runtime = RegisteredMediaRuntime(engine, args.production_config, args.production_config_sha256)
+                # The same signed-qualification helper as `serve`/`mcp`: the
+                # registered worker's own BundleService must trust the exact ASR
+                # resource manifest of an admitted local self-issued policy, or
+                # its speech preparation still refuses the real runtime identity.
+                worker_evidence_manifests = local_evidence_resource_manifest_hashes(engine)
+                runtime = RegisteredMediaRuntime(engine, args.production_config, args.production_config_sha256,
+                                                 resource_manifest_hashes=worker_evidence_manifests)
+                if worker_evidence_manifests:
+                    # Nonsecret diagnostic: the worker process proves which
+                    # admitted ASR resource manifest its BundleService trusts.
+                    print(json.dumps({"event": "worker_local_evidence",
+                                      "resource_manifest_hashes": sorted(worker_evidence_manifests)}), flush=True)
                 installed = install_startup_services(installed_service_factory,
                     engine=engine, bundle=runtime.bundle, role="worker", registered_runtime=runtime)
                 with WorkerControl(args.control_stdin) as control:
