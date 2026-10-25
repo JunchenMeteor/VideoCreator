@@ -93,7 +93,7 @@ def test_frozen_artifact_simulation_is_unavailable(evidence, installation, owner
     assert result.exit_code == 1, (
         f'a frozen artifact must be refused, got exit {result.exit_code}\n'
         f'stdout={result.stdout_text()}\nstderr={result.stderr_text()}')
-    assert result.error_code() == 'development_installation_unavailable', (
+    assert result.error_code() == 'development_command_unavailable', (
         f'actual code={result.error_code()!r}\nstderr={result.stderr_text()}')
     assert_no_listener(result)
 

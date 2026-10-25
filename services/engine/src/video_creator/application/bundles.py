@@ -1766,11 +1766,21 @@ class BundleService(CurrentFinalEvidenceService):
         self.production(actor, run["production_id"])
         return self.engine.submit_decision(actor.subject_id, run_id, key, decision)
 
-    def production_revisions(self, actor: AccessContext, production_id: str) -> list[c.CreativeRevision]:
+    def production_revisions(self, actor: AccessContext, production_id: str) -> list[c.ProductionRevisionSummary]:
         """Readable pending/decided creative revisions for one authorized production."""
         self._actor(actor, "production.read", "playback")
         self.production(actor, production_id)
-        return self.engine.creative_revisions(actor.subject_id, production_id)
+        result = []
+        for revision in self.engine.creative_revisions(actor.subject_id, production_id):
+            body = revision.body if isinstance(revision.body, dict) else {}
+            expires = body.get("expires_at_us")
+            failure = body.get("failure_code") or body.get("code")
+            result.append(c.ProductionRevisionSummary(
+                revision_id=revision.revision_id, kind=revision.kind,
+                parent_revision_id=revision.parent_revision_id,
+                expires_at_us=expires if isinstance(expires, int) and expires > 0 else None,
+                failure_code=failure if isinstance(failure, str) and failure else None))
+        return result
 
     def content(self, actor: AccessContext, revision_id: str, artifact_id: str, purpose: str = "playback") -> BundleContentHandle:
         return self._leaf_content_facts(actor, revision_id, artifact_id, purpose).handle

@@ -11,7 +11,7 @@ from pathlib import Path
 
 from video_creator.domain.errors import EngineError
 
-CURRENT_SCHEMA_VERSION = 11
+CURRENT_SCHEMA_VERSION = 12
 
 class _Connection(sqlite3.Connection):
     def __exit__(self, *args):
@@ -50,7 +50,8 @@ class Database:
                                      (8, "0008_installed_execution_registrations.sql"),
                                      (9, "0009_daily_project_authorizations.sql"),
                                      (10, "0010_owner_setup_journals.sql"),
-                                     (11, "0011_installation_qualification.sql")):
+                                     (11, "0011_installation_qualification.sql"),
+                                     (12, "0012_asset_created_at.sql")):
                 if version < target:
                     self._apply_migration(connection, migrations / filename)
                     actual = connection.execute("PRAGMA user_version").fetchone()[0]
@@ -97,7 +98,7 @@ class Database:
             records.append({"path": folder + "/" + key, "state": "copied", "sha256": sha, "size": copied.stat().st_size})
         with sqlite3.connect(target) as snapshot:
             version = snapshot.execute("PRAGMA user_version").fetchone()[0]
-            if version not in {3, 4, 5, 6, 7, 8, 9, 10, CURRENT_SCHEMA_VERSION}:
+            if version not in {3, 4, 5, 6, 7, 8, 9, 10, 11, CURRENT_SCHEMA_VERSION}:
                 raise EngineError("backup_schema_unsupported", "Snapshot requires a known installation schema", 503)
             for row in snapshot.execute("SELECT DISTINCT sha256 FROM assets"):
                 copy_file("Objects", row[0], row[0])

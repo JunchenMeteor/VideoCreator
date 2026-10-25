@@ -40,7 +40,6 @@ from video_creator.domain.bundle import AccessContext, TrustedBundleValidators
 from video_creator.domain.contracts import (
     AssetCandidate,
     AssetRecord,
-    CreativeRevision,
     ErrorEnvelope,
     EventEnvelope,
     FeedbackRevision,
@@ -283,6 +282,11 @@ def create_app(engine: EngineService, token: str, subject: str = "local-user",
     @app.get("/api/v1/projects", response_model=list[ProjectDraft])
     def projects(actor: str = Depends(authenticate)):
         return engine.list_projects(actor)
+    @app.get("/api/v1/assets", response_model=c.AssetPageV1)
+    def asset_list(cursor: str | None = None, limit: int = 50, media_type: str | None = None,
+                   actor: str = Depends(authenticate)):
+        return c.AssetPageV1.model_validate(assets.list_assets(actor, cursor=cursor, limit=limit,
+                                                               media_type=media_type))
 
     @app.post("/api/v1/projects", response_model=ProjectDraft, status_code=201)
     def project_create(body: ProjectInput, key: str | None = Header(default=None, alias="Idempotency-Key", min_length=1, max_length=128), actor: str = Depends(authenticate)):
@@ -359,9 +363,19 @@ def create_app(engine: EngineService, token: str, subject: str = "local-user",
         engine.cancel_production(actor, production_id)
         return engine.get_production(actor, production_id)
 
-    @app.get("/api/v1/productions/{production_id}/revisions", response_model=list[CreativeRevision])
+    @app.get("/api/v1/productions/{production_id}/revisions", response_model=list[c.ProductionRevisionSummary])
     def production_revisions(production_id: str, actor: str = Depends(authenticate)):
-        return engine.creative_revisions(actor, production_id)
+        result = []
+        for revision in engine.creative_revisions(actor, production_id):
+            body = revision.body if isinstance(revision.body, dict) else {}
+            expires = body.get("expires_at_us")
+            failure = body.get("failure_code") or body.get("code")
+            result.append(c.ProductionRevisionSummary(
+                revision_id=revision.revision_id, kind=revision.kind,
+                parent_revision_id=revision.parent_revision_id,
+                expires_at_us=expires if isinstance(expires, int) and expires > 0 else None,
+                failure_code=failure if isinstance(failure, str) and failure else None))
+        return result
 
     @app.post("/api/v1/runs/{run_id}/decisions", response_model=ReviewDecision | FeedbackRevision)
     def decision_submit(run_id: str, body: ReviewDecision, key: str = Header(alias="Idempotency-Key", min_length=1, max_length=128), actor: AccessContext = access_dependency):

@@ -25,7 +25,7 @@ from video_creator.domain.errors import EngineError
 
 
 class ProductionRevisions(BaseModel):
-    revisions: list[c.CreativeRevision]
+    revisions: list[c.ProductionRevisionSummary]
 
 
 def _schema(fields):

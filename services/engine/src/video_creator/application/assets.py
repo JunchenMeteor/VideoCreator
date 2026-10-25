@@ -140,7 +140,7 @@ class AssetService:
                 raise EngineError("asset_import_conflict", "Staging identity already has a different immutable import")
             return current["asset_id"]
         asset_id = identity("asset")
-        connection.execute("INSERT INTO assets VALUES(?,?,?,?,?,?,?,?)", (asset_id, subject, candidate.sha256, candidate.size, candidate.media_type, candidate.source, candidate.rights, canonical(probe)))
+        connection.execute("INSERT INTO assets VALUES(?,?,?,?,?,?,?,?,?)", (asset_id, subject, candidate.sha256, candidate.size, candidate.media_type, candidate.source, candidate.rights, canonical(probe), self.engine.clock()))
         connection.execute("UPDATE staging SET status='imported',asset_id=? WHERE id=?", (asset_id, candidate.staging_id))
         return asset_id
 
@@ -157,6 +157,31 @@ class AssetService:
         if row is None:
             raise EngineError("not_found", "Asset not found", 404)
         return AssetRecord(asset_id=row["id"], sha256=row["sha256"], size=row["size"], media_type=row["media_type"], source=row["source"], rights=row["rights"], probe=MediaProbe.model_validate_json(row["probe_json"]))
+
+    def list_assets(self, subject: str, *, cursor: str | None = None, limit: int = 50,
+                    media_type: str | None = None) -> dict:
+        """Owner-scoped metadata page; never returns content bytes or filesystem paths."""
+        if not 1 <= limit <= 100 or (cursor is not None and (not cursor.isdecimal() or len(cursor) > 20)):
+            raise EngineError("invalid_cursor", "Asset page cursor and limit must be bounded", 400)
+        if media_type is not None and (not media_type or len(media_type) > 100):
+            raise EngineError("invalid_request", "Asset media_type filter is not bounded", 422)
+        query = "SELECT rowid,id,sha256,size,media_type,source,created_at_us FROM assets WHERE owner=?"
+        parameters = [subject]
+        if media_type is not None:
+            query += " AND media_type=?"
+            parameters.append(media_type)
+        query += " AND rowid>? ORDER BY rowid LIMIT ?"
+        parameters.extend([int(cursor or 0), limit + 1])
+        with self.engine.db.connect_readonly() as connection:
+            rows = connection.execute(query, parameters).fetchall()
+        page = rows[:limit]
+        items = tuple({
+            "asset_id": row["id"], "media_type": row["media_type"], "bytes": row["size"],
+            "sha256_prefix": row["sha256"][:12], "source": row["source"],
+            "created_at_us": row["created_at_us"],
+        } for row in page)
+        next_cursor = str(page[-1]["rowid"]) if len(rows) > limit else None
+        return {"assets": items, "next_cursor": next_cursor}
 
     def content_path(self, subject: str, asset_id: str) -> Path:
         record = self.get(subject, asset_id)

@@ -401,6 +401,28 @@ class AssetRecord(Contract):
     probe: MediaProbe
 
 
+class AssetSummaryV1(Contract):
+    asset_id: Identifier
+    media_type: str = Field(min_length=1, max_length=100)
+    bytes: int = Field(gt=0, strict=True)
+    sha256_prefix: str = Field(min_length=12, max_length=12, pattern=r"^[0-9a-f]{12}$")
+    source: str = Field(min_length=1, max_length=256)
+    created_at_us: int = Field(ge=0, strict=True)
+
+
+class AssetPageV1(Contract):
+    assets: tuple[AssetSummaryV1, ...]
+    next_cursor: str | None = None
+
+
+class ProductionRevisionSummary(Contract):
+    revision_id: Identifier
+    kind: str = Field(min_length=1, max_length=30)
+    parent_revision_id: Identifier | None = None
+    expires_at_us: int | None = Field(default=None, gt=0, strict=True)
+    failure_code: str | None = Field(default=None, min_length=1, max_length=100)
+
+
 class TimelineClip(Contract):
     asset_id: Identifier
     source_range: MediaRange
