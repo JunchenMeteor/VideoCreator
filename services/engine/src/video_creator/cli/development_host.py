@@ -323,20 +323,40 @@ def _runtime_registration(start: DevelopmentStart, engine, runtime):
     return config, runtime.path, runtime.sha256, runtime.path.parent
 
 
-def _assert_no_asr_capability(config) -> None:
-    """ADR0077 section 7: the development profile never loads ASR resources.
+def _assert_asr_capability(config, engine, root: Path) -> None:
+    """Local-v1 ASR is admitted only as a real, zero-cost, local capability.
 
-    `RegistrationConfigLocalV1` permits the four ASR fields to be present, but
-    the accepted local chain keeps them null: a non-null set would make the
-    registered runtime load ASR resources, which the development host does not
-    support. This is a document-level capability refusal (422), never a
-    retryable resource wait, and the code is not added to RESOURCE_WAIT_CODES.
+    All four fields null keeps the silent work path. All four present must name
+    an absolute on-installation manifest whose every file/model/code hash is
+    the registration's, and an `owned_local`, credential-free, zero-cost
+    `local:` route. Any partial set or remote/paid route is refused by name.
     """
     fields = (config.asr_resource_manifest, config.asr_resource_manifest_sha256,
               config.asr_runtime_manifest_sha256, config.asr_route_id)
-    if any(value is not None for value in fields):
-        raise EngineError('development_asr_unsupported',
-                          'Development local-v1 registrations must keep all four ASR fields null', 422)
+    if all(value is None for value in fields):
+        return
+    if any(value is None for value in fields):
+        raise EngineError('development_asr_incomplete',
+                          'ASR resources require all four fields or none', 422)
+    manifest = root / config.asr_resource_manifest
+    try:
+        resolved = manifest.resolve(strict=True)
+    except (OSError, RuntimeError) as error:
+        raise EngineError('development_asr_resource_denied',
+                          'The ASR resource manifest must be a real on-installation file', 403) from error
+    if (not manifest.is_absolute() or manifest.is_symlink() or not resolved.is_file()
+            or not resolved.is_relative_to(root.resolve())):
+        raise EngineError('development_asr_resource_denied',
+                          'The ASR resource manifest must be an absolute on-installation file', 403)
+    from video_creator.providers.asr_resources import load_asr_resources
+    load_asr_resources(resolved, config.asr_resource_manifest_sha256,
+                       config.asr_runtime_manifest_sha256)
+    route = engine.configured_route(config.asr_route_id)
+    if (route.source != 'owned_local' or route.credential_ref is not None
+            or not route.destination.startswith('local:')
+            or route.max_operation_cost.units() != 0):
+        raise EngineError('development_asr_route_denied',
+                          'Development ASR requires a local, credential-free, zero-cost owned_local route', 403)
 
 
 def _assert_media_tools(start: DevelopmentStart, config, root: Path) -> None:
@@ -432,7 +452,7 @@ def _factory(start: DevelopmentStart):
                                   'The development API role never holds a registered worker runtime', 403)
             else:
                 config, registration_path, registration_sha256, root = _read_registration(start)
-            _assert_no_asr_capability(config)
+            _assert_asr_capability(config, engine, root)
             if role == 'api':
                 _assert_media_tools(start, config, root)
             engine_facts = engine_source_facts()

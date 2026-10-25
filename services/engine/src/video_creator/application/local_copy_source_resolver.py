@@ -128,7 +128,7 @@ class LocalCopyBundleSourceResolver:
                 if history is not None:
                     self.bundle._production_authorization._assert_historical_source_for_owner(connection, owner, project_id, manifest, history, right=right)
                 else:
-                    self.bundle._assert_owner_right(connection, manifest.production_id, right, manifest.approval_refs, manifest.creative_revision_refs)
+                    self.bundle._assert_owner_right(connection, manifest.production_id, right, manifest.approval_refs, manifest.creative_revision_refs, expected_run_id=manifest.run_id)
             if len(nodes) >= 256 or logical_bytes + artifact.size > self.bundle.assets.max_bytes:
                 raise EngineError('source_closure_limit', 'Source artifacts and logical bytes exceed actual instance limits', 413)
             path = self.bundle._artifact_path(owner, artifact)
@@ -347,7 +347,7 @@ class LocalCopyBundleSourceResolver:
                 raise EngineError('rights_preflight_admission_required', 'Current real source authority is not admitted', 503)
             history = issued[3][canonical(item.bundle_ref)]
             if history is None:
-                self.bundle._assert_owner_right(connection, manifest.production_id, right, manifest.approval_refs, manifest.creative_revision_refs)
+                self.bundle._assert_owner_right(connection, manifest.production_id, right, manifest.approval_refs, manifest.creative_revision_refs, expected_run_id=manifest.run_id)
             else:
                 self.bundle._production_authorization._assert_historical_source_for_owner(connection, owner_subject, project_id, manifest, history, right=right)
 

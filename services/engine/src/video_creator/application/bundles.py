@@ -311,7 +311,8 @@ class BundleService(CurrentFinalEvidenceService):
             raise EngineError("bundle_rights_denied", "Actual rights do not permit all requested preparation/delivery uses", 403)
 
     @staticmethod
-    def _assert_owner_right(connection, production_id, right, approval_refs, revision_refs):
+    def _assert_owner_right(connection, production_id, right, approval_refs, revision_refs, *,
+                            expected_run_id=None):
         references = {ref.revision_id: ref for ref in revision_refs}
         if right.approval_ref not in references:
             raise EngineError("bundle_rights_unverified", "Owner assertion requires its exact indexed immutable creative revision", 403)
@@ -326,6 +327,11 @@ class BundleService(CurrentFinalEvidenceService):
         for approval in approval_refs:
             if approval.target_revision_id != right.approval_ref:
                 continue
+            # A rights approval is bound to the exact Run that authored the
+            # current execution; another Run's approval cannot authorize it.
+            if expected_run_id is not None and approval.run_id != expected_run_id:
+                raise EngineError("bundle_approval_conflict",
+                                  "Rights approval belongs to a different Run", 409)
             decision = connection.execute("SELECT d.body FROM decisions d JOIN runs r ON r.id=d.run_id WHERE d.run_id=? AND d.idempotency_key=? AND r.production_id=?", (
                 approval.run_id, approval.idempotency_key, production_id)).fetchone()
             if not decision or digest(decision[0]) != approval.decision_sha256:
@@ -446,7 +452,7 @@ class BundleService(CurrentFinalEvidenceService):
                     if guard is not None:
                         self._production_authorization.assert_local_current(connection, guard, lease, production, authorization_refs, right=right)
                     else:
-                        accepted.extend(self._assert_owner_right(connection, production["id"], right, approval_refs, creative_revision_refs))
+                        accepted.extend(self._assert_owner_right(connection, production["id"], right, approval_refs, creative_revision_refs, expected_run_id=lease.run_id))
                 else:
                     pending.append("owned/licensed preflight authority is not admitted; legacy final Manifest callback cannot preverify")
         origin_bindings = self._copied_rights_bindings(lease, preparation_id, rights, artifacts, tuple(accepted), required_uses)
@@ -630,7 +636,7 @@ class BundleService(CurrentFinalEvidenceService):
                 self._production_authorization.assert_historical_source(connection, lease, original, binding.source_policy_authorization,
                     right=binding.source_rights)
             else:
-                self._assert_owner_right(connection, original.production_id, binding.source_rights, original.approval_refs, original.creative_revision_refs)
+                self._assert_owner_right(connection, original.production_id, binding.source_rights, original.approval_refs, original.creative_revision_refs, expected_run_id=lease.run_id)
             self._rights_time(binding.current_rights, self.engine.clock(), binding.required_uses)
             if guard is not None:
                 self._production_authorization.assert_local_current(connection, guard, lease, production,
@@ -640,7 +646,7 @@ class BundleService(CurrentFinalEvidenceService):
                 else:
                     self._production_authorization.assert_current_copy_scope(connection, guard, lease, production, original)
             else:
-                self._assert_owner_right(connection, production["id"], binding.current_rights, context.approval_refs, context.creative_revision_refs)
+                self._assert_owner_right(connection, production["id"], binding.current_rights, context.approval_refs, context.creative_revision_refs, expected_run_id=lease.run_id)
 
     def _origin_files_current(self, lease, context):
         """Fresh full source/proof reads outside the visibility writer."""
@@ -1107,7 +1113,7 @@ class BundleService(CurrentFinalEvidenceService):
                 self._production_authorization.assert_historical_source(connection, lease, manifest, source_policy, right=right)
                 approved = ()
             else:
-                approved = self._assert_owner_right(connection, manifest.production_id, right, manifest.approval_refs, manifest.creative_revision_refs)
+                approved = self._assert_owner_right(connection, manifest.production_id, right, manifest.approval_refs, manifest.creative_revision_refs, expected_run_id=lease.run_id)
         path = self._artifact_path(row["owner"], artifact)
         if not path.is_file() or path.stat().st_size != artifact.size or self.assets._hash(path) != artifact.sha256:
             raise EngineError("correction_origin_integrity_failed", "Original license/source artifact bytes changed", 422)
@@ -1487,7 +1493,7 @@ class BundleService(CurrentFinalEvidenceService):
                 if guard is not None:
                     self._production_authorization.assert_local_current(connection, guard, lease, production, authorization_refs, right=right)
                 else:
-                    self._assert_owner_right(connection, production["id"], right, manifest.approval_refs, manifest.creative_revision_refs)
+                    self._assert_owner_right(connection, production["id"], right, manifest.approval_refs, manifest.creative_revision_refs, expected_run_id=lease.run_id)
 
     def publish(self, lease: c.LeaseGrant, verified: VerifiedBundleMaterial) -> c.BundleRef:
         with self._lock:
@@ -2889,7 +2895,7 @@ class BundleService(CurrentFinalEvidenceService):
                     if guard is not None:
                         self._production_authorization.assert_local_current(connection, guard, lease, production, authorization_refs, right=right)
                     else:
-                        self._assert_owner_right(connection, manifest.production_id, right, manifest.approval_refs, manifest.creative_revision_refs)
+                        self._assert_owner_right(connection, manifest.production_id, right, manifest.approval_refs, manifest.creative_revision_refs, expected_run_id=lease.run_id)
                 rights_observations[right.rights_id] = bool(trusted)
         for method in manifest.methods:
             if any(ref not in by_id for ref in (*method.input_artifact_ids, *method.evidence_artifact_ids)):
@@ -2923,7 +2929,7 @@ class BundleService(CurrentFinalEvidenceService):
                     if guard is not None:
                         self._production_authorization.assert_local_current(connection, guard, lease, production, authorization_refs, right=right)
                     else:
-                        self._assert_owner_right(connection, manifest.production_id, right, manifest.approval_refs, manifest.creative_revision_refs)
+                        self._assert_owner_right(connection, manifest.production_id, right, manifest.approval_refs, manifest.creative_revision_refs, expected_run_id=lease.run_id)
                 rights_observations[right.rights_id] = bool(trusted)
             for method in manifest.methods:
                 if any(ref not in by_id for ref in (*method.input_artifact_ids, *method.evidence_artifact_ids)):
