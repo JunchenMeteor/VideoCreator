@@ -177,7 +177,11 @@ class RegisteredMediaRuntime(CurrentFinalEvidenceRuntime):
             create_registered_media_producer,
         )
 
+        started = time.monotonic()
+        sys_event('asr_resources_loading', phase='startup', manifest=self.config.asr_resource_manifest_sha256[:12])
         resources = load_asr_resources(asr, self.config.asr_resource_manifest_sha256, self.config.asr_runtime_manifest_sha256)
+        self._asr_resources_cache = {(self.config.asr_resource_manifest_sha256, self.config.asr_runtime_manifest_sha256): resources}
+        sys_event('asr_resources_loaded', phase='startup', elapsed_seconds=round(time.monotonic() - started, 3))
         staging = engine.db.data_dir / "Staging"
         staging.mkdir(exist_ok=True)
         decoder = FFmpegRuntime(*tools, staging)
@@ -285,9 +289,19 @@ class RegisteredMediaRuntime(CurrentFinalEvidenceRuntime):
         route = self.engine.configured_route(self.config.asr_route_id)
         if route.source != 'owned_local' or route.capability != 'transcription' or route.credential_ref or route.max_operation_cost.units():
             raise EngineError('production_asr_route_invalid', 'Actual zero-cost owned ASR route required', 503)
+        key = (self.config.asr_resource_manifest_sha256, self.config.asr_runtime_manifest_sha256)
+        cached = getattr(self, '_asr_resources_cache', {}).get(key)
+        if cached is not None:
+            sys_event('asr_resources_loaded', phase='final', elapsed_seconds=0.0, cached=True)
+            return cached
         from video_creator.providers.asr_resources import load_asr_resources
-        return load_asr_resources(manifest, self.config.asr_resource_manifest_sha256,
-                                  self.config.asr_runtime_manifest_sha256)
+        started = time.monotonic()
+        sys_event('asr_resources_loading', phase='final', manifest=self.config.asr_resource_manifest_sha256[:12])
+        resources = load_asr_resources(manifest, self.config.asr_resource_manifest_sha256,
+                                       self.config.asr_runtime_manifest_sha256)
+        self._asr_resources_cache[key] = resources
+        sys_event('asr_resources_loaded', phase='final', elapsed_seconds=round(time.monotonic() - started, 3))
+        return resources
 
     def _preflight_local_resources(self, request):
         """Read/hash original indexed local bytes; no driver, ASR or network work."""
@@ -313,9 +327,12 @@ class RegisteredMediaRuntime(CurrentFinalEvidenceRuntime):
                 raise EngineError('production_route_scope_denied', 'Actual request must include original zero-cost local route', 403)
 
     def _final_producer(self, lease, *, production_services, execution_ports):
+        sys_event('final_producer_started', run_id=lease.run_id, local=type(self.config) is RegistrationConfigLocalV1)
         if type(self.config) is RegistrationConfigLocalV1:
             context = self.local_plan_sources.final_context(lease, execution_ports,
                 policy=self.engine.get_request(lease).automation.mode == 'unattended')
+            sys_event('final_producer_context_ready', run_id=lease.run_id,
+                      roles=sorted(context.selection.master_roles))
             if 'mixed_audio' in context.selection.master_roles:
                 self._require_selected_asr()
             return super()._final_producer(lease, production_services=production_services,
