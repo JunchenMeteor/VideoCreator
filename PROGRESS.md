@@ -4820,3 +4820,16 @@ Backend bc3d67自然0/RoleSourceBridgeGap该slice释放；Root039c8c全文Gap.md
 - **后端自签证据 B′**：`kind=local_evidence_policy` 授权 + 一次性 `evidence-admin` 安装 policy/qualification/"未执行基准"；契约新增 `LocalSelfIssuedBenchmarkV1`、`capability_benchmark_not_performed`、`embedded_self_issued`；契约按官方命令重生成（schema 169）。
 - ASR 包修正：模型目录恰好 4 文件（README 移出并列入 `model_excluded_files`），真实 `LocalAsrDriver` 转写 exit 0。
 - 仍缺：worker 侧 evidence validator 接入（语音发布最后一道门）、renew/revoke UI、P1 management 通道。
+
+
+## 2026-10-26 03:40 更正：产品路径尚未闭环（评审发现，我先前判断有误）
+
+我在 03:30 的能力清单里写"安装包产品路径闭环"，这是**错的**。独立评审实测指出：
+
+1. **launcher 只启动 `product-serve`，没有启动 `product-worker`**；`POST /productions` 只到 202 queued，**没有执行、没有成包、没有发布、没有取片**。先前"取片"的证据来自 dev 宿主跑出的作品，不是产品路径。
+2. **伪造安装可绕**：`InstallManifest.json` / 供给记录均无外部签名，改记录 + 改文件即可让 trees 摘要重新对齐（同账户攻击者边界，与 ASR 签名同一威胁模型）；管理能力**未**被打穿（403）。
+3. V9/V10 判据过窄：只扫根 json/cmd 与 64-hex，漏递归 dev 源码与 32-hex secret。
+
+已派：集成补 `product-worker` 启动 + 递归自检；前端补"创建/审核/状态/取片"最小流程；后端补记录锚定（与 ASR 观测同一把保险库密钥）。
+
+**结论：R1 未完成。** 恢复正确的表述：安装与授权路径已验证，**制作与发布路径尚未在产品形态下跑通**。
