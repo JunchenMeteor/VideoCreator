@@ -440,6 +440,10 @@ def main(*, installed_service_factory: InstalledServiceFactory | None = None,
                 try:
                     installed = install_startup_services(installed_service_factory,
                         engine=engine, bundle=bundle, role="api")
+                    if installed is None and installed_service_factory is None and args.native_origin:
+                        # ADR0084 temporary acceptance gate: a product process
+                        # with no trusted factory has no execution authority.
+                        engine._require_acceptance_authority = True
                 except EngineError as error:
                     # The development factory proves its own conditions (frozen,
                     # environment, registration, resource identity) before its

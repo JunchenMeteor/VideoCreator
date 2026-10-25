@@ -19,13 +19,16 @@ METADATA_PREFIX = 'asr_observation_signature:'
 FORMAT = 'asr-observation-commitment-v1'
 
 
-def _secret(engine) -> bytes:
+def _secret(engine, *, create: bool) -> bytes:
     store = OwnerSecretStore(engine.db.data_dir, engine.instance_id)
     try:
         return store.resolve(BINDING)
     except (EngineError, OSError) as error:
         if isinstance(error, EngineError) and error.code not in {'owner_secret_unavailable', 'owner_secret_denied'}:
             raise
+        if not create:
+            raise EngineError('asr_observation_signature_unavailable',
+                              'The ASR observation signing key is unavailable', 503) from error
         try:
             store.create(BINDING)
         except EngineError as failure:
@@ -59,7 +62,7 @@ def commitment(*, allocation, staging_sha256: str, staging_size: int, observatio
 def sign_observation(engine, *, allocation, staging_sha256: str, staging_size: int, observation) -> None:
     body = commitment(allocation=allocation, staging_sha256=staging_sha256,
                       staging_size=staging_size, observation=observation)
-    signature = hmac.new(_secret(engine), body.encode('utf-8'), hashlib.sha256).hexdigest()
+    signature = hmac.new(_secret(engine, create=True), body.encode('utf-8'), hashlib.sha256).hexdigest()
     record = json.dumps({'format': FORMAT, 'commitment': body, 'signature': signature},
                         ensure_ascii=False, sort_keys=True, separators=(',', ':'))
     with engine.db.transaction() as connection:
@@ -90,7 +93,7 @@ def verify_observation(engine, *, operation_id: str, allocation, staging_sha256:
                               staging_size=staging_size, observation=observation)
         if not hmac.compare_digest(record['commitment'], expected):
             raise ValueError('commitment')
-        signature = hmac.new(_secret(engine), expected.encode('utf-8'), hashlib.sha256).hexdigest()
+        signature = hmac.new(_secret(engine, create=False), expected.encode('utf-8'), hashlib.sha256).hexdigest()
         if not hmac.compare_digest(record['signature'], signature):
             raise ValueError('signature')
     except EngineError:

@@ -23,6 +23,7 @@ from video_creator.domain.errors import EngineError
 from video_creator.domain.local_material_production import (
     parse_local_registration_config,
 )
+from video_creator.infrastructure.owner_identity import inspect_owner_directory
 
 FORMAT = 'installation-provisioning-v1'
 RECORD_NAME = 'InstallationProvisioning.json'
@@ -144,6 +145,33 @@ def _project(connection, project_id: str, now_us: int) -> dict:
     return {'project_id': project_id, 'created': True}
 
 
+def _dacl_summary(path: Path) -> str:
+    if os.name != 'nt':
+        return hashlib.sha256(b'posix-0700').hexdigest()
+    result = subprocess.run(['icacls', str(path)], capture_output=True, text=True, encoding='utf-8', errors='replace', check=False)
+    lines = [line.strip() for line in result.stdout.splitlines() if line.strip()]
+    return hashlib.sha256('\n'.join(lines).encode('utf-8')).hexdigest()
+
+
+def _files(base: Path) -> list[dict]:
+    if not base.is_dir():
+        return []
+    return [{'relative_path': path.relative_to(base).as_posix(), 'bytes': path.stat().st_size,
+             'sha256': _hash(path)} for path in sorted(base.rglob('*')) if path.is_file()]
+
+
+def _scan_item(item_id: str, base: Path, relative: str) -> dict:
+    target = base / relative
+    files = _files(target) if target.is_dir() else (
+        [{'relative_path': relative, 'bytes': target.stat().st_size, 'sha256': _hash(target)}]
+        if target.is_file() else [])
+    return {'id': item_id, 'present': bool(files), 'path': relative,
+            'count': len(files), 'bytes': sum(item['bytes'] for item in files),
+            'sha256': hashlib.sha256(json.dumps(files, ensure_ascii=False, sort_keys=True,
+                                                separators=(',', ':')).encode('utf-8')).hexdigest(),
+            'files': files}
+
+
 def _record_path(control: Path) -> Path:
     return control / RECORD_NAME
 
@@ -230,6 +258,33 @@ def provision(*, install_dir: Path, data_dir: Path, registration: Path) -> dict:
         if not _empty_tables(connection):
             _fail('installation_provisioning_conflict',
                   'Authorization rows appeared during provisioning; refuse to claim completion', 409)
+    owner = inspect_owner_directory(data)
+    a_items = [
+        _scan_item('A1', install, 'video_creator'),
+        _scan_item('A2', install, 'Package/Media'),
+        _scan_item('A3', install, 'Resources/Migrations'),
+        _scan_item('A4', install, 'AsrPackage'),
+        _scan_item('A5', install, 'Workbench'),
+        _scan_item('A6', install, 'VideoCreatorLauncher.exe'),
+        _scan_item('A7', install, 'Routes'),
+        _scan_item('A8', install, Path(registration).resolve().relative_to(install.resolve()).as_posix()
+                   if Path(registration).resolve().is_relative_to(install.resolve()) else 'Registration.json'),
+    ]
+    expected_files = []
+    for item in a_items:
+        target = install / item['path']
+        prefix = '' if item['path'] in {'.', ''} or target.is_file() else item['path'].rstrip('/') + '/'
+        for file in item['files']:
+            expected_files.append({'relative_path': (prefix + file['relative_path']).replace('\\', '/'),
+                                   'bytes': file['bytes'], 'sha256': file['sha256']})
+    engine_names = sorted(_package_sources(PACKAGE_ROOT))
+    if PACKAGE_ROOT.resolve().is_relative_to(install.resolve()):
+        engine_prefix = PACKAGE_ROOT.resolve().relative_to(install.resolve()).as_posix()
+        for name in engine_names:
+            path = PACKAGE_ROOT / name
+            expected_files.append({'relative_path': (engine_prefix + '/' + name).replace('\\', '/'),
+                                   'bytes': path.stat().st_size, 'sha256': _hash(path)})
+    dacl = _dacl_summary(data)
     body = {
         'format': FORMAT,
         'complete': True,
@@ -238,16 +293,33 @@ def provision(*, install_dir: Path, data_dir: Path, registration: Path) -> dict:
         'instance_id': engine.instance_id,
         'project_id': project_id,
         'registration_sha256': registration_sha256,
+        'install_root': str(install.resolve()),
+        'engine_package_relative': (PACKAGE_ROOT.resolve().relative_to(install.resolve()).as_posix()
+                                    if PACKAGE_ROOT.resolve().is_relative_to(install.resolve()) else 'video_creator'),
+        'instance_dir': str(data.resolve()),
+        'os_subject': owner.os_subject,
+        'administrator_id': owner.administrator_id,
+        'instance_device': owner.directory_device,
+        'instance_inode': owner.directory_inode,
+        'resource_manifest_sha256': config.production_resource_manifest_sha256,
+        'runtime_manifest_sha256': config.production_runtime_manifest_sha256,
+        'expected_files': expected_files,
+        'engine_file_names': engine_names,
+        'dacl_summary_sha256': dacl,
         'route_ids': sorted(routes),
         'items': [
-            {'id': 'registration', 'sha256': registration_sha256},
-            {'id': 'project', 'project_id': project_id, 'created': project['created']},
-            {'id': 'production_floor', 'minimum_revision': 0, 'state': floor_state,
-             'sha256': _hash(floor.path)},
-            *[{'id': 'route:' + route_id, 'route_id': route_id}
-              for route_id in sorted(routes)],
+            *a_items,
+            {'id': 'B1', 'data_dir': str(data.resolve()), 'os_subject': owner.os_subject,
+             'administrator_id': owner.administrator_id, 'device': owner.directory_device,
+             'inode': owner.directory_inode, 'dacl_summary_sha256': dacl},
+            {'id': 'B2', 'instance_id': engine.instance_id, 'migrations': 'current'},
+            {'id': 'B3', 'project_id': project_id, 'created': project['created']},
+            {'id': 'B4', 'minimum_revision': 0, 'state': floor_state, 'sha256': _hash(floor.path)},
+            *[{'id': 'B5:' + route_id, 'route_id': route_id} for route_id in sorted(routes)],
+            {'id': 'B6', 'format': FORMAT, 'registration_sha256': registration_sha256, 'revision': 1},
         ],
-        'counts': {'routes': len(routes), 'projects': 1, 'authorization_rows': 0},
+        'counts': {'routes': len(routes), 'projects': 1, 'authorization_rows': 0,
+                   'expected_files': len(expected_files)},
         'revision': 1,
     }
     _write_record(control, body)
@@ -266,6 +338,21 @@ def verify_provisioning(*, data_dir: Path, registration: Path, record: dict) -> 
             or record.get('registration_sha256') != hashlib.sha256(Path(registration).read_bytes()).hexdigest()):
         _fail('installation_provisioning_incomplete', 'V1 provisioning record is not self-consistent', 503)
     config = parse_local_registration_config(Path(registration).read_bytes())
+    owner = inspect_owner_directory(data_dir)
+    install = Path(record['install_root'])
+    if (record.get('instance_dir') != str(Path(data_dir).resolve())
+            or (record.get('os_subject'), record.get('administrator_id'),
+                record.get('instance_device'), record.get('instance_inode')) != (
+                owner.os_subject, owner.administrator_id, owner.directory_device, owner.directory_inode)
+            or record.get('dacl_summary_sha256') != _dacl_summary(data_dir)
+            or record.get('engine_file_names') != sorted(_package_sources(PACKAGE_ROOT))):
+        _fail('installation_provisioning_incomplete', 'V1 anchor fields differ from the actual installation', 503)
+    for fact in record.get('expected_files', []):
+        path = install / fact['relative_path']
+        if (path.is_symlink() or not path.is_file() or path.stat().st_size != fact['bytes']
+                or _hash(path) != fact['sha256']):
+            _fail('installation_provisioning_incomplete',
+                  'V1 expected file differs from installed bytes: ' + fact['relative_path'], 503)
     # V2: real local runtime construction against the same installed bytes.
     RegisteredMediaRuntime(engine, Path(registration), record['registration_sha256'],
                            resource_manifest_hashes=frozenset())

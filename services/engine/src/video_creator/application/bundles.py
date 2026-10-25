@@ -1709,6 +1709,22 @@ class BundleService(CurrentFinalEvidenceService):
 
     def create_production(self, actor: AccessContext, key: str, request: c.ProductionRequest) -> c.ProductionAccepted:
         self._actor(actor, "production.create", "derivative")
+        # ADR0084 temporary gate: acceptance itself must prove an actual
+        # execution authority exists. A production may not sit queued only to
+        # fail later at execution. Dev supplies its own dev authority; a
+        # product process without the card-B factory refuses here with the
+        # same named code execution would use. Card B replaces this with
+        # "authority exists and is currently valid".
+        try:
+            if getattr(self.engine, '_require_acceptance_authority', False):
+                self.engine._authorization_identity(actor.subject_id)
+        except EngineError as error:
+            if error.code in {'production_authorization_unconfigured',
+                              'production_execution_identity_denied'}:
+                raise EngineError('production_authorization_unconfigured',
+                                  'No trusted production execution authority is installed; production acceptance is refused',
+                                  403) from error
+            raise
         if request.project_id:
             with self.engine.db.connect() as connection:
                 row = connection.execute("SELECT owner FROM projects WHERE id=?", (request.project_id,)).fetchone()

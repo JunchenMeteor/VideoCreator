@@ -251,6 +251,10 @@ class AsrResultJournal(OriginalAsrValidationContext):
         if stored.allocation != handle.allocation:
             raise EngineError('asr_result_input_conflict', 'Original result belongs to another Operation or resource allocation', 422)
         self._valid_observation(stored.allocation, stored.observation)
+        from video_creator.application.asr_observation_signature import verify_observation
+        verify_observation(self.engine, operation_id=operation_id, allocation=stored.allocation,
+                           staging_sha256=sha, staging_size=len(data),
+                           observation=stored.observation)
         # Repeat the complete original validator against its pre-dispatch commit.
         # Missing historical context remains missing; no driver is constructed.
         with self._original_context_guard(invocation.lease.run_id):

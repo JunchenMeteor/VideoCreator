@@ -498,8 +498,10 @@ def _verified_journal_facts(engine: EngineService, row, observation) -> dict:
         binding = ProductionBinding.model_validate_json(binding_row[0])
     except (ValidationError, TypeError):
         raise unverified from None
+    if binding.instance_id != engine.instance_id:
+        raise EngineError('asr_observation_instance_conflict',
+                          'ASR observation belongs to another installation instance', 409)
     if (digest(binding_row[0]) != binding_row[1]
-            or binding.instance_id != engine.instance_id
             or binding.production_id != row['production_id'] or binding.run_id != row['run_id']
             or binding.request_sha256 != digest(row['request_json'])):
         raise unverified
