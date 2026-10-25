@@ -15,19 +15,6 @@ if (engineUrl) {
   }
 }
 
-// These inputs come from the trusted host after its owned API ready handshake.
-// They do not authorize a webpage; the private proxy session remains the boundary.
-const bootstrapMode = process.env.VIDEO_CREATOR_WORKBENCH_BOOTSTRAP_MODE;
-const bootstrapSource = process.env.VIDEO_CREATOR_WORKBENCH_BOOTSTRAP_SOURCE;
-const bootstrapOrigin = process.env.VIDEO_CREATOR_TRUSTED_WORKBENCH_ORIGIN;
-const bootstrapInstance = process.env.VIDEO_CREATOR_WORKBENCH_INSTANCE_ID;
-const hasBootstrap = [bootstrapMode, bootstrapSource, bootstrapOrigin, bootstrapInstance].some(value => value !== undefined);
-if (hasBootstrap && (bootstrapMode !== 'managed-proxy' || bootstrapSource !== 'dev-runtime-api-ready' ||
-    bootstrapOrigin !== workbenchOrigin || !engineUrl || !sessionToken ||
-    !bootstrapInstance || bootstrapInstance.length > 128 || /[\r\n]/.test(bootstrapInstance))) {
-  throw new Error('trusted_workbench_bootstrap_invalid');
-}
-
 const localApiGuard: Plugin = {
   name: 'video-creator-local-api-guard',
   configureServer(server) {
@@ -48,13 +35,11 @@ const localApiGuard: Plugin = {
   },
 };
 
-export default defineConfig(({ command, mode }) => ({
+// No build-time bootstrap define. The bundle resolves its trusted managed-proxy
+// origin at runtime (page's own loopback origin, or a launcher-injected
+// window.__VIDEO_CREATOR_BOOT__), so the static installer keeps the bootstrap.
+export default defineConfig({
   plugins: [react(), localApiGuard],
-  // Static/native/production bundles never acquire development owner bootstrap.
-  define: {
-    __VIDEO_CREATOR_TRUSTED_WORKBENCH_ORIGIN__: command === 'serve' && mode === 'development' && hasBootstrap
-      ? JSON.stringify(bootstrapOrigin) : 'undefined',
-  },
   server: {
     host: '127.0.0.1',
     allowedHosts: ['127.0.0.1'],
@@ -70,4 +55,4 @@ export default defineConfig(({ command, mode }) => ({
     } } : undefined,
   },
   build: { target: 'es2022', sourcemap: true },
-}));
+});

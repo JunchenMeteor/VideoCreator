@@ -48,8 +48,8 @@ export function configureEngineConnection(client: EngineClient, content: NonNull
     connectionContext = null; connectionListeners.forEach(listener => listener());
   } };
 }
-// Called only by a trusted application entry after its real host-ready handshake.
-// main.tsx intentionally does not infer this descriptor from window.location.
+// Called by the runtime bootstrap after it has validated that the origin is the
+// exact loopback page origin (launcher boot descriptor or the page itself).
 export function bootstrapManagedWorkbench(trustedOrigin: string): () => void {
   const client = createApiClient({ mode: 'managed-proxy', baseUrl: trustedOrigin, trustedOrigin });
   return configureEngineConnection(client, client.requestRaw);
