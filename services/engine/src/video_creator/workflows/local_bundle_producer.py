@@ -65,6 +65,7 @@ OUTPUT_PATHS = {'video': ('Media/video.mp4',), 'narration_audio': ('Media/narrat
                 'semantic_manifest': ('Semantics/semantic-segments.jsonl',),
                 'rag_chunks': ('Semantics/rag-chunks.jsonl',)}
 SPEECH_CHECKS = frozenset({'audio_timeline', 'actual_transcript', 'alignment', 'subtitles'})
+SPEECH_DOCUMENTS = ('Text/actual-transcript.json', 'Text/subtitles.srt', 'Text/subtitles.vtt')
 DOCUMENT_KINDS = {
     'Checks/local-master-selection.json': ('local_master_selection', 'application/json'),
     'Checks/local-speech-evidence.json': ('local_speech_evidence', 'application/json'),
@@ -132,12 +133,30 @@ def _identity(prefix, *parts):
     return prefix + '-' + hashlib.sha256(raw).hexdigest()[:40]
 
 
-def _speech_error(request):
-    if 'actual_transcript' in request.outputs or 'subtitles' in request.outputs:
-        return EngineError('local_speech_observation_required',
-            'Requested transcript/subtitles need an admitted final-mix speech observation; this consumer does not load ASR resources.', 503)
-    return EngineError('local_speech_evidence_unavailable',
-        'Speech-bearing local work needs the original settled final-mix ASR and governed alignment; this consumer does not produce them.', 503)
+def _evidence_gate(bundle, lease, request, speech_bundle):
+    """Real admitted evidence policy before any speech Bundle may verify.
+
+    Media never installs or fabricates a policy, qualification, benchmark or
+    work report. Until the local self-issued installation exists, this is the
+    documented stopping point: the real registry resolve decides, and a silent
+    work is unaffected.
+    """
+    if request.request_format_version != c.V03_SCHEMA_VERSION or request.delivery_requirements is None:
+        raise EngineError('alignment_required',
+                          'Speech publication needs an explicit 0.3 evidence request with admitted requirements.', 409)
+    try:
+        resolved = bundle.evidence_policy(lease)
+    except EngineError as error:
+        raise EngineError('alignment_required',
+                          f'Admitted local evidence policy is required before speech publication ({error.code}).', 409) from error
+    if resolved.policy.alignment_evidence_policy == 'strict_reference_v1':
+        raise EngineError('alignment_required',
+                          'Local self-issued whisper evidence cannot satisfy strict reference policy.', 409)
+    identity = speech_bundle['identity']
+    if identity != resolved.qualification.execution_identity:
+        raise EngineError('alignment_required',
+                          'Actual ASR execution identity differs from the admitted qualification.', 409)
+    return resolved
 
 
 def _absence_evidence(composition, *, artifact_ids):
@@ -166,29 +185,44 @@ def _lineage(artifact_ids, path):
                           f'Produced document lineage needs the actual {path} artifact.', 409) from None
 
 
-def _quality(composition, *, speech, artifact_ids, audio):
-    absent = speech.state != 'speech_observed'
+def _quality(composition, *, speech, artifact_ids, audio, speech_bundle=None):
+    observed = speech.state == 'speech_observed'
+    speech_path = 'Checks/local-speech-evidence.json'
     evidence = {
         'media_integrity': (_lineage(artifact_ids, ROLE_PATHS['video']),),
-        'audio_timeline': (_lineage(artifact_ids, ROLE_PATHS['video']),),
-        'actual_transcript': (_lineage(artifact_ids, 'Checks/local-speech-evidence.json'),),
-        'alignment': (_lineage(artifact_ids, 'Checks/local-speech-evidence.json'),),
-        'subtitles': (_lineage(artifact_ids, 'Checks/local-speech-evidence.json'),),
+        'audio_timeline': ((_lineage(artifact_ids, ROLE_PATHS['mixed_audio'])
+                            if 'mixed_audio' in composition['media_assets']
+                            else _lineage(artifact_ids, ROLE_PATHS['video'])),),
+        'actual_transcript': (_lineage(artifact_ids, 'Text/actual-transcript.json')
+                              if observed else _lineage(artifact_ids, speech_path),),
+        'alignment': (_lineage(artifact_ids, 'Text/actual-transcript.json')
+                      if observed else _lineage(artifact_ids, speech_path),),
+        'subtitles': ((_lineage(artifact_ids, 'Text/subtitles.srt'),
+                       _lineage(artifact_ids, 'Text/subtitles.vtt')) if observed
+                      else (_lineage(artifact_ids, speech_path),)),
         'semantic_sources': (_lineage(artifact_ids, 'Semantics/source-bindings.json'),
                              _lineage(artifact_ids, 'Semantics/work-summary.json')),
         'rights': (_lineage(artifact_ids, 'Creative/production-plan.json'),),
     }
+    asr_method = speech_bundle['method'].method_id if speech_bundle is not None else DECODER_METHOD
     methods = {'media_integrity': DECODER_METHOD, 'audio_timeline': DECODER_METHOD,
-               'actual_transcript': DECODER_METHOD, 'alignment': DECODER_METHOD,
-               'subtitles': DECODER_METHOD, 'semantic_sources': PLAN_METHOD,
+               'actual_transcript': asr_method, 'alignment': asr_method,
+               'subtitles': asr_method, 'semantic_sources': PLAN_METHOD,
                'rights': PLAN_METHOD}
-    skipped = SPEECH_CHECKS if absent else frozenset()
+    skipped = SPEECH_CHECKS if not observed else frozenset()
     if not audio:
         skipped = frozenset(set(skipped) | {'audio_timeline'})
+    observations = {
+        'actual_transcript': ('Actual final-mix ASR observation; text is recognized speech, not the approved script.',),
+        'alignment': ('本地自签、未做精度实测',
+                      '时间戳来自 whisper 词级估计，非强制对齐',
+                      'units=utterance; precision=not_measured with no N/P95.'),
+        'subtitles': ('Subtitles are the sole serializer output of this transcript and alignment.',),
+    }
     checks = tuple(c.QualityCheck(check_id=name,
         status='not_measured' if name in skipped else 'verified',
         method_ref=methods[name], evidence_artifact_ids=evidence[name],
-        findings=('Actual decode and plan/source identity only; not perceptual quality or user acceptance.',))
+        findings=observations.get(name, ('Actual decode and plan/source identity only; not perceptual quality or user acceptance.',)))
         for name in evidence)
     applicability = tuple(LocalCheckApplicabilityV1(check_id=name,
         status='not_applicable' if name in skipped else 'applicable',
@@ -197,7 +231,7 @@ def _quality(composition, *, speech, artifact_ids, audio):
         'actual_material_and_decoder_verified',
         proof_artifact_ids=evidence[name]) for name in evidence)
     quality = LocalBundleQualityEvidenceV1(quality_revision_ref=composition['creative_revision_refs'][2],
-        checks=checks, speech_evidence_artifact_id=artifact_ids['Checks/local-speech-evidence.json'],
+        checks=checks, speech_evidence_artifact_id=artifact_ids[speech_path],
         alignment_report_artifact_ids=(), applicability=applicability, content_sha256='0' * 64)
     return _record(quality)
 
@@ -244,7 +278,8 @@ def _methods(composition, artifact_ids, *, video, media, registration_sha256):
                              'tool_version is the registered local workflow profile, not a measured tool binary.')))
 
 
-def _documents(composition, bundle, lease, *, selection, speech, shots, visuals, right, artifact_ids):
+def _documents(composition, bundle, lease, media, *, selection, speech, shots, visuals, right,
+               artifact_ids, speech_bundle=None):
     script_ref, _plan_ref, _quality_ref = composition['creative_revision_refs']
     script = composition['script_revision']
     text = script.body.get('text') if isinstance(script.body, dict) else None
@@ -252,10 +287,20 @@ def _documents(composition, bundle, lease, *, selection, speech, shots, visuals,
         raise EngineError('local_script_material_missing', 'The original script revision has no actual text.', 422)
     approved = _record(c.ApprovedScriptDocument(script_revision_ref=script_ref, text=text, content_sha256='0' * 64))
     audio = bool(composition['plan'].timeline.audio_tracks)
-    quality = _quality(composition, speech=speech, artifact_ids=artifact_ids, audio=audio)
+    quality = _quality(composition, speech=speech, artifact_ids=artifact_ids, audio=audio,
+                       speech_bundle=speech_bundle)
+    speech_frames = None
+    if speech_bundle is not None:
+        from video_creator.workflows.local_semantics import observe_local_speech_frames
+
+        speech_frames = observe_local_speech_frames(composition, bundle, lease, media,
+            speech=speech, document=speech_bundle['document'], mapping=speech_bundle['mapping'])
     semantics = build_local_semantics(composition,
         bundle_revision_id=_bundle_revision_id(composition, selection),
-        access_scope_ref=bundle.context(lease).project_id, right=right, speech=speech, shots=shots)
+        access_scope_ref=bundle.context(lease).project_id, right=right, speech=speech, shots=shots,
+        transcript_document=None if speech_bundle is None else speech_bundle['document'],
+        mapping=None if speech_bundle is None else speech_bundle['mapping'],
+        speech_frames=speech_frames)
     documents = {
         'Checks/local-master-selection.json': ('local_master_selection', 'application/json', _json(selection)),
         'Checks/local-speech-evidence.json': ('local_speech_evidence', 'application/json', _json(speech)),
@@ -267,6 +312,11 @@ def _documents(composition, bundle, lease, *, selection, speech, shots, visuals,
         'Semantics/work-summary.json': ('work_summary', 'application/json', _json(semantics['summary'])),
         'Text/approved-script.json': ('approved_script', 'application/json', _json(approved)),
     }
+    if speech_bundle is not None:
+        documents['Text/actual-transcript.json'] = ('actual_transcript_local', 'application/json',
+                                                    _json(speech_bundle['document']))
+        documents['Text/subtitles.srt'] = ('srt_local', 'text/srt', speech_bundle['srt'])
+        documents['Text/subtitles.vtt'] = ('vtt_local', 'text/vtt', speech_bundle['vtt'])
     if visuals is not None:
         documents['Semantics/visual-mapping.json'] = ('visual_mapping_local', 'application/json', _json(visuals))
     if selection.content_kind == 'video':
@@ -310,8 +360,10 @@ def _validate_outputs(documents, outputs, *, masters, assets):
                           f'Requested output {role} has no actual applicable local material.', 422)
 
 
-def _slots(documents, *, video):
+def _slots(documents, *, video, speech=False):
     required = LOCAL_REQUIRED_FILES | ({'Semantics/shots.jsonl', 'Semantics/visual-mapping.json'} if video else set())
+    if speech:
+        required = required | {'Text/actual-transcript.json', 'Text/subtitles.srt', 'Text/subtitles.vtt'}
     if not required <= set(documents):
         raise EngineError('local_bundle_material_missing', 'Every required local provenance slot must be produced.', 422)
     return tuple((path, kind, media_type) for path, (kind, media_type, _data) in documents.items())
@@ -336,11 +388,13 @@ def _media_artifacts(composition, *, selection, tracks, right):
     return tuple(artifacts)
 
 
-def _document_artifacts(*, documents, receipts, artifact_ids, media_artifacts, right):
+def _document_artifacts(*, documents, receipts, artifact_ids, media_artifacts, right, speech_method=None):
     dependencies = {
         'Creative/production-plan.json': (_lineage(artifact_ids, 'Text/approved-script.json'),),
         'Checks/local-master-selection.json': (_lineage(artifact_ids, 'Creative/production-plan.json'),),
-        'Checks/local-speech-evidence.json': (_lineage(artifact_ids, ROLE_PATHS['video']),),
+        'Checks/local-speech-evidence.json': (_lineage(artifact_ids, ROLE_PATHS['video'])
+                                              if ROLE_PATHS['video'] in artifact_ids
+                                              else _lineage(artifact_ids, ROLE_PATHS['mixed_audio']),),
         'Checks/quality-report.json': (_lineage(artifact_ids, 'Semantics/semantic-segments.jsonl'),
                                        _lineage(artifact_ids, 'Checks/local-speech-evidence.json')),
         'Semantics/work-summary.json': (_lineage(artifact_ids, 'Creative/production-plan.json'),),
@@ -354,10 +408,18 @@ def _document_artifacts(*, documents, receipts, artifact_ids, media_artifacts, r
         'Semantics/rag-chunks.jsonl': (_lineage(artifact_ids, 'Semantics/semantic-segments.jsonl'),),
         'Semantics/shots.jsonl': (_lineage(artifact_ids, ROLE_PATHS['video']),),
         'Semantics/visual-mapping.json': (_lineage(artifact_ids, ROLE_PATHS['video']),),
+        'Text/actual-transcript.json': (_lineage(artifact_ids, ROLE_PATHS['mixed_audio']),
+                                        _lineage(artifact_ids, 'Text/subtitles.srt'),
+                                        _lineage(artifact_ids, 'Text/subtitles.vtt'),),
+        'Text/subtitles.srt': (_lineage(artifact_ids, 'Text/actual-transcript.json'),),
+        'Text/subtitles.vtt': (_lineage(artifact_ids, 'Text/actual-transcript.json'),),
     }
     methods = {'Semantics/shots.jsonl': DECODER_METHOD,
                'Semantics/visual-mapping.json': DECODER_METHOD,
-               'Checks/local-speech-evidence.json': DECODER_METHOD}
+               'Checks/local-speech-evidence.json': DECODER_METHOD,
+               'Text/actual-transcript.json': speech_method or DECODER_METHOD,
+               'Text/subtitles.srt': speech_method or DECODER_METHOD,
+               'Text/subtitles.vtt': speech_method or DECODER_METHOD}
     artifacts = list(media_artifacts)
     for path in documents:
         receipt = receipts[path]
@@ -375,20 +437,17 @@ def _request_version(request):
 
 
 def _assembly_context(*, engine, lease, preparation, intent, manifest, selection,
-                      media_artifacts, registration_sha256, authored_fence=None):
+                      media_artifacts, registration_sha256, authored_fence=None,
+                      asr_operation_id=None):
     """Committed local assembly for the Manifest this preparation will verify.
 
     Every value is copied from the already built actual Manifest, the held
     manifest Clock, the caller's applicable selection and the original
-    execution binding. Nothing is invented for a missing master, subtitle,
-    transcript, ASR Operation or audio mapping: the sole reachable branch is a
-    silent visual work, so the mappings stay empty and there is no ASR source.
+    execution binding. Audio mappings and the ASR Operation are the ones the
+    Manifest already carries; a silent work keeps both empty.
     """
     from video_creator.application.current_production_blockers import bound_context
 
-    if 'mixed_audio' in selection.master_roles or manifest.audio_mappings:
-        raise EngineError('local_assembly_audio_mapping_unexpected',
-                          'This silent local consumer cannot commit an assembly with audio mappings.', 409)
     documents = {ASSEMBLY_DOCUMENT_ROLES[artifact.relative_path]: artifact.artifact_id
                  for artifact in manifest.artifacts
                  if artifact.relative_path in ASSEMBLY_DOCUMENT_ROLES}
@@ -408,9 +467,9 @@ def _assembly_context(*, engine, lease, preparation, intent, manifest, selection
             approval_refs=manifest.approval_refs,
             feedback_revision_refs=manifest.feedback_revision_refs,
             source_refs=manifest.source_refs, outputs=manifest.outputs,
-            media_artifacts=media_artifacts, audio_mappings=(),
+            media_artifacts=media_artifacts, audio_mappings=manifest.audio_mappings,
             methods=manifest.methods, rights=manifest.rights, quality_ref=manifest.quality_ref,
-            document_artifact_ids=documents, asr_operation_id=None, selection=selection)
+            document_artifact_ids=documents, asr_operation_id=asr_operation_id, selection=selection)
     except ValidationError as error:
         # A shape/identity disagreement is a named terminal refusal, never an
         # uncaught Pydantic error escaping the worker as a 500.
@@ -489,7 +548,8 @@ def _publication_composition(composition, right):
 
 def _produce_local(engine, bundle, executor, media, lease, *, production_services,
         local_material_context, selection, media_roles, asr_route_id,
-        plan_admission, production_rights_fact, final_evidence_ports=None):
+        plan_admission, production_rights_fact, final_evidence_ports=None,
+        asr_resources=None, runtime_root=None):
     from video_creator.application.local_material_sources import (
         LocalMaterialFinalContext,
     )
@@ -552,18 +612,44 @@ def _produce_local(engine, bundle, executor, media, lease, *, production_service
     if selection.content_kind == 'video':
         documents_paths += [path for path in VISUAL_KINDS]
     artifact_ids.update({path: _identity('local-material', path) for path in documents_paths})
-    if audio:
-        raise _speech_error(request)
     shots, visuals = (), None
     if selection.content_kind == 'video':
         visuals = visual_mapping_inputs(plan)
         shots = observe_local_frames(composition, bundle, lease, media)
-    control.check()
-    speech = _absence_evidence(composition, artifact_ids=artifact_ids)
-    documents = _documents(composition, bundle, lease, selection=selection, speech=speech,
-                           shots=shots, visuals=visuals, right=right, artifact_ids=artifact_ids)
+    speech_bundle = None
+    if audio:
+        if selection.content_kind != 'video' or 'video' not in assets:
+            raise EngineError('local_audio_work_mapping_required',
+                              'Audio-only work requires the approved real work-target mapping contract.', 503)
+        from video_creator.workflows.local_speech_evidence import (
+            build_local_speech_materials,
+            run_local_asr,
+        )
+
+        artifact_ids.update({path: _identity('local-material', path) for path in SPEECH_DOCUMENTS})
+        actual, operation, operation_input, resources = run_local_asr(engine, executor, media, lease,
+            mixed_asset=assets['mixed_audio'], mixed_path=bundle.content_path(lease, assets['mixed_audio'].asset_id),
+            asr_route_id=asr_route_id, asr_resources=asr_resources, runtime_root=runtime_root)
+        control.check()
+        speech_bundle = build_local_speech_materials(composition=composition, assets={
+                'mixed': assets['mixed_audio'], 'video': assets['video']}, tracks=tracks,
+            actual=actual, operation=operation, operation_input=operation_input, resources=resources,
+            artifact_ids=artifact_ids, ids={
+                'transcript': _identity('local-transcript', operation['id']),
+                'alignment': _identity('local-alignment', operation['id']),
+                'subtitle': _identity('local-subtitle', operation['id']),
+                'mapping': _identity('local-mapping', operation['id'])},
+            video_track=tracks.get('video'))
+        speech = speech_bundle['speech']
+    else:
+        control.check()
+        speech = _absence_evidence(composition, artifact_ids=artifact_ids)
+    documents = _documents(composition, bundle, lease, media, selection=selection, speech=speech,
+                           shots=shots, visuals=visuals, right=right, artifact_ids=artifact_ids,
+                           speech_bundle=speech_bundle)
     _validate_outputs(documents, request.outputs, masters=selection.master_roles, assets=assets)
-    slots = _slots(documents, video=selection.content_kind == 'video')
+    slots = _slots(documents, video=selection.content_kind == 'video',
+                   speech=speech_bundle is not None)
     context = bundle.context(lease)
     bundle_id = _identity('local-bundle', composition['request_sha256'],
                           _selection_part(selection))
@@ -581,8 +667,10 @@ def _produce_local(engine, bundle, executor, media, lease, *, production_service
         receipts[path] = bundle.stage_material(lease, preparation.preparation_id,
                                                artifact_ids[path], data)
     media_artifacts = _media_artifacts(composition, selection=selection, tracks=tracks, right=right)
+    speech_method = None if speech_bundle is None else speech_bundle['method'].method_id
     artifacts = _document_artifacts(documents=documents, receipts=receipts,
-        artifact_ids=artifact_ids, media_artifacts=media_artifacts, right=right)
+        artifact_ids=artifact_ids, media_artifacts=media_artifacts, right=right,
+        speech_method=speech_method)
     outputs = tuple(c.BundleOutput(role=role, artifact_ids=tuple(
         artifact_ids[path] for path in OUTPUT_PATHS[role])) for role in request.outputs)
     persisted_assembly = _persisted_assembly_context(
@@ -590,6 +678,10 @@ def _produce_local(engine, bundle, executor, media, lease, *, production_service
         intent=intent, registration_sha256=production_services.registration_sha256)
     persisted_created_at = (None if persisted_assembly is None
                             else persisted_assembly.manifest_created_at_us)
+    methods = _methods(composition, artifact_ids, video=selection.content_kind == 'video',
+                       media=media, registration_sha256=production_services.registration_sha256)
+    if speech_bundle is not None:
+        methods = (*methods, speech_bundle['method'])
     manifest = BundleManifestLocalV1(
         request_format_version=_request_version(request),
         instance_id=engine.instance_id, bundle_id=bundle_id, bundle_revision_id=revision_id,
@@ -602,10 +694,11 @@ def _produce_local(engine, bundle, executor, media, lease, *, production_service
         creative_revision_refs=composition['creative_revision_refs'],
         approval_refs=composition['approval_refs'], feedback_revision_refs=composition['feedback_refs'],
         source_refs=_source_refs(composition), requested_outputs=request.outputs, outputs=outputs,
-        artifacts=artifacts, audio_mappings=(), rights=(right,),
+        artifacts=artifacts,
+        audio_mappings=() if speech_bundle is None else (speech_bundle['mapping'],),
+        rights=(right,),
         quality_ref=composition['creative_revision_refs'][2],
-        methods=_methods(composition, artifact_ids, video=selection.content_kind == 'video',
-                         media=media, registration_sha256=production_services.registration_sha256),
+        methods=methods,
         selection_artifact_id=artifact_ids['Checks/local-master-selection.json'],
         speech_evidence_artifact_id=artifact_ids['Checks/local-speech-evidence.json'],
         visual_mapping_artifact_id=(artifact_ids['Semantics/visual-mapping.json']
@@ -616,7 +709,8 @@ def _produce_local(engine, bundle, executor, media, lease, *, production_service
         media_artifacts=media_artifacts,
         registration_sha256=production_services.registration_sha256,
         authored_fence=(None if persisted_assembly is None
-                        else persisted_assembly.authored_fence))
+                        else persisted_assembly.authored_fence),
+        asr_operation_id=(None if speech_bundle is None else speech_bundle['asr_operation_id']))
     commit = require_final_port(final_evidence_ports).persist_assembly_context(
         lease, preparation.preparation_id, assembly)
     # On re-entry the committed bytes, not the rebuilt object, are the byte
@@ -630,6 +724,11 @@ def _produce_local(engine, bundle, executor, media, lease, *, production_service
         raise EngineError('local_assembly_commit_invalid',
                           'Only the actual committed local assembly reference can precede Bundle verification.', 409)
     control.check()
+    if speech_bundle is not None:
+        # Real registry, real refusal. Media installs no policy/qualification/
+        # benchmark: until the local self-issued installation exists this is the
+        # documented stopping point, and a silent work is unaffected.
+        _evidence_gate(bundle, lease, request, speech_bundle)
     verified = bundle.verify_local(lease, preparation.preparation_id, manifest)
     control.check()
     reference = bundle.publish(lease, verified)
@@ -646,12 +745,15 @@ def _source_refs(composition):
 def produce_local_bundle(engine, bundle, executor, media, lease, *,
         production_services, local_material_context, selection, media_roles, asr_route_id,
         plan_admission, production_rights_fact, final_evidence_ports=None,
+        asr_resources=None, runtime_root=None,
         cancel=None, deadline_monotonic=None):
     """Sole local produce entry; returns the ordinary Bundle publication result.
 
     `selection`/`media_roles` are the caller's actual applicable masters and
-    `plan_admission`/`production_rights_fact` must be the same held facts. No
-    ASR resource is loaded and no v2/v3 argument is accepted.
+    `plan_admission`/`production_rights_fact` must be the same held facts.
+    Speech works additionally need the registered ASR route plus the lazily
+    loaded installed ASR resources; `asr_resources` is only called for them, so
+    a silent registration never loads ASR bytes.
     """
     with attempt_control(cancel, deadline_monotonic).activate():
         return _produce_local(engine, bundle, executor, media, lease,
@@ -659,4 +761,5 @@ def produce_local_bundle(engine, bundle, executor, media, lease, *,
             local_material_context=local_material_context, selection=selection,
             media_roles=media_roles, asr_route_id=asr_route_id,
             plan_admission=plan_admission, production_rights_fact=production_rights_fact,
-            final_evidence_ports=final_evidence_ports)
+            final_evidence_ports=final_evidence_ports,
+            asr_resources=asr_resources, runtime_root=runtime_root)

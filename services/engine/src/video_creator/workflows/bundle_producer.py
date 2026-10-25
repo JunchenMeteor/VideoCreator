@@ -665,10 +665,19 @@ def create_registered_media_producer(*, engine, bundle, executor, resource_manif
         resources = load_asr_resources(resource_manifest_path, resource_manifest_sha256, runtime_manifest_sha256)
         media = BundleMediaEvidence(resources.python, storage_root)
     else:
-        # A local 0.4 work never loads ASR resources; its zero-null ASR
-        # registration is a real absence, and speech evidence is a named
-        # blocker rather than a resource the factory silently installs.
+        # A silent local 0.4 work never loads ASR resources; its zero-null ASR
+        # registration is a real absence. Speech works call the lazy loader
+        # below inside their own branch, after the real route/registration check.
         resources = None
+
+        def local_asr_resources():
+            if (resource_manifest_path is None or resource_manifest_sha256 is None
+                    or runtime_manifest_sha256 is None):
+                return None
+            from video_creator.providers.asr_resources import load_asr_resources
+
+            return load_asr_resources(resource_manifest_path, resource_manifest_sha256,
+                                      runtime_manifest_sha256)
         # The observer launches this interpreter with `-I -B -X utf8` and imports
         # PyAV, so it must be the actual protected CPython of this Engine, not a
         # frozen sidecar or an unrelated executable. Full interpreter hash
@@ -703,6 +712,7 @@ def create_registered_media_producer(*, engine, bundle, executor, resource_manif
                         media_roles=media_roles, asr_route_id=asr_route_id,
                         plan_admission=plan_admission, production_rights_fact=production_rights_fact,
                         final_evidence_ports=final_evidence_ports,
+                        asr_resources=local_asr_resources, runtime_root=runtime_root,
                         cancel=cancel, deadline_monotonic=deadline_monotonic)
         if selection is not _REQUIRED or media_roles is not _REQUIRED:
             raise EngineError("local_material_context_required",
