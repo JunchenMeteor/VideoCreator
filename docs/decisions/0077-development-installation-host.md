@@ -1,6 +1,6 @@
 # ADR0077：开发安装资格宿主（Development Installation Host）
 
-状态：ARCHITECTURE_APPROVED_CONTRACT_ONLY，2026-10-25。冻结边界、启用条件、对象协议、装配顺序、健康可见性与失败语义；没有实现、没有运行、没有独立验证。不新增数据库表或迁移，不改迁移，不改生产校验，不支持 v2/v3，不做 unattended。实现/集成/测试/评审按原角色白名单另立任务。
+状态：ARCHITECTURE_APPROVED_CONTRACT_ONLY，2026-10-25；同日晚按已跑出的负例实测做最小事实修订（依据见 §0.2）。冻结边界、启用条件、对象协议、装配顺序、健康可见性与失败语义。实现已存在（`cli/development_host.py`、`application/development_installation.py`）；负例与健康可见性已实测，**正向主链 NOT_EXECUTED**（缺真实 Owner binding），尚未独立评审或验收。不新增数据库表或迁移，不改迁移，不改生产校验，不支持 v2/v3，不做 unattended、不做零 cue。实现/集成/测试/评审按原角色白名单另立任务。
 
 ## 0 实读证据（本 ADR 据此冻结，非文档推断）
 
@@ -39,8 +39,27 @@
    **结论：dev 必须复用 `NativeOwnerServices`**（放宽 74-76 属修改生产校验，需统筹决定）。构造它的最小字段见 3.2。
 2. **`register_execution_identity` 的全部前置条件**：`project_ids` 非空且唯一、`allowed_source_namespaces` 对不重复、`type(expires_at_us) is int` 且 `> engine.clock()`，否则 `production_execution_registration_invalid` 503（121-125）；`c.SourceBinding(system=owner_subject, namespace=executing_principal_id)` 必须合法（126）；每个 project 要过 `c.SourceBinding(system=project_id, namespace='production-project')`（127-128）；每个 source 对要过 `c.SourceBinding(system, namespace)`（129-130）；`registration_sha256` 要过 `c.BundleRef`，两个 manifest sha 要过 `c.AssetCandidate`（131-135）；**在 writer 内**对每个 project 调 `management_service._project_scope`，即该 project 必须真实存在于 `projects` 表且 `owner==owner_subject`（136-137 → `vc/application/production_authorization.py:92-95`，否则 `production_management_project_denied` 403）。
 3. **`OwnerBootstrapStore.current()` 返回 binding 的条件**：`assert_current_directory()` 通过（安装目录 OS 主体/设备/inode 与记录一致，`owner_bootstrap.py:67-76`）；Owner 控制文件存在且 `assert_revision(record.generation)` 通过（124-130，pending 或 DB 落后 → `production_restore_refresh_required` 503）；`metadata['owner_management_binding']` 存在并可规范解码（`owner_not_initialized` 503 / `owner_binding_invalid` 422 / `owner_binding_denied` 403）。`allow_inactive=False` 时还要求未撤销且未过期（131-132）。
+   **实测补充（本切片）**：`current()` 默认 `require_control=True`，当 data-dir 还没有 `Control/` 目录（`_control_identity is None`）时，`assert_current_directory` 先抛 `owner_restore_refresh_required` 503（`owner_bootstrap.py:71-73`），**不是** `owner_not_initialized`；后者只在 `Control/` 已存在而 `metadata['owner_management_binding']` 行缺失时出现（128-129）。本切片的无 Owner binding 实例正是前者（§0.2、§6.1）。
    **`owner-init initialize` 确实需要 TTY**：`cli/owner.py:116-117` 不传 `confirmation_source`，`change()` 因此在 `owner_bootstrap.py:168-170` 调 `confirm_local_action`，后者要求 `sys.stdin.isatty()` 与 `sys.stdout.isatty()` 都为真并按字输入 `AUTHORIZE <instance_id> initialize`（340-350）。所以 dev 首次初始化必须有真实交互终端，不能 headless、不能 `--yes`、不能由 dev host 代办。
-4. **`_package_sources(PACKAGE_ROOT)` 的实际判定**（`media_registration.py:110-123`，`PACKAGE_ROOT = Path(media_registration.py).resolve().parents[1]` = `services/engine/src/video_creator`，行 42）：从包根递归遍历；目录名为 `__pycache__` 的整枝跳过；遇到 symlink/junction 直接 `production_resource_denied` 403；**只有后缀为 `.py` 的普通文件算 package source**，键为相对包根的 POSIX 路径。当前 checkout 实测 **183 个 `.py`**（含各级 `__init__.py`，不含 `__pycache__`）。`engine_source_sha256` 的键集合必须与该集合完全相等，否则 `production_engine_incomplete` 503；任一文件哈希不符 `production_code_changed` 503（142-146）。任何 engine 源码编辑都会让已生成的注册文件失效。
+4. **`_package_sources(PACKAGE_ROOT)` 的实际判定**（`media_registration.py:110-123`，`PACKAGE_ROOT = Path(media_registration.py).resolve().parents[1]` = `services/engine/src/video_creator`，行 42）：从包根递归遍历；目录名为 `__pycache__` 的整枝跳过；遇到 symlink/junction 直接 `production_resource_denied` 403；**只有后缀为 `.py` 的普通文件算 package source**，键为相对包根的 POSIX 路径。当前 checkout 实测 **183 个 `.py`**（含各级 `__init__.py`，不含 `__pycache__`）。`engine_source_sha256` 的键集合必须与该集合完全相等，否则 `production_engine_incomplete` 503；任一文件哈希不符 `production_code_changed` 503（142-146）——这是生产 `RegisteredMediaRuntime` 的码；`serve-dev` 自己的 dev 检查用 `development_code_changed`/`development_engine_incomplete`，`worker-dev` 则因 `RegisteredMediaRuntime` 先跑而仍是生产码，三种分工见 §6.1。任何 engine 源码编辑都会让已生成的注册文件失效。
+
+### 0.2 实测修订依据（2026-10-25，负例已真实运行）
+
+实测入口与结果：`pwsh -NoProfile -File tools/testing/RunLocalChainE2E.ps1` → exit 0（18 tests / 0 failures / 0 errors / 1 skipped）；同一脚本 `-RequirePositive` → exit 2（缺 Owner binding 视为未验收）。证据目录 `Codex/VideoCreatorImplementation/Test/LocalChainEndToEnd/Evidence/20261025-152012-e2e/`（`RunSummary.json` SHA256 `ff345f28c2f0c82e70c6a27b2299cff7a841097fd3b5f2a53d1f252ca1c8179c`、`pytest-negatives.xml` SHA256 `34050aea9e6dd8ccbb2bd5991367abce33cce1e79f6eb59a857f80f220dff454`）。逐字拒绝码表见 `docs/acceptance/criteria/COMMANDS.md:1043-1057`，复核观察见同文件 `:1094-1097`；用例断言见 `tests/development/test_development_host_negatives.py:106,194,225-227,241,255`。
+
+| 实测项 | 实测结果 | 与原冻结稿的差异与本 ADR 的处理 |
+| --- | --- | --- |
+| 无 Owner binding 启动 `serve-dev` / `worker-dev` | `owner_restore_refresh_required` 503，message「The original protected Owner Control directory is required」（缺 `Control/` 目录） | 原 §2/§6 写 `owner_not_initialized`；按实测改，并说明两者触发条件（§0.1-3、§6.1） |
+| `serve-dev` 遇 engine 字节漂移（scratch 副本改 1 个 `.py`） | `development_code_changed` 503 | 与冻结一致 |
+| `worker-dev` 遇同一漂移 | `production_code_changed` 503（`RegisteredMediaRuntime` 早于 dev factory 校验） | 原表只列 `development_code_changed`；改为三码分列（§6.1） |
+| 注册文件与钉定 SHA 不符 | `development_registration_changed` 503 | 与冻结一致，但补明确"这是注册文件、不是 engine 字节"（§6.1） |
+| 配置含非 null ASR 四联 | `development_asr_unsupported` 422 | 原表未列；补入（§2） |
+| unattended 请求 / Goal 创建 | `development_mode_unsupported` 422，4 个进程内 seam 均未调用原函数 | 原 §7 只写"不做"，补入错误码（§6） |
+| 正向主链（bundle / mp4 / 事件 / 账本 / assembly 读回） | **NOT_EXECUTED** | 本 ADR 不据此声明任何通过 |
+| `/health` 的 `local-development` | 进程内 marker 用例已证「仅标记后出现、请求头伪造无效、`openapi.json` 未声明」；**真实 `serve-dev` 进程 NOT_EXECUTED**（被 Owner 门先拒） | §5 补实测状态，不把进程内证据当 dev 进程证据 |
+
+实现与本文的对齐：`cli/development_host.py:329-404` 的实际 factory 顺序是「环境变量 → 注册文件 → 证据 → **Owner** → 组装」，与原稿 §4.1 的字面顺序不同；§4.1 已改为与实现一致并写明理由（原顺序会让 `development_code_changed` 负例在无 Owner 的机器上不可达）。
+
 
 ## 1 边界：dev 资格与生产资格的差别
 
@@ -73,7 +92,7 @@
 - (b) **环境变量**：`VIDEO_CREATOR_DEVELOPMENT_INSTALLATION` 必须存在且与该进程的 `engine.instance_id` 逐字相等。instance_id 来自 data-dir 的 SQLite（`engine.py:59-61`），因此该项在 factory 第一行检查——早于任何 `assemble_owner_services`、早于 `install_startup_services`、早于 listener。
 - (c) **非 frozen 产物**：`getattr(sys, 'frozen', False)` 必须为假，检查置于 wrapper 最前，早于 Engine 构造。冻结产物一律拒绝，即使 (a)(b) 齐全。
 
-顺序固定为：frozen → dev argv → `EngineService` → 环境变量 → 注册文件 → 证据 → 组装。不允许"先起服务再补校验"。
+顺序固定为：frozen → dev argv → `EngineService` → 环境变量 → 注册文件 → 证据（engine 全集 + 资源全集）→ Owner binding → 组装。`worker-dev` 另在构造 `EngineService` 之前用只读连接从既有 `Metadata.sqlite` 取 instance_id 做一次环境变量前置检查（`development_host.py:153-174,416-426`）：不建 data-dir、不开端口、不组装，实例不存在即 `development_installation_denied` 403。不允许"先起服务再补校验"。
 
 | 拒绝条件 | code | status_code | 能否继续 |
 | --- | --- | --- | --- |
@@ -85,10 +104,12 @@
 | 注册文件 SHA256 与入参不符 | `development_registration_changed` | 503 | 否 |
 | 非 UTF-8/重复键/非有限数/schema 不符 | `development_registration_invalid` | 422 | 否 |
 | format 不是 `registered-media-config-local-v1` | `development_registration_profile_unsupported` | 400 | 否 |
-| engine 覆盖集不等于 `_package_sources` | `development_engine_incomplete` | 503 | 否 |
-| engine 文件哈希不符 | `development_code_changed` | 503 | 否 |
+| engine 覆盖集不等于 `_package_sources` | serve-dev：`development_engine_incomplete`；worker-dev：`production_engine_incomplete` | 503 | 否；分列见 §6.1 |
+| engine 文件哈希不符 | serve-dev：`development_code_changed`；worker-dev：`production_code_changed` | 503 | 否；分列见 §6.1 |
 | 资源文件缺失 | `development_resource_missing` | 503 | 否 |
 | 资源文件哈希不符 | `development_resource_changed` | 503 | 否 |
+| 配置含非 null 的 ASR 四联 | `development_asr_unsupported` | 422 | 否；dev 不加载 ASR 资源（`development_host.py:282-295`） |
+| Owner binding/`Control/` 缺失 | `owner_restore_refresh_required` | 503 | 否；实测行为，见 §6.1 |
 | evidence 不是本 authority 当前原对象 | `development_evidence_foreign` | 409 | 否 |
 | authority 已 close | `development_installation_retired` | 503 | 否 |
 | `--development-expires-at` 越窗 | `development_expiry_invalid` | 422 | 否 |
@@ -180,7 +201,9 @@ class DevelopmentInstallationAuthority:
 2. 把 argv 改写为 `['video-creator-engine', 'serve', …]`，只允许转发白名单 flag：`--data-dir`、`--host`、`--port`、`--allowed-origin`、`--allowed-host`、`--native-origin`、`--ffmpeg`、`--ffprobe`、`--control-stdin`；出现未知 flag 即 usage 退出 2（不做透传）。
 3. 调 `cli.main.main(installed_service_factory=dev_factory)`；`main()` 既有守卫（164-176）允许 `serve` + factory。
 4. 走既有 `serve` 分支（307-320）：origins → `VIDEO_CREATOR_API_TOKEN` → `EngineService(data_dir)` → `configured_media_validator(engine, ffmpeg, ffprobe)` → `BundleService(engine, TrustedBundleValidators(media_validator))` → `install_startup_services(factory, engine, bundle, role='api')`。
-5. factory 内部顺序：frozen → 环境变量 → `role == 'api'` → `for_management is False` → `registered_runtime is None` → `bundle.engine is engine` → 读 active Owner binding → `owner == bundle.principals.owner_subject` → 注册文件（绝对路径/普通文件/非链接/≤1 MiB/SHA256） → `parse_local_registration_config` → format 必须 local-v1 → engine 覆盖集与逐文件哈希 → 资源解析与哈希 → `NativeLaunchContext` → 8 字段 dict → `DevelopmentInstallationAuthority` → `assemble_owner_services(engine, owner, bundle=bundle, for_management=False, installation_authority=authority, installation_session_guard=authority, execution_registration=…, owner_setup_bootstrap=None)` → `NativeOwnerServices(services, authority.connection, authority, build)`。任一步失败必须先 `authority.close()`（再 `build.close()`）再抛原始错误。
+5. factory 内部顺序（与实现逐条对应，`cli/development_host.py:329-404`）：frozen（336-338）→ 环境变量（339）→ `role ∈ {api,worker}`（340-342）→ `for_management is False`（343-345）→ `bundle.engine is engine`（346-348）→ 注册文件（worker 用 runtime 已解析配置 349-350；api 走 `_read_registration` 355：绝对路径/普通文件/非链接/≤1 MiB/钉定 SHA256/严格 JSON/format 必须 local-v1）→ ASR 四联必须全 null（356）→ `serve-dev` 的 `--ffmpeg`/`--ffprobe` 必须等于注册点名文件（357-358）→ engine 全集与逐文件哈希（359-360）→ 资源事实/哈希与名字分区不冲突（361-362）→ `NativeLaunchContext`（363-365）→ `connection`/`build`/`authority`（366-370）→ **Owner binding（active）且 `owner == bundle.principals.owner_subject`（371-374）** → 8 字段 dict 与过期窗口（375-382）→ `assemble_owner_services(engine, owner, bundle=bundle, for_management=False, installation_authority=authority, installation_session_guard=authority, execution_registration=…, owner_setup_bootstrap=None)`（383-386）→ unattended 三道进程内 seam guard（389-392）→ `mark_development_host()`（393）→ `NativeOwnerServices(services, connection, authority, build)`（394）。任一步失败先 close authority/build/connection 再抛原错（395-403）。
+
+   **为什么 Owner 门在注册与证据之后**：①`development_code_changed` / `development_engine_incomplete` 等证据负例必须在**尚无 Owner binding** 的机器上可复现（本切片实测环境正是如此，§0.2）；若先读 Owner，所有负例都会被更早的 `owner_restore_refresh_required` 掩盖，"证据错"与"没初始化"再也无法区分。②安全性不因此下降：Owner 门仍 100% 早于 `assemble_owner_services`（它自己还会再读一次 active binding，`owner_services.py:117-119`）、早于 `install_startup_services` 的类型门、早于 listener 与 ready；没有 active Owner 时不可能产出 `NativeOwnerServices`、不可能登记执行身份。③代价仅是"证据哈希先于 Owner 拒绝被计算"，全部只读、无副作用。
 6. `install_startup_services` 复核（74-91）并返回 `StartupInstallation`。
 7. `create_app(..., bundle_service=bundle, copy_input_service=installed.native.services.copy_inputs)`（`cli/main.py:339-345`）。
 8. `ready()` → `installed_principal_id(held, engine=engine, bundle=bundle, role='api')`：要求 `services.execution_identity` 非空、`engine.production_admissions is services.admissions`、`engine.daily_projects is services.daily_projects`、`engine._authorization_identity(actor) is registered`、`registered.owner_subject == registered.executing_principal_id == actor.subject_id`、`actor.owned_projects`（106-129）。这些由 `assemble_owner_services:147-173` 与 `InstancePrincipalRegistry.owner()` 的 `owned_projects=True` 满足。
@@ -190,7 +213,7 @@ serve-dev 的 `--ffmpeg`/`--ffprobe` 必须解析到 dev 注册配置点名的�
 
 ### 4.2 worker-dev
 
-wrapper 改写成 `worker --workflow registered-media-bundle-v1 --data-dir … --production-config … --production-config-sha256 … --max-seconds … [--once] [--control-stdin]`；`cli/main.py:203-221` 既有分支构造 `RegisteredMediaRuntime` 后调 `install_startup_services(..., role='worker', registered_runtime=runtime)`。dev factory 额外核：
+wrapper 改写成 `worker --workflow registered-media-bundle-v1 --data-dir … --production-config … --production-config-sha256 … --max-seconds … [--once] [--control-stdin]`；在调用 `cli.main` **之前**先用只读连接从既有 `Metadata.sqlite` 读 instance_id 并做环境变量检查（`development_host.py:153-174,416-426`）：不建 data-dir、不开端口、不组装；实例不存在即 `development_installation_denied` 403（实测未创建 `Metadata.sqlite`）。随后 `cli/main.py:203-221` 既有分支构造 `RegisteredMediaRuntime` 再调 `install_startup_services(..., role='worker', registered_runtime=runtime)`。dev factory 额外核：
 
 - `type(runtime.config) is RegistrationConfigLocalV1`；
 - `runtime.sha256 == --development-registration-sha256` 且 `runtime.path.resolve() == Path(--development-registration).resolve()`；
@@ -229,15 +252,18 @@ dev authority 必须直接消费 runtime 已解析的 `config`/`path`/`sha256`/`
 - `/health` 其余四字段、`VIDEO_CREATOR_API_TOKEN` ≥32 的要求与鉴权（`api/app.py:73-83,115-122,163-166`）不变；不得存在"dev 是否已启用"的探测型响应。
 - ADR0005 冻结的 ready stdout 三字段（+已安装时的 `principal_id`）不改：dev 不新增 ready 字段，`instance_id` 足以对账。
 - 该头只说明"这是开发宿主"，不是资格、不是可发布、不是 Worker 存活证明（后者仍是 `worker_connected`）。
+- 实测状态（§0.2）：进程内 marker 用例已证「标记后才出现、请求头伪造值不被反射、`openapi.json` 未声明该头」；**真实 `serve-dev` 进程的健康头仍为 NOT_EXECUTED**（被 Owner 门先拒），不得把进程内证据当作 dev 进程证据。
 
 ## 6 失败语义
 
 | 情形 | 返回 | 能否继续 |
 | --- | --- | --- |
-| engine 任一 `.py` 哈希不符 | `development_code_changed` 503 | 不能；该 code 不在 `RESOURCE_WAIT_CODES`，worker attempt 直接失败而非 park。编辑源码即等于该注册失效，必须重生成注册文件 |
+| engine 任一 `.py` 哈希不符 | `serve-dev`：`development_code_changed` 503；`worker-dev`：`production_code_changed` 503 | 不能。两者都不在 `RESOURCE_WAIT_CODES`，不会被 park 成 `resource_not_ready`（实测 worker 输出不含 `resource_not_ready`/`worker_ready`）；三码分工见 §6.1 |
 | 资源配置哈希不符 | `development_resource_changed` 503 | 不能，同上 |
-| 配置不是 local-v1（v2/v3/未知 format） | `development_registration_profile_unsupported` 400 | 不能；dev 不尝试 v2/v3 分支、不降级到 v1 猜测 |
-| 缺少 Owner binding | `owner_not_initialized` 503（`owner_bootstrap.py:128-129`） | 不能；先做真实 TTY 的 `owner-init initialize` |
+| 配置不是 local-v1（v2/v3/未知 format） | `development_registration_profile_unsupported` 400 | 不能；dev 不尝试 v2/v3 分支、不降级到 v1 猜测（实测 v2 配置即此码） |
+| 配置含非 null 的 ASR 四联 | `development_asr_unsupported` 422 | 不能；启动即拒（`development_host.py:291-295`），不加载 ASR 资源、不伪造转写 |
+| unattended 请求 / Goal 创建 | `development_mode_unsupported` 422 | 不能；在 `accept_production`、worker `invoke`、Daily Goal 三入口之前拒绝（`development_host.py:177-224`），实测 4 个 seam 的原函数调用计数为 0 |
+| 缺少 Owner binding（无 `Control/` 目录） | `owner_restore_refresh_required` 503（`owner_bootstrap.py:71-73`） | 不能；先做真实 TTY 的 `owner-init initialize`。**实测即此码**，不是 `owner_not_initialized`；`Control/` 已存在但 metadata 行缺失时才是后者 503（`:128-129`） |
 | Owner binding 已撤销/已过期 | `production_management_denied` 403（`owner_bootstrap.py:131-132`） | 不能。dev 用 `allow_inactive=False`，比执行角色更严：没有 native 记录时，撤销的 Owner 不得继续授权 dev 执行 |
 | dev 环境变量缺失/不等 | `development_installation_denied` 403 | 不能；进程 exit 1，未开端口 |
 | frozen 产物 | `development_installation_unavailable` 503 | 不能；即使参数齐全也不构造 |
@@ -245,7 +271,19 @@ dev authority 必须直接消费 runtime 已解析的 `config`/`path`/`sha256`/`
 | dev 身份过期 | `production_execution_identity_denied` 403（`_identity:178`）或 `production_admission_expired` 403（`_persist:471`） | 不能；重启并用新的 `--development-expires-at` 重新登记 |
 | 运行中撤销 Owner binding | 本次进程不感知（dev 只在启动读一次） | 已在跑的 attempt 仍会因身份 `expires_at_us` 到期而失效；要立即生效必须停进程。这是 dev 专属限制，见第 8 节 |
 
-`owner-init` 的 TTY 要求不是 dev 引入的：它是既有 `confirm_local_action` 语义，dev 只是无法绕过它。
+`owner-init` 的 TTY 要求不是 dev 引入的：它是既有 `confirm_local_action` 语义，dev 只是无法绕过它（实测无 TTY 为 `owner_interactive_confirmation_required` 403，事后复读 binding 仍未初始化）。
+
+### 6.1 三种"不符/漂移"码的分工（实测，禁止混称）
+
+| 变化的字节 | 入口 | 实际 code | 抛出者与位置 |
+| --- | --- | --- | --- |
+| 注册文件本身 ≠ `--development-registration-sha256` | 两者 | `development_registration_changed` 503 | dev wrapper 自己（`development_host.py:235-237`）；worker 侧还有 runtime 配置/资源身份不符（270-273） |
+| engine 包内任一 `.py` ≠ 注册文件声明的哈希 | `serve-dev` | `development_code_changed` 503 | dev factory 调用 `engine_source_facts`/`assert_engine_registration`（`development_host.py:359-360` → `development_installation.py:117-126`） |
+| 同上 | `worker-dev` | `production_code_changed` 503 | `RegisteredMediaRuntime.__init__` 在 dev factory 之前就校验（`cli/main.py:210-213` → `media_registration.py:141-146`） |
+| engine 覆盖集不相等（新增/删除 `.py`） | `serve-dev` | `development_engine_incomplete` 503 | `development_installation.py:50,58,117-122` |
+| 同上 | `worker-dev` | `production_engine_incomplete` 503 | `media_registration.py:142-143` |
+
+说明：`worker-dev` 走不到 dev factory 的 engine 哈希检查（`RegisteredMediaRuntime` 先失败），因此 worker 侧**看不到** `development_code_changed`。要把它统一成该码，必须调整 worker 分支顺序或修改生产 `RegisteredMediaRuntime`——**需统筹决定**；本 ADR 按实测把两条并行事实都冻结，不假装它们是同一个码。两者语义等价（不重试的硬失败、不 park、必须重生成注册文件），差别只在责任层：注册文件层 → wrapper，engine 层 → `serve-dev` 是 dev 检查、`worker-dev` 是生产安装检查。
 
 ## 7 不做的事
 
@@ -254,7 +292,8 @@ dev authority 必须直接消费 runtime 已解析的 `config`/`path`/`sha256`/`
 - 不放宽 `_identity`/`_installation`/`_guard`/`_issued_guard`、`register_execution_identity` 的任一前置、`install_startup_services` 的任一 `is`/type 校验。发现"必须改生产校验才能通过"的地方一律停下回报统筹。
 - 不支持 v2/v3（生成式链），不支持 `mcp` 角色。
 - 不做 unattended/policy 模式：`automation.mode` 必须是 `interactive`。unattended 需要 `bind_request` 的不可变策略事实链与已装 policy，本卡不提供，也不伪造。
-- 不做 ASR：local-v1 的 ASR 四联必须全为 null；一旦 `mixed_audio` 进入 selection，按真实 `production_asr_resource_required` 阻塞，不伪造字轨或空转写。
+- 不做 ASR：local-v1 的 ASR 四联必须全为 null；一旦 `mixed_audio` 进入 selection，按真实 `production_asr_resource_required` 阻塞，不伪造字轨或空转写。配置里出现非 null ASR 四联时 `development_asr_unsupported` 422 直接拒绝。
+- **不实现无语音零 cue 字幕/转写**：本地 v1 明确没有零 cue 分支（统筹裁定 2026-10-25，`docs/task-board/LocalFinalProducerBundleV04.md:28` 覆盖原 must-4）。无声作品的 `subtitles`/`actual_transcript` 一律具名拒绝：selection 层 `local_output_not_applicable` 422（`domain/local_bundle.py:73-76`），生产者层同码并明确提示零 cue 未实现、请去掉该输出（`workflows/local_bundle_producer.py:279-288`）；有语音但缺真实观察证据时是 `local_speech_observation_required`。`zero_cue_subtitle_bytes` 仅保留为强制真实 transcript 的纯序列化工具、无生产调用者（`workflows/local_bundle_inputs.py:236-256`）。dev 不得为过关伪造空字幕、空转写或"无语音"证据。
 - 不改 ready 字段、`InstanceHealth`、OpenAPI、`schemas.json`、传输声明或 `packages/contracts`。
 - 不新增携带范围的环境变量；只有用于授权的 `VIDEO_CREATOR_DEVELOPMENT_INSTALLATION`。
 - 不把 dev 证据写成生产 evidence，不做哈希缓存或布尔短路，不接受调用方传入的 evidence/哈希。
@@ -263,16 +302,18 @@ dev authority 必须直接消费 runtime 已解析的 `config`/`path`/`sha256`/`
 
 1. **语义差（dev vs native）**：dev 没有 held pipe、Owner-protected build、qualification、独立安装记录、OS 级完整图与进程/角色绑定；也不核宿主镜像。它能证明的只有"checkout 字节与配置一致"。任何一方把 dev 绿色当安装/发布证据，都是本 ADR 明确禁止的越级。
 2. **哈希成本**：`_installation` 每次 `current_guard` 都调 `observe()` + `assert_current()`，等于每次约 183 个 engine 文件 + 全部资源文件的两次全量哈希。API 受理、worker 每次 `_current_services`/`_remember_current_services` 都会重复。这是"真实哈希"的直接代价，禁止用缓存、mtime 或"启动时算一次"优化掉；若确需性能，只能另立卡改协议语义（需统筹决定）。
-3. **源码漂移**（最可能的日常失败）：任何 engine `.py` 编辑都会让注册文件同时触发 `development_engine_incomplete` 或 `development_code_changed`。dev 流程必须把"重生成注册文件"作为固定步骤，否则表现为每次制作都在 `_installation` 处 503。
+3. **源码漂移**（最可能的日常失败）：任何 engine `.py` 编辑都会让注册文件失效。`serve-dev` 表现为 `development_code_changed`（覆盖集变化则 `development_engine_incomplete`），`worker-dev` 表现为 `production_code_changed`（覆盖集变化则 `production_engine_incomplete`），注册文件本身被换则是 `development_registration_changed`——分工见 §6.1。dev 流程必须把"重生成注册文件并更新 `--development-registration-sha256`"作为固定步骤；行内编辑源码后不重生成，就会在每次启动或每次制作 503。
 4. **Owner 主语被钉死为 `local-user`**：`RegisteredMediaRuntime` 内部 `BundleService` 不传 principals（`media_registration.py:233-234` → `bundles.py:287` 默认 `local-user`），而 `assemble_owner_services:111-112` 要求 `bundle.principals.owner_subject == owner_subject`。因此当前切片下 dev 的域 Owner 必须是 `local-user`（`serve-dev` 侧同一要求，保持 API/worker 同主体）。要支持任意 Owner，需要改生产 producer 构造——需统筹决定，本卡不擅自改。
 5. **API 角色不构造 `RegisteredMediaRuntime`**：那会额外产生第二个 `BundleService`/`WorkerService`/`AsrResultJournal` 并覆盖 `engine._registered_plan_source`、`bundle._production_services_runtime` 等既有接线（`media_registration.py:233-255`）。代价是 dev 必须复刻 local-v1 的 manifest/runtime/tools 三个哈希校验并与 `media_registration.py:206-216` 保持同义；漂移应由集成/测试用同一 fixture 双向锁定。
 6. **运行中撤销不生效**：dev 只在启动时用 `current()` 读一次 binding；native 路径靠安装记录 + 短 writer 的 epoch 校验补足，dev 没有这个锚。缓解是有限的 `expires_at_us`。这必须在运行手册里写明，不能宣称 dev 与 native 同等即时撤销。
 7. **退役路线**：一旦 Rust native 宿主可编译并有真实安装记录与资格（ADR0036/ADR0043 方向），dev host 应整体删除而非长期双轨：删除 `cli/development_host.py`、`application/development_installation.py`、该环境变量与 `/health` 头，把 `tests/development/` 迁到 native 入口，并在 README 撤销"非生产"说明。退役前，dev 的存在必须在运行手册中标注"非生产、不可发布"。
 8. **未覆盖**：本地-v1 human 链仍需真实提交审核决定才能过 `ProductionPorts.current_production_admission`（`vc/application/production_ports.py:111-149`）；这属于测试角色的真实链路义务，不是 dev 边界，dev 不得替人批准。
+9. **`_assert_media_tools` 只比路径、不比存在性**（实测观察）：`serve-dev` 的 `--ffmpeg`/`--ffprobe` 与注册点名文件 `resolve()` 相等即通过，不检查文件真实存在；不存在的路径随后只得到 `{"event":"media_unavailable","code":"media_validator_missing"}` 警告（`cli/main.py:64-69`）。该警告不放行制作，但证据链上应补存在性检查——属产品源码，另立卡，不在本 ADR 授权范围。
+10. **零 cue 属继承缺口**：本地 v1 不做零 cue（§7），因此纯静图/无声作品的 `subtitles`/`actual_transcript` 是具名 422 而非产物；任何"无声也能出字幕"的演示都不成立，须等另立架构卡。
 
 ## 9 下游交接
 
 - **后端**（白名单 `application/`、`cli/`）：新增 `application/development_installation.py`（`DevelopmentLaunchConnection`/`DevelopmentLaunchBuild`/`DevelopmentInstallationAuthority`）与 `cli/development_host.py`（parser + argv 改写 + factory 闭包 + 三重条件），按第 2/3/4 节实现；`cli/main.py` 必要时只加不改变既有分支的转发；`api/app.py` 只加 `/health` 响应头来源（不写 OpenAPI）。提交前用 grep 证明除 `cli/development_host.py` 外无人 import `development_installation`。
 - **集成**（白名单 `packaging/`、依赖/配置、`packages/contracts`、根 README）：生成 `RegistrationConfigLocalV1` JSON（字段见 `local_material_production.py:60-89`；`engine_source_sha256` 必须覆盖当时 `_package_sources` 全集）、`LocalMaterialResourcesV1` 资源清单与运行时索引、真实 ffmpeg/ffprobe 路径；不改契约生成物的字节。运行手册写清：TTY 跑 `owner-init initialize --owner-subject local-user --project-id … --expires-at …`、注册四条 local route、`serve-dev`/`worker-dev` 的三重条件与 `local-development` 头。
-- **测试**（白名单 `tests/`）：端到端只走 `serve-dev` + `worker-dev`；必须验证 dev 未启用时拒绝（三条件各缺一次）、health 头仅 dev 出现、生产 `serve` 无该头且无 dev 对象、源码被改后 `development_code_changed`、frozen 模拟拒绝、真实 ffmpeg 渲染与 0.4 包。
+- **测试**（白名单 `tests/`）：端到端只走 `serve-dev` + `worker-dev`；必须验证 dev 未启用时拒绝（三条件各缺一次，含 worker-dev 无实例 `development_installation_denied`）、health 头仅 dev 出现且真实 dev 进程用例在 Owner 就绪后补跑、生产 `serve` 无该头且无 dev 对象、frozen 模拟拒绝、无 Owner 时 `owner_restore_refresh_required`；源码漂移按 §6.1 分入口断言（`serve-dev` → `development_code_changed`、`worker-dev` → `production_code_changed`），注册文件被换 → `development_registration_changed`，两者不得混称；无声请求 `subtitles`/`actual_transcript` 必须 `local_output_not_applicable` 422；最后才是真实 ffmpeg 渲染与 0.4 包。
 - **评审**：只读第 2/3 阶段源码，核对本 ADR 第 1 节"保持原样"清单未被触碰。
