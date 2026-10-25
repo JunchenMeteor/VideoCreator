@@ -263,47 +263,59 @@ class LocalMaterialFlow(Flow[dict]):
         phase = revision.kind
         action = 'execute_plan' if phase == 'plan' else 'continue_bundle_validation'
         services = self._services
-        if type(services) is LocalMaterialServices:
-            # Backend parks/releases the real target exactly once. Media does
-            # not fabricate a decision, lease or second quality waiting state.
-            fact = services.production_ports.current_production_admission(self._lease,
-                revision.revision_id, phase=phase, action=action)
-            sources = {'human_review'}
-        else:
-            fact = services.policy_execution_ports.production_admission(self._lease,
-                revision.revision_id, phase=phase, action=action)
-            sources = {'owner_policy', 'delegated_project'}
-        checked = require_admission(fact, engine=services.engine, context=services.bundle.context(self._lease),
-            request=self._request, lease=self._lease, registration_sha256=services.registration_sha256,
-            phase=phase, action=action, target_id=revision.revision_id,
-            target_sha256=digest(canonical(revision)), sources=sources)
+        sources = {'human_review'} if type(services) is LocalMaterialServices else {'owner_policy', 'delegated_project'}
+
+        def lookup():
+            if type(services) is LocalMaterialServices:
+                fact = services.production_ports.current_production_admission(self._lease,
+                    revision.revision_id, phase=phase, action=action)
+            else:
+                fact = services.policy_execution_ports.production_admission(self._lease,
+                    revision.revision_id, phase=phase, action=action)
+            return require_admission(fact, engine=services.engine, context=services.bundle.context(self._lease),
+                request=self._request, lease=self._lease, registration_sha256=services.registration_sha256,
+                phase=phase, action=action, target_id=revision.revision_id,
+                target_sha256=digest(canonical(revision)), sources=sources)
+
+        checked = lookup()
         from video_creator.application.media_registration import sys_event
-        with services.engine.db.connect_readonly() as connection:
+        # A decision may commit while the Flow is starting; always read on a
+        # fresh connection so no earlier transaction snapshot can hide it.
+        with services.engine.db.connect() as connection:
             decision_rows = connection.execute("SELECT body FROM decisions WHERE run_id=?",
                                                (self._lease.run_id,)).fetchall()
         decision_targets = sorted({__import__('json').loads(row[0]).get('target_revision_id')
                                    for row in decision_rows})
+        matching = [target for target in decision_targets if target == revision.revision_id]
         sys_event('flow_admission', run_id=self._lease.run_id, kind=revision.kind,
                   revision_id=revision.revision_id, revision_sha=digest(canonical(revision)),
-                  state=checked.state, blocker=checked.blocker_code, decision_targets=decision_targets)
+                  state=checked.state, blocker=checked.blocker_code, decision_targets=decision_targets,
+                  decision_count_for_revision=len(matching))
+        if checked.state == 'waiting_user' and matching:
+            time.sleep(0.2)
+            checked = lookup()
+            with services.engine.db.connect() as connection:
+                decision_rows = connection.execute("SELECT body FROM decisions WHERE run_id=?",
+                                                   (self._lease.run_id,)).fetchall()
+            decision_targets = sorted({__import__('json').loads(row[0]).get('target_revision_id')
+                                       for row in decision_rows})
+            matching = [target for target in decision_targets if target == revision.revision_id]
+            sys_event('flow_admission_retry', run_id=self._lease.run_id, kind=revision.kind,
+                      revision_id=revision.revision_id, state=checked.state,
+                      blocker=checked.blocker_code, decision_count_for_revision=len(matching))
         if checked.state != 'allowed':
-            if checked.state == 'waiting_user' and checked.blocker_code is None:
-                with services.engine.db.connect_readonly() as connection:
-                    prior = connection.execute("SELECT body FROM decisions WHERE run_id=?", (self._lease.run_id,)).fetchall()
-                decided = any(__import__('json').loads(row[0]).get('target_revision_id') == revision.revision_id
-                              for row in prior)
-                if decided:
-                    removed = services.engine.clear_flow_checkpoints(self._lease.run_id)
-                    sys_event('checkpoint_cleared', run_id=self._lease.run_id,
-                              trigger='worker_fallback', files=sorted(removed))
-                    if removed:
-                        # One fresh attempt after deleting the stale checkpoint;
-                        # a second still-waiting admission is a real inconsistency.
-                        self.state.update(outcome='waiting_user', blocker_code=None)
-                        self._save('local_flow_checkpoint_reset_retry')
-                        return False
-                    raise EngineError('production_review_state_inconsistent',
-                                      'A stored approval exists but the current admission still waits for review', 409)
+            if checked.state == 'waiting_user' and checked.blocker_code is None and matching:
+                removed = services.engine.clear_flow_checkpoints(self._lease.run_id)
+                sys_event('checkpoint_cleared', run_id=self._lease.run_id,
+                          trigger='worker_fallback', files=sorted(removed))
+                if removed:
+                    # One fresh attempt after deleting the stale checkpoint;
+                    # a second still-waiting admission is real inconsistency.
+                    self.state.update(outcome='waiting_user', blocker_code=None)
+                    self._save('local_flow_checkpoint_reset_retry')
+                    return False
+                raise EngineError('production_review_state_inconsistent',
+                                  'A stored approval exists but the current admission still waits for review', 409)
             self._blocked(checked.state, checked.blocker_code)
             if checked.state == 'waiting_user' and type(services) is LocalMaterialServices:
                 self.state['waiting_revision_id'] = revision.revision_id
