@@ -19,6 +19,18 @@ from video_creator.domain.errors import EngineError
 from video_creator.infrastructure.credentials import CredentialVault, SecretHandle
 
 
+def _local_zero_cost_without_dispatch(route) -> bool:
+    """Only a local, credential-free, zero-cost route cannot have dispatched.
+
+    Every other route (including a zero-cost `owned_remote` one) may already
+    have transmitted the request, so its driver failure must stay `unknown`.
+    """
+    return (route.source == 'owned_local'
+            and route.credential_ref is None
+            and route.destination.startswith('local:')
+            and route.max_operation_cost.units() == 0)
+
+
 class OperationExecutor:
     def __init__(self, engine: EngineService, vault: CredentialVault | None = None):
         self.engine = engine
@@ -52,12 +64,10 @@ class OperationExecutor:
             if not isinstance(observation, OperationObservation):
                 raise TypeError("Driver must return OperationObservation")
         except Exception:  # any driver failure after dispatch may represent an accepted charge.
-            if permit.route.max_operation_cost.units() == 0:
-                # An owned-local zero-cost route cannot have an accepted charge;
-                # a swallowed failure would turn the real error into `unknown`
-                # and manufacture a reconciliation. Re-raise the original error
-                # (same code and stack) instead. Non-zero-cost routes keep the
-                # unknown observation below.
+            if _local_zero_cost_without_dispatch(permit.route):
+                # No external dispatch and no charge is possible on this exact
+                # local route; swallow-and-mark-unknown would fabricate a
+                # reconciliation and hide the original error. Re-raise it.
                 raise
             # A callback may have transmitted the request. No retry and no raw exception body.
             observation = OperationObservation(status="unknown")

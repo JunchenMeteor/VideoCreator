@@ -48,9 +48,12 @@ _DEVELOPMENT_ARGUMENTS = ('--development-registration', '--development-registrat
 _AUDIT_KEYS = {'format', 'action', 'action_key', 'instance_id', 'owner_subject', 'project_ids',
                'expires_at_us', 'owner_binding', 'request_sha256', 'registration',
                'development_arguments', 'environment', 'process', 'os_identity', 'created_at_us'}
-_OPTIONAL_AUDIT_KEYS = {'production_control_created'}
+_OPTIONAL_AUDIT_KEYS = {'production_control_attempt', 'production_control_created',
+                        'production_control_failed_with_floor'}
 _PRODUCTION_CONTROL_FILENAME = 'ProductionAuthorizationControl.json'
+_PRODUCTION_CONTROL_ATTEMPT = 'production_control_attempt'
 _PRODUCTION_CONTROL_RECORD = 'production_control_created'
+_PRODUCTION_CONTROL_FAILED = 'production_control_failed_with_floor'
 _PRODUCTION_CONTROL_RELATIVE = 'Control/' + _PRODUCTION_CONTROL_FILENAME
 _AUTHORIZATION_TABLES = ('production_authorization_policies', 'production_admissions',
                          'daily_project_authorizations', 'execution_registrations')
@@ -482,29 +485,72 @@ def _authorization_counts(engine) -> dict[str, int]:
     return counts
 
 
-def _validate_production_control_record(record) -> None:
+def _valid_empty_counts(counts) -> bool:
+    return (type(counts) is dict and set(counts) == set(_AUTHORIZATION_TABLES)
+            and all(type(value) is int and value == 0 for value in counts.values()))
+
+
+def _validate_attempt_record(record) -> None:
     if (type(record) is not dict
-            or set(record) != {'created_at_us', 'recorded_at_us', 'floor', 'path', 'counts'}
+            or set(record) != {'attempted_at_us', 'floor', 'path', 'counts'}
+            or type(record.get('attempted_at_us')) is not int or record.get('attempted_at_us') <= 0
+            or type(record.get('floor')) is not int or record.get('floor') != 0
+            or record.get('path') != _PRODUCTION_CONTROL_RELATIVE
+            or not _valid_empty_counts(record.get('counts'))):
+        raise _audit_changed('The development Owner audit production-control attempt is malformed')
+
+
+def _validate_production_control_record(record) -> None:
+    allowed = {'created_at_us', 'recorded_at_us', 'floor', 'path', 'counts', 'control_sha256'}
+    if (type(record) is not dict
+            or not {'created_at_us', 'recorded_at_us', 'floor', 'path', 'counts'} <= set(record)
+            or set(record) - allowed
             or type(record.get('created_at_us')) is not int or record.get('created_at_us') <= 0
             or type(record.get('recorded_at_us')) is not int or record.get('recorded_at_us') <= 0
             or type(record.get('floor')) is not int or record.get('floor') != 0
             or record.get('path') != _PRODUCTION_CONTROL_RELATIVE
-            or type(record.get('counts')) is not dict
-            or set(record.get('counts')) != set(_AUTHORIZATION_TABLES)
-            or any(type(value) is not int or value != 0 for value in record['counts'].values())):
+            or not _valid_empty_counts(record.get('counts'))
+            or ('control_sha256' in record and (
+                type(record['control_sha256']) is not str or len(record['control_sha256']) != 64
+                or any(character not in '0123456789abcdef' for character in record['control_sha256'])))):
         raise _audit_changed('The development Owner audit production-control record is malformed')
 
 
-def _append_audit_record(engine, name: str, record: dict) -> str:
-    """Append one dev-only audit fact and commit its new digest to metadata."""
-    document = _parse_audit(engine)
-    existing = document.get(name)
-    if existing is not None:
-        if existing != record:
-            raise _audit_changed('The development Owner audit already records a different ' + name)
-        return hashlib.sha256(_canonical_audit_bytes(document)).hexdigest()
-    document[name] = record
-    body = _canonical_audit_bytes(document)
+def _validate_failed_record(record) -> None:
+    if (type(record) is not dict
+            or set(record) != {'failed_at_us', 'floor', 'path', 'counts', 'floor_created',
+                               'control_sha256', 'error_code'}
+            or type(record.get('failed_at_us')) is not int or record.get('failed_at_us') <= 0
+            or type(record.get('floor')) is not int or record.get('floor') != 0
+            or record.get('path') != _PRODUCTION_CONTROL_RELATIVE
+            or not _valid_empty_counts(record.get('counts'))
+            or record.get('floor_created') is not True
+            or type(record.get('error_code')) is not str or not record.get('error_code')
+            or (record.get('control_sha256') is not None and (
+                type(record['control_sha256']) is not str or len(record['control_sha256']) != 64
+                or any(character not in '0123456789abcdef' for character in record['control_sha256'])))):
+        raise _audit_changed('The development Owner audit failed-floor record is malformed')
+
+
+def _floor_state(engine, path: Path) -> dict:
+    if path.is_symlink() or path.is_junction() or not path.is_file():
+        return {'exists': False, 'readable': False, 'floor': None, 'sha256': None}
+    try:
+        floor = ProductionAuthorizationControl(path, engine.instance_id).read()
+        return {'exists': True, 'readable': True, 'floor': floor,
+                'sha256': hashlib.sha256(path.read_bytes()).hexdigest()}
+    except (EngineError, OSError):
+        return {'exists': True, 'readable': False, 'floor': None, 'sha256': None}
+
+
+def _floor_is_empty(engine, state) -> bool:
+    floor = state['floor']
+    return (state['readable'] and floor.instance_id == engine.instance_id
+            and floor.minimum_revision == 0 and floor.pending_request_sha256 is None)
+
+
+def _write_audit_body(engine, body: bytes) -> str:
+    """Atomically replace the audit file and commit its digest to metadata."""
     digest_hex = hashlib.sha256(body).hexdigest()
     target = Path(engine.db.data_dir) / 'Control' / AUDIT_FILENAME
     temporary = target.with_name(AUDIT_FILENAME + '.pending')
@@ -520,7 +566,7 @@ def _append_audit_record(engine, name: str, record: dict) -> str:
         os.replace(temporary, target)
     except OSError as error:
         raise _denied('development_owner_audit_unwritten',
-                      'The development Owner audit could not record the production control',
+                      'The development Owner audit could not be updated',
                       503) from error
     with engine.db.transaction() as connection:
         connection.execute('INSERT INTO metadata VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value',
@@ -528,48 +574,139 @@ def _append_audit_record(engine, name: str, record: dict) -> str:
     return digest_hex
 
 
-def create_development_production_control(engine) -> dict | None:
-    """Install the retained production authorization floor for a dev instance once.
+def _append_audit_record(engine, name: str, record: dict) -> str:
+    """Append one dev-only audit fact and commit its new digest to metadata."""
+    document = _parse_audit(engine)
+    existing = document.get(name)
+    if existing is not None:
+        if existing != record:
+            raise _audit_changed('The development Owner audit already records a different ' + name)
+        return hashlib.sha256(_canonical_audit_bytes(document)).hexdigest()
+    document[name] = record
+    return _write_audit_body(engine, _canonical_audit_bytes(document))
+
+
+def _created_record(engine, counts, floor_state) -> dict:
+    return {'created_at_us': engine.clock(), 'recorded_at_us': engine.clock(), 'floor': 0,
+            'path': _PRODUCTION_CONTROL_RELATIVE, 'counts': counts,
+            'control_sha256': floor_state['sha256']}
+
+
+def _adopt_created_record(engine, counts, floor_state) -> dict:
+    record = _created_record(engine, counts, floor_state)
+    _append_audit_record(engine, _PRODUCTION_CONTROL_RECORD, record)
+    return record
+
+
+def create_development_production_control(engine, *, auto_owner_init: bool) -> dict | None:
+    """Install and reconcile the retained production authorization floor (dev only).
 
     `assemble_owner_services` reads `Control/ProductionAuthorizationControl.json`
     on every start, but production installs that floor only inside an
     authenticated management/execution-registration action, which a development
-    instance never performs. The development host therefore creates the empty
-    first floor itself, and only when all of the following hold: this is the
-    dev-only assembly path, the caller passed `--development-auto-owner-init`,
-    the floor file does not exist, and the four authorization tables are
-    provably empty. An existing floor is never overwritten or rebuilt.
+    instance never performs. The development host therefore owns a small state
+    machine whose only journal is `Control/DevelopmentOwnerInitialization.json`:
+
+    * `production_control_attempt` is written and fsynced before the floor is
+      created;
+    * `production_control_created` is written only after a readable empty floor
+      exists, and carries the floor file SHA256;
+    * a failure after the floor exists leaves `production_control_failed_with_floor`
+      so the next run adopts the existing floor instead of dead-ending;
+    * a failed attempt before the floor exists restores the audit bytes present
+      at entry, so the next run starts cleanly.
+
+    Four hard conditions are re-checked on every call: development flag, a real
+    development-local registration, the floor file absent or already owned by
+    this journal, and all four authorization tables provably empty. There is no
+    default path, no environment switch and no way to overwrite a foreign floor.
     """
     if type(engine) is not EngineService:
         raise _source_denied('An actual EngineService is required')
+    if getattr(sys, 'frozen', False):
+        raise _denied('development_installation_unavailable',
+                      'A frozen artifact cannot host a development installation', 503)
+    if auto_owner_init is not True:
+        raise _source_denied('Development production control requires --development-auto-owner-init')
+    if getattr(engine, '_development_local_registration', None) is None:
+        raise _source_denied('Only the development host local registration may create the production control')
     path = Path(engine.db.data_dir) / 'Control' / _PRODUCTION_CONTROL_FILENAME
     if path.is_symlink() or path.is_junction():
         raise _denied('development_control_state_denied',
                       'The retained production authorization floor cannot cross links', 503)
-    if path.exists():
-        return None
     counts = _authorization_counts(engine)
     if any(counts.values()):
         raise _denied('development_control_state_denied',
                       'The authorization registry is not empty; the retained production floor is never rebuilt: '
                       + json.dumps(counts, sort_keys=True), 503)
-    control = ProductionAuthorizationControl(path, engine.instance_id)
-    created_at_us = engine.clock()
-    control.initialize_new()
-    floor = control.read()
-    if (floor.instance_id != engine.instance_id or floor.minimum_revision != 0
-            or floor.pending_request_sha256 is not None):
-        raise _denied('development_control_state_denied',
-                      'The newly installed production floor is not the empty first floor', 503)
-    record = {
-        'created_at_us': created_at_us,
-        'recorded_at_us': engine.clock(),
-        'floor': 0,
-        'path': _PRODUCTION_CONTROL_RELATIVE,
-        'counts': counts,
-    }
-    _append_audit_record(engine, _PRODUCTION_CONTROL_RECORD, record)
-    return record
+    document = _parse_audit(engine)
+    audit_path = Path(engine.db.data_dir) / 'Control' / AUDIT_FILENAME
+    baseline = audit_path.read_bytes()
+    created = document.get(_PRODUCTION_CONTROL_RECORD)
+    attempt = document.get(_PRODUCTION_CONTROL_ATTEMPT)
+    failed = document.get(_PRODUCTION_CONTROL_FAILED)
+    state = _floor_state(engine, path)
+
+    if created is not None:
+        if not state['exists']:
+            raise _denied('development_control_state_denied',
+                          'The audit records a created production floor but its file is missing; restore the original '
+                          'Control/ProductionAuthorizationControl.json from backup or discard this development data directory', 503)
+        if not _floor_is_empty(engine, state):
+            raise _denied('development_control_state_denied',
+                          'The created production floor is unreadable or not the empty first floor; restore the original '
+                          'floor file or discard this development data directory', 503)
+        recorded_sha = created.get('control_sha256')
+        if recorded_sha is not None and recorded_sha != state['sha256']:
+            raise _denied('development_control_state_denied',
+                          'The created production floor bytes changed after creation; restore the audited floor file or '
+                          'discard this development data directory', 503)
+        return created
+
+    if state['exists']:
+        if attempt is None and failed is None:
+            raise _denied('development_control_state_denied',
+                          'A production floor exists without a development attempt record; this host never overwrites '
+                          'a floor it did not create. Use the original installer/Owner procedure or discard this '
+                          'development data directory', 503)
+        if not _floor_is_empty(engine, state):
+            raise _denied('development_control_state_denied',
+                          'The attempted production floor is unreadable or not the empty first floor; restore it from '
+                          'backup or discard this development data directory', 503)
+        return _adopt_created_record(engine, counts, state)
+
+    try:
+        if attempt is None:
+            _append_audit_record(engine, _PRODUCTION_CONTROL_ATTEMPT,
+                                 {'attempted_at_us': engine.clock(), 'floor': 0,
+                                  'path': _PRODUCTION_CONTROL_RELATIVE, 'counts': counts})
+        control = ProductionAuthorizationControl(path, engine.instance_id)
+        control.initialize_new()
+        after = _floor_state(engine, path)
+        if not _floor_is_empty(engine, after):
+            raise _denied('development_control_state_denied',
+                          'The newly installed production floor is not the empty first floor; restore the original '
+                          'floor file or discard this development data directory', 503)
+        record = _created_record(engine, counts, after)
+        _append_audit_record(engine, _PRODUCTION_CONTROL_RECORD, record)
+        return record
+    except BaseException as failure:
+        floor_now = _floor_state(engine, path)
+        try:
+            if floor_now['exists']:
+                error_code = failure.code if isinstance(failure, EngineError) else type(failure).__name__
+                _append_audit_record(engine, _PRODUCTION_CONTROL_FAILED,
+                                     {'failed_at_us': engine.clock(), 'floor': 0,
+                                      'path': _PRODUCTION_CONTROL_RELATIVE, 'counts': counts,
+                                      'floor_created': True,
+                                      'control_sha256': floor_now['sha256'],
+                                      'error_code': error_code})
+            else:
+                _write_audit_body(engine, baseline)
+        except Exception as recovery:  # noqa: BLE001 -- rollback failure must not replace the original error
+            failure.add_note('Development production-control journal recovery failed: '
+                             + type(recovery).__name__)
+        raise
 
 
 def _parse_audit(engine) -> dict:
@@ -598,9 +735,15 @@ def _parse_audit(engine) -> dict:
         raise _audit_changed('The development Owner audit document is incomplete')
     if set(document) - (_AUDIT_KEYS | _OPTIONAL_AUDIT_KEYS):
         raise _audit_changed('The development Owner audit document has unknown fields')
+    record = document.get(_PRODUCTION_CONTROL_ATTEMPT)
+    if record is not None:
+        _validate_attempt_record(record)
     record = document.get(_PRODUCTION_CONTROL_RECORD)
     if record is not None:
         _validate_production_control_record(record)
+    record = document.get(_PRODUCTION_CONTROL_FAILED)
+    if record is not None:
+        _validate_failed_record(record)
     return document
 
 
