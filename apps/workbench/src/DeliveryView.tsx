@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { Badge, Button, Callout, Checkbox, Dialog, Flex, Select, Tabs, TextField } from '@radix-ui/themes';
-import { Download, Film, Link, RefreshCw } from 'lucide-react';
+import { Download, Film, Link, RefreshCw, ShieldCheck } from 'lucide-react';
 import { ARCHIVE_BUFFER_BYTES, engineData, engineRequest, engineContent, errorMessage, inputHash, PREVIEW_BUFFER_BYTES, rememberLocator, RequestFailure, storedLocator, verifiedContentBlob, verifyContentMetadata } from './engine';
 import type { Schemas } from './engine';
+import { benchmarkBindingLabel, formatBytes, selfIssuedNote, shortSha } from './productFlow';
 
 type BundleRef = Schemas['BundleRef'];
 type Artifact = Schemas['BundleArtifact'];
@@ -29,6 +30,7 @@ export function DeliveryView({ bundleRef: publishedRef, importReceipt, connected
   const [loaded, setLoaded] = useState<LoadedArtifact | null>(null);
   const [subtitles, setSubtitles] = useState<LoadedArtifact | null>(null);
   const [busy, setBusy] = useState(false);
+  const [downloading, setDownloading] = useState<string | null>(null);
   const [error, setError] = useState<unknown>(null);
   const [exportOpen, setExportOpen] = useState(false);
   const [grantOpen, setGrantOpen] = useState(false);
@@ -93,6 +95,9 @@ export function DeliveryView({ bundleRef: publishedRef, importReceipt, connected
   const outputArtifacts = (role: OutputRole) => artifacts.filter(item => outputs.find(output => output.role === role)?.artifact_ids.includes(item.artifact_id));
   const segments = semantics.data?.pages.flatMap(page => page.segments) ?? [];
   const complete = manifest.data?.requested_outputs.every(role => outputArtifacts(role).length > 0);
+  const benchmarkBinding = manifest.data && 'benchmark_binding' in manifest.data ? manifest.data.benchmark_binding : undefined;
+  const evidenceNote = benchmarkBinding ? selfIssuedNote(benchmarkBinding) : undefined;
+  const deliveryFiles = (['video', 'subtitles'] as const).flatMap(role => outputArtifacts(role).map(artifact => ({ role, artifact })));
 
   const readArtifact = async (artifact: Artifact, signal: AbortSignal) => {
     if (!bundleRef) throw new RequestFailure(409, 'bundle_version_mismatch');
@@ -125,6 +130,20 @@ export function DeliveryView({ bundleRef: publishedRef, importReceipt, connected
       }
     } catch (failure) { if (!controller.signal.aborted) { setLoaded(null); setSubtitles(null); setError(failure); } }
     finally { if (loading.current === controller) setBusy(false); }
+  };
+  const downloadArtifact = async (artifact: Artifact) => {
+    if (!bundleRef || downloading) return;
+    setDownloading(artifact.artifact_id); setError(null);
+    try {
+      const result = await readArtifact(artifact, new AbortController().signal);
+      const url = URL.createObjectURL(result.blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = artifact.relative_path.split('/').pop() || artifact.artifact_id;
+      document.body.appendChild(anchor); anchor.click(); anchor.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 10_000);
+    } catch (failure) { setError(failure); }
+    finally { setDownloading(null); }
   };
   const seekSegment = async (segment: Schemas['SemanticSegmentV1']) => {
     const artifact = outputArtifacts('video').find(item => item.asset_id === segment.video_asset_id);
@@ -197,6 +216,23 @@ export function DeliveryView({ bundleRef: publishedRef, importReceipt, connected
         <Tabs.Content value="audio"><div className="output-options">{(['narration_audio', 'mixed_audio'] as const).flatMap(role => outputArtifacts(role).map(item => <Button key={item.artifact_id} size="2" variant="soft" disabled={busy || !connected} onClick={() => void openArtifact(item, role)}>{OUTPUT_LABEL[role]}</Button>))}</div>{connected && loaded?.artifact.media_type.startsWith('audio/') ? <div className="audio-preview"><h3>{OUTPUT_LABEL[selectedRole]}</h3><audio key={loaded.url} src={loaded.url} controls preload="metadata" aria-label="固定版本音轨预览" onError={() => { clearContent(); setError(new RequestFailure(422, 'media_invalid')); }} /></div> : <p className="value-empty">选择旁白或完整混音，独立试听。</p>}</Tabs.Content>
         <Tabs.Content value="text"><div className="output-options">{(['approved_script', 'actual_transcript', 'subtitles', 'rag_chunks'] as const).flatMap(role => outputArtifacts(role).map(item => <Button key={item.artifact_id} size="1" variant="soft" disabled={busy || !connected} onClick={() => void openArtifact(item, role)}>{OUTPUT_LABEL[role]}</Button>))}</div>{connected && loaded?.text !== undefined ? <div><h3>{OUTPUT_LABEL[selectedRole]}</h3><pre className="asset-text-preview">{loaded.text}</pre></div> : <p className="value-empty">批准原稿与实际音频转写分别读取。</p>}<h3>选题与画面的对应</h3>{!importReceipt && semantics.isPending ? <p role="status">正在读取语义段落…</p> : null}{semantics.error ? <Callout.Root color="red"><Callout.Text>{errorMessage(semantics.error)}</Callout.Text><Button size="1" variant="soft" onClick={() => void semantics.refetch()}>重读对应关系</Button></Callout.Root> : null}<div className="semantic-segments">{segments.map(segment => <article key={segment.segment_id}><button type="button" disabled={busy || !connected} onClick={() => void seekSegment(segment)}><span>{timestamp(segment.video_range.start_us)}—{timestamp(segment.video_range.end_us)}</span><strong>{segment.topic || segment.summary}</strong></button><p>{segment.main_thesis}</p><p className="semantic-speech">{segment.speech_text}</p><details><summary>来源与识别依据</summary><p>{segment.visual_description}</p><p>{segment.source_refs.map(source => `${source.system} · ${source.article_id ?? source.topic_id ?? source.namespace} · ${source.article_revision ?? source.topic_revision ?? ''}`).join('；')}</p><p>原始转写单元：{segment.transcript_unit_refs.join('、')}</p></details></article>)}</div>{semantics.hasNextPage ? <Button variant="soft" disabled={semantics.isFetchingNextPage} onClick={() => void semantics.fetchNextPage()}>读取更多对应段落</Button> : null}</Tabs.Content>
       </Tabs.Root>
+      {benchmarkBinding ? <Callout.Root color="gray" role="note" className="delivery-evidence">
+        <Callout.Icon><ShieldCheck size={16} /></Callout.Icon>
+        <Callout.Text>
+          <strong>{benchmarkBindingLabel(benchmarkBinding)}</strong>
+          {evidenceNote ? <p>{evidenceNote}</p> : null}
+          <p>{benchmarkBinding === 'embedded_self_issued' ? '这是本机自签证据，不是第三方认证，也不代表精度已测量。' : '这只说明证据绑定方式，不代表精度已测量。'}</p>
+        </Callout.Text>
+      </Callout.Root> : null}
+      <section className="delivery-files" aria-label="成片与字幕文件">
+        <h3>成片与字幕</h3>
+        <p>文件来自这个固定版本；大小与 SHA-256 前 12 位取自作品清单原件。</p>
+        {deliveryFiles.length ? <div className="delivery-file-list">{deliveryFiles.map(({ role, artifact }) => <div className="delivery-file" key={artifact.artifact_id}>
+          <div><strong>{OUTPUT_LABEL[role]}</strong><span>{artifact.relative_path}</span></div>
+          <span>{formatBytes(artifact.size)} · SHA {shortSha(artifact.sha256)}</span>
+          <Button size="1" variant="soft" disabled={!connected || Boolean(downloading)} onClick={() => void downloadArtifact(artifact)}><Download size={13} />{downloading === artifact.artifact_id ? '读取中' : '下载'}</Button>
+        </div>)}</div> : <p className="value-empty">作品清单还没有成片或字幕文件。</p>}
+      </section>
       {loaded ? <Button variant="ghost" size="1" color="gray" onClick={() => { loading.current?.abort(); setLoaded(null); setSubtitles(null); setBusy(false); }}>关闭预览</Button> : null}
       {importReceipt ? <p className="small-note">本地索引状态：{importReceipt.index_state === 'ready' ? '已建立' : importReceipt.index_state === 'failed' ? '建立失败' : '尚未建立'}。来源版本与本地定位分别保存；引用授权由来源实例管理。</p> : null}
       <div className="delivery-actions"><Button disabled={!connected || busy} onClick={() => setExportOpen(true)}><Download size={16} />导出作品包</Button><Button variant="soft" disabled={!connected || busy || Boolean(importReceipt)} onClick={() => setGrantOpen(true)}><Link size={16} />授权引用</Button></div>

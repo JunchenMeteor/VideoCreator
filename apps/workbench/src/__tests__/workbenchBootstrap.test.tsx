@@ -17,7 +17,7 @@ it('boots a static production page from its same-origin proxy without the dev de
   expect(typeof dispose).toBe('function');
   try {
     renderWorkbench();
-    expect(await screen.findByText('建项目')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: '做一条能取片的作品' })).toBeInTheDocument();
     // The old failure mode was `trusted_connection_missing` and an unavailable banner.
     expect(screen.queryByText(/trusted_connection_missing|实例连接暂不可用/)).not.toBeInTheDocument();
     expect(calls.some(call => call.url.startsWith(window.location.origin + '/api/'))).toBe(true);
@@ -36,7 +36,7 @@ it('accepts an injected boot descriptor but never exposes its token', async () =
   expect(window.__VIDEO_CREATOR_BOOT__).toBeUndefined();
   try {
     renderWorkbench();
-    expect(await screen.findByText('建项目')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: '做一条能取片的作品' })).toBeInTheDocument();
     expect(document.body.innerHTML).not.toContain(token);
     expect(JSON.stringify(localStorage)).not.toContain(token);
     expect(JSON.stringify(sessionStorage)).not.toContain(token);

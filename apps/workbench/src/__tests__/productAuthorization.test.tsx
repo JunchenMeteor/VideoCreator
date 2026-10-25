@@ -45,6 +45,7 @@ describe('ADR0081 startup health states', () => {
     const dispose = bootstrapManagedWorkbench('http://127.0.0.1:1420');
     try {
       renderWorkbench();
+      fireEvent.click(await screen.findByRole('button', { name: '项目' }));
       expect(await screen.findByText('建项目')).toBeInTheDocument();
       expect(screen.queryByRole('heading', { name: '需要你的授权' })).not.toBeInTheDocument();
       expect(screen.queryByText('授权已完成，请重启应用')).not.toBeInTheDocument();
