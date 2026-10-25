@@ -2585,6 +2585,7 @@ source = { editable = "services/engine" }
 dependencies = [
     { name = "alembic" },
     { name = "crewai" },
+    { name = "cryptography" },
     { name = "fastapi" },
     { name = "httpx" },
     { name = "keyring" },
@@ -2611,6 +2612,7 @@ dev = [
 requires-dist = [
     { name = "alembic", specifier = "==1.20.0" },
     { name = "crewai", specifier = "==1.15.23" },
+    { name = "cryptography", specifier = "==50.0.2" },
     { name = "fastapi", specifier = "==0.142.2" },
     { name = "httpx", specifier = "==0.28.1" },
     { name = "keyring", specifier = "==25.7.0" },
