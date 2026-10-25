@@ -14,6 +14,11 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 from starlette.responses import FileResponse, JSONResponse, StreamingResponse
 
 from video_creator import __version__
+from video_creator.api.development_marker import (
+    DEVELOPMENT_INSTALLATION_HEADER,
+    DEVELOPMENT_INSTALLATION_VALUE,
+    is_development_host,
+)
 from video_creator.api.transport_contract import (
     content_metadata_for,
     install_transport_contract,
@@ -44,9 +49,9 @@ from video_creator.domain.contracts import (
 )
 from video_creator.domain.daily_project_authorization import (
     ProjectGoalAccepted,
-    ProjectGoalReceiptQueryV1,
-    ProjectGoalReceiptAssociationV1,
     ProjectGoalInput,
+    ProjectGoalReceiptAssociationV1,
+    ProjectGoalReceiptQueryV1,
 )
 from video_creator.domain.errors import EngineError
 from video_creator.infrastructure.origins import startup_origins
@@ -161,8 +166,11 @@ def create_app(engine: EngineService, token: str, subject: str = "local-user",
         return JSONResponse(envelope.model_dump(mode="json"), status_code=422)
 
     @app.get("/api/v1/health", response_model=InstanceHealth)
-    def health(actor: str = Depends(authenticate)):
+    def health(response: Response, actor: str = Depends(authenticate)):
         # A compatibility boolean is no longer evidence that a worker exists.
+        if is_development_host():
+            # Process-internal development binding only; not declared in OpenAPI.
+            response.headers[DEVELOPMENT_INSTALLATION_HEADER] = DEVELOPMENT_INSTALLATION_VALUE
         return InstanceHealth(instance_id=engine.instance_id, schema_version=c.CONTRACT_SET_VERSION, engine_version=__version__,
                               worker_connected=WorkerService(engine).connected())
 

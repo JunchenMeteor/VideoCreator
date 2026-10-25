@@ -4,19 +4,33 @@ import hashlib
 
 from pydantic import ValidationError
 
-from video_creator.application.current_final_evidence_journal import PREFIX, parse_journal, prepared_current
+from video_creator.application.affected_repair_service import (
+    AffectedRepairService,
+    canonical_body,
+)
+from video_creator.application.component_diagnosis_service import (
+    ComponentDiagnosisService,
+)
+from video_creator.application.current_final_evidence_journal import (
+    PREFIX,
+    parse_journal,
+    prepared_current,
+)
+from video_creator.application.diagnosed_affected_service import (
+    DiagnosedAffectedService,
+)
+from video_creator.application.diagnostic_selection import DiagnosticSelectionService
 from video_creator.application.engine import canonical, digest
-from video_creator.application.affected_repair_service import AffectedRepairService, canonical_body
 from video_creator.application.plan_repair_service import PlanRepairService
 from video_creator.application.registered_alignment import RegisteredAlignmentService
-from video_creator.application.component_diagnosis_service import ComponentDiagnosisService
-from video_creator.application.diagnostic_selection import DiagnosticSelectionService
-from video_creator.application.diagnosed_affected_service import DiagnosedAffectedService
 from video_creator.domain import contracts as c
 from video_creator.domain import local_bundle as local
 from video_creator.domain.bundle import BundlePreparationIntent
 from video_creator.domain.current_final_evidence import (
-    AssemblyContextRef, CurrentFinalAssemblyContext, CurrentFinalAssemblyContextV2, CurrentFinalEvidenceReadSet,
+    AssemblyContextRef,
+    CurrentFinalAssemblyContext,
+    CurrentFinalAssemblyContextV2,
+    CurrentFinalEvidenceReadSet,
 )
 from video_creator.domain.errors import EngineError
 
@@ -34,6 +48,42 @@ DOCUMENT_PATHS = {
     'work_validation': 'Checks/work-alignment-validation.json', 'reference': 'Checks/precision-reference.json',
     'measurement': 'Checks/precision-evaluation.json',
 }
+
+
+def has_original_masters(intent, assembly) -> bool:
+    """Version dispatch for the original master set behind one committed assembly.
+
+    ADR0075 local works select only their applicable subset of the fixed master
+    roles (a silent visual work has `video` + `cover`), so a local assembly is
+    compared with its exact selection and the preparation intent that was
+    authored from it. Every legacy v0.2/v0.3 assembly keeps the original
+    four-master rule unchanged.
+    """
+    if type(assembly) is local.LocalFinalAssemblyContextV1:
+        roles = tuple(assembly.selection.master_roles)
+        artifacts = tuple(assembly.media_artifacts)
+        assets = tuple(intent.media_asset_ids)
+        return (bool(roles)
+                and tuple(artifact.roles for artifact in artifacts) == tuple((role,) for role in roles)
+                and tuple(artifact.asset_id for artifact in artifacts) == assets
+                and len(set(roles)) == len(roles)
+                and len(set(assets)) == len(assets))
+    return len(intent.media_asset_ids) == 4
+
+
+def final_read_set_asr(assembly, validated):
+    """The only value the read-set's `asr` slot may hold for this assembly.
+
+    `CurrentFinalEvidenceReadSet.asr` is declared `CurrentFinalAsrRead | None`.
+    A local assembly's committed speech document (`LocalSpeechEvidenceV1`) is a
+    different type; storing it in `asr` violates that declaration and readers
+    reach it as an uncaught `AttributeError`. Local validation has already
+    re-proved the speech facts, so the slot stays empty for local works and the
+    declared contract (typed read or None) is preserved.
+    """
+    if type(assembly) is local.LocalFinalAssemblyContextV1:
+        return None
+    return validated
 
 
 class CurrentFinalEvidenceRecovery(DiagnosticSelectionService, ComponentDiagnosisService, DiagnosedAffectedService, PlanRepairService, AffectedRepairService, RegisteredAlignmentService):
@@ -101,7 +151,9 @@ class CurrentFinalEvidenceRecovery(DiagnosticSelectionService, ComponentDiagnosi
 
     def _validate_final_assembly_facts(self, lease, row, intent, binding, context, *, author, allow_missing_asr=False):
         if type(context) is local.LocalFinalAssemblyContextV1:
-            from video_creator.application.local_bundle_assembly import validate_local_assembly
+            from video_creator.application.local_bundle_assembly import (
+                validate_local_assembly,
+            )
             return validate_local_assembly(self, lease, row, intent, binding, context, author=author)
         from video_creator.application.bundles import validate_text
         # A genuine initial preparation has no final transcript receipt yet.
@@ -293,30 +345,29 @@ class CurrentFinalEvidenceRecovery(DiagnosticSelectionService, ComponentDiagnosi
         body = canonical_body({'format': 'current-final-assembly-binding-v1', 'binding': binding, 'ref': ref})
         key = ASSEMBLY_PREFIX + preparation_id
         issuer = self._production_authorization.issuer()
-        with issuer.current_guard(self._production_authorization.registered(lease)) as guard:
-            with self.engine.db.transaction() as connection:
-                current, run, production, _request = self._preparation(connection, lease, preparation_id)
-                if local_snapshot is not None:
-                    self._local_source().assert_context_writer(connection, lease, local_snapshot)
-                self.assert_correction_pair_writer(connection, preparation_id, correction_pair)
-                issuer._guard(connection, guard)
-                if correction_context is not None:
-                    self._origin_bindings_current(connection, lease, production, correction_context, guard=guard)
-                if self._final_binding(lease, connection) != binding or current['intent_json'] != row['intent_json']:
-                    raise EngineError('final_assembly_binding_invalid', 'Original author writer changed preparation', 409)
-                old = connection.execute('SELECT value FROM metadata WHERE key=?', (key,)).fetchone()
-                if old and old[0] != body:
-                    raise EngineError('final_assembly_conflict', 'Original assembly bytes immutable', 409)
-                if old is None:
-                    connection.execute('INSERT INTO metadata(key,value) VALUES(?,?)', (key, body))
-                    self.engine._event(connection, run, 'production.final_assembly_committed', ref.content_sha256)
-                self._final_binding(lease, connection)
-                self.assert_correction_pair_writer(connection, preparation_id, correction_pair, allow_new_assembly=body)
-                if local_snapshot is not None:
-                    self._local_source().assert_context_writer(connection, lease, local_snapshot)
-                if correction_context is not None:
-                    self._origin_bindings_current(connection, lease, production, correction_context, guard=guard)
-                issuer._guard(connection, guard)
+        with issuer.current_guard(self._production_authorization.registered(lease)) as guard, self.engine.db.transaction() as connection:
+            current, run, production, _request = self._preparation(connection, lease, preparation_id)
+            if local_snapshot is not None:
+                self._local_source().assert_context_writer(connection, lease, local_snapshot)
+            self.assert_correction_pair_writer(connection, preparation_id, correction_pair)
+            issuer._guard(connection, guard)
+            if correction_context is not None:
+                self._origin_bindings_current(connection, lease, production, correction_context, guard=guard)
+            if self._final_binding(lease, connection) != binding or current['intent_json'] != row['intent_json']:
+                raise EngineError('final_assembly_binding_invalid', 'Original author writer changed preparation', 409)
+            old = connection.execute('SELECT value FROM metadata WHERE key=?', (key,)).fetchone()
+            if old and old[0] != body:
+                raise EngineError('final_assembly_conflict', 'Original assembly bytes immutable', 409)
+            if old is None:
+                connection.execute('INSERT INTO metadata(key,value) VALUES(?,?)', (key, body))
+                self.engine._event(connection, run, 'production.final_assembly_committed', ref.content_sha256)
+            self._final_binding(lease, connection)
+            self.assert_correction_pair_writer(connection, preparation_id, correction_pair, allow_new_assembly=body)
+            if local_snapshot is not None:
+                self._local_source().assert_context_writer(connection, lease, local_snapshot)
+            if correction_context is not None:
+                self._origin_bindings_current(connection, lease, production, correction_context, guard=guard)
+            issuer._guard(connection, guard)
         return ref
 
     def read_current_final_continuation_inputs(self, lease, continuation):
@@ -325,7 +376,6 @@ class CurrentFinalEvidenceRecovery(DiagnosticSelectionService, ComponentDiagnosi
             return self._read_current_final_continuation_inputs(lease, continuation, guard)
 
     def _read_current_final_continuation_inputs(self, lease, continuation, guard, *, selected_preparation_id=None):
-        from video_creator.application.bundles import strict_json
         with self.engine.db.connect_readonly() as connection:
             self.engine._lease(connection, lease)
             binding = self._final_binding(lease, connection)
@@ -352,11 +402,13 @@ class CurrentFinalEvidenceRecovery(DiagnosticSelectionService, ComponentDiagnosi
         assembly = self._read_final_assembly(row, binding)
         missing = []
         asr = None
+        local_assembly = type(assembly) is local.LocalFinalAssemblyContextV1
         if assembly is None:
             if manifest is None:
                 missing.append('original_assembly_context_missing')
         else:
-            asr = self._validate_final_assembly_facts(lease, row, intent, binding, assembly, author=False, allow_missing_asr=True)
+            asr = final_read_set_asr(assembly, self._validate_final_assembly_facts(
+                lease, row, intent, binding, assembly, author=False, allow_missing_asr=True))
             self._assembly_correction_context(lease, row['id'], assembly)
             if manifest is not None:
                 fields = ('creative_revision_refs', 'approval_refs', 'feedback_revision_refs', 'source_refs',
@@ -376,13 +428,15 @@ class CurrentFinalEvidenceRecovery(DiagnosticSelectionService, ComponentDiagnosi
             if len(methods) != 1 or len(methods[0].operation_ids) != 1:
                 raise EngineError('asr_result_scope_denied', 'Original candidate must name its single original ASR Operation', 422)
             asr = self._original_asr().read_settled_original_asr(lease, methods[0].operation_ids[0])
-        if asr is None:
+        if asr is None and not local_assembly:
+            # A local work's speech facts are the committed local document, not
+            # a non-local ASR read; only a legacy assembly can miss that context.
             missing.append('original_asr_validation_context_missing')
         strict_kinds = {'precision_reference_v03', 'precision_report_v03', 'precision_report',
                         'method_benchmark_reference', 'method_benchmark', 'method_qualification',
                         'evidence_policy', 'work_alignment_validation', 'license'}
         strict_ids = {r.artifact_id for r, _raw in materials if r.schema_kind in strict_kinds}
-        from video_creator.application.bundles import validate_text, check_record
+        from video_creator.application.bundles import check_record, validate_text
         by_artifact = {r.artifact_id: (r, raw) for r, raw in materials}
         paths = {a.artifact_id: a.relative_path for a in allocations}
         documents = {paths[r.artifact_id]: validate_text(raw, r.schema_kind, r.media_type) for r, raw in materials}

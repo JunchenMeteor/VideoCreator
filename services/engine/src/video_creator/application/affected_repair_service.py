@@ -1,9 +1,10 @@
 """Original held production sources and authenticated preparation master reads."""
 
-import threading
 import hashlib
 import json
+import threading
 from types import MappingProxyType
+
 from pydantic import BaseModel
 
 from video_creator.application.engine import canonical, digest
@@ -48,7 +49,11 @@ class AffectedRepairService:
             raise EngineError('affected_master_source_unavailable', 'Original registered Step missing', 503)
         return row
     def _affected_claim(self, connection, lease, continuation):
-        from video_creator.application.current_final_evidence_journal import PREFIX, parse_journal, prepared_current
+        from video_creator.application.current_final_evidence_journal import (
+            PREFIX,
+            parse_journal,
+            prepared_current,
+        )
         saved = connection.execute('SELECT value FROM metadata WHERE key=?', (PREFIX + lease.run_id,)).fetchone()
         if saved is None:
             raise EngineError('final_evidence_claim_required', 'Original executing repair checkpoint required', 409)
@@ -94,8 +99,12 @@ class AffectedRepairService:
                 or command.get('source_report_ref') != (execution.source_report_ref.model_dump(mode='json') if execution.source_report_ref is not None else None)):
             raise EngineError('affected_command_invalid', 'Original complete command identity changed', 422)
         if command.get('format') == 'current-final-affected-execution-v2-diagnostic-v1':
-            from video_creator.domain.component_diagnosis import AffectedRepairExecutionDiagnosedV1
-            from video_creator.application.diagnosed_affected_service import diagnosed_source
+            from video_creator.application.diagnosed_affected_service import (
+                diagnosed_source,
+            )
+            from video_creator.domain.component_diagnosis import (
+                AffectedRepairExecutionDiagnosedV1,
+            )
             source=diagnosed_source(command)
             if (type(execution) is not AffectedRepairExecutionDiagnosedV1
                     or source.diagnostic_ref!=execution.diagnostic_ref or source.input_key_sha256!=execution.input_key_sha256
@@ -193,11 +202,16 @@ class AffectedRepairService:
         return child
 
     def read_current_affected_execution_inputs(self, lease, continuation):
-        from video_creator.domain.component_diagnosis import CurrentFinalDiagnosticContinuationV1
+        from video_creator.domain.component_diagnosis import (
+            CurrentFinalDiagnosticContinuationV1,
+        )
         if type(continuation) is CurrentFinalDiagnosticContinuationV1:
             return self.read_diagnosed_affected_execution_inputs(lease,continuation)
         from video_creator.application.bundles import strict_json
-        from video_creator.domain.affected_repair import AffectedRepairExecution, AffectedRepairReadSet
+        from video_creator.domain.affected_repair import (
+            AffectedRepairExecution,
+            AffectedRepairReadSet,
+        )
         from video_creator.domain.bundle import MaterialReceipt
         held = self._affected_services(lease)
         self._production_services_runtime._current_final_execution_facts(lease, held[1], held[5])
@@ -347,7 +361,7 @@ class AffectedRepairService:
                         self._affected_observation_held[id(observation)] = (observation, lease, threading.get_ident())
                     return observation
             with self.engine.db.transaction() as connection:
-                current, current_raw, journal_raw, journal, _parent, run, production, request = self._affected_execution(connection, lease, execution)
+                current, current_raw, journal_raw, _journal, _parent, run, production, _request = self._affected_execution(connection, lease, execution)
                 issuer.assert_final_evidence_resume_current(connection, guard, run_id=run['id'], binding=execution.binding,
                     journal_sha256=digest(journal_raw), resume_mode='repair', affected_artifact_ids=execution.affected_artifact_ids)
                 if self._affected_services_writer(lease)[5]:
@@ -384,13 +398,20 @@ class AffectedRepairService:
         return observation
 
     def authorize_current_affected_execution(self, lease, continuation, proposal):
-        from video_creator.domain.component_diagnosis import CurrentFinalDiagnosticContinuationV1
+        from video_creator.domain.component_diagnosis import (
+            CurrentFinalDiagnosticContinuationV1,
+        )
         if type(continuation) is CurrentFinalDiagnosticContinuationV1:
             return self.authorize_diagnosed_affected_execution(lease,continuation,proposal)
         from video_creator.application.bundles import strict_json, validate_text
-        from video_creator.application.current_production_blockers import require_settled
+        from video_creator.application.current_production_blockers import (
+            require_settled,
+        )
         from video_creator.domain import contracts as c
-        from video_creator.domain.affected_repair import AffectedRepairExecution, AffectedRepairProposal
+        from video_creator.domain.affected_repair import (
+            AffectedRepairExecution,
+            AffectedRepairProposal,
+        )
         from video_creator.domain.affected_repair_steps import affected_master_step
         if type(proposal) is not AffectedRepairProposal:
             raise EngineError('affected_proposal_invalid', 'Sole typed finite proposal required', 422)
@@ -503,62 +524,61 @@ class AffectedRepairService:
         body = canonical_body({**source, 'repair_command_sha256': sha, 'source_sha256': digest(source_text),
                           'steps': steps, 'child_preparation_id': None, 'child_intent_sha256': None})
         issuer = self._production_authorization.issuer()
-        with issuer.current_guard(self._production_authorization.registered(lease)) as guard:
-            with self.engine.db.transaction() as connection:
-                original, journal, _row, run, production, request = self._affected_claim(connection, lease, continuation)
-                require_settled(connection, lease.run_id)
-                issuer.assert_final_evidence_resume_current(connection, guard, run_id=run['id'], binding=parent.binding,
-                    journal_sha256=digest(original), resume_mode='repair', affected_artifact_ids=proposal.affected_artifact_ids)
-                if held[5]:
-                    _request, record = issuer._bound(connection, guard, production, run, action='execute_plan')
-                    issuer._bound(connection, guard, production, run, action='continue_bundle_validation')
-                    permitted = {route.route_id: route for route in record.policy.routes}
-                    for route in routes.values():
-                        approved = permitted.get(route.route_id)
-                        if approved is None or approved.route_sha256 != digest(canonical(route)):
-                            raise EngineError('affected_route_denied', 'Exact current original policy route required', 403)
-                    for admission, stage in zip(admissions[:2], ('execute_plan', 'continue_bundle_validation'), strict=True):
-                        issuer.assert_production_admission_current(connection, guard, lease, admission.admission_ref, stage=stage)
-                self.assert_command_targets_writer(connection, lease, {**source, 'binding': parent.binding.model_dump(mode='json'),
-                    'plan_ref': plan_ref.model_dump(mode='json')}, guard=guard)
-                old = connection.execute('SELECT value FROM metadata WHERE key=?', (COMMAND_PREFIX + sha,)).fetchone()
-                if old is None:
-                    cap = min(request.automation.max_revision_cycles, validated.repair_targets.max_revision_cycles) if finite_targets is not None else request.automation.max_revision_cycles
-                    if production['revision_cycles'] >= cap:
-                        raise EngineError('revision_limit', 'Original shared production revision allowance exhausted', 409)
-                    matches = connection.execute('SELECT value FROM metadata WHERE key LIKE ?', (COMMAND_PREFIX + '%',)).fetchall()
-                    for value in matches:
-                        previous = strict_json(value[0].encode())
-                        if (previous.get('binding') == parent.binding.model_dump(mode='json')
-                                and previous.get('parent_preparation_id') == proposal.parent_preparation_id
-                                and previous.get('source_report_ref') == repair.source_report_ref.model_dump(mode='json')
-                                and previous.get('affected_artifact_ids') == list(proposal.affected_artifact_ids)
-                                and previous.get('requested_action') == proposal.requested_action):
-                            raise EngineError('affected_command_conflict', 'Original failed source already has a different command payload', 409)
-                    connection.execute('INSERT INTO metadata(key,value) VALUES(?,?)', (COMMAND_PREFIX + sha, body))
-                    self.engine._event(connection, run, 'production.affected_execution_registered', sha)
-                else:
-                    previous = strict_json(old[0].encode())
-                    if (alignment_companion is not None and previous.get('steps') == {}
-                            and previous.get('child_preparation_id') is None
-                            and previous.get('source_sha256') == digest(source_text)):
-                        # Only this actual no-effect continuation may attach the
-                        # companion; its original complete command SHA remains.
-                        changed = connection.execute('UPDATE metadata SET value=? WHERE key=? AND value=?',
-                            (body, COMMAND_PREFIX + sha, old[0]))
-                        if changed.rowcount != 1:
-                            raise EngineError('affected_command_conflict', 'Original no-effect command changed', 409)
-                        previous = strict_json(body.encode('utf-8'))
-                    if previous.get('source_sha256') != digest(source_text) or previous.get('steps') != steps:
-                        raise EngineError('affected_command_conflict', 'Original command source or deterministic steps changed', 409)
-                if alignment_companion is not None:
-                    self.persist_affected_alignment_writer(connection, lease, sha, alignment_companion)
-                    self.assert_alignment_writer(connection, lease, sha, initial=False, guard=guard)
-                self._affected_claim(connection, lease, continuation)
-                self.assert_command_targets_writer(connection, lease, strict_json(body.encode()), guard=guard)
-                if alignment_companion is not None:
-                    self.assert_alignment_writer(connection, lease, sha, initial=False, guard=guard)
-                issuer._guard(connection, guard)
+        with issuer.current_guard(self._production_authorization.registered(lease)) as guard, self.engine.db.transaction() as connection:
+            original, _journal, _row, run, production, request = self._affected_claim(connection, lease, continuation)
+            require_settled(connection, lease.run_id)
+            issuer.assert_final_evidence_resume_current(connection, guard, run_id=run['id'], binding=parent.binding,
+                journal_sha256=digest(original), resume_mode='repair', affected_artifact_ids=proposal.affected_artifact_ids)
+            if held[5]:
+                _request, record = issuer._bound(connection, guard, production, run, action='execute_plan')
+                issuer._bound(connection, guard, production, run, action='continue_bundle_validation')
+                permitted = {route.route_id: route for route in record.policy.routes}
+                for route in routes.values():
+                    approved = permitted.get(route.route_id)
+                    if approved is None or approved.route_sha256 != digest(canonical(route)):
+                        raise EngineError('affected_route_denied', 'Exact current original policy route required', 403)
+                for admission, stage in zip(admissions[:2], ('execute_plan', 'continue_bundle_validation'), strict=True):
+                    issuer.assert_production_admission_current(connection, guard, lease, admission.admission_ref, stage=stage)
+            self.assert_command_targets_writer(connection, lease, {**source, 'binding': parent.binding.model_dump(mode='json'),
+                'plan_ref': plan_ref.model_dump(mode='json')}, guard=guard)
+            old = connection.execute('SELECT value FROM metadata WHERE key=?', (COMMAND_PREFIX + sha,)).fetchone()
+            if old is None:
+                cap = min(request.automation.max_revision_cycles, validated.repair_targets.max_revision_cycles) if finite_targets is not None else request.automation.max_revision_cycles
+                if production['revision_cycles'] >= cap:
+                    raise EngineError('revision_limit', 'Original shared production revision allowance exhausted', 409)
+                matches = connection.execute('SELECT value FROM metadata WHERE key LIKE ?', (COMMAND_PREFIX + '%',)).fetchall()
+                for value in matches:
+                    previous = strict_json(value[0].encode())
+                    if (previous.get('binding') == parent.binding.model_dump(mode='json')
+                            and previous.get('parent_preparation_id') == proposal.parent_preparation_id
+                            and previous.get('source_report_ref') == repair.source_report_ref.model_dump(mode='json')
+                            and previous.get('affected_artifact_ids') == list(proposal.affected_artifact_ids)
+                            and previous.get('requested_action') == proposal.requested_action):
+                        raise EngineError('affected_command_conflict', 'Original failed source already has a different command payload', 409)
+                connection.execute('INSERT INTO metadata(key,value) VALUES(?,?)', (COMMAND_PREFIX + sha, body))
+                self.engine._event(connection, run, 'production.affected_execution_registered', sha)
+            else:
+                previous = strict_json(old[0].encode())
+                if (alignment_companion is not None and previous.get('steps') == {}
+                        and previous.get('child_preparation_id') is None
+                        and previous.get('source_sha256') == digest(source_text)):
+                    # Only this actual no-effect continuation may attach the
+                    # companion; its original complete command SHA remains.
+                    changed = connection.execute('UPDATE metadata SET value=? WHERE key=? AND value=?',
+                        (body, COMMAND_PREFIX + sha, old[0]))
+                    if changed.rowcount != 1:
+                        raise EngineError('affected_command_conflict', 'Original no-effect command changed', 409)
+                    previous = strict_json(body.encode('utf-8'))
+                if previous.get('source_sha256') != digest(source_text) or previous.get('steps') != steps:
+                    raise EngineError('affected_command_conflict', 'Original command source or deterministic steps changed', 409)
+            if alignment_companion is not None:
+                self.persist_affected_alignment_writer(connection, lease, sha, alignment_companion)
+                self.assert_alignment_writer(connection, lease, sha, initial=False, guard=guard)
+            self._affected_claim(connection, lease, continuation)
+            self.assert_command_targets_writer(connection, lease, strict_json(body.encode()), guard=guard)
+            if alignment_companion is not None:
+                self.assert_alignment_writer(connection, lease, sha, initial=False, guard=guard)
+            issuer._guard(connection, guard)
         with self._lock:
             self._affected_execution_held[id(execution)] = (execution, lease, threading.get_ident(), continuation)
         return execution
@@ -577,21 +597,22 @@ class AffectedRepairService:
             raise EngineError('production_services_source_invalid', 'Actual same Runtime factory source required', 403)
         registered = self._production_authorization.registered(lease)
         issuer = self._production_authorization.issuer()
-        with issuer.current_guard(registered) as guard:
-            with self.engine.db.connect_readonly() as connection:
-                run = self.engine._lease(connection, lease)
-                production = self.engine._production(connection, run['production_id'])
-                from video_creator.application.current_production_blockers import bound_context
-                _run, _production, _request, binding = bound_context(self.engine, connection, lease.run_id, runtime.sha256)
-                issuer._guard(connection, guard)
-                issuer._request(connection, production, run, registered)
-                if binding != held[4] or (guard.installation.resource_manifest_sha256,
-                        guard.installation.runtime_manifest_sha256) != held[6:8]:
-                    raise EngineError('production_services_source_changed', 'Original installed source binding changed', 409)
-                from video_creator.domain import contracts as c
-                if (c.parse_production_request(production['request_json']).automation.mode == 'unattended') != held[5]:
-                    raise EngineError('production_services_mode_invalid', 'Original human/policy source changed', 403)
-                issuer._guard(connection, guard)
+        with issuer.current_guard(registered) as guard, self.engine.db.connect_readonly() as connection:
+            run = self.engine._lease(connection, lease)
+            production = self.engine._production(connection, run['production_id'])
+            from video_creator.application.current_production_blockers import (
+                bound_context,
+            )
+            _run, _production, _request, binding = bound_context(self.engine, connection, lease.run_id, runtime.sha256)
+            issuer._guard(connection, guard)
+            issuer._request(connection, production, run, registered)
+            if binding != held[4] or (guard.installation.resource_manifest_sha256,
+                    guard.installation.runtime_manifest_sha256) != held[6:8]:
+                raise EngineError('production_services_source_changed', 'Original installed source binding changed', 409)
+            from video_creator.domain import contracts as c
+            if (c.parse_production_request(production['request_json']).automation.mode == 'unattended') != held[5]:
+                raise EngineError('production_services_mode_invalid', 'Original human/policy source changed', 403)
+            issuer._guard(connection, guard)
 
     def _master_roles_from_step(self, lease, step_key, expected_roles=ROLES):
         from video_creator.application.bundles import strict_json
@@ -613,13 +634,22 @@ class AffectedRepairService:
             raise EngineError('media_master_evidence_pending', 'Actual successful settled master Operations required', 409, 'reconcile')
         return roles, step, operations
 
-    def resolve_preparation_masters(self, lease, preparation_id):
-        """One bounded same-Run lineage resolver for all four master identities."""
+    def resolve_preparation_masters(self, lease, preparation_id, *, selection=None):
+        """One bounded same-Run lineage resolver for the actual master identities.
+
+        Legacy formats keep the fixed four roles. The ADR0075 local profile
+        selects only its applicable subset of those roles, so a local
+        preparation resolves from the committed local assembly's selection (or
+        an explicit caller-held selection) in `selection.master_roles` order.
+        """
         from video_creator.domain import local_bundle as local
+        if selection is not None and type(selection) is not local.LocalMasterSelectionV1:
+            raise EngineError('local_master_selection_invalid', 'Only the sole actual local selection is allowed.', 422)
         with self._lock:
             context = getattr(self, '_local_preparation_contexts', {}).get(preparation_id)
         if context is not None:
-            from video_creator.domain.bundle import BundlePreparationIntent
+            if selection is not None and selection != context.selection:
+                raise EngineError('local_master_selection_conflict', 'Caller selection differs from the held local context.', 409)
             self._local_source().context_snapshot(lease, context)
             with self.engine.db.connect_readonly() as connection:
                 row, _run, _production, _request = self._preparation(connection, lease, preparation_id)
@@ -660,7 +690,28 @@ class AffectedRepairService:
                         or type(lineage.get('parent_preparation_id')) is not str):
                     raise EngineError('final_evidence_lineage_invalid', 'Committed child lineage identity changed', 422)
                 current_id = lineage['parent_preparation_id']
-        roles, _step, _operations = self._master_roles_from_step(lease, 'media-master')
+        local_preparation = any(
+            slot.schema_kind.endswith('_local')
+            or slot.schema_kind in {'local_master_selection', 'local_speech_evidence'}
+            for slot in BundlePreparationIntent.model_validate_json(rows[0][0]['intent_json']).material_slots)
+        if local_preparation and rows[0][1] is not None:
+            raise EngineError('local_lineage_source_required', 'Local selected child requires its actual versioned lineage resolver.', 409)
+        if local_preparation and selection is None:
+            reader = getattr(self, '_read_final_assembly', None)
+            if reader is None:
+                raise EngineError('local_lineage_source_required',
+                                  'Local preparation requires its committed local assembly selection', 409)
+            with self.engine.db.connect_readonly() as connection:
+                binding = self._final_binding(lease, connection)
+            assembly = reader(rows[0][0], binding)
+            if type(assembly) is not local.LocalFinalAssemblyContextV1:
+                raise EngineError('local_lineage_source_required',
+                                  'Local preparation requires its committed local assembly selection', 409)
+            selection = assembly.selection
+        if not local_preparation:
+            selection = None
+        expected_roles = tuple(selection.master_roles) if selection is not None else ROLES
+        roles, _step, _operations = self._master_roles_from_step(lease, 'media-master', expected_roles)
         root_intent = BundlePreparationIntent.model_validate_json(rows[-1][0]['intent_json'])
         if set(root_intent.media_asset_ids) != set(roles.values()):
             raise EngineError('production_media_roles_invalid', 'Root intent must retain original master Step assets', 422)
@@ -689,6 +740,8 @@ class AffectedRepairService:
                 raise EngineError('media_decoder_unavailable', 'Actual registered decoder required', 503)
             self.validators.media_validator(path, asset.media_type)
             assets[role] = asset
+        if selection is not None:
+            assets = {role: assets[role] for role in selection.master_roles}
         return MappingProxyType(assets)
 
     def _committed_affected_roles(self, lease, row, parent, lineage, parent_roles):
@@ -733,7 +786,9 @@ class AffectedRepairService:
             raise EngineError('affected_master_source_invalid', 'Actual command/observation/child association changed', 422)
         master_step='repair-master-' + sha[:32]
         if command.get('format')=='current-final-affected-execution-v2-diagnostic-v1':
-            from video_creator.domain.affected_repair_steps import affected_recipe_step_identity
+            from video_creator.domain.affected_repair_steps import (
+                affected_recipe_step_identity,
+            )
             master_step=affected_recipe_step_identity(command['binding'],sha,'master',component_target_id='production-master')[0]
         changed, step, operations = self._master_roles_from_step(lease, master_step,
             command.get('changed_media_roles', ()))

@@ -2,21 +2,37 @@
 
 import hashlib
 
-from video_creator.application.engine import canonical, digest
 from video_creator.application.current_final_evidence_journal import (
-    PREFIX, parse_journal, prepared_current, reject_conflicting_wait, require_waiting,
+    PREFIX,
+    parse_journal,
+    prepared_current,
+    reject_conflicting_wait,
+    require_waiting,
 )
-from video_creator.application.current_production_blockers import bound_context, require_settled, unsettled
-from video_creator.domain import contracts as c
-from video_creator.domain.bundle import BundlePreparationIntent
-from video_creator.domain.current_final_evidence import (
-    CurrentFinalEvidenceContinuation, CurrentFinalEvidenceJournal, FinalEvidenceControl,
+from video_creator.application.current_final_evidence_recovery import (
+    has_original_masters,
 )
-from video_creator.domain.errors import EngineError
-from video_creator.domain.component_diagnosis import (
-    CurrentFinalDiagnosticSnapshotV1,CurrentFinalDiagnosticJournalV1,CurrentFinalDiagnosticContinuationV1,
+from video_creator.application.current_production_blockers import (
+    bound_context,
+    require_settled,
+    unsettled,
 )
 from video_creator.application.diagnostic_resume import DiagnosticResumeRuntime
+from video_creator.application.engine import canonical, digest
+from video_creator.domain import contracts as c
+from video_creator.domain import local_bundle as local
+from video_creator.domain.bundle import BundlePreparationIntent
+from video_creator.domain.component_diagnosis import (
+    CurrentFinalDiagnosticContinuationV1,
+    CurrentFinalDiagnosticJournalV1,
+    CurrentFinalDiagnosticSnapshotV1,
+)
+from video_creator.domain.current_final_evidence import (
+    CurrentFinalEvidenceContinuation,
+    CurrentFinalEvidenceJournal,
+    FinalEvidenceControl,
+)
+from video_creator.domain.errors import EngineError
 
 
 def final_journal_model(snapshot):
@@ -71,12 +87,17 @@ class CurrentFinalEvidenceRuntime(DiagnosticResumeRuntime):
 
     def _final_producer(self, lease, *, production_services, execution_ports, local_material_context=None):
         import inspect
-        from video_creator.workflows.bundle_producer import create_registered_media_producer
+
+        from video_creator.workflows.bundle_producer import (
+            create_registered_media_producer,
+        )
         if 'final_evidence_ports' not in inspect.signature(create_registered_media_producer).parameters:
             raise EngineError('final_evidence_consumer_missing', 'Original factory has no current held-port interface', 503)
         extra = {}
         if local_material_context is not None:
-            from video_creator.application.local_material_sources import LocalMaterialFinalContext
+            from video_creator.application.local_material_sources import (
+                LocalMaterialFinalContext,
+            )
             if type(local_material_context) is not LocalMaterialFinalContext:
                 raise EngineError('local_final_context_denied', 'Original local final source projection required.', 403)
             if 'local_material_context' not in inspect.signature(create_registered_media_producer).parameters:
@@ -103,7 +124,10 @@ class CurrentFinalEvidenceRuntime(DiagnosticResumeRuntime):
         lease = ordinary_lease
         now = self.engine.clock()
         issuer = self.bundle._production_authorization.issuer()
-        from video_creator.application.diagnostic_terminal import prepare_failure, finite_failure
+        from video_creator.application.diagnostic_terminal import (
+            finite_failure,
+            prepare_failure,
+        )
         with issuer.current_guard(self.bundle._production_authorization.registered(lease)) as preparation_guard, self.engine.db.connect_readonly() as reader:
             self.bundle.assert_current_final_assessment(reader,lease,assessment)
             prepare_failure(self.bundle,reader,lease,assessment,guard=preparation_guard)
@@ -251,14 +275,16 @@ class CurrentFinalEvidenceRuntime(DiagnosticResumeRuntime):
                 if dep.kind == 'precision_measurement' and not any(row['schema_kind'] == 'precision_reference_v03' for row in ready):
                     return 'still_blocked', 'independent_reference_missing'
                 # Consumer must actually be installed, not a label/config flag.
-                from video_creator.workflows.bundle_producer import create_registered_media_producer
+                from video_creator.workflows.bundle_producer import (
+                    create_registered_media_producer,
+                )
                 if (not callable(create_registered_media_producer)
                         or not callable(getattr(self.produce, 'continue_current_final_evidence', None))):
                     return 'still_blocked', 'final_evidence_consumer_missing'
-        if len(intent.media_asset_ids) != 4:
-            raise EngineError('bundle_output_missing', 'All original masters required', 422)
         assembly = self.bundle._read_final_assembly(prepared, journal.binding)
         if assembly is None:
+            if len(intent.media_asset_ids) != 4:
+                raise EngineError('bundle_output_missing', 'All original masters required', 422)
             candidate = self.bundle._original_final_candidate(prepared, journal, journal.binding)
             if candidate is None:
                 return 'still_blocked', 'original_assembly_context_missing'
@@ -267,8 +293,14 @@ class CurrentFinalEvidenceRuntime(DiagnosticResumeRuntime):
                 raise EngineError('asr_result_scope_denied', 'Original candidate must name its ASR Operation', 422)
             operation_id = methods[0].operation_ids[0]
         else:
+            # A local assembly retains only its applicable master subset; the
+            # legacy four-master rule stays for every non-local assembly.
+            if not has_original_masters(intent, assembly):
+                raise EngineError('bundle_output_missing', 'All original masters required', 422)
             operation_id = assembly.asr_operation_id
-        if self.journal._probe_waiting_original_asr(journal.binding.run_id, operation_id) is None:
+        silent_local = type(assembly) is local.LocalFinalAssemblyContextV1 and operation_id is None
+        if not silent_local and self.journal._probe_waiting_original_asr(
+                journal.binding.run_id, operation_id) is None:
             return 'still_blocked', 'original_asr_validation_context_missing'
         if not callable(getattr(self.produce, 'continue_current_final_evidence', None)):
             return 'still_blocked', 'final_evidence_consumer_missing'
@@ -285,7 +317,9 @@ class CurrentFinalEvidenceRuntime(DiagnosticResumeRuntime):
             if run['status'] == 'succeeded':
                 return self._observe_crashed_final_publication(journal, raw)
             if run['status']=='failed':
-                from video_creator.application.diagnostic_terminal import observe_terminal
+                from video_creator.application.diagnostic_terminal import (
+                    observe_terminal,
+                )
                 return observe_terminal(self,journal,raw)
             require_waiting(run, journal)
         registered = self.engine._authorization_identity(production['owner'])
@@ -386,39 +420,41 @@ class CurrentFinalEvidenceRuntime(DiagnosticResumeRuntime):
             run = self.engine._lease(connection, lease)
             owner = self.engine._production(connection, run['production_id'])['owner']
         issuer = self.engine.production_admissions
-        with issuer.current_guard(self.engine._authorization_identity(owner)) as guard:
-            with self.engine.db.transaction() as connection:
-                saved = connection.execute('SELECT value FROM metadata WHERE key=?', (PREFIX + lease.run_id,)).fetchone()
-                if saved is None:
-                    raise EngineError('final_evidence_checkpoint_missing', 'Actual queued checkpoint required', 409)
-                journal = parse_journal(saved[0], now=self.engine.clock())
-                _prepared, run, _production, _request = prepared_current(self.engine, connection, journal)
-                self.engine._lease(connection, lease)
-                require_settled(connection, lease.run_id)
-                if (journal.control.phase not in {'queued', 'executing'} or run['paused'] or run['cancellation_requested']
-                        or run['waiting_revision_id'] is not None
-                        or (journal.control.phase == 'executing' and journal.control.execution_fence > lease.fencing_token)):
-                    raise EngineError('final_evidence_state_conflict', 'Original queue/new lease recovery required', 409)
-                mode = journal.control.resume_mode
-                issuer.assert_final_evidence_resume_current(connection, guard, run_id=lease.run_id,
-                    binding=journal.binding, journal_sha256=digest(saved[0]), resume_mode=mode,
-                    affected_artifact_ids=journal.snapshot.repair.affected_artifact_ids if mode == 'repair' else ())
-                claimed = journal.model_copy(update={'control': FinalEvidenceControl(phase='executing', resume_mode=mode,
-                    execution_fence=lease.fencing_token), 'last_transition_at_us': self.engine.clock()})
-                claimed_body=canonical(claimed)
-                if connection.execute('UPDATE metadata SET value=? WHERE key=? AND value=?',
-                    (claimed_body, PREFIX + lease.run_id, saved[0])).rowcount!=1:
-                    raise EngineError('final_evidence_checkpoint_changed','Original exact claim CAS lost',409)
-                self.bundle.copy_current_diagnostic_source_writer(connection,saved[0],journal,claimed_body,claimed)
-                self.engine._event(connection, run, 'production.final_evidence_claimed', digest(saved[0]))
-                issuer._guard(connection, guard)
+        with issuer.current_guard(self.engine._authorization_identity(owner)) as guard, self.engine.db.transaction() as connection:
+            saved = connection.execute('SELECT value FROM metadata WHERE key=?', (PREFIX + lease.run_id,)).fetchone()
+            if saved is None:
+                raise EngineError('final_evidence_checkpoint_missing', 'Actual queued checkpoint required', 409)
+            journal = parse_journal(saved[0], now=self.engine.clock())
+            _prepared, run, _production, _request = prepared_current(self.engine, connection, journal)
+            self.engine._lease(connection, lease)
+            require_settled(connection, lease.run_id)
+            if (journal.control.phase not in {'queued', 'executing'} or run['paused'] or run['cancellation_requested']
+                    or run['waiting_revision_id'] is not None
+                    or (journal.control.phase == 'executing' and journal.control.execution_fence > lease.fencing_token)):
+                raise EngineError('final_evidence_state_conflict', 'Original queue/new lease recovery required', 409)
+            mode = journal.control.resume_mode
+            issuer.assert_final_evidence_resume_current(connection, guard, run_id=lease.run_id,
+                binding=journal.binding, journal_sha256=digest(saved[0]), resume_mode=mode,
+                affected_artifact_ids=journal.snapshot.repair.affected_artifact_ids if mode == 'repair' else ())
+            claimed = journal.model_copy(update={'control': FinalEvidenceControl(phase='executing', resume_mode=mode,
+                execution_fence=lease.fencing_token), 'last_transition_at_us': self.engine.clock()})
+            claimed_body=canonical(claimed)
+            if connection.execute('UPDATE metadata SET value=? WHERE key=? AND value=?',
+                (claimed_body, PREFIX + lease.run_id, saved[0])).rowcount!=1:
+                raise EngineError('final_evidence_checkpoint_changed','Original exact claim CAS lost',409)
+            self.bundle.copy_current_diagnostic_source_writer(connection,saved[0],journal,claimed_body,claimed)
+            self.engine._event(connection, run, 'production.final_evidence_claimed', digest(saved[0]))
+            issuer._guard(connection, guard)
         continuation_type=CurrentFinalDiagnosticContinuationV1 if type(journal) is CurrentFinalDiagnosticJournalV1 else CurrentFinalEvidenceContinuation
         return continuation_type(journal.binding, journal.snapshot, mode, lease.fencing_token)
 
     def finish_current_final_evidence_failed(self, ordinary_lease, assessment):
         lease = ordinary_lease
         issuer=self.bundle._production_authorization.issuer()
-        from video_creator.application.diagnostic_terminal import prepare_failure,finite_failure
+        from video_creator.application.diagnostic_terminal import (
+            finite_failure,
+            prepare_failure,
+        )
         with issuer.current_guard(self.bundle._production_authorization.registered(lease)) as preparation_guard, self.engine.db.connect_readonly() as reader:
             self.bundle.assert_current_final_assessment(reader,lease,assessment)
             with self.bundle._lock:original_association=getattr(self.bundle,'_diagnostic_assessment_sources',{}).get(id(assessment))
@@ -427,7 +463,7 @@ class CurrentFinalEvidenceRuntime(DiagnosticResumeRuntime):
             prepare_failure(self.bundle,reader,lease,assessment,guard=preparation_guard)
         with issuer.current_guard(self.bundle._production_authorization.registered(lease)) as guard, self.engine.db.transaction() as connection:
             snapshot = self.bundle.assert_current_final_assessment(connection, lease, assessment)
-            run, production, request, _binding = bound_context(self.engine, connection, lease.run_id, self.sha256)
+            run, production, _request, _binding = bound_context(self.engine, connection, lease.run_id, self.sha256)
             self.engine._lease(connection, lease)
             require_settled(connection, lease.run_id)
             if snapshot.repair is None or snapshot.repair.allowed_action == 'guidance_required':
