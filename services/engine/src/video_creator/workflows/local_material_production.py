@@ -277,8 +277,14 @@ class LocalMaterialFlow(Flow[dict]):
             phase=phase, action=action, target_id=revision.revision_id,
             target_sha256=digest(canonical(revision)), sources=sources)
         from video_creator.application.media_registration import sys_event
+        with services.engine.db.connect_readonly() as connection:
+            decision_rows = connection.execute("SELECT body FROM decisions WHERE run_id=?",
+                                               (self._lease.run_id,)).fetchall()
+        decision_targets = sorted({__import__('json').loads(row[0]).get('target_revision_id')
+                                   for row in decision_rows})
         sys_event('flow_admission', run_id=self._lease.run_id, kind=revision.kind,
-                  revision_id=revision.revision_id, state=checked.state, blocker=checked.blocker_code)
+                  revision_id=revision.revision_id, revision_sha=digest(canonical(revision)),
+                  state=checked.state, blocker=checked.blocker_code, decision_targets=decision_targets)
         if checked.state != 'allowed':
             if checked.state == 'waiting_user' and checked.blocker_code is None:
                 with services.engine.db.connect_readonly() as connection:
