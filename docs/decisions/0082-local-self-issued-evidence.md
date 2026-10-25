@@ -283,6 +283,10 @@ ADR0081 §7 把 evidence policy/benchmark 列为"**不可**走产品通道"，�
 3. 负例（诚实性）：任何把 `not_measured` 渲染为通过、把 `p95=0` 塞进自签基准、把 `criterion_version_ref` 表述为达标、把自签表述为认证的界面/API 快照断言必须失败。
 4. 缺资源（无 whisper 模型、无 runtime 锁）记 BLOCKED，不得 mock ASR/evidence 通过。
 
+## 威胁模型边界（2026-10-26 评审补充）
+
+P1-3 的观测承诺使用**实例保险库密钥**做 HMAC（`application/asr_observation_signature.py`）。它防的是：只有 SQLite/文件写权限、没有保险库密钥的篡改；以及应用自身把未执行/错误观测当成真实观测。**同一个 OS 用户若能读该保险库密钥，仍可伪造**；这不是远程 attestation，也不是"本机用户不可篡改"。UI/文档不得声称不可篡改，只能表述为"本安装实例的已签观测承诺"。
+
 ## 9 不做与后继
 
 - 不做真实 capability benchmark（语料 + 独立听审 + 裁决 + 独立 Review），不做 `strict_reference_v1` 的本地替代，不做每片独立测量。

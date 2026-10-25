@@ -525,6 +525,10 @@ def _verified_journal_facts(engine: EngineService, row, observation) -> dict:
             row['id'], row['run_id'], row['step_key'], row['input_sha256'], row['dedupe_key'],
             digest(row['route_json']), binding_row[1], execution_identity.resource_manifest_sha256):
         raise unverified
+    from video_creator.application.asr_observation_signature import verify_observation
+    verify_observation(engine, operation_id=row['id'], allocation=allocation,
+                       staging_sha256=staging['sha256'], staging_size=staging['size'],
+                       observation=observation)
     try:
         context_binding = strict_json(context_row[0].encode('utf-8'))
         context = AsrValidationContextRef.model_validate(context_binding['ref'])

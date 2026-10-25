@@ -4,12 +4,14 @@ import json
 import os
 import threading
 
+from video_creator.application.affected_asr_binding import registered_child_asr
+from video_creator.application.asr_validation_context import (
+    OriginalAsrValidationContext,
+)
 from video_creator.application.bundles import strict_json
 from video_creator.application.delivery_metadata import DeliveryResolver
 from video_creator.application.engine import canonical, digest
 from video_creator.application.executor import OperationExecutor
-from video_creator.application.asr_validation_context import OriginalAsrValidationContext
-from video_creator.application.affected_asr_binding import registered_child_asr
 from video_creator.application.worker import (
     PRESENCE_TTL_SECONDS,
     RUN_LEASE_SECONDS,
@@ -316,8 +318,10 @@ class RegisteredOperationExecutor(OperationExecutor):
 
     def execute(self, lease, intent, driver, *, request_payload=None):
         if intent.step_key.startswith(('repair-alignment-', 'bundle-alignment-')):
-            from video_creator.application.registered_alignment import registered_alignment_locator
             from video_creator.application.affected_repair_service import canonical_body
+            from video_creator.application.registered_alignment import (
+                registered_alignment_locator,
+            )
             source = getattr(self.engine, '_registered_plan_source', None)
             if source is None:
                 raise EngineError('alignment_step_denied', 'Actual original alignment source required', 403)

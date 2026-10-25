@@ -10,7 +10,7 @@ import hashlib
 import hmac
 import json
 
-from video_creator.application.engine import canonical, digest
+from video_creator.application.engine import digest
 from video_creator.domain.errors import EngineError
 from video_creator.infrastructure.owner_secret import OwnerSecretStore
 
@@ -23,8 +23,8 @@ def _secret(engine) -> bytes:
     store = OwnerSecretStore(engine.db.data_dir, engine.instance_id)
     try:
         return store.resolve(BINDING)
-    except EngineError as error:
-        if error.code not in {'owner_secret_unavailable', 'owner_secret_denied'}:
+    except (EngineError, OSError) as error:
+        if isinstance(error, EngineError) and error.code not in {'owner_secret_unavailable', 'owner_secret_denied'}:
             raise
         try:
             store.create(BINDING)
@@ -49,7 +49,7 @@ def commitment(*, allocation, staging_sha256: str, staging_size: int, observatio
         'runtime_manifest_sha256': allocation.runtime_manifest_sha256,
         'staging_sha256': staging_sha256,
         'staging_size': staging_size,
-        'result_sha256': digest(canonical(observation.result_json)),
+        'result_sha256': digest(json.dumps(observation.result_json, ensure_ascii=False, sort_keys=True, separators=(',', ':'))),
         'execution_identity_sha256': digest(json.dumps(execution, ensure_ascii=False, sort_keys=True,
                                                        separators=(',', ':'))),
     }
