@@ -82,3 +82,47 @@
 ## 9 最终
 
 **PASS（P1-3 复验闭合；P2/P3 保留）。** P1-1/P1-2 已修复；§10 的签名复验表明上一轮完整伪造 journal staging/context/transcript 在**无签名**时被 `asr_observation_signature_missing` 拒绝，改承诺/改签名/删签名均被拒；只有 OS-vault 密钥持有者可重签。P2/P3 为签名验证的读路径、密钥自动重建、跨实例错误码和测试缺口。**对核心问题的直答：在“只有 DB/文件写权限”的威胁模型下，没有路径能让未经真实 ASR 观测的语音证据通过 `_settled_observation`；正常 HTTP 四要素和真实语音包本身也没有发现“未测量却 measured”的放行。**
+
+## 10 P1-3 复验：`asr_observation_signature`
+
+### 10.1 实现核对
+
+- 写入：`application/asr_result_journal.py:143-175` 的 `persist_asr_result` 先写完成文件、`finish_output`，再调用 `asr_observation_signature.sign_observation`；`asr_observation_signature.py:37-72` 的 commitment 含 operation_id/run/step/input/dedupe/route/binding/resource/runtime/staging sha+size/result sha/execution identity sha；HMAC key 来自 `OwnerSecretStore`（OS vault）。
+- 验证：`local_evidence.py:528-531` 的 `_settled_observation` 在任何 facts 生成前调用 `verify_observation`；`asr_observation_signature.py:75-100` 校验 metadata 键、commitment 全等、HMAC；缺键/错签名分别具名 409。
+
+### 10.2 四条攻击实测
+
+我用复制 ChainInstance2 的临时实例（真实 operation-27276b95…/staging/context/Objects），先在该临时实例创建签名密钥并签真实 observation，随后分别攻击。**不是**使用仓库测试或作者结果。
+
+| 攻击 | 实际结果（原始 code） | 结论 |
+| --- | --- | --- |
+| 上一轮完整伪造：修改 operation/observation + staging + context/transcript，无签名 | `EngineError asr_observation_signature_missing` | **拒绝** |
+| 保留真实签名但改 staging/operations/transcript（commitment 字段） | `EngineError asr_observation_signature_invalid` | **拒绝** |
+| 删除签名 metadata | `EngineError asr_observation_signature_missing` | **拒绝** |
+| 改签名文本 | `EngineError asr_observation_signature_invalid` | **拒绝** |
+| 跨实例复制并改 `instance_id` | `EngineError local_evidence_observation_unverified`（binding.instance_id 先失配；未进入验签） | **拒绝**，但不是签名具名错误（P3） |
+| 同实例复制（instance_id/key 不变） | 签名仍可通过 | 同一安装的备份/副本，非跨实例 |
+| 合法签名 + 真实 observation | `signed OK operation-27276b95…`；`_verified_journal_facts` 通过 | 正常路径可用 |
+| 持有密钥后对篡改 transcript 重签 | `resigned OK operation-27276b95…` | **符合威胁模型**：密钥持有者可伪造，signature 不是远程证明 |
+
+### 10.3 密钥降级
+
+- `_secret`（`asr_observation_signature.py:22-34`）在 `resolve` 报 `owner_secret_unavailable/denied` 时会 `store.create(BINDING)` 后重读。这个 create 分支同时存在于 **verify** 路径（`verify_observation` 调 `_secret`）。
+- 我删除临时实例的 `asr-observation` 密钥后再次 verify：得到 `EngineError asr_observation_signature_invalid`（自动生成新 key，旧签名失效），**不是** `_unavailable`，也不是接受。**先删 key 再让系统重建本身不构成绕过**：旧签名不会被新 key 验证通过；要签新 observation 仍须走 `sign_observation`/`persist_asr_result`，而这是代码路径，不是 DB/文件写权限。
+- 但这仍是 P2：验证路径不应创建密钥；它把“密钥缺失”变成 key rotation + `_invalid`/DoS，且 `sign_observation` 本身是公开函数（能调用代码的人可以用新 key 签任意 commitment，符合“同账户代码”威胁模型）。
+
+### 10.4 时序窗口
+
+- `persist_asr_result` 顺序是完成文件 → `finish_output` → `sign_observation` metadata。若在 `finish_output` 后、签名 metadata 前崩溃/暂停，`_settled_observation` 读到的是 `asr_observation_signature_missing`，**不会**把未签名 facts 交给 evidence-admin。
+- **残留 P2**：`AsrResultJournal.read_asr_result`（`:229-273`）不调用 `verify_observation`；它只校验 journal/context/validation，返回 observation。当前调用者只有 `observe_asr_result`（`:275`），本批没有其它消费者；若后续 speech/bundle 直接读该路径，窗口内未签名 observation 可被读取。当前证据门路径不经过它，故不是本批 P1，但应把验签下沉到该读口。
+
+### 10.5 测试
+
+- 仓库内没有 `asr_observation_signature` 的定向测试（`grep` 无命中）；作者 evidence 目录的 signature-happy/missing/tampered/cross 是外部产物，不是 `tests/` 回归。
+- 我测试的 4 条负例均未入仓库测试；P2。
+
+### 10.6 判定
+
+- **P1-3：PASS（在“只有 DB/文件写权限”威胁模型下）**。上一轮的无签名完整伪造已被 `asr_observation_signature_missing` 堵住；改承诺/改签名/删签名均具名拒绝；持有保险库密钥才能重签。
+- **总判定：PASS（P1-3 复验闭合；P2/P3 保留）**。P2：`_secret` 在 verify 路径自动 create、`read_asr_result` 不验签、跨实例错误被 binding 提前吞成 unverified、无仓库测试；P3：同实例副本共享 key/签名、诊断细节。
+
