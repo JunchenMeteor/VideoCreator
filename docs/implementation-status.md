@@ -1,3 +1,32 @@
+# 当前状态（2026-10-25 恢复会话）
+
+统筹汇总，不代评审或验收。Gate0 已修复到真绿；R1 未完成；R2 未开始。
+
+## 已完成并提交
+
+- 2026-10-08..10-12 的全部未提交工作按语义提交（main 停在 `6aaa0dc`，tag `checkpoint/2026-10-12-local-v04`）；恢复工作在 `recovery/local-chain-20261025`。
+- 本地 0.4 最终生产者（媒体）+ 开发安装宿主与母版版本分派（后端）+ 本地装配上下文持久化（媒体），均经独立评审 P1 闭环。
+- gate0 测试漂移修复：169 passed / 4 skipped / 0 failed / 0 error（同一命令、旧 8 失败 3 收集错误）。
+- contracts 再生成：`media_diagnosis` 能力枚举进入已发布产物；`openapi.json` 未变。provenance 降级为 `repository`（ADR0078，P2）。
+- Windows 引擎内部候选：PyInstaller onedir 3,556 文件 / 825.8 MB，exe `ed6a483f…`，`--help` 与 scratch `recover` 均 exit 0。
+
+## 真实链（唯一未闭合的用户可见项）
+
+注册切片已冻结并可构造真实 `RegisteredMediaRuntime`（`3d3abaa6…`，188 源 / 209 文件 / 四条 route）。`serve-dev` 实跑停在 `owner_restore_refresh_required`，除首次 Owner 授权外无其他门。用户已选择开发模式自动完成该初始化；ADR 与实现进行中。
+
+端到端 harness 已就绪：正向 1 例待 Owner，其余 18 例真实通过。
+
+## 下一步
+
+1. dev owner 自动初始化（架构 ADR → 后端实现 → 测试 → 评审）。
+2. 跑真实成片：静图素材 → plan 审核 → 真实 ffmpeg 母版 → quality 审核 → 0.4 作品包 → mp4。
+3. R1 余项：ASR/TTS 资源、字幕、RAG、HTTP/MCP 单次交付、安装包（Windows 候选已就绪，缺 Tauri/签名）。
+4. R2：待真实商户/平台/机器条件。
+
+## 历史
+
+以下为 2026-10-08..10-12 的原始记录，保留不动。
+
 # 预览已恢复：真实后台进程与HTTP复核
 
 原Frontend恢复启动5ef820，隐藏后台Node40920，创建2026-10-11T13:47:46.6482169Z；7dcc23/f52bf1跨两次调用核同PID/path/creation/loopback listener与四资源200，API/父路径404。Root1757b3独立再次核18471 listener属40920与页面HTTP200/996B，已明确告诉用户刷新同地址。

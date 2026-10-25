@@ -4763,3 +4763,39 @@ Root5bd5ec正式收取0065架构TRUEFINAL材料，86固定输入及正式身份�
 ### 同轮停止来源接缝交接
 
 Backend bc3d67自然0/RoleSourceBridgeGap该slice释放；Root039c8c全文Gap.md c393b40ab9b0fe34f02a06669fe220bdb5253cee2db62e47a9b73f44dd2e36a4与Gap.json54da14c636fd6335bd12925dd7aa5f5a2605e4ddd4ef446d0ad25184bbff8de7并核身份，未称7普通源码全文。明确原完整role build/member、同Python观察/Native原帧桥、first-installer受限case attempt三个接点，已交原Integration后继Native队列，当前许可修正不混新输入。Integration报告已全文原owner/两finding/正式报告，候选仍未执行。总目标与所有限次保持。
+
+
+## 2026-10-25 恢复会话：提交、真实链收口、打包候选
+
+本会话由新的执行体（DSH）接手，用户指令：先提交全部未提交工作 → 打通一条真实链 → 之后按任务板继续完成 R1/R2。
+过程遵循原角色流程（架构 → 实现 → 集成 → 测试 → 独立评审），统筹不代写实现、评审不修代码。
+
+### 已提交（分支 recovery/local-chain-20261025；main 停在 6aaa0dc）
+
+- `6aaa0dc` 之前的 7 个提交：把 2026-10-08..10-12 的全部未提交工作（316 项）按语义冻结，tag `checkpoint/2026-10-12-local-v04`。
+- `4f6ea4b` 媒体：本地 0.4 最终生产者接入注册工厂；评审 P1 三项闭环（不可变身份比较、媒体产物计入输出校验、零 cue 明确拒绝）。
+- `831e2cf` 后端：开发安装宿主（ADR0077）+ 母版数版本分派 + `local_bundle_assembly`。
+- `213fa61` 媒体：在 prepare 与 verify 之间持久化 `LocalFinalAssemblyContextV1`。
+- `2d1b0d7` 测试：gate0 漂移修复，169 passed / 4 skipped / 0 failed / 0 error。
+- `c3e70ae` 集成：contracts 再生成（`media_diagnosis` 枚举；openapi 未变）。
+- `562e555` 架构：ADR0078 记录 contracts provenance 降级（P2，发布前必须解决）。
+- 其余：ADR0077 实测修订、两份独立评审（RV-LocalFinalProducerBundleV04、RV-DevelopmentHostAndLocalAssembly）、恢复任务卡 6 张。
+
+### 真实链状态
+
+- 注册切片冻结：`Registration.json` SHA `3d3abaa6b56c2cdcb482e787483df3c017e05fd93e5d47652a238415237705d0`，188 个引擎源、209 文件资源、四条 local route；`check_local_registration.py --runtime` 六项全 True，真实 `RegisteredMediaRuntime` 构造成功。
+- 实例 `Instance/ChainInstance`（`instance-fedc0b2abdcd4da386ceb690a4fe897a`，项目 `project-f6a84d4cd08c4415bbfbb12e73a1d68b`），ACL 已收紧。
+- `serve-dev` 实跑到 `owner_restore_refresh_required`：除 Owner 绑定外无其他门。
+- 端到端 harness：18 passed / 1 skipped（正向待 Owner）。
+- 用户决定：改为**开发模式自动完成首次 Owner 初始化**（仅 dev 参数+环境变量+非打包产物；生产仍必须真人确认），架构 ADR 正在出，随后后端实现。
+
+### 打包候选（R1 第一步）
+
+- Windows 引擎候选（PyInstaller onedir）构建 exit 0：3,556 文件 / 825,827,178 bytes，`VideoCreatorEngine.exe` 29,291,244 bytes SHA `ed6a483f1f3ef246337b601d100d10072fc4c0c55300b0339a5905b9da95af36`；`--help` exit 0，scratch `recover` exit 0（user_version=11、40 表）。仅内部候选，无 Tauri/签名/安装器。
+
+### 未完成与阻塞
+
+- 真实成片：等 dev owner 自动初始化实现后执行。
+- R1 其余：真实配音/转写/字幕/RAG（缺 ASR/TTS 模型资源）、HTTP/MCP 单次交付、三平台安装包（仅 Windows 引擎候选）。
+- R2：未开始；真实商户/平台/机器条件仍缺。
+- contracts provenance `repository`（ADR0078 P2）：发布前须恢复正式快照工具或由用户明确接受。
