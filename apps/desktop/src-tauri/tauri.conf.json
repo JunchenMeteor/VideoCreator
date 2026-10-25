@@ -1,0 +1,17 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "VideoCreator",
+  "version": "0.1.0",
+  "identifier": "app.videocreator.desktop",
+  "build": { "frontendDist": "../../workbench/dist" },
+  "app": {
+    "windows": [],
+    "withGlobalTauri": false,
+    "security": {
+      "capabilities": ["main-engine-session"],
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; font-src 'self' data:; media-src 'self' blob:; connect-src ipc: http://ipc.localhost; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'",
+      "assetProtocol": { "enable": false, "scope": [] }
+    }
+  },
+  "bundle": { "active": false, "icon": ["Icons/App.ico"] }
+}

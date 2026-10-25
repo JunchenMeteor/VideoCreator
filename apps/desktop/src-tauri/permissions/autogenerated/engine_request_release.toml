@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-engine-request-release"
+description = "Enables the engine_request_release command without any pre-configured scope."
+commands.allow = ["engine_request_release"]
+
+[[permission]]
+identifier = "deny-engine-request-release"
+description = "Denies the engine_request_release command without any pre-configured scope."
+commands.deny = ["engine_request_release"]

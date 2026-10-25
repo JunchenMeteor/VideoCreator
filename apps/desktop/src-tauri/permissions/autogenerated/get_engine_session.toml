@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-get-engine-session"
+description = "Enables the get_engine_session command without any pre-configured scope."
+commands.allow = ["get_engine_session"]
+
+[[permission]]
+identifier = "deny-get-engine-session"
+description = "Denies the get_engine_session command without any pre-configured scope."
+commands.deny = ["get_engine_session"]

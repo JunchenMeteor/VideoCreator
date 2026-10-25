@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-engine-upload-finish"
+description = "Enables the engine_upload_finish command without any pre-configured scope."
+commands.allow = ["engine_upload_finish"]
+
+[[permission]]
+identifier = "deny-engine-upload-finish"
+description = "Denies the engine_upload_finish command without any pre-configured scope."
+commands.deny = ["engine_upload_finish"]

@@ -1,0 +1,56 @@
+{
+  "schema_version": "0.1-candidate",
+  "status": "pending_independent_review",
+  "purpose": "两编排器同输入、同账本、同模型和Schema的测试资料；不是模型输出或成功作品",
+  "call_authorization": "DeepSeek文本全团队累计预算CNY20，其他新增收费媒体0；credential_ref存在不等于无限额度，ZeroBudget故障另用请求预算0",
+  "creative_cases": [
+    {
+      "case_id": "ChineseNarration",
+      "request": {
+        "goal": "依据资料制作一个适合初次接触者的中文解释视频",
+        "inputs": {"source_text": "示例项目名为纸舟。纸舟把素材保存于安装实例；用户可以导出成片或授权引用。上述是本次提供的示例事实，不能宣称有未提供的用户数、客户或性能数据。"}
+      },
+      "expected_generated_artifacts": ["InsightRevision", "CreativeBriefRevision", "至少3个剧本候选", "至少3镜头分镜", "CreativePlanRevision", "ModelRouteDecision"],
+      "review": {"choose_candidate": 2, "guidance": "表达更年轻，保留所有事实，只修改第三镜头的表达"},
+      "assertions": ["无手填主旨/剧本/分镜", "保留来源事实", "不虚构平台热度", "新反馈/产物版本", "镜头1/2及未变音轨哈希和调用数不变"]
+    },
+    {
+      "case_id": "ShortAnimation",
+      "request": {
+        "goal": "创作一段小机器人找回遗失星星的温暖短动画",
+        "inputs": {"source_text": "机器人圆圆在夜里的小城散步，发现空中少了一颗星星。故事允许虚构，面向年轻家庭观众，不使用已有影视IP角色。"}
+      },
+      "expected_generated_artifacts": ["洞察/方向", "角色/声音参考", "剧本/分镜", "至少3个新视频生成镜头", "真实配音/对齐", "完整作品包"],
+      "assertions": ["真实新生成视频而非上传旧片或平移静图", "画面观察后描述", "两画幅", "字幕来自实际音频", "角色/声音参考版本可回查"]
+    },
+    {
+      "case_id": "ProvidedGameMaterials",
+      "request": {
+        "goal": "使用获授权游戏资料创作简洁的机制解说视频",
+        "inputs": {"source_text": "测试游戏为本项目自制示例世界。玩家用灯点亮路标后可以发现下一段路线；不承诺其他未提供的游戏机制。"}
+      },
+      "assertions": ["已有目标资料可以离线洞察", "素材权利/源片段范围", "真正无旁白区间不伪造台词", "不能调用白名单外模型", "source_gaps明确"]
+    }
+  ],
+  "fault_cases": [
+    {"id": "DuplicateAccept", "inject": "同主体同key相同请求并发提交", "expect": "同一个Production/Run与逻辑Operation"},
+    {"id": "IdempotencyConflict", "inject": "相同key不同输入", "expect": "冲突，不产生新Operation"},
+    {"id": "AcceptedThenDisconnect", "inject": "上游已受理、external_id落库前断线", "expect": "needs_reconciliation，不盲重复付费提交"},
+    {"id": "StaleLeaseCommit", "inject": "过期lease旧fencing提交", "expect": "拒绝旧Worker结果"},
+    {"id": "MediaStagedBeforeDb", "inject": "真实文件原子落盘后DB提交前杀进程", "expect": "重启核验并恢复，不重生付费媒体"},
+    {"id": "DbBeforeFlow", "inject": "资产/Step/outbox提交后Flow推进前杀进程", "expect": "从Step事实恢复，不再付费"},
+    {"id": "ClientMcpDisconnect", "inject": "工具响应受理后客户端会话结束", "expect": "持久业务继续；协议取消不等于业务取消"},
+    {"id": "ThirdShotOnly", "inject": "反馈只改第3镜头画面", "expect": "新ShotRevision/Run/Bundle；1/2与原旁白保持哈希/调用数"},
+    {"id": "ZeroBudget", "inject": "有凭证但预算0，提出收费路线", "expect": "拒绝执行，凭证导入不扩预算"},
+    {"id": "UnknownCost", "inject": "供应商费用无法确定", "expect": "unknown/reconcile或真实阻断，不按0计算"},
+    {"id": "RouteOrTransferDenied", "inject": "模型建议越白名单或外发禁用资料", "expect": "确定性拒绝，不偷偷回退官方服务"},
+    {"id": "PromptPrivilegeEscalation", "inject": "资料要求读任意文件、任意callback或publish", "expect": "输入作为资料；无授权不执行"},
+    {"id": "BadMedia", "inject": "空文件、伪MIME、缺流、hash错、过大下载", "expect": "拒绝资产/Bundle成功"},
+    {"id": "TimeMappingInvalid", "inject": "负时间/越界/错音轨偏移/非整数", "expect": "拒绝；禁止文字长度估算冒充精确"},
+    {"id": "RevisionExpiredGrant", "inject": "旧审核版本、跨实例ID、撤销/过期grant", "expect": "冲突或拒绝；旧包内容保持不可变"},
+    {"id": "FalseSpeech", "inject": "音频多词/少词/静音/音乐与源稿不符", "expect": "实际转写差异可检测；音乐不伪造台词"},
+    {"id": "OfficialOffline", "inject": "官方认证不可达/退出/订阅失效", "expect": "自有能力及已有素材编辑合成导出仍可用"},
+    {"id": "PaymentReplay", "inject": "沙箱签名错/重复/并发/乱序回调", "expect": "拒绝伪造，结算/权益/退款幂等；模拟不替代真实沙箱"},
+    {"id": "PublishReplay", "inject": "无发布授权或重复/重启发布请求", "expect": "拒绝未授权，已受理先核实，不重复发布"}
+  ]
+}

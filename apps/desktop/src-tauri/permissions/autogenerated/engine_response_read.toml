@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-engine-response-read"
+description = "Enables the engine_response_read command without any pre-configured scope."
+commands.allow = ["engine_response_read"]
+
+[[permission]]
+identifier = "deny-engine-response-read"
+description = "Denies the engine_response_read command without any pre-configured scope."
+commands.deny = ["engine_response_read"]

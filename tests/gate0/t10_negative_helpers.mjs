@@ -1,0 +1,8 @@
+import assert from 'node:assert/strict';
+import cp from 'node:child_process';
+import path from 'node:path';
+import { promisify } from 'node:util';
+import { metadata, safeEnv } from './t10_host_helpers.mjs';
+const execute = promisify(cp.execFile);
+export async function listeners(rows){const ids=rows.map((row)=>row.pid);assert(ids.length&&ids.every((pid)=>Number.isSafeInteger(pid)&&pid>0));const script='$ErrorActionPreference="Stop"; $rows=@(Get-NetTCPConnection -State Listen -OwningProcess '+ids.join(',')+' -ErrorAction SilentlyContinue | ForEach-Object { [pscustomobject]@{pid=[int]$_.OwningProcess;address=$_.LocalAddress;port=[int]$_.LocalPort} }); ConvertTo-Json -InputObject $rows -Compress';const {stdout}=await execute(path.join(process.env.SystemRoot,'System32/WindowsPowerShell/v1.0/powershell.exe'),['-NoProfile','-NonInteractive','-Command',script],{encoding:'utf8',timeout:15000,windowsHide:true,env:safeEnv()});const value=JSON.parse(stdout.replace(/^\uFEFF/,'').trim()||'[]');return Array.isArray(value)?value:[value];}
+export async function forceCaptured(rows){const actions=[];for(const old of rows){const current=await metadata([old.pid]);if(!current.some((row)=>row.pid===old.pid&&row.created_utc===old.created_utc)){actions.push({pid:old.pid,skipped:'identity_changed_or_absent'});continue;}try{await execute(path.join(process.env.SystemRoot,'System32/taskkill.exe'),['/PID',String(old.pid),'/T','/F'],{encoding:'utf8',timeout:5000,windowsHide:true,env:safeEnv()});actions.push({pid:old.pid,tool_exit_code:0});}catch{actions.push({pid:old.pid,code:'owned_test_teardown_force_failed'});}}return actions;}
