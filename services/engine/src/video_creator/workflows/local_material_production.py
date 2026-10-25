@@ -286,6 +286,15 @@ class LocalMaterialFlow(Flow[dict]):
                 decided = any(__import__('json').loads(row[0]).get('target_revision_id') == revision.revision_id
                               for row in prior)
                 if decided:
+                    removed = services.engine.clear_flow_checkpoints(self._lease.run_id)
+                    sys_event('checkpoint_cleared', run_id=self._lease.run_id,
+                              trigger='worker_fallback', files=sorted(removed))
+                    if removed:
+                        # One fresh attempt after deleting the stale checkpoint;
+                        # a second still-waiting admission is a real inconsistency.
+                        self.state.update(outcome='waiting_user', blocker_code=None)
+                        self._save('local_flow_checkpoint_reset_retry')
+                        return False
                     raise EngineError('production_review_state_inconsistent',
                                       'A stored approval exists but the current admission still waits for review', 409)
             self._blocked(checked.state, checked.blocker_code)

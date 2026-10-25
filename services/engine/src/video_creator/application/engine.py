@@ -1018,7 +1018,10 @@ class EngineService:
             connection.execute("UPDATE runs SET status=?,waiting_revision_id=NULL WHERE id=?", (status, run_id))
             connection.execute("UPDATE productions SET status=? WHERE id=?", (status, production["id"]))
             self._event(connection, self._run(connection, run_id), "review.decided", decision.target_revision_id)
-        self.clear_flow_checkpoints(run_id)
+            # Delete inside the same writer transaction: the Run cannot become
+            # claimable until the old checkpoint is gone. A failed unlink raises
+            # and rolls the decision back, never a half state.
+            self.clear_flow_checkpoints(run_id)
         return decision.model_dump(mode="json")
 
     def cancel_production(self, subject: str, production_id: str):
