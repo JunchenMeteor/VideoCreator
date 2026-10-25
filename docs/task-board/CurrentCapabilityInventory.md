@@ -106,3 +106,21 @@ MCP `production_create` 可创建 production，但实测发现：① MCP 启动�
 - **安装器 V1–V11（测试角色真跑，约 6 分钟）**：V2–V8 PASS（注册/运行时、五条路由、空 floor+四表 0、ACL、授权前 403、授权后 200+审计 SHA 匹配、keyring None+管理面 403）；**V1 FAIL**（供给记录只有 8 条 B 组项，缺 A 组与 ADR0084 锚点）；**V11 FAIL**（无 factory 的 `serve` 受理返回 202 而非 403）；V9/V10 因尚无打包引擎与启动器而 NOT_EXECUTED。
 - 可复跑入口：`python tests/acceptance/adr0083_provisioning_v1_v11.py --install-dir … --data-dir … --out …`，已登记 `COMMANDS.md`。
 - 两条 FAIL 已派后端修（记录补齐 + 受理阶段校验执行权威，dev 路径不受影响）。
+
+
+## 2026-10-26 03:30 安装包产品路径闭环（真实安装实测）
+
+| 步骤 | 实测结果 |
+| --- | --- |
+| 双击 `.cmd` 安装 + `installer-admin provision` | exit 0，**105 s**，8730 件 / 2,205,236,543 B |
+| 供给记录 | `Tests/DataC/Control/InstallationProvisioning.json` **11,742 B**（`expected_trees` 聚合） |
+| V1–V4 | 全 ok（instance `instance-652a7058…`、project `project-local-install-0001`、5 routes、空 floor） |
+| 首启页面（Playwright） | 授权页渲染，`/health` 经代理 **200 + pending**，无 `trusted_connection_missing` |
+| 点「同意并继续」 | 显示"请重启"；重启后 `/health` **none**、`/projects` **200** |
+| 制作受理 | `POST /api/v1/productions` → **202** |
+| 越权检查 | 管理端点 → **403 `production_management_denied`** |
+| 篡改检出 | 往 `AsrPackage` 加 `Tamper.txt` → `trusted_startup_bytes_changed`，exit 1 |
+| V9/V10 | dev 串 0、`serve-dev` exit 2、页面无 token |
+| 总耗时 | 安装开始 → production 202 = **198 s** |
+
+引擎 SHA `881c8a11…`（`b42811d` 构建），launcher 已用 `product-serve`。
