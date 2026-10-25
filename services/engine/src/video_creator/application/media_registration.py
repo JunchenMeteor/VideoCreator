@@ -651,7 +651,13 @@ class RegisteredMediaRuntime(CurrentFinalEvidenceRuntime):
             upstream = runner(services, lease, checkpoint_path=checkpoint,
                 cancel=cancel, deadline_monotonic=deadline_monotonic)
             result = self._checked_upstream_result(lease, upstream, policy=policy)
+            sys_event('upstream_result', run_id=lease.run_id, state=result.state,
+                      blocker=getattr(result, 'blocker_code', None),
+                      roles=sorted(getattr(result, 'media_roles', {}) or {}))
             if result.state != "masters_ready":
+                sys_event('final_producer_skipped', run_id=lease.run_id,
+                          reason='upstream_state:' + str(result.state),
+                          blocker=getattr(result, 'blocker_code', None))
                 return result
             control.check()
             with self.engine.db.connect() as connection:
@@ -688,6 +694,10 @@ class RegisteredMediaRuntime(CurrentFinalEvidenceRuntime):
             rights = ports.production_rights(lease, same_run["plan"].revision_id) if policy else ports.current_production_rights(lease, same_run["plan"].revision_id)
             control.check()
             producer, final_ports = self._final_producer(lease, production_services=services, execution_ports=ports)
+            authority = getattr(self.engine.production_admissions, 'installation_authority', None)
+            sys_event('final_producer_invoked', run_id=lease.run_id,
+                      produce_is_none=producer is None, callable=callable(producer),
+                      authority=type(authority).__name__ if authority is not None else None)
             self._active_final_ports[lease.run_id] = final_ports
             if local_context is not None:
                 return producer(lease, selection=local_context.selection, media_roles=roles, asr_route_id=self.config.asr_route_id,
