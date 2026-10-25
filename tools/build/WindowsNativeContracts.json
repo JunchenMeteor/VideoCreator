@@ -1,0 +1,1737 @@
+{
+  "basis_adr_sha256": "dcf1f9de6f96c23aa6f21071dbaebc379d6000a32f0806a4e10c345f31d2b877",
+  "basis_resource_policy_sha256": "66785ebafd9c0efbb119d7be695e0d3649b6932c3333db9fcc8854c76c03d8aa",
+  "condition_authority": "declarations_not_runtime_proof; exact host observations, mapping and source verification required",
+  "format": "windows-native-contract-declarations-v1",
+  "no_prefix_authorization": true,
+  "records": {
+    "aclui.dll": {
+      "architecture": "amd64",
+      "basename": "aclui.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:aclui.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "activeds.dll": {
+      "architecture": "amd64",
+      "basename": "activeds.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:activeds.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "advapi32.dll": {
+      "architecture": "amd64",
+      "basename": "advapi32.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:advapi32.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "api-ms-win-core-path-l1-1-0.dll": {
+      "architecture": "amd64",
+      "basename": "api-ms-win-core-path-l1-1-0.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "api_set:api-ms-win-core-path-l1-1-0.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "api_set",
+      "source_validation": "current_signed_OS_schema_exact_mapping_and_signed_target",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "api-ms-win-core-synch-l1-2-0.dll": {
+      "architecture": "amd64",
+      "basename": "api-ms-win-core-synch-l1-2-0.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "api_set:api-ms-win-core-synch-l1-2-0.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "api_set",
+      "source_validation": "current_signed_OS_schema_exact_mapping_and_signed_target",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "api-ms-win-crt-conio-l1-1-0.dll": {
+      "architecture": "amd64",
+      "basename": "api-ms-win-crt-conio-l1-1-0.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "api_set:api-ms-win-crt-conio-l1-1-0.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "api_set",
+      "source_validation": "current_signed_OS_schema_exact_mapping_and_signed_target",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "api-ms-win-crt-convert-l1-1-0.dll": {
+      "architecture": "amd64",
+      "basename": "api-ms-win-crt-convert-l1-1-0.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "api_set:api-ms-win-crt-convert-l1-1-0.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "api_set",
+      "source_validation": "current_signed_OS_schema_exact_mapping_and_signed_target",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "api-ms-win-crt-environment-l1-1-0.dll": {
+      "architecture": "amd64",
+      "basename": "api-ms-win-crt-environment-l1-1-0.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "api_set:api-ms-win-crt-environment-l1-1-0.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "api_set",
+      "source_validation": "current_signed_OS_schema_exact_mapping_and_signed_target",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "api-ms-win-crt-filesystem-l1-1-0.dll": {
+      "architecture": "amd64",
+      "basename": "api-ms-win-crt-filesystem-l1-1-0.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "api_set:api-ms-win-crt-filesystem-l1-1-0.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "api_set",
+      "source_validation": "current_signed_OS_schema_exact_mapping_and_signed_target",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "api-ms-win-crt-heap-l1-1-0.dll": {
+      "architecture": "amd64",
+      "basename": "api-ms-win-crt-heap-l1-1-0.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "api_set:api-ms-win-crt-heap-l1-1-0.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "api_set",
+      "source_validation": "current_signed_OS_schema_exact_mapping_and_signed_target",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "api-ms-win-crt-locale-l1-1-0.dll": {
+      "architecture": "amd64",
+      "basename": "api-ms-win-crt-locale-l1-1-0.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "api_set:api-ms-win-crt-locale-l1-1-0.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "api_set",
+      "source_validation": "current_signed_OS_schema_exact_mapping_and_signed_target",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "api-ms-win-crt-math-l1-1-0.dll": {
+      "architecture": "amd64",
+      "basename": "api-ms-win-crt-math-l1-1-0.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "api_set:api-ms-win-crt-math-l1-1-0.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "api_set",
+      "source_validation": "current_signed_OS_schema_exact_mapping_and_signed_target",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "api-ms-win-crt-multibyte-l1-1-0.dll": {
+      "architecture": "amd64",
+      "basename": "api-ms-win-crt-multibyte-l1-1-0.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "api_set:api-ms-win-crt-multibyte-l1-1-0.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "api_set",
+      "source_validation": "current_signed_OS_schema_exact_mapping_and_signed_target",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "api-ms-win-crt-private-l1-1-0.dll": {
+      "architecture": "amd64",
+      "basename": "api-ms-win-crt-private-l1-1-0.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "api_set:api-ms-win-crt-private-l1-1-0.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "api_set",
+      "source_validation": "current_signed_OS_schema_exact_mapping_and_signed_target",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "api-ms-win-crt-process-l1-1-0.dll": {
+      "architecture": "amd64",
+      "basename": "api-ms-win-crt-process-l1-1-0.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "api_set:api-ms-win-crt-process-l1-1-0.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "api_set",
+      "source_validation": "current_signed_OS_schema_exact_mapping_and_signed_target",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "api-ms-win-crt-runtime-l1-1-0.dll": {
+      "architecture": "amd64",
+      "basename": "api-ms-win-crt-runtime-l1-1-0.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "api_set:api-ms-win-crt-runtime-l1-1-0.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "api_set",
+      "source_validation": "current_signed_OS_schema_exact_mapping_and_signed_target",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "api-ms-win-crt-stdio-l1-1-0.dll": {
+      "architecture": "amd64",
+      "basename": "api-ms-win-crt-stdio-l1-1-0.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "api_set:api-ms-win-crt-stdio-l1-1-0.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "api_set",
+      "source_validation": "current_signed_OS_schema_exact_mapping_and_signed_target",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "api-ms-win-crt-string-l1-1-0.dll": {
+      "architecture": "amd64",
+      "basename": "api-ms-win-crt-string-l1-1-0.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "api_set:api-ms-win-crt-string-l1-1-0.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "api_set",
+      "source_validation": "current_signed_OS_schema_exact_mapping_and_signed_target",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "api-ms-win-crt-time-l1-1-0.dll": {
+      "architecture": "amd64",
+      "basename": "api-ms-win-crt-time-l1-1-0.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "api_set:api-ms-win-crt-time-l1-1-0.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "api_set",
+      "source_validation": "current_signed_OS_schema_exact_mapping_and_signed_target",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "api-ms-win-crt-utility-l1-1-0.dll": {
+      "architecture": "amd64",
+      "basename": "api-ms-win-crt-utility-l1-1-0.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "api_set:api-ms-win-crt-utility-l1-1-0.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "api_set",
+      "source_validation": "current_signed_OS_schema_exact_mapping_and_signed_target",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "avicap32.dll": {
+      "architecture": "amd64",
+      "basename": "avicap32.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:avicap32.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "avrt.dll": {
+      "architecture": "amd64",
+      "basename": "avrt.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:avrt.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "bcrypt.dll": {
+      "architecture": "amd64",
+      "basename": "bcrypt.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:bcrypt.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "bcryptprimitives.dll": {
+      "architecture": "amd64",
+      "basename": "bcryptprimitives.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:bcryptprimitives.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "cfgmgr32.dll": {
+      "architecture": "amd64",
+      "basename": "cfgmgr32.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:cfgmgr32.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "combase.dll": {
+      "architecture": "amd64",
+      "basename": "combase.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:combase.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "comctl32.dll": {
+      "architecture": "amd64",
+      "basename": "comctl32.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:comctl32.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "comdlg32.dll": {
+      "architecture": "amd64",
+      "basename": "comdlg32.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:comdlg32.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "credui.dll": {
+      "architecture": "amd64",
+      "basename": "credui.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:credui.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "crypt32.dll": {
+      "architecture": "amd64",
+      "basename": "crypt32.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:crypt32.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "cryptbase.dll": {
+      "architecture": "amd64",
+      "basename": "cryptbase.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:cryptbase.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "d2d1.dll": {
+      "architecture": "amd64",
+      "basename": "d2d1.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:d2d1.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "dbghelp.dll": {
+      "architecture": "amd64",
+      "basename": "dbghelp.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:dbghelp.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "dnsapi.dll": {
+      "architecture": "amd64",
+      "basename": "dnsapi.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:dnsapi.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "dsound.dll": {
+      "architecture": "amd64",
+      "basename": "dsound.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:dsound.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "dwmapi.dll": {
+      "architecture": "amd64",
+      "basename": "dwmapi.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:dwmapi.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "dwrite.dll": {
+      "architecture": "amd64",
+      "basename": "dwrite.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:dwrite.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "dxgi.dll": {
+      "architecture": "amd64",
+      "basename": "dxgi.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:dxgi.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "gdi32.dll": {
+      "architecture": "amd64",
+      "basename": "gdi32.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:gdi32.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "imagehlp.dll": {
+      "architecture": "amd64",
+      "basename": "imagehlp.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:imagehlp.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "imm32.dll": {
+      "architecture": "amd64",
+      "basename": "imm32.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:imm32.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "iphlpapi.dll": {
+      "architecture": "amd64",
+      "basename": "iphlpapi.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:iphlpapi.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "kernel32.dll": {
+      "architecture": "amd64",
+      "basename": "kernel32.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:kernel32.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "ktmw32.dll": {
+      "architecture": "amd64",
+      "basename": "ktmw32.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:ktmw32.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "loadperf.dll": {
+      "architecture": "amd64",
+      "basename": "loadperf.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:loadperf.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "lz32.dll": {
+      "architecture": "amd64",
+      "basename": "lz32.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:lz32.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "mfc140u.dll": {
+      "architecture": "amd64",
+      "basename": "mfc140u.dll",
+      "distribution": "official_redist_or_separately_licensed_app_local",
+      "id": "external_vc:mfc140u.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170",
+        "https://learn.microsoft.com/en-us/cpp/windows/redistributing-visual-cpp-files?view=msvc-170"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "external_vc",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "actual_redist_version_not_older_than_payload_toolset; toolset_floor_unknown_until_fixed"
+    },
+    "mpr.dll": {
+      "architecture": "amd64",
+      "basename": "mpr.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:mpr.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "msimg32.dll": {
+      "architecture": "amd64",
+      "basename": "msimg32.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:msimg32.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "msvcp140.dll": {
+      "architecture": "amd64",
+      "basename": "msvcp140.dll",
+      "distribution": "official_redist_or_separately_licensed_app_local",
+      "id": "external_vc:msvcp140.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170",
+        "https://learn.microsoft.com/en-us/cpp/windows/redistributing-visual-cpp-files?view=msvc-170"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "external_vc",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "actual_redist_version_not_older_than_payload_toolset; toolset_floor_unknown_until_fixed"
+    },
+    "msvcp140_1.dll": {
+      "architecture": "amd64",
+      "basename": "msvcp140_1.dll",
+      "distribution": "official_redist_or_separately_licensed_app_local",
+      "id": "external_vc:msvcp140_1.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170",
+        "https://learn.microsoft.com/en-us/cpp/windows/redistributing-visual-cpp-files?view=msvc-170"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "external_vc",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "actual_redist_version_not_older_than_payload_toolset; toolset_floor_unknown_until_fixed"
+    },
+    "msvcp140_2.dll": {
+      "architecture": "amd64",
+      "basename": "msvcp140_2.dll",
+      "distribution": "official_redist_or_separately_licensed_app_local",
+      "id": "external_vc:msvcp140_2.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170",
+        "https://learn.microsoft.com/en-us/cpp/windows/redistributing-visual-cpp-files?view=msvc-170"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "external_vc",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "actual_redist_version_not_older_than_payload_toolset; toolset_floor_unknown_until_fixed"
+    },
+    "msvcp140_atomic_wait.dll": {
+      "architecture": "amd64",
+      "basename": "msvcp140_atomic_wait.dll",
+      "distribution": "official_redist_or_separately_licensed_app_local",
+      "id": "external_vc:msvcp140_atomic_wait.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170",
+        "https://learn.microsoft.com/en-us/cpp/windows/redistributing-visual-cpp-files?view=msvc-170"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "external_vc",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "actual_redist_version_not_older_than_payload_toolset; toolset_floor_unknown_until_fixed"
+    },
+    "msvcp140_codecvt_ids.dll": {
+      "architecture": "amd64",
+      "basename": "msvcp140_codecvt_ids.dll",
+      "distribution": "official_redist_or_separately_licensed_app_local",
+      "id": "external_vc:msvcp140_codecvt_ids.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170",
+        "https://learn.microsoft.com/en-us/cpp/windows/redistributing-visual-cpp-files?view=msvc-170"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "external_vc",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "actual_redist_version_not_older_than_payload_toolset; toolset_floor_unknown_until_fixed"
+    },
+    "msvcrt.dll": {
+      "architecture": "amd64",
+      "basename": "msvcrt.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:msvcrt.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "mswsock.dll": {
+      "architecture": "amd64",
+      "basename": "mswsock.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:mswsock.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "ncrypt.dll": {
+      "architecture": "amd64",
+      "basename": "ncrypt.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:ncrypt.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "netapi32.dll": {
+      "architecture": "amd64",
+      "basename": "netapi32.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:netapi32.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "normaliz.dll": {
+      "architecture": "amd64",
+      "basename": "normaliz.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:normaliz.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "ntdll.dll": {
+      "architecture": "amd64",
+      "basename": "ntdll.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:ntdll.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "ntdsapi.dll": {
+      "architecture": "amd64",
+      "basename": "ntdsapi.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:ntdsapi.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "odbc32.dll": {
+      "architecture": "amd64",
+      "basename": "odbc32.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:odbc32.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "ole32.dll": {
+      "architecture": "amd64",
+      "basename": "ole32.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:ole32.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "oleacc.dll": {
+      "architecture": "amd64",
+      "basename": "oleacc.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:oleacc.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "oleaut32.dll": {
+      "architecture": "amd64",
+      "basename": "oleaut32.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:oleaut32.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "pdh.dll": {
+      "architecture": "amd64",
+      "basename": "pdh.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:pdh.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "powrprof.dll": {
+      "architecture": "amd64",
+      "basename": "powrprof.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:powrprof.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "propsys.dll": {
+      "architecture": "amd64",
+      "basename": "propsys.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:propsys.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "psapi.dll": {
+      "architecture": "amd64",
+      "basename": "psapi.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:psapi.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "query.dll": {
+      "architecture": "amd64",
+      "basename": "query.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:query.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "rasapi32.dll": {
+      "architecture": "amd64",
+      "basename": "rasapi32.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:rasapi32.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "rpcrt4.dll": {
+      "architecture": "amd64",
+      "basename": "rpcrt4.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:rpcrt4.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "secur32.dll": {
+      "architecture": "amd64",
+      "basename": "secur32.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:secur32.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "setupapi.dll": {
+      "architecture": "amd64",
+      "basename": "setupapi.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:setupapi.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "sfc.dll": {
+      "architecture": "amd64",
+      "basename": "sfc.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:sfc.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "shell32.dll": {
+      "architecture": "amd64",
+      "basename": "shell32.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:shell32.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "shlwapi.dll": {
+      "architecture": "amd64",
+      "basename": "shlwapi.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:shlwapi.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "ucrtbase.dll": {
+      "architecture": "amd64",
+      "basename": "ucrtbase.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:ucrtbase.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "urlmon.dll": {
+      "architecture": "amd64",
+      "basename": "urlmon.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:urlmon.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "user32.dll": {
+      "architecture": "amd64",
+      "basename": "user32.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:user32.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "userenv.dll": {
+      "architecture": "amd64",
+      "basename": "userenv.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:userenv.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "usp10.dll": {
+      "architecture": "amd64",
+      "basename": "usp10.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:usp10.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "uxtheme.dll": {
+      "architecture": "amd64",
+      "basename": "uxtheme.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:uxtheme.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "vcruntime140.dll": {
+      "architecture": "amd64",
+      "basename": "vcruntime140.dll",
+      "distribution": "official_redist_or_separately_licensed_app_local",
+      "id": "external_vc:vcruntime140.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170",
+        "https://learn.microsoft.com/en-us/cpp/windows/redistributing-visual-cpp-files?view=msvc-170"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "external_vc",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "actual_redist_version_not_older_than_payload_toolset; toolset_floor_unknown_until_fixed"
+    },
+    "vcruntime140_1.dll": {
+      "architecture": "amd64",
+      "basename": "vcruntime140_1.dll",
+      "distribution": "official_redist_or_separately_licensed_app_local",
+      "id": "external_vc:vcruntime140_1.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170",
+        "https://learn.microsoft.com/en-us/cpp/windows/redistributing-visual-cpp-files?view=msvc-170"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "external_vc",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "actual_redist_version_not_older_than_payload_toolset; toolset_floor_unknown_until_fixed"
+    },
+    "version.dll": {
+      "architecture": "amd64",
+      "basename": "version.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:version.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "webservices.dll": {
+      "architecture": "amd64",
+      "basename": "webservices.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:webservices.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "wevtapi.dll": {
+      "architecture": "amd64",
+      "basename": "wevtapi.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:wevtapi.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "winhttp.dll": {
+      "architecture": "amd64",
+      "basename": "winhttp.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:winhttp.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "wininet.dll": {
+      "architecture": "amd64",
+      "basename": "wininet.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:wininet.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "winmm.dll": {
+      "architecture": "amd64",
+      "basename": "winmm.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:winmm.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "winspool.drv": {
+      "architecture": "amd64",
+      "basename": "winspool.drv",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:winspool.drv",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "wintrust.dll": {
+      "architecture": "amd64",
+      "basename": "wintrust.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:wintrust.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "ws2_32.dll": {
+      "architecture": "amd64",
+      "basename": "ws2_32.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:ws2_32.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "wsock32.dll": {
+      "architecture": "amd64",
+      "basename": "wsock32.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:wsock32.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    },
+    "wtsapi32.dll": {
+      "architecture": "amd64",
+      "basename": "wtsapi32.dll",
+      "distribution": "OS_prerequisite_not_copied",
+      "id": "windows_component:wtsapi32.dll",
+      "minimum_build": "unknown",
+      "minimum_build_state": "pending_target_matrix_qualification",
+      "official_evidence": [
+        "https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-search-order",
+        "https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw"
+      ],
+      "os": "windows",
+      "redistribution_rights": "not_granted_by_source_validation",
+      "runtime_condition": "current_host_exact_vendor_source_and_contract_mapping",
+      "source_kind": "windows_component",
+      "source_validation": "current_trusted_OS_directory_and_Microsoft_offline_WinTrust_or_catalog",
+      "version_condition": "current_OS_source_compatibility_and_target_matrix_pending"
+    }
+  }
+}

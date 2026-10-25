@@ -1,0 +1,33 @@
+[package]
+name = "video-creator-native-lifetime-library"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.90"
+publish = false
+build = false
+autobins = false
+autotests = false
+autoexamples = false
+autobenches = false
+
+[workspace]
+
+[lib]
+path = "src/lib.rs"
+doctest = false
+
+[dependencies]
+serde = { version = "=1.0.229", features = ["derive"] }
+serde_json = "=1.0.151"
+sha2 = "=0.10.9"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "=0.61.2", features = [
+  "Win32_Foundation", "Win32_Security", "Win32_Storage_FileSystem",
+  "Win32_System_IO", "Win32_System_JobObjects", "Win32_System_Pipes",
+  "Win32_System_Threading", "Win32_NetworkManagement_IpHelper",
+  "Win32_System_SystemInformation", "Win32_System_LibraryLoader",
+  "Win32_Security_WinTrust", "Win32_Security_Cryptography",
+  "Win32_Security_Cryptography_Catalog", "Win32_Security_Cryptography_Sip",
+  "Win32_Networking_WinSock",
+] }
