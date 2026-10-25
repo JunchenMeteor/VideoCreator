@@ -5,7 +5,11 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import logging
+import os
 import sys
+import threading
+import traceback
 from pathlib import Path
 
 from video_creator.application.engine import EngineService
@@ -24,6 +28,37 @@ from video_creator.application.product_installation import (
 )
 from video_creator.domain.errors import EngineError
 from video_creator.infrastructure.owner_identity import inspect_owner_directory
+
+
+def _fatal_event(kind: str, exc_type, exc, tb) -> None:
+    try:
+        summary = ''.join(traceback.format_exception(exc_type, exc, tb))[-3000:]
+        payload = {'event': 'product_process_fatal', 'code': 'product_process_fatal',
+                   'kind': kind, 'exception': getattr(exc_type, '__name__', str(exc_type)),
+                   'message': str(exc)[:500], 'traceback': summary, 'exit_code': 1}
+        print(json.dumps(payload, ensure_ascii=False), file=sys.stderr, flush=True)
+    except BaseException:  # noqa: BLE001 - fatal reporting must never throw
+        return
+
+
+def _configure_process_io() -> None:
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding='utf-8', errors='replace')
+        except (AttributeError, ValueError, OSError):
+            pass
+    os.environ['PYTHONIOENCODING'] = 'utf-8'
+    logging.raiseExceptions = False
+
+    def main_hook(exc_type, exc, tb):
+        _fatal_event('main', exc_type, exc, tb)
+
+    def thread_hook(args):
+        _fatal_event('thread', args.exc_type, args.exc_value, args.exc_traceback)
+        os._exit(1)
+
+    sys.excepthook = main_hook
+    threading.excepthook = thread_hook
 
 
 def _fail(code: str, message: str, status: int = 409):
@@ -134,6 +169,7 @@ def _factory(record_path: Path, record_sha: str, registration: Path, registratio
 
 
 def main(argv=None) -> int:
+    _configure_process_io()
     parser = argparse.ArgumentParser(prog='video-creator-product')
     parser.add_argument('command', choices=['product-serve', 'product-worker'])
     parser.add_argument('--data-dir', required=True, type=Path)
