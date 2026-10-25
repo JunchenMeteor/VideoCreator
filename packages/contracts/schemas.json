@@ -3434,6 +3434,88 @@
       "title": "AssetContentLocator",
       "type": "object"
     },
+    "AssetPageV1": {
+      "$defs": {
+        "AssetSummaryV1": {
+          "additionalProperties": false,
+          "properties": {
+            "asset_id": {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "title": "Asset Id",
+              "type": "string"
+            },
+            "media_type": {
+              "maxLength": 100,
+              "minLength": 1,
+              "title": "Media Type",
+              "type": "string"
+            },
+            "bytes": {
+              "exclusiveMinimum": 0,
+              "title": "Bytes",
+              "type": "integer"
+            },
+            "sha256_prefix": {
+              "maxLength": 12,
+              "minLength": 12,
+              "pattern": "^[0-9a-f]{12}$",
+              "title": "Sha256 Prefix",
+              "type": "string"
+            },
+            "source": {
+              "maxLength": 256,
+              "minLength": 1,
+              "title": "Source",
+              "type": "string"
+            },
+            "created_at_us": {
+              "minimum": 0,
+              "title": "Created At Us",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "asset_id",
+            "media_type",
+            "bytes",
+            "sha256_prefix",
+            "source",
+            "created_at_us"
+          ],
+          "title": "AssetSummaryV1",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "assets": {
+          "items": {
+            "$ref": "#/$defs/AssetSummaryV1"
+          },
+          "title": "Assets",
+          "type": "array"
+        },
+        "next_cursor": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Next Cursor"
+        }
+      },
+      "required": [
+        "assets"
+      ],
+      "title": "AssetPageV1",
+      "type": "object"
+    },
     "AssetRecord": {
       "$defs": {
         "MediaProbe": {
@@ -3554,6 +3636,57 @@
         "probe"
       ],
       "title": "AssetRecord",
+      "type": "object"
+    },
+    "AssetSummaryV1": {
+      "additionalProperties": false,
+      "properties": {
+        "asset_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Asset Id",
+          "type": "string"
+        },
+        "media_type": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Media Type",
+          "type": "string"
+        },
+        "bytes": {
+          "exclusiveMinimum": 0,
+          "title": "Bytes",
+          "type": "integer"
+        },
+        "sha256_prefix": {
+          "maxLength": 12,
+          "minLength": 12,
+          "pattern": "^[0-9a-f]{12}$",
+          "title": "Sha256 Prefix",
+          "type": "string"
+        },
+        "source": {
+          "maxLength": 256,
+          "minLength": 1,
+          "title": "Source",
+          "type": "string"
+        },
+        "created_at_us": {
+          "minimum": 0,
+          "title": "Created At Us",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "asset_id",
+        "media_type",
+        "bytes",
+        "sha256_prefix",
+        "source",
+        "created_at_us"
+      ],
+      "title": "AssetSummaryV1",
       "type": "object"
     },
     "AudioClock": {
@@ -18662,6 +18795,72 @@
         "goal"
       ],
       "title": "ProductionRequestV03",
+      "type": "object"
+    },
+    "ProductionRevisionSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "revision_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Revision Id",
+          "type": "string"
+        },
+        "kind": {
+          "maxLength": 30,
+          "minLength": 1,
+          "title": "Kind",
+          "type": "string"
+        },
+        "parent_revision_id": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Parent Revision Id"
+        },
+        "expires_at_us": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expires At Us"
+        },
+        "failure_code": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Failure Code"
+        }
+      },
+      "required": [
+        "revision_id",
+        "kind"
+      ],
+      "title": "ProductionRevisionSummary",
       "type": "object"
     },
     "ProjectDraft": {

@@ -1,5 +1,5 @@
 /* Generated only from the unique OpenAPI transport declaration. Do not edit. */
-export const NATIVE_ROUTE_MANIFEST_SHA256 = "d36b2774117876f51b469730c495dd835de0342e7778b6c92ba70bfc255363fc" as const;
+export const NATIVE_ROUTE_MANIFEST_SHA256 = "70548d0547432e13b7aae5d833dc8f6a079ed5f75aaa3a806a59823e6982c5d3" as const;
 export const NATIVE_CONTRACT_VERSION = "0.3.0-candidate" as const;
 export const NATIVE_TRANSPORT_FORMAT = "native-ipc-v1-candidate" as const;
 export const NATIVE_CONSTRAINTS = {
@@ -333,6 +333,34 @@ export const NATIVE_COMPONENTS = {
     ],
     "title": "AssetContentLocator"
   },
+  "AssetPageV1": {
+    "properties": {
+      "assets": {
+        "items": {
+          "$ref": "#/components/schemas/AssetSummaryV1"
+        },
+        "type": "array",
+        "title": "Assets"
+      },
+      "next_cursor": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Next Cursor"
+      }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+      "assets"
+    ],
+    "title": "AssetPageV1"
+  },
   "AssetRecord": {
     "properties": {
       "asset_id": {
@@ -379,6 +407,57 @@ export const NATIVE_COMPONENTS = {
       "probe"
     ],
     "title": "AssetRecord"
+  },
+  "AssetSummaryV1": {
+    "properties": {
+      "asset_id": {
+        "type": "string",
+        "maxLength": 128,
+        "minLength": 1,
+        "pattern": "^[A-Za-z0-9_.:-]+$",
+        "title": "Asset Id"
+      },
+      "media_type": {
+        "type": "string",
+        "maxLength": 100,
+        "minLength": 1,
+        "title": "Media Type"
+      },
+      "bytes": {
+        "type": "integer",
+        "exclusiveMinimum": 0,
+        "title": "Bytes"
+      },
+      "sha256_prefix": {
+        "type": "string",
+        "maxLength": 12,
+        "minLength": 12,
+        "pattern": "^[0-9a-f]{12}$",
+        "title": "Sha256 Prefix"
+      },
+      "source": {
+        "type": "string",
+        "maxLength": 256,
+        "minLength": 1,
+        "title": "Source"
+      },
+      "created_at_us": {
+        "type": "integer",
+        "minimum": 0,
+        "title": "Created At Us"
+      }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+      "asset_id",
+      "media_type",
+      "bytes",
+      "sha256_prefix",
+      "source",
+      "created_at_us"
+    ],
+    "title": "AssetSummaryV1"
   },
   "AudioClock": {
     "properties": {
@@ -2183,65 +2262,6 @@ export const NATIVE_COMPONENTS = {
     "type": "object",
     "title": "CreativeBriefInput"
   },
-  "CreativeRevision": {
-    "properties": {
-      "revision_id": {
-        "type": "string",
-        "maxLength": 128,
-        "minLength": 1,
-        "pattern": "^[A-Za-z0-9_.:-]+$",
-        "title": "Revision Id"
-      },
-      "kind": {
-        "type": "string",
-        "enum": [
-          "insight",
-          "brief",
-          "plan",
-          "script",
-          "storyboard",
-          "quality"
-        ],
-        "title": "Kind"
-      },
-      "parent_revision_id": {
-        "anyOf": [
-          {
-            "type": "string",
-            "maxLength": 128,
-            "minLength": 1,
-            "pattern": "^[A-Za-z0-9_.:-]+$"
-          },
-          {
-            "type": "null"
-          }
-        ],
-        "title": "Parent Revision Id"
-      },
-      "input_revision_refs": {
-        "items": {
-          "type": "string",
-          "maxLength": 128,
-          "minLength": 1,
-          "pattern": "^[A-Za-z0-9_.:-]+$"
-        },
-        "type": "array",
-        "title": "Input Revision Refs",
-        "default": []
-      },
-      "body": {
-        "$ref": "#/components/schemas/JsonValue"
-      }
-    },
-    "additionalProperties": false,
-    "type": "object",
-    "required": [
-      "revision_id",
-      "kind",
-      "body"
-    ],
-    "title": "CreativeRevision"
-  },
   "DailyProjectAuthorizationRef": {
     "properties": {
       "authorization_id": {
@@ -3140,7 +3160,6 @@ export const NATIVE_COMPONENTS = {
     ],
     "title": "InstanceHealth"
   },
-  "JsonValue": {},
   "LocalBundleExportSource": {
     "properties": {
       "kind": {
@@ -5217,6 +5236,69 @@ export const NATIVE_COMPONENTS = {
     ],
     "title": "ProductionRequestV03"
   },
+  "ProductionRevisionSummary": {
+    "properties": {
+      "revision_id": {
+        "type": "string",
+        "maxLength": 128,
+        "minLength": 1,
+        "pattern": "^[A-Za-z0-9_.:-]+$",
+        "title": "Revision Id"
+      },
+      "kind": {
+        "type": "string",
+        "maxLength": 30,
+        "minLength": 1,
+        "title": "Kind"
+      },
+      "parent_revision_id": {
+        "anyOf": [
+          {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Parent Revision Id"
+      },
+      "expires_at_us": {
+        "anyOf": [
+          {
+            "type": "integer",
+            "exclusiveMinimum": 0
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Expires At Us"
+      },
+      "failure_code": {
+        "anyOf": [
+          {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Failure Code"
+      }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+      "revision_id",
+      "kind"
+    ],
+    "title": "ProductionRevisionSummary"
+  },
   "ProjectDraft": {
     "properties": {
       "name": {
@@ -6500,7 +6582,67 @@ export const NATIVE_COMPONENTS = {
       "media_type"
     ],
     "title": "StagedAsset"
-  }
+  },
+  "CreativeRevision": {
+    "properties": {
+      "revision_id": {
+        "type": "string",
+        "maxLength": 128,
+        "minLength": 1,
+        "pattern": "^[A-Za-z0-9_.:-]+$",
+        "title": "Revision Id"
+      },
+      "kind": {
+        "type": "string",
+        "enum": [
+          "insight",
+          "brief",
+          "plan",
+          "script",
+          "storyboard",
+          "quality"
+        ],
+        "title": "Kind"
+      },
+      "parent_revision_id": {
+        "anyOf": [
+          {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Parent Revision Id"
+      },
+      "input_revision_refs": {
+        "items": {
+          "type": "string",
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$"
+        },
+        "type": "array",
+        "title": "Input Revision Refs",
+        "default": []
+      },
+      "body": {
+        "$ref": "#/components/schemas/JsonValue"
+      }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+      "revision_id",
+      "kind",
+      "body"
+    ],
+    "title": "CreativeRevision"
+  },
+  "JsonValue": {}
 } as const;
 export const NATIVE_ROUTES = {
   "health_api_v1_health_get": {
@@ -7242,6 +7384,276 @@ export const NATIVE_ROUTES = {
         "Idempotency-Key",
         "Content-Type"
       ],
+      "response_headers": [
+        "Content-Type"
+      ]
+    }
+  },
+  "asset_list_api_v1_assets_get": {
+    "operation_id": "asset_list_api_v1_assets_get",
+    "method": "GET",
+    "path_template": "/api/v1/assets",
+    "parameters": [
+      {
+        "name": "cursor",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Cursor"
+        }
+      },
+      {
+        "name": "limit",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "default": 50,
+          "title": "Limit"
+        }
+      },
+      {
+        "name": "media_type",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Media Type"
+        }
+      }
+    ],
+    "header_rules": {},
+    "request_body": null,
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/AssetPageV1"
+            }
+          }
+        },
+        "headers": {
+          "Content-Type": {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Actual response MIME, including charset/boundary when supplied."
+          }
+        }
+      },
+      "400": {
+        "description": "Invalid domain input (JSON), or a rejected transport Host/Origin/Range (plain text)",
+        "content": {
+          "text/plain": {
+            "schema": {
+              "type": "string"
+            }
+          },
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorEnvelope"
+            }
+          }
+        },
+        "headers": {
+          "Content-Type": {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Actual response MIME, including charset/boundary when supplied."
+          }
+        }
+      },
+      "401": {
+        "description": "Installation session is invalid",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorEnvelope"
+            }
+          }
+        },
+        "headers": {
+          "Content-Type": {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Actual response MIME, including charset/boundary when supplied."
+          }
+        }
+      },
+      "403": {
+        "description": "Installation permission or browser origin is denied",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorEnvelope"
+            }
+          }
+        },
+        "headers": {
+          "Content-Type": {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Actual response MIME, including charset/boundary when supplied."
+          }
+        }
+      },
+      "404": {
+        "description": "Owned resource does not exist",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorEnvelope"
+            }
+          }
+        },
+        "headers": {
+          "Content-Type": {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Actual response MIME, including charset/boundary when supplied."
+          }
+        }
+      },
+      "409": {
+        "description": "Version, idempotency or execution state conflicts; inspect retryability",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorEnvelope"
+            }
+          }
+        },
+        "headers": {
+          "Content-Type": {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Actual response MIME, including charset/boundary when supplied."
+          }
+        }
+      },
+      "413": {
+        "description": "Asset upload exceeds the configured limit",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorEnvelope"
+            }
+          }
+        },
+        "headers": {
+          "Content-Type": {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Actual response MIME, including charset/boundary when supplied."
+          }
+        }
+      },
+      "415": {
+        "description": "Identified media format or media reference is not supported by installation policy",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorEnvelope"
+            }
+          }
+        },
+        "headers": {
+          "Content-Type": {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Actual response MIME, including charset/boundary when supplied."
+          }
+        }
+      },
+      "422": {
+        "description": "Request contract, content integrity or media decoding is invalid",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorEnvelope"
+            }
+          }
+        },
+        "headers": {
+          "Content-Type": {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Actual response MIME, including charset/boundary when supplied."
+          }
+        }
+      },
+      "503": {
+        "description": "Required installation resource or media validator is unavailable",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorEnvelope"
+            }
+          }
+        },
+        "headers": {
+          "Content-Type": {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Actual response MIME, including charset/boundary when supplied."
+          }
+        }
+      }
+    },
+    "security": [
+      {
+        "InstallationBearer": []
+      }
+    ],
+    "transport": {
+      "format": "engine-http-transport-v1-candidate",
+      "authorization": {
+        "mode": "installation_owner_only",
+        "domain_operations": [],
+        "purposes": {
+          "source": "fixed",
+          "values": []
+        },
+        "resource_scope": "actual subject/project ownership, current registration/grant/rights checks; IDs are not authorization tickets"
+      },
+      "body": {
+        "kind": "none",
+        "maximum_bytes": null,
+        "limit_semantics": "Published field constraints; no separate JSON HTTP byte cap is implemented"
+      },
+      "response": {
+        "kind": "json",
+        "head_supported": false
+      },
+      "mutating": false,
+      "automatic_http_retry": false,
+      "request_headers": [],
       "response_headers": [
         "Content-Type"
       ]
@@ -9353,7 +9765,7 @@ export const NATIVE_ROUTES = {
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/components/schemas/CreativeRevision"
+                "$ref": "#/components/schemas/ProductionRevisionSummary"
               },
               "title": "Response Production Revisions Api V1 Productions  Production Id  Revisions Get"
             }

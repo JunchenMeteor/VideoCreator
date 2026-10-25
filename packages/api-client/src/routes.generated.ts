@@ -119,6 +119,45 @@ export const ROUTES = {
       ]
     }
   },
+  "GET /api/v1/assets": {
+    "method": "GET",
+    "template": "/api/v1/assets",
+    "operationId": "asset_list_api_v1_assets_get",
+    "requestMedia": [],
+    "responseMedia": {
+      "200": [
+        "application/json"
+      ],
+      "400": [
+        "text/plain",
+        "application/json"
+      ],
+      "401": [
+        "application/json"
+      ],
+      "403": [
+        "application/json"
+      ],
+      "404": [
+        "application/json"
+      ],
+      "409": [
+        "application/json"
+      ],
+      "413": [
+        "application/json"
+      ],
+      "415": [
+        "application/json"
+      ],
+      "422": [
+        "application/json"
+      ],
+      "503": [
+        "application/json"
+      ]
+    }
+  },
   "GET /api/v1/projects/{project_id}": {
     "method": "GET",
     "template": "/api/v1/projects/{project_id}",
