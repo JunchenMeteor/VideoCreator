@@ -160,6 +160,21 @@ def _files(base: Path) -> list[dict]:
              'sha256': _hash(path)} for path in sorted(base.rglob('*')) if path.is_file()]
 
 
+def _digest_files(files: list[dict]) -> str:
+    body = [(item['relative_path'], item['bytes'], item['sha256']) for item in files]
+    return hashlib.sha256(json.dumps(body, ensure_ascii=False, sort_keys=True,
+                                     separators=(',', ':')).encode('utf-8')).hexdigest()
+
+
+def _tree(base: Path, relative: str) -> dict | None:
+    target = base / relative
+    if not target.is_dir():
+        return None
+    files = _files(target)
+    return {'relative_path': relative, 'file_count': len(files),
+            'bytes': sum(item['bytes'] for item in files), 'sha256': _digest_files(files)}
+
+
 def _scan_item(item_id: str, base: Path, relative: str) -> dict:
     target = base / relative
     files = _files(target) if target.is_dir() else (
@@ -167,9 +182,7 @@ def _scan_item(item_id: str, base: Path, relative: str) -> dict:
         if target.is_file() else [])
     return {'id': item_id, 'present': bool(files), 'path': relative,
             'count': len(files), 'bytes': sum(item['bytes'] for item in files),
-            'sha256': hashlib.sha256(json.dumps(files, ensure_ascii=False, sort_keys=True,
-                                                separators=(',', ':')).encode('utf-8')).hexdigest(),
-            'files': files}
+            'sha256': _digest_files(files)}
 
 
 def _record_path(control: Path) -> Path:
@@ -271,19 +284,22 @@ def provision(*, install_dir: Path, data_dir: Path, registration: Path) -> dict:
                    if Path(registration).resolve().is_relative_to(install.resolve()) else 'Registration.json'),
     ]
     expected_files = []
+    expected_trees = []
     for item in a_items:
-        target = install / item['path']
-        prefix = '' if item['path'] in {'.', ''} or target.is_file() else item['path'].rstrip('/') + '/'
-        for file in item['files']:
-            expected_files.append({'relative_path': (prefix + file['relative_path']).replace('\\', '/'),
-                                   'bytes': file['bytes'], 'sha256': file['sha256']})
+        target = install / item["path"]
+        if target.is_dir():
+            tree = _tree(install, item["path"])
+            if tree is not None:
+                expected_trees.append(tree)
+        elif target.is_file():
+            expected_files.append({"relative_path": item["path"], "bytes": target.stat().st_size,
+                                   "sha256": _hash(target)})
     engine_names = sorted(_package_sources(PACKAGE_ROOT))
     if PACKAGE_ROOT.resolve().is_relative_to(install.resolve()):
-        engine_prefix = PACKAGE_ROOT.resolve().relative_to(install.resolve()).as_posix()
-        for name in engine_names:
-            path = PACKAGE_ROOT / name
-            expected_files.append({'relative_path': (engine_prefix + '/' + name).replace('\\', '/'),
-                                   'bytes': path.stat().st_size, 'sha256': _hash(path)})
+        engine_tree = _tree(install, PACKAGE_ROOT.resolve().relative_to(install.resolve()).as_posix())
+        if engine_tree is not None:
+            expected_trees.append(engine_tree)
+
     dacl = _dacl_summary(data)
     body = {
         'format': FORMAT,
@@ -304,6 +320,7 @@ def provision(*, install_dir: Path, data_dir: Path, registration: Path) -> dict:
         'resource_manifest_sha256': config.production_resource_manifest_sha256,
         'runtime_manifest_sha256': config.production_runtime_manifest_sha256,
         'expected_files': expected_files,
+        'expected_trees': expected_trees,
         'engine_file_names': engine_names,
         'dacl_summary_sha256': dacl,
         'route_ids': sorted(routes),
@@ -319,7 +336,7 @@ def provision(*, install_dir: Path, data_dir: Path, registration: Path) -> dict:
             {'id': 'B6', 'format': FORMAT, 'registration_sha256': registration_sha256, 'revision': 1},
         ],
         'counts': {'routes': len(routes), 'projects': 1, 'authorization_rows': 0,
-                   'expected_files': len(expected_files)},
+                   'expected_files': len(expected_files), 'expected_trees': len(expected_trees)},
         'revision': 1,
     }
     _write_record(control, body)
@@ -353,6 +370,12 @@ def verify_provisioning(*, data_dir: Path, registration: Path, record: dict) -> 
                 or _hash(path) != fact['sha256']):
             _fail('installation_provisioning_incomplete',
                   'V1 expected file differs from installed bytes: ' + fact['relative_path'], 503)
+    for tree in record.get('expected_trees', []):
+        fresh = _tree(install, tree['relative_path'])
+        if fresh is None or (fresh['file_count'], fresh['bytes'], fresh['sha256']) != (
+                tree['file_count'], tree['bytes'], tree['sha256']):
+            _fail('installation_provisioning_incomplete',
+                  'V1 expected tree differs from installed bytes: ' + tree['relative_path'], 503)
     # V2: real local runtime construction against the same installed bytes.
     RegisteredMediaRuntime(engine, Path(registration), record['registration_sha256'],
                            resource_manifest_hashes=frozenset())

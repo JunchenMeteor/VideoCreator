@@ -33,7 +33,10 @@ def _check_record(record_path: Path, expected_sha: str, data_dir: Path, install_
     if not record_path.is_absolute() or record_path.is_symlink() or not record_path.is_file():
         _fail('trusted_startup_record_missing', 'Installation record is unavailable', 503)
     raw = record_path.read_bytes()
-    if len(raw) > 1024 * 1024 or hashlib.sha256(raw).hexdigest() != expected_sha:
+    if len(raw) > 2 * 1024 * 1024:
+        _fail('trusted_startup_record_too_large',
+              f'Installation record is {len(raw)} bytes; the admitted limit is {2 * 1024 * 1024}', 503)
+    if hashlib.sha256(raw).hexdigest() != expected_sha:
         _fail('trusted_startup_record_changed', 'Installation record differs from its pinned bytes', 503)
     try:
         record = json.loads(raw)
@@ -43,7 +46,7 @@ def _check_record(record_path: Path, expected_sha: str, data_dir: Path, install_
                 'engine_package_relative', 'instance_dir', 'project_id', 'registration_sha256',
                 'expected_files', 'engine_file_names', 'os_subject', 'administrator_id', 'instance_device',
                 'instance_inode', 'resource_manifest_sha256', 'runtime_manifest_sha256',
-                'dacl_summary_sha256', 'route_ids', 'items', 'counts', 'revision'}
+                'dacl_summary_sha256', 'route_ids', 'items', 'counts', 'revision', 'expected_trees'}
     if type(record) is not dict or set(record) != required or record['format'] != 'installation-provisioning-v1':
         _fail('trusted_startup_record_invalid', 'Installation record fields are not canonical', 422)
     if record['complete'] is not True or type(record.get('revision')) is not int or record['revision'] < 1:
@@ -68,7 +71,24 @@ def _check_record(record_path: Path, expected_sha: str, data_dir: Path, install_
         if (path.is_symlink() or not path.is_file() or path.stat().st_size != fact['bytes']
                 or _hash(path) != fact['sha256']):
             _fail('trusted_startup_bytes_changed', 'Installed bytes differ from the record', 503)
+    for tree in record['expected_trees']:
+        target = install_root / tree['relative_path']
+        files = _tree_files(target)
+        digest = hashlib.sha256(json.dumps([(item[0], item[1], item[2]) for item in files],
+                                           ensure_ascii=False, sort_keys=True,
+                                           separators=(',', ':')).encode('utf-8')).hexdigest()
+        if (len(files), sum(item[1] for item in files), digest) != (
+                tree['file_count'], tree['bytes'], tree['sha256']):
+            _fail('trusted_startup_bytes_changed',
+                  'Installed tree differs from the record: ' + tree['relative_path'], 503)
     return record
+
+
+def _tree_files(base: Path):
+    if not base.is_dir():
+        return []
+    return [(path.relative_to(base).as_posix(), path.stat().st_size, _hash(path))
+            for path in sorted(base.rglob('*')) if path.is_file()]
 
 
 def _dacl(path: Path) -> str:

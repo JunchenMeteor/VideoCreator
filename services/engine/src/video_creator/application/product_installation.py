@@ -76,7 +76,26 @@ class ProductInstallationAuthority:
                 raise EngineError('trusted_startup_bytes_changed',
                                   'Installed file differs from the provisioning record', 503)
             expected.append((fact['relative_path'], fact['sha256']))
-        return tuple(sorted(expected))
+        for tree in record.get('expected_trees', []):
+            base = Path(record['install_root']) / tree['relative_path']
+            files = self._tree_files(base)
+            body = [(name, size, sha) for name, size, sha in files]
+            digest = hashlib_sha(json.dumps(body, ensure_ascii=False, sort_keys=True,
+                                            separators=(',', ':')).encode('utf-8'))
+            if (len(files), sum(size for _name, size, _sha in files), digest) != (
+                    tree['file_count'], tree['bytes'], tree['sha256']):
+                raise EngineError('trusted_startup_bytes_changed',
+                                  'Installed tree differs from the provisioning record', 503)
+            for name, _size, sha in files:
+                expected.append((tree['relative_path'].rstrip('/') + '/' + name, sha))
+        return tuple(sorted(set(expected)))
+
+    @staticmethod
+    def _tree_files(base: Path):
+        if not base.is_dir():
+            return []
+        return [(path.relative_to(base).as_posix(), path.stat().st_size, _hash(path))
+                for path in sorted(base.rglob('*')) if path.is_file()]
 
     def observe(self):
         with self._lock:
