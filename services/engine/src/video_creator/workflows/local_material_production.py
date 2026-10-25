@@ -50,6 +50,7 @@ from video_creator.workflows.current_policy_evidence import (
 )
 from video_creator.workflows.local_material_drivers import (
     create_local_material_production_drivers,
+    derivative_body,
 )
 from video_creator.workflows.local_material_plan import (
     build_local_plan,
@@ -63,6 +64,23 @@ from video_creator.workflows.local_material_rights import require_local_plan_rig
 from video_creator.workflows.production_json import canonical_object
 
 MASTER_INDEX_DESTINATION = 'local:registered-master-index-v1'
+
+
+def derivative_input_sha(*, request, plan_revision_ref, key, body, route_id):
+    """Sole hashed derivative Step input; returns its canonical JSON body too.
+
+    The projection from `derivative_body` is both hashed here and handed to the
+    fixed driver builder, so a Step's identity and its driver request cannot
+    drift into different shapes.
+    """
+    if type(key) is not str or type(route_id) is not str:
+        raise EngineError('local_builder_input_invalid',
+            'A derivative Step and route identity are strings.', 422)
+    projection = derivative_body(body)
+    return digest(canonical_object({'profile': 'local-owned-assets-v1',
+        'request': request.model_dump(mode='json'),
+        'plan_revision_ref': plan_revision_ref.model_dump(mode='json'),
+        'step': key, 'body': projection, 'route_id': route_id})), projection
 
 
 @dataclass(frozen=True)
@@ -356,10 +374,8 @@ class LocalMaterialFlow(Flow[dict]):
 
     def _generated(self, key, roles, data, route_id, builder, *, masters=False):
         self._recheck()
-        projection = {k: [v.model_dump(mode='json') for v in value] if k == 'bindings'
-            else value.model_dump(mode='json') if k == 'timeline' else value for k, value in data.items()}
-        input_sha = digest(canonical_object({'profile': 'local-owned-assets-v1', 'request': self._request.model_dump(mode='json'),
-            'plan_revision_ref': revision_ref(self._revision).model_dump(mode='json'), 'step': key, 'body': projection, 'route_id': route_id}))
+        input_sha, body = derivative_input_sha(request=self._request,
+            plan_revision_ref=revision_ref(self._revision), key=key, body=data, route_id=route_id)
         services, lease = self._services, self._lease
         saved = _completed(services.engine.begin_step(lease, key, input_sha))
         if saved is not None:
@@ -367,7 +383,7 @@ class LocalMaterialFlow(Flow[dict]):
         route = services.engine.configured_route(route_id)
         outputs = tuple(services.worker.allocate_output(lease, key, input_sha, role, mime,
             'local-owned-assets-v1:' + key, 'Derivative of actual admitted inputs; current plan and final rights clearance remain required') for role, mime in roles)
-        spec = builder(data, outputs, ordinary_lease=lease, cancel=current_attempt().cancel_requested,
+        spec = builder(body, outputs, ordinary_lease=lease, cancel=current_attempt().cancel_requested,
             deadline_monotonic=current_attempt().deadline_monotonic)
         if type(spec) is not BoundProductionDriver or not callable(spec.invoke):
             raise EngineError('local_driver_invalid', 'The fixed builder returns the original controlled driver object.', 503)
@@ -411,12 +427,13 @@ class LocalMaterialFlow(Flow[dict]):
             key = 'production-' + shot.shot_id
             output = self._generated(key, ((shot.shot_id, 'video/mp4'),), {**data, 'shot_id': shot.shot_id},
                 registration.input_visual_route_id, services.drivers.picture)
-            clips.append((shot.shot_id, output[shot.shot_id]))
+            # Sole request form: JSON pairs, identical to the hashed body below.
+            clips.append([shot.shot_id, output[shot.shot_id]])
             source_steps.append(key)
         kinds = {'video': 'video/mp4', 'mixed_audio': 'audio/wav', 'cover': 'image/jpeg'}
         edit_roles = tuple((role, kinds[role]) for role in self._selection.master_roles if role != 'narration_audio')
         result = self._generated('production-edit', edit_roles,
-            {**data, 'clips': tuple(clips), 'narration_audio': narration.get('narration_audio')},
+            {**data, 'clips': clips, 'narration_audio': narration.get('narration_audio')},
             registration.edit_route_id, services.drivers.edit, masters=True)
         combined = {**result, **narration}
         self._roles = {role: combined[role] for role in self._selection.master_roles}
