@@ -191,6 +191,31 @@ a { color: inherit; }
 .import-fields .field-label { margin: 0; }
 .import-fields .field-label:not(:first-child) { margin-top: 12px; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.bundle-summary, .output-options { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin: 20px 0; }
+.bundle-summary { color: var(--vc-secondary); font-size: 12px; }
+.bundle-summary details { min-width: 0; overflow-wrap: anywhere; }
+.bundle-summary p { line-height: 1.7; }
+.semantic-segments { display: grid; gap: 20px; margin: 20px 0; }
+.semantic-segments article { border-left: 2px solid var(--vc-border); padding-left: 18px; }
+.semantic-segments article > button { display: flex; align-items: baseline; flex-wrap: wrap; gap: 12px; width: 100%; text-align: left; border: 0; background: none; padding: 4px 0; color: var(--vc-text); }
+.semantic-segments article > button span { font-size: 12px; color: var(--vc-accent); }
+.semantic-segments p { font-size: 14px; line-height: 1.8; overflow-wrap: anywhere; }
+.semantic-segments details, .semantic-speech { color: var(--vc-secondary); }
+.semantic-segments details { font-size: 12px; }
+.delivery-job { padding: 20px 0; margin-top: 16px; border-top: 1px solid var(--vc-border); overflow-wrap: anywhere; }
+.delivery-job > p { color: var(--vc-secondary); font-size: 13px; line-height: 1.8; }
+.bundle-download { display: inline-flex; align-items: center; gap: 8px; margin: 8px 16px 8px 0; font-size: 14px; color: var(--vc-accent); }
+.export-selection { display: grid; gap: 14px; max-height: 320px; overflow-y: auto; margin: 24px 0; }
+.export-selection label { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 13px; }
+.export-selection small { flex-basis: 100%; color: var(--vc-secondary); margin-left: 26px; overflow-wrap: anywhere; }
+.reference-option { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+.standalone-asset { margin-top: 24px; }
+.bundle-file-choice { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; font-size: 13px; }
+.bundle-file-choice > span { overflow-wrap: anywhere; min-width: 0; color: var(--vc-secondary); }
+.media-empty .rt-Button { color: #edf7f5; background-color: #23534e; }
+.feedback-receipt { margin-top: 24px; font-size: 13px; line-height: 1.8; overflow-wrap: anywhere; }
+.feedback-receipt details { color: var(--vc-secondary); font-size: 12px; }
+.import-fields input[type="datetime-local"] { color: var(--vc-text); background: var(--vc-panel); padding: 10px; border: 1px solid var(--vc-border); border-radius: 8px; width: 100%; box-sizing: border-box; }
 :focus-visible { outline: 2px solid var(--vc-accent, #146f68); outline-offset: 4px; }
 .rt-Button { transition: background-color 140ms ease, box-shadow 140ms ease; }
 .rt-Button svg { flex-shrink: 0; }
@@ -257,3 +282,18 @@ a { color: inherit; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
 }
+
+.native-setup-panel { padding: 24px; margin-bottom: 20px; border: 1px solid var(--gray-6); border-radius: 16px; background: var(--color-panel-solid); }
+.native-setup-panel > p { line-height: 1.7; }
+.native-setup-panel .rt-CalloutRoot { margin-block: 16px; }
+.goal-materials { margin: 24px 0; padding: 16px; border: 1px solid var(--gray-5); border-radius: 12px; }
+.goal-materials-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.goal-materials-heading h3 { margin: 0; font-size: 14px; }
+.goal-materials-heading > span { font-size: 12px; color: var(--gray-11); }
+.goal-materials-list { display: grid; gap: 12px; margin-top: 16px; }
+.goal-material-option { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; }
+.goal-material-option input { margin-top: 4px; accent-color: var(--accent-9); }
+.goal-material-option span { min-width: 0; }
+.goal-material-option strong, .goal-material-option small { display: block; overflow-wrap: anywhere; }
+.goal-material-option strong { font-size: 14px; font-weight: 500; }
+.goal-material-option small { margin-top: 4px; color: var(--gray-11); font-size: 12px; }

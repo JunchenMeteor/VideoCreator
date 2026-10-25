@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { engineFetch } from './engine';
+import { engineContent } from './engine';
 import type { EngineEvent } from './engine';
 
 export function useRunEvents(runId: string | undefined, productionId: string | undefined) {
@@ -17,8 +17,7 @@ export function useRunEvents(runId: string | undefined, productionId: string | u
     let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
     setPhase('connecting');
     const receive = async () => {
-      const response = await engineFetch(`/api/v1/runs/${encodeURIComponent(runId)}/events?after_sequence=${cursor.current.sequence}`,
-        { headers: { Accept: 'text/event-stream' }, signal: controller.signal });
+      const response = await engineContent('GET /api/v1/runs/{run_id}/events', { path: { run_id: runId }, query: { after_sequence: cursor.current.sequence }, headers: { Accept: 'text/event-stream' }, signal: controller.signal });
       if (!response.body || !response.headers.get('content-type')?.includes('text/event-stream')) throw new Error('event_stream_unavailable');
       setPhase('connected');
       reader = response.body.getReader();
