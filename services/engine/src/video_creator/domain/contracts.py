@@ -417,8 +417,10 @@ class AssetPageV1(Contract):
 
 class ProductionRevisionSummary(Contract):
     revision_id: Identifier
-    kind: str = Field(min_length=1, max_length=30)
+    kind: Literal["insight", "brief", "plan", "script", "storyboard", "quality"]
     parent_revision_id: Identifier | None = None
+    input_revision_refs: tuple[Identifier, ...] = ()
+    body: JsonValue
     expires_at_us: int | None = Field(default=None, gt=0, strict=True)
     failure_code: str | None = Field(default=None, min_length=1, max_length=100)
 

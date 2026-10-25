@@ -693,10 +693,25 @@ class RegisteredMediaRuntime(CurrentFinalEvidenceRuntime):
     def _current_stop_result(self, lease, result, states):
         from video_creator.domain.local_bundle import CurrentProductionUpstreamResultV2
         expected = CurrentProductionUpstreamResultV2 if type(self.config) is RegistrationConfigLocalV1 else CurrentProductionUpstreamResult
+        if type(result) is not expected and type(result).__name__ == expected.__name__:
+            # Duplicated frozen/source packages can yield distinct classes for
+            # the identical private schema; normalize only that exact schema.
+            try:
+                result = expected.model_validate(result.model_dump(mode='json'))
+            except (ValueError, TypeError):
+                pass
         if (not isinstance(self.config, (RegistrationConfigV2, RegistrationConfigLocalV1)) or type(result) is not expected
                 or result.state not in states or result.media_roles or not result.blocker_code
                 or (result.run_id, result.fencing_token) != (lease.run_id, lease.fencing_token)):
-            raise EngineError("production_blocker_result_invalid", "Only the trusted original v2 same-fence result can stop this Run", 422)
+            actual = {'type': type(result).__name__, 'state': getattr(result, 'state', None),
+                      'run_id': getattr(result, 'run_id', None), 'fence': getattr(result, 'fencing_token', None),
+                      'blocker': getattr(result, 'blocker_code', None),
+                      'media_roles': sorted(getattr(result, 'media_roles', {}) or {})}
+            raise EngineError("production_blocker_result_invalid",
+                              'Only the trusted original v2 same-fence result can stop this Run; run_id='
+                              + lease.run_id + '; expected=' + expected.__name__ + '; lease_fence='
+                              + str(lease.fencing_token) + '; actual=' + json.dumps(actual, ensure_ascii=False,
+                              sort_keys=True), 422)
 
     def park_current_upstream(self, ordinary_lease, result):
         from video_creator.application.current_production_blockers import (
@@ -708,7 +723,7 @@ class RegisteredMediaRuntime(CurrentFinalEvidenceRuntime):
         )
 
         lease = ordinary_lease
-        self._current_stop_result(lease, result, {"waiting_authorization", "resource_not_ready"})
+        result = self._current_stop_result(lease, result, {"waiting_authorization", "resource_not_ready"})
         with self.engine.db.transaction() as connection:
             run, production, _request, binding = bound_context(self.engine, connection, lease.run_id, self.sha256)
             previous = connection.execute("SELECT value FROM metadata WHERE key=?", (PREFIX + lease.run_id,)).fetchone()
@@ -742,7 +757,7 @@ class RegisteredMediaRuntime(CurrentFinalEvidenceRuntime):
         )
 
         lease = ordinary_lease
-        self._current_stop_result(lease, result, {"denied"})
+        result = self._current_stop_result(lease, result, {"denied"})
         with self.engine.db.transaction() as connection:
             run, production, _request, _binding = bound_context(self.engine, connection, lease.run_id, self.sha256)
             if (run["status"] == "failed" and run["fencing_token"] == lease.fencing_token

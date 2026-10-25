@@ -373,6 +373,7 @@ def create_app(engine: EngineService, token: str, subject: str = "local-user",
             result.append(c.ProductionRevisionSummary(
                 revision_id=revision.revision_id, kind=revision.kind,
                 parent_revision_id=revision.parent_revision_id,
+                input_revision_refs=revision.input_revision_refs, body=revision.body,
                 expires_at_us=expires if isinstance(expires, int) and expires > 0 else None,
                 failure_code=failure if isinstance(failure, str) and failure else None))
         return result
