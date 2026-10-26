@@ -124,3 +124,20 @@ MCP `production_create` 可创建 production，但实测发现：① MCP 启动�
 | 总耗时 | 安装开始 → production 202 = **198 s** |
 
 引擎 SHA `881c8a11…`（`b42811d` 构建），launcher 已用 `product-serve`。
+
+
+## 2026-10-26 11:56 R1 产品路径闭环（真实安装 → 成片）
+
+| 步骤 | 实测 |
+| --- | --- |
+| 双击安装（`InstallFinal2`） | exit 0，**125.3 s**，逐件 SHA 通过，8,539 件 / 2,201,915,195 B |
+| 供给 | `provision complete` 11,607 B，V1–V4 全过 |
+| 页面授权 | pending → 同意 → 重启 → none、`/projects` 200 |
+| 创建 | `POST /productions` → 202 |
+| 制作时间线 | `production.accepted` +0.00 → `plan.ready` +9.30 → 审核 +10.24 → `quality.ready` +35.01 → 审核 +36.64 → `bundle.prepared` +47.60 → `final_assembly_committed` +52.56 → **`production.succeeded` +57.94** |
+| 成片 | `deliverable-local-media-cea0c92e….mp4`，146,735 B，SHA-256 `94ba870c…`，**h264 1080×1920 / 25 fps / 250 帧 / 10.000 s**（我用包内 ffprobe 复核） |
+| 观测缓存 | 启动一次 `cached=false` 5.62 s / 4,874 件，其后 195 次 `cached=true` 0.0004 s |
+| 全程 | 安装开始 → 拿到成片 **301.4 s**（安装 125.3 / 授权重启约 117 / 制作 57.9） |
+
+引擎 `1f5147a3…`（`f4498ff` 构建），`product-serve`/`product-worker --help` exit 0。
+未完成：单文件 `Setup.exe`（7-Zip SFX 需重做）；语音作品的 srt 尚未在此安装上验证（本条为纯 video）。
