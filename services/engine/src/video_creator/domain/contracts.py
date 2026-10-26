@@ -410,6 +410,11 @@ class AssetSummaryV1(Contract):
     created_at_us: int = Field(ge=0, strict=True)
 
 
+# Collection response convention: collections that can grow (pagination) or
+# whose future fields may be added return a named object envelope
+# (`assets`, `credentials`); fixed bounded identity lists may return a bare
+# array only when their contract model itself is the list. New collection
+# endpoints default to an envelope.
 class AssetPageV1(Contract):
     assets: tuple[AssetSummaryV1, ...]
     next_cursor: str | None = None
@@ -1821,6 +1826,12 @@ class CredentialCreateV1(Contract):
     provider: Identifier
     label: str = Field(min_length=1, max_length=200)
     secret: str = Field(min_length=1, max_length=4096)
+
+
+class CredentialListV1(Contract):
+    """Wrapped collection; a future next_cursor can be added without a break."""
+
+    credentials: tuple[CredentialSummaryV1, ...] = ()
 
 
 ProductionRequestAny = ProductionRequest | ProductionRequestV03

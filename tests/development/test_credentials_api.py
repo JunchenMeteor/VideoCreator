@@ -40,7 +40,7 @@ def test_create_list_and_no_secret_in_sqlite_or_registry(tmp_path, monkeypatch):
     item = response.json()
     assert secret not in response.text
     assert set(item) == {'credential_ref', 'fingerprint', 'provider', 'label', 'created_at_us'}
-    listed = client.get('/api/v1/credentials', headers=headers).json()
+    listed = client.get('/api/v1/credentials', headers=headers).json()['credentials']
     assert len(listed) == 1 and secret not in json.dumps(listed)
     assert secret not in (Path(tmp_path) / 'Control' / 'Credentials.json').read_text()
     assert secret not in (Path(tmp_path) / 'Control' / 'CredentialAudit.jsonl').read_text()

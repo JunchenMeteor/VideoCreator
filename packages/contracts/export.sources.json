@@ -1,19 +1,2896 @@
 {
-  "format": "formal-export-artifacts-v1",
-  "source_mode": "formal_export_artifacts",
-  "source_inputs": [
+  "entry": "video_creator.cli.main export-contracts",
+  "engine_source_reads": {
+    "video_creator": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/__init__.py",
+        "bytes": 69,
+        "sha256": "f5d6e64939446302f3dc31049b4174b8ae11d9eba2e9144e2321f6007b52793e"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/__init__.py",
+        "bytes": 69,
+        "sha256": "f5d6e64939446302f3dc31049b4174b8ae11d9eba2e9144e2321f6007b52793e"
+      },
+      "changed": false
+    },
+    "video_creator.cli": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/cli/__init__.py",
+        "bytes": 66,
+        "sha256": "cb285bd4f4e1fadfac875238f74e02f2d881120ba115c29d678f8ec9cbbee0c4"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/cli/__init__.py",
+        "bytes": 66,
+        "sha256": "cb285bd4f4e1fadfac875238f74e02f2d881120ba115c29d678f8ec9cbbee0c4"
+      },
+      "changed": false
+    },
+    "video_creator.cli.main": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/cli/main.py",
+        "bytes": 38234,
+        "sha256": "15c4e823f0871e23579b56d7c3a330c73d3b4c1a3fdbd2f84aa69d963673bdef"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/cli/main.py",
+        "bytes": 38234,
+        "sha256": "15c4e823f0871e23579b56d7c3a330c73d3b4c1a3fdbd2f84aa69d963673bdef"
+      },
+      "changed": false
+    },
+    "video_creator.api": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/api/__init__.py",
+        "bytes": 84,
+        "sha256": "19184243110e4d91978d970d0ebf61015dd8ec383d91537c10b0dd67d5cc9752"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/api/__init__.py",
+        "bytes": 84,
+        "sha256": "19184243110e4d91978d970d0ebf61015dd8ec383d91537c10b0dd67d5cc9752"
+      },
+      "changed": false
+    },
+    "video_creator.api.app": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/api/app.py",
+        "bytes": 44090,
+        "sha256": "e2befe806fc2107450891d374b7bf35adedb082aab3f02e1a9073802e8720e4b"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/api/app.py",
+        "bytes": 44090,
+        "sha256": "e2befe806fc2107450891d374b7bf35adedb082aab3f02e1a9073802e8720e4b"
+      },
+      "changed": false
+    },
+    "video_creator.api.development_marker": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/api/development_marker.py",
+        "bytes": 732,
+        "sha256": "f98b174e4ea95672de7e0a3cf3549043dadf30b9e08621b2bf2a0e8ce15a0031"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/api/development_marker.py",
+        "bytes": 732,
+        "sha256": "f98b174e4ea95672de7e0a3cf3549043dadf30b9e08621b2bf2a0e8ce15a0031"
+      },
+      "changed": false
+    },
+    "video_creator.api.transport_contract": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/api/transport_contract.py",
+        "bytes": 21212,
+        "sha256": "424249a8f9779b761da8008d6559334a7d6b36c752447e32f11ad54adffa3ddc"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/api/transport_contract.py",
+        "bytes": 21212,
+        "sha256": "424249a8f9779b761da8008d6559334a7d6b36c752447e32f11ad54adffa3ddc"
+      },
+      "changed": false
+    },
+    "video_creator.domain": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/__init__.py",
+        "bytes": 55,
+        "sha256": "9710276210781732b2302c5a5a8e1cb0a8c1d3430ae66a1108d5c3b371ea9d83"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/__init__.py",
+        "bytes": 55,
+        "sha256": "9710276210781732b2302c5a5a8e1cb0a8c1d3430ae66a1108d5c3b371ea9d83"
+      },
+      "changed": false
+    },
+    "video_creator.domain.contracts": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/contracts.py",
+        "bytes": 70806,
+        "sha256": "f8bb44dc74672907d1b66e226aaf042b89b27d5068b36ecbaac94c3cf667baee"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/contracts.py",
+        "bytes": 70806,
+        "sha256": "f8bb44dc74672907d1b66e226aaf042b89b27d5068b36ecbaac94c3cf667baee"
+      },
+      "changed": false
+    },
+    "video_creator.application": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/__init__.py",
+        "bytes": 76,
+        "sha256": "5432faa13e5839f3b96aecf7c8e26db05803b7b987bedb4087f9eb69bf67d68c"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/__init__.py",
+        "bytes": 76,
+        "sha256": "5432faa13e5839f3b96aecf7c8e26db05803b7b987bedb4087f9eb69bf67d68c"
+      },
+      "changed": false
+    },
+    "video_creator.application.credentials": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/credentials.py",
+        "bytes": 5252,
+        "sha256": "2ac0470222a6f94b8a99df21c86233e65a6093191228c6c8f5796848045d9267"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/credentials.py",
+        "bytes": 5252,
+        "sha256": "2ac0470222a6f94b8a99df21c86233e65a6093191228c6c8f5796848045d9267"
+      },
+      "changed": false
+    },
+    "video_creator.infrastructure": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/infrastructure/__init__.py",
+        "bytes": 58,
+        "sha256": "0cb72f91529c5ada2095a94e3fb7d5a257ba133e1519bfce1d2ccd9f54b4e75e"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/infrastructure/__init__.py",
+        "bytes": 58,
+        "sha256": "0cb72f91529c5ada2095a94e3fb7d5a257ba133e1519bfce1d2ccd9f54b4e75e"
+      },
+      "changed": false
+    },
+    "video_creator.infrastructure.credentials": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/infrastructure/credentials.py",
+        "bytes": 5133,
+        "sha256": "bf38c0afe101ac5f47ff24e57f9d0d46ceb7910abf377bb10cbf44da9d60b255"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/infrastructure/credentials.py",
+        "bytes": 5133,
+        "sha256": "bf38c0afe101ac5f47ff24e57f9d0d46ceb7910abf377bb10cbf44da9d60b255"
+      },
+      "changed": false
+    },
+    "video_creator.domain.errors": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/errors.py",
+        "bytes": 393,
+        "sha256": "4bb8b859a340af0cd6f6093a5f97863c00e7f02d0a5f9ff95f523da389c6e6a5"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/errors.py",
+        "bytes": 393,
+        "sha256": "4bb8b859a340af0cd6f6093a5f97863c00e7f02d0a5f9ff95f523da389c6e6a5"
+      },
+      "changed": false
+    },
+    "video_creator.application.assets": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/assets.py",
+        "bytes": 12161,
+        "sha256": "7b0755b0880460040e614bf66e4a99cae55e5285e85a6505dc02ed7397f60436"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/assets.py",
+        "bytes": 12161,
+        "sha256": "7b0755b0880460040e614bf66e4a99cae55e5285e85a6505dc02ed7397f60436"
+      },
+      "changed": false
+    },
+    "video_creator.application.engine": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/engine.py",
+        "bytes": 78141,
+        "sha256": "e8027e9176115367793389ec086d1a650826b48103c9e6b598ac9a91bd548d31"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/engine.py",
+        "bytes": 78141,
+        "sha256": "e8027e9176115367793389ec086d1a650826b48103c9e6b598ac9a91bd548d31"
+      },
+      "changed": false
+    },
+    "video_creator.application.pricing": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/pricing.py",
+        "bytes": 6171,
+        "sha256": "64b9d343668c6900eee8510d7ed30470b316b8236ab4c6359cfbc92a594c3232"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/pricing.py",
+        "bytes": 6171,
+        "sha256": "64b9d343668c6900eee8510d7ed30470b316b8236ab4c6359cfbc92a594c3232"
+      },
+      "changed": false
+    },
+    "video_creator.infrastructure.database": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/infrastructure/database.py",
+        "bytes": 11979,
+        "sha256": "e5e5aa4083085df110a5e8f27d1e27a807203c2f80b4cad3475667056e8b4026"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/infrastructure/database.py",
+        "bytes": 11979,
+        "sha256": "e5e5aa4083085df110a5e8f27d1e27a807203c2f80b4cad3475667056e8b4026"
+      },
+      "changed": false
+    },
+    "video_creator.application.bundles": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/bundles.py",
+        "bytes": 262423,
+        "sha256": "0ec481603bedac2e2182f90ee01ea10e209ad139cef41e85a63d40a2745fb9cf"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/bundles.py",
+        "bytes": 262423,
+        "sha256": "0ec481603bedac2e2182f90ee01ea10e209ad139cef41e85a63d40a2745fb9cf"
+      },
+      "changed": false
+    },
+    "video_creator.application.alignment_math": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/alignment_math.py",
+        "bytes": 2739,
+        "sha256": "7201fb93a932c74b5302501e6dbd755136d46be96ac232d92dafc910a8045657"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/alignment_math.py",
+        "bytes": 2739,
+        "sha256": "7201fb93a932c74b5302501e6dbd755136d46be96ac232d92dafc910a8045657"
+      },
+      "changed": false
+    },
+    "video_creator.application.bundle_authorization": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/bundle_authorization.py",
+        "bytes": 28683,
+        "sha256": "84f12cf36277c9f2aca3d7fdc26ed23e218be881ae93b699ff67212d460fbe68"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/bundle_authorization.py",
+        "bytes": 28683,
+        "sha256": "84f12cf36277c9f2aca3d7fdc26ed23e218be881ae93b699ff67212d460fbe68"
+      },
+      "changed": false
+    },
+    "video_creator.application.bundle_facts": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/bundle_facts.py",
+        "bytes": 6000,
+        "sha256": "e86cbbd1b3b5a6953852ee1ecd327fea56c18fb812383e1cb202a44d464cafc5"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/bundle_facts.py",
+        "bytes": 6000,
+        "sha256": "e86cbbd1b3b5a6953852ee1ecd327fea56c18fb812383e1cb202a44d464cafc5"
+      },
+      "changed": false
+    },
+    "video_creator.domain.bundle": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/bundle.py",
+        "bytes": 5699,
+        "sha256": "72c4aad698b9c551dbd7f08bd6f15d6f0a15508d222fa7f73523e64799acc215"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/bundle.py",
+        "bytes": 5699,
+        "sha256": "72c4aad698b9c551dbd7f08bd6f15d6f0a15508d222fa7f73523e64799acc215"
+      },
+      "changed": false
+    },
+    "video_creator.domain.production_authorization": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/production_authorization.py",
+        "bytes": 18737,
+        "sha256": "292aa2230c6247b39f7859277f3580e7d9520921f255a182338dea5ef0f4c5ef"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/production_authorization.py",
+        "bytes": 18737,
+        "sha256": "292aa2230c6247b39f7859277f3580e7d9520921f255a182338dea5ef0f4c5ef"
+      },
+      "changed": false
+    },
+    "video_creator.domain.daily_project_authorization": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/daily_project_authorization.py",
+        "bytes": 20293,
+        "sha256": "f9483593c9cfe6e9d7d13bc51defbe1a3dcb48bf1973410a516b91387311c838"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/daily_project_authorization.py",
+        "bytes": 20293,
+        "sha256": "f9483593c9cfe6e9d7d13bc51defbe1a3dcb48bf1973410a516b91387311c838"
+      },
+      "changed": false
+    },
+    "video_creator.domain.native_execution_registration": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/native_execution_registration.py",
+        "bytes": 11618,
+        "sha256": "6983fa964d4fcbc0ff3f30d30f4b5c5bb9e943177caa35c3d60e033d1be0ccca"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/native_execution_registration.py",
+        "bytes": 11618,
+        "sha256": "6983fa964d4fcbc0ff3f30d30f4b5c5bb9e943177caa35c3d60e033d1be0ccca"
+      },
+      "changed": false
+    },
+    "video_creator.infrastructure.held_authority": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/infrastructure/held_authority.py",
+        "bytes": 13927,
+        "sha256": "7cd4f20812b2a6e4bba6207cb119bd16712aa8a44bbbb8be52e7e4c01781d410"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/infrastructure/held_authority.py",
+        "bytes": 13927,
+        "sha256": "7cd4f20812b2a6e4bba6207cb119bd16712aa8a44bbbb8be52e7e4c01781d410"
+      },
+      "changed": false
+    },
+    "video_creator.infrastructure.windows_authority_pipe": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/infrastructure/windows_authority_pipe.py",
+        "bytes": 26966,
+        "sha256": "491c1e0d3d8472b7dc87ab06740f5f3ec28e3f78509e97882cbe84c75946aecd"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/infrastructure/windows_authority_pipe.py",
+        "bytes": 26966,
+        "sha256": "491c1e0d3d8472b7dc87ab06740f5f3ec28e3f78509e97882cbe84c75946aecd"
+      },
+      "changed": false
+    },
+    "video_creator.infrastructure.owner_identity": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/infrastructure/owner_identity.py",
+        "bytes": 6990,
+        "sha256": "cedf49c5f77c888348d6fd9fc53668cc55c88cbf57cf09b818117dcf75fe3a0b"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/infrastructure/owner_identity.py",
+        "bytes": 6990,
+        "sha256": "cedf49c5f77c888348d6fd9fc53668cc55c88cbf57cf09b818117dcf75fe3a0b"
+      },
+      "changed": false
+    },
+    "video_creator.domain.local_material_production": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/local_material_production.py",
+        "bytes": 15310,
+        "sha256": "63a06f9f5a7ae28858a5413724a5e7284075538d1844ce6f9d5dc28b0b8076aa"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/local_material_production.py",
+        "bytes": 15310,
+        "sha256": "63a06f9f5a7ae28858a5413724a5e7284075538d1844ce6f9d5dc28b0b8076aa"
+      },
+      "changed": false
+    },
+    "video_creator.domain.affected_recipe": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/affected_recipe.py",
+        "bytes": 18538,
+        "sha256": "f771221639397aa0488e72da13df3427923fe73d6820cd0f8a805f71d1eb8aa0"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/affected_recipe.py",
+        "bytes": 18538,
+        "sha256": "f771221639397aa0488e72da13df3427923fe73d6820cd0f8a805f71d1eb8aa0"
+      },
+      "changed": false
+    },
+    "video_creator.domain.affected_repair": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/affected_repair.py",
+        "bytes": 5606,
+        "sha256": "9768bc4220283c2265d7e185a32343d1b5d88e83733ee1b4efd1d5252e05589d"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/affected_repair.py",
+        "bytes": 5606,
+        "sha256": "9768bc4220283c2265d7e185a32343d1b5d88e83733ee1b4efd1d5252e05589d"
+      },
+      "changed": false
+    },
+    "video_creator.domain.current_final_evidence": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/current_final_evidence.py",
+        "bytes": 9554,
+        "sha256": "e3ee6f4bb5add649e2442e0d0575d7e0fe6c3a0799a7ef44b8cc9f7d30cdcab4"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/current_final_evidence.py",
+        "bytes": 9554,
+        "sha256": "e3ee6f4bb5add649e2442e0d0575d7e0fe6c3a0799a7ef44b8cc9f7d30cdcab4"
+      },
+      "changed": false
+    },
+    "video_creator.domain.evidence": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/evidence.py",
+        "bytes": 2681,
+        "sha256": "29907082006ac4ebff25064bc2ff45ba728a86791ba5d47941ba1cbc42d523ec"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/evidence.py",
+        "bytes": 2681,
+        "sha256": "29907082006ac4ebff25064bc2ff45ba728a86791ba5d47941ba1cbc42d523ec"
+      },
+      "changed": false
+    },
+    "video_creator.domain.registered_production": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/registered_production.py",
+        "bytes": 7748,
+        "sha256": "9dcac6ce2b27bb7e3f7cb541e57e790ebb5d415796fb8e66158c7cae021eeb0a"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/registered_production.py",
+        "bytes": 7748,
+        "sha256": "9dcac6ce2b27bb7e3f7cb541e57e790ebb5d415796fb8e66158c7cae021eeb0a"
+      },
+      "changed": false
+    },
+    "video_creator.domain.plan_repair_targets": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/plan_repair_targets.py",
+        "bytes": 6403,
+        "sha256": "40669dff8cf22f5fa874315c3cc0a3f653c79dc1d6fd0820186024a14ad7e0f6"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/plan_repair_targets.py",
+        "bytes": 6403,
+        "sha256": "40669dff8cf22f5fa874315c3cc0a3f653c79dc1d6fd0820186024a14ad7e0f6"
+      },
+      "changed": false
+    },
+    "video_creator.application.current_final_evidence_service": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/current_final_evidence_service.py",
+        "bytes": 37857,
+        "sha256": "461cb9a5d61a0a34f3a4a6f217d321953925b4c47b2c58e29eff49e2dd1ec4fd"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/current_final_evidence_service.py",
+        "bytes": 37857,
+        "sha256": "461cb9a5d61a0a34f3a4a6f217d321953925b4c47b2c58e29eff49e2dd1ec4fd"
+      },
+      "changed": false
+    },
+    "video_creator.application.affected_repair_service": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/affected_repair_service.py",
+        "bytes": 63373,
+        "sha256": "43901ec332e62c020a72a74a9af157ac83ec80e3dff39a24baa2594d17a30e8b"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/affected_repair_service.py",
+        "bytes": 63373,
+        "sha256": "43901ec332e62c020a72a74a9af157ac83ec80e3dff39a24baa2594d17a30e8b"
+      },
+      "changed": false
+    },
+    "video_creator.application.current_final_evidence_recovery": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/current_final_evidence_recovery.py",
+        "bytes": 41859,
+        "sha256": "e67697d4c3ee3da0db9306eb2070554ef9c01cd592a1780b079e9ac5171a1d89"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/current_final_evidence_recovery.py",
+        "bytes": 41859,
+        "sha256": "e67697d4c3ee3da0db9306eb2070554ef9c01cd592a1780b079e9ac5171a1d89"
+      },
+      "changed": false
+    },
+    "video_creator.application.component_diagnosis_service": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/component_diagnosis_service.py",
+        "bytes": 69481,
+        "sha256": "b73938149e2ba87daf9c4c88ef6b996dfa7b025db3acc922c248d363f0cf965b"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/component_diagnosis_service.py",
+        "bytes": 69481,
+        "sha256": "b73938149e2ba87daf9c4c88ef6b996dfa7b025db3acc922c248d363f0cf965b"
+      },
+      "changed": false
+    },
+    "video_creator.domain.component_diagnosis": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/component_diagnosis.py",
+        "bytes": 15359,
+        "sha256": "1d3b07b9a253e56f812e99517841a30b509a584b473f4cce77c014bad871ac3b"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/component_diagnosis.py",
+        "bytes": 15359,
+        "sha256": "1d3b07b9a253e56f812e99517841a30b509a584b473f4cce77c014bad871ac3b"
+      },
+      "changed": false
+    },
+    "video_creator.application.current_final_evidence_journal": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/current_final_evidence_journal.py",
+        "bytes": 4020,
+        "sha256": "0a3cc2ce60ad58d1848c401551b427ed2983f4b644fbdf8f7d5c69e0acc6219d"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/current_final_evidence_journal.py",
+        "bytes": 4020,
+        "sha256": "0a3cc2ce60ad58d1848c401551b427ed2983f4b644fbdf8f7d5c69e0acc6219d"
+      },
+      "changed": false
+    },
+    "video_creator.application.current_production_blockers": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/current_production_blockers.py",
+        "bytes": 5371,
+        "sha256": "c27705bee45dd8260405f2fd4bd69c7bce03f61039dfc4214e3f4c05fdfc50d6"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/current_production_blockers.py",
+        "bytes": 5371,
+        "sha256": "c27705bee45dd8260405f2fd4bd69c7bce03f61039dfc4214e3f4c05fdfc50d6"
+      },
+      "changed": false
+    },
+    "video_creator.application.diagnosed_affected_service": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/diagnosed_affected_service.py",
+        "bytes": 23646,
+        "sha256": "c8e74440919b56d1e7340c74cc67a3c24a4f084c2f4131c778d13d714668dbec"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/diagnosed_affected_service.py",
+        "bytes": 23646,
+        "sha256": "c8e74440919b56d1e7340c74cc67a3c24a4f084c2f4131c778d13d714668dbec"
+      },
+      "changed": false
+    },
+    "video_creator.application.diagnostic_selection": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/diagnostic_selection.py",
+        "bytes": 47974,
+        "sha256": "6e5420036bf8026324dda89a4b510baaf934b496663e271d37df1cc9189f697a"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/diagnostic_selection.py",
+        "bytes": 47974,
+        "sha256": "6e5420036bf8026324dda89a4b510baaf934b496663e271d37df1cc9189f697a"
+      },
+      "changed": false
+    },
+    "video_creator.domain.diagnostic_recovery": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/diagnostic_recovery.py",
+        "bytes": 12593,
+        "sha256": "705a548d339d67ef85c868c679524cb064d51ddba2cff914279ae264a241b7a9"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/diagnostic_recovery.py",
+        "bytes": 12593,
+        "sha256": "705a548d339d67ef85c868c679524cb064d51ddba2cff914279ae264a241b7a9"
+      },
+      "changed": false
+    },
+    "video_creator.application.plan_repair_service": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/plan_repair_service.py",
+        "bytes": 21518,
+        "sha256": "7317c3cebbbafd94caa1b07af855339fba656571f6645e20ec91cb5294413370"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/plan_repair_service.py",
+        "bytes": 21518,
+        "sha256": "7317c3cebbbafd94caa1b07af855339fba656571f6645e20ec91cb5294413370"
+      },
+      "changed": false
+    },
+    "video_creator.application.affected_recipe_plan": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/affected_recipe_plan.py",
+        "bytes": 8095,
+        "sha256": "13e431109b8be4697658d4961082b3968cba3eda3edf8555ebbc5138e579b7f5"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/affected_recipe_plan.py",
+        "bytes": 8095,
+        "sha256": "13e431109b8be4697658d4961082b3968cba3eda3edf8555ebbc5138e579b7f5"
+      },
+      "changed": false
+    },
+    "video_creator.application.registered_alignment": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/registered_alignment.py",
+        "bytes": 82735,
+        "sha256": "ceac36b7403a7ff15286d37a966a975476c135cbc7af05a4d82e1b3dc862c0b4"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/registered_alignment.py",
+        "bytes": 82735,
+        "sha256": "ceac36b7403a7ff15286d37a966a975476c135cbc7af05a4d82e1b3dc862c0b4"
+      },
+      "changed": false
+    },
+    "video_creator.application.committed_alignment_read": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/committed_alignment_read.py",
+        "bytes": 35855,
+        "sha256": "5b4aa9a8ca1dd35e7d11253aa9593f158019078a24e53467b97b1e874cb4f511"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/committed_alignment_read.py",
+        "bytes": 35855,
+        "sha256": "5b4aa9a8ca1dd35e7d11253aa9593f158019078a24e53467b97b1e874cb4f511"
+      },
+      "changed": false
+    },
+    "video_creator.domain.local_bundle": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/local_bundle.py",
+        "bytes": 17845,
+        "sha256": "de6dce0ce338d56c1d7ff99a78a799108cc893fb754fdcf50ba2dec5344fa684"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/local_bundle.py",
+        "bytes": 17845,
+        "sha256": "de6dce0ce338d56c1d7ff99a78a799108cc893fb754fdcf50ba2dec5344fa684"
+      },
+      "changed": false
+    },
+    "video_creator.domain.registered_alignment": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/registered_alignment.py",
+        "bytes": 6162,
+        "sha256": "72895e603a275bd1127d8f7fdcdf7da987fbb6bed692649ec6fc6fcb73cc7197"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/registered_alignment.py",
+        "bytes": 6162,
+        "sha256": "72895e603a275bd1127d8f7fdcdf7da987fbb6bed692649ec6fc6fcb73cc7197"
+      },
+      "changed": false
+    },
+    "video_creator.domain.worker": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/worker.py",
+        "bytes": 3189,
+        "sha256": "3cf7c64d16bdf79538b1a496cbc13344b3f55f20f7c5dbee2a77bdfc7622812e"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/worker.py",
+        "bytes": 3189,
+        "sha256": "3cf7c64d16bdf79538b1a496cbc13344b3f55f20f7c5dbee2a77bdfc7622812e"
+      },
+      "changed": false
+    },
+    "video_creator.application.evidence": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/evidence.py",
+        "bytes": 33949,
+        "sha256": "98252eea1059c32e92e55b8b176402261b16463f5701b841fcf5a03e5ffd0756"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/evidence.py",
+        "bytes": 33949,
+        "sha256": "98252eea1059c32e92e55b8b176402261b16463f5701b841fcf5a03e5ffd0756"
+      },
+      "changed": false
+    },
+    "video_creator.application.product_authorization": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/product_authorization.py",
+        "bytes": 55473,
+        "sha256": "a50719a26cc4e8d71e3ee276762749981504f91542c33af7f8a7adb78137c076"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/product_authorization.py",
+        "bytes": 55473,
+        "sha256": "a50719a26cc4e8d71e3ee276762749981504f91542c33af7f8a7adb78137c076"
+      },
+      "changed": false
+    },
+    "video_creator.application.local_evidence": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/local_evidence.py",
+        "bytes": 58335,
+        "sha256": "c765ec08284af4b13dce7ba1a5cbb0a41111d8a60119084c57d5177f0bf35189"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/local_evidence.py",
+        "bytes": 58335,
+        "sha256": "c765ec08284af4b13dce7ba1a5cbb0a41111d8a60119084c57d5177f0bf35189"
+      },
+      "changed": false
+    },
+    "video_creator.application.worker": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/worker.py",
+        "bytes": 54063,
+        "sha256": "02f5f4ef49ad5469711f9bebc2132650d8866c9a6dda9b461ff140121b236659"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/worker.py",
+        "bytes": 54063,
+        "sha256": "02f5f4ef49ad5469711f9bebc2132650d8866c9a6dda9b461ff140121b236659"
+      },
+      "changed": false
+    },
+    "video_creator.domain.local_copy_input_scope": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/local_copy_input_scope.py",
+        "bytes": 13974,
+        "sha256": "32b274d97f2122e8bdc8dffe28353e5d1c574700adcd1d7e7b2e4a746a8daae0"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/local_copy_input_scope.py",
+        "bytes": 13974,
+        "sha256": "32b274d97f2122e8bdc8dffe28353e5d1c574700adcd1d7e7b2e4a746a8daae0"
+      },
+      "changed": false
+    },
+    "video_creator.infrastructure.origins": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/infrastructure/origins.py",
+        "bytes": 2246,
+        "sha256": "45f831a21deb17deaddaeb0f845ee31f8e7887ecf98c055212c4bfcfbc11f9f2"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/infrastructure/origins.py",
+        "bytes": 2246,
+        "sha256": "45f831a21deb17deaddaeb0f845ee31f8e7887ecf98c055212c4bfcfbc11f9f2"
+      },
+      "changed": false
+    },
+    "video_creator.cli.lifecycle": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/cli/lifecycle.py",
+        "bytes": 8559,
+        "sha256": "a9ee0861937166810bbd1d464472b7f7e526dacea8c0966b21b45eff1e82331a"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/cli/lifecycle.py",
+        "bytes": 8559,
+        "sha256": "a9ee0861937166810bbd1d464472b7f7e526dacea8c0966b21b45eff1e82331a"
+      },
+      "changed": false
+    },
+    "video_creator.cli.startup_services": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/cli/startup_services.py",
+        "bytes": 6966,
+        "sha256": "143a8484c61474866b8bc6423cdf9d50313f213aaa07b2aea73d60c1cc056cc7"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/cli/startup_services.py",
+        "bytes": 6966,
+        "sha256": "143a8484c61474866b8bc6423cdf9d50313f213aaa07b2aea73d60c1cc056cc7"
+      },
+      "changed": false
+    },
+    "video_creator.cli.owner": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/cli/owner.py",
+        "bytes": 15807,
+        "sha256": "e8b87e73d9b5692be44f339ec51deef514ab142aff676fee2e4a2e9c7ac22c2e"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/cli/owner.py",
+        "bytes": 15807,
+        "sha256": "e8b87e73d9b5692be44f339ec51deef514ab142aff676fee2e4a2e9c7ac22c2e"
+      },
+      "changed": false
+    }
+  },
+  "denied_runtime_imports": [],
+  "source_changes": false,
+  "python": {
+    "path": "G:/开发测试/Projects/VideoCreator/.venv/Scripts/python.exe",
+    "bytes": 241152,
+    "sha256": "72f553aae084f3843f4091b98df266d2ec881b7da54b22a1753a28a45adf2aad"
+  },
+  "python_version": "3.13.16 (main, Oct  1 2026, 20:59:40) [MSC v.1944 64 bit (AMD64)]",
+  "prefix": "G:\\开发测试\\Projects\\VideoCreator\\.venv",
+  "base_prefix": "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none",
+  "loaded_environment_file_identity": {
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\importlib\\_bootstrap.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/importlib/_bootstrap.py",
+      "bytes": 57942,
+      "sha256": "cec8963970494ea46eaa12073b8ba4c04963b1d1cf4329313c8014925ed0cb12"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\importlib\\_bootstrap_external.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/importlib/_bootstrap_external.py",
+      "bytes": 73410,
+      "sha256": "283ca9ae00bd7758aa006df9be93f4b6b8d3228e3509f662cf54b1518797fbde"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\zipimport.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/zipimport.py",
+      "bytes": 32890,
+      "sha256": "ec9f157ff6d4ebd26a6fd1715247578068b5af2799d07ecf06f2b531a5605e13"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\codecs.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/codecs.py",
+      "bytes": 36978,
+      "sha256": "2f278497548b8313580b247a1097a0a304e5087a355ebb11a92ec685fa9e63ff"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\encodings\\aliases.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/encodings/aliases.py",
+      "bytes": 16011,
+      "sha256": "368bf46e530f71d2defa1e2ff305f7d887584898e624cd36c75413fa23d5b333"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\encodings\\__init__.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/encodings/__init__.py",
+      "bytes": 6020,
+      "sha256": "3a8c3b489e90381552e06171f4a03e4097b77a675795974e9b0d10338729003e"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\encodings\\utf_8.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/encodings/utf_8.py",
+      "bytes": 1005,
+      "sha256": "ba0cac060269583523ca9506473a755203037c57d466a11aa89a30a5f6756f3d"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\encodings\\gbk.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/encodings/gbk.py",
+      "bytes": 1015,
+      "sha256": "eff9b8cbc9ad2ef2e10e96afa83d3db1f775ea044aed275b7a35574ae0d8645b"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\abc.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/abc.py",
+      "bytes": 6538,
+      "sha256": "e558702a95cdce3febd289da021715d2b92bc43995b8a1bc58dfa1c3d8010287"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\io.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/io.py",
+      "bytes": 3582,
+      "sha256": "7cec3cb8ac004058dd0a5af246e6d950fb59c7ddd0058fda48bcb3fcb98d8822"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\stat.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/stat.py",
+      "bytes": 6308,
+      "sha256": "07217986d9b2172b509dab3578d18ac05ba768b418e1f1e8c90e38a8f7c2b3c6"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\_collections_abc.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/_collections_abc.py",
+      "bytes": 32668,
+      "sha256": "87601195497fde3b7cea03bce396e1b713c17af3d273298d99d3bc0147f745b9"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\genericpath.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/genericpath.py",
+      "bytes": 6247,
+      "sha256": "cdac5a68dd738051e0d66fc81d5947d6a1776248fc6fe862253477608d870ec4"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\ntpath.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/ntpath.py",
+      "bytes": 31616,
+      "sha256": "724d595af8f305ffd58e957a4001bdd7ea1a407576731b496ab03b345762e515"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\os.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/os.py",
+      "bytes": 41626,
+      "sha256": "18560b0a37dfb90b4712fba97668d44a1328c5566b10deffaee292ba12cc21ff"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\_sitebuiltins.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/_sitebuiltins.py",
+      "bytes": 2699,
+      "sha256": "f688c89b860d5839aff1047d4f3df6c9695f136e2ae8a167bbbfa51846bbdaa5"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\encodings\\utf_8_sig.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/encodings/utf_8_sig.py",
+      "bytes": 4133,
+      "sha256": "1ef3da8d8aa08149e7f274dc64dbfce2155da812e5258ca8e8f832428d3b5c2d"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\keyword.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/keyword.py",
+      "bytes": 1073,
+      "sha256": "18c2be738c04ad20ad375f6a71db34b3823c7f40b0340f5294d0e89f3c9b093b"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\operator.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/operator.py",
+      "bytes": 10980,
+      "sha256": "c048f8a6852832d5fa750d6ae772d7658c52c3511d261cb902f7edfd262e9127"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\reprlib.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/reprlib.py",
+      "bytes": 8068,
+      "sha256": "76003eea30d186a99d125decc9def6ae32c7b389d3db00f91aaf02229bf2714f"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\collections\\__init__.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/collections/__init__.py",
+      "bytes": 52752,
+      "sha256": "f1bcb4869aeb72253315fcf04646eb3a87e7140afec65bda6500aa609fc2f641"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\functools.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/functools.py",
+      "bytes": 39065,
+      "sha256": "c95756a4d9bfb159e9cbda243f9d62b0d10860bb68f9a5a37880d3cae44b2175"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\types.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/types.py",
+      "bytes": 11329,
+      "sha256": "3a289bc5366e96d01017038870b5b8861b87305d351b99c688bcc681d908fa7d"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\contextlib.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/contextlib.py",
+      "bytes": 27801,
+      "sha256": "c1e0d67b2007de11ae93cd36cf6faf38d9ab32656a832d592a49325eec579f96"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\site.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/site.py",
+      "bytes": 25556,
+      "sha256": "ea80b1f9fd676ec6d0c3ce8219d1ecfd103992e93e927c5d0a95a18443059f66"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\__future__.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/__future__.py",
+      "bytes": 5218,
+      "sha256": "981d4c398849f9ebcab72300d9c1fe288fd6d7f28957b3b3fa3a493a5836d95c"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\DLLs\\_hashlib.pyd": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/DLLs/_hashlib.pyd",
+      "bytes": 55296,
+      "sha256": "0eb18d04d05d804a530f3a17143a26e92a7ac8938778f75648470c818f8340da"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\hashlib.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/hashlib.py",
+      "bytes": 9446,
+      "sha256": "f129b330e6ab878a96085843b3606acd7d157b8fe6edfa15e37fa13988cef19c"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\enum.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/enum.py",
+      "bytes": 85627,
+      "sha256": "e191c67b2e1e9bce063112e24b957fadf42960a2f633d4f77436074c18930fd6"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\re\\_constants.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/re/_constants.py",
+      "bytes": 5939,
+      "sha256": "1dbe236d34fa934e3e7172ba9d6b0dcfab338ecf7717f370f1fd4a9d24b2ecdb"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\re\\_parser.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/re/_parser.py",
+      "bytes": 41237,
+      "sha256": "c7a6c80b3b448f50684c320265a7b5efb5d0b1daf0a36fb5dee8dd83628359d7"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\re\\_casefix.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/re/_casefix.py",
+      "bytes": 5444,
+      "sha256": "1b12d9136f23db6c3f6f26053fefc15ca964b886838c7b9c1fabf8d2efc1e5c8"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\re\\_compiler.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/re/_compiler.py",
+      "bytes": 26290,
+      "sha256": "83537237a82294d084d40abaa42e86149be33eef338a5ef028a7fd2fad0dafd5"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\copyreg.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/copyreg.py",
+      "bytes": 7614,
+      "sha256": "c8eda41f05c6bf95a4da4726a530409d2485ae060b8d019b3a8034389a15d3e9"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\re\\__init__.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/re/__init__.py",
+      "bytes": 17876,
+      "sha256": "dbe158a677c6aaacf717ea2abc23c56233453d38024aef75b7c3d93612cabb93"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\gettext.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/gettext.py",
+      "bytes": 21673,
+      "sha256": "7178d6ebdd0647b003da0ccdffb9431bc5fcf5c3822a247b578fdb745162865d"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\argparse.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/argparse.py",
+      "bytes": 102948,
+      "sha256": "51d0cac86f746dccdb2488515ee0c2ad0969c599a0e2d6006cdbbce5cd00b3cb"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\importlib\\__init__.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/importlib/__init__.py",
+      "bytes": 4767,
+      "sha256": "72b07de4133a7e39b2f6a7920465669aa04626f217e800779587bc0713fe002e"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\importlib\\machinery.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/importlib/machinery.py",
+      "bytes": 934,
+      "sha256": "2e558d293587d18a5919f7093f8c5c10ea54dd9336f6b2c4ed9d6233c114652a"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\json\\scanner.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/json/scanner.py",
+      "bytes": 2434,
+      "sha256": "572958017eae8842eeddd0e3d18d3c56cc0a197348224915e1d87ce937841764"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\json\\decoder.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/json/decoder.py",
+      "bytes": 12877,
+      "sha256": "dc98d3e677612ea7311303f06a144cec6b91ebadc7ec037d1777501647578a07"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\json\\encoder.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/json/encoder.py",
+      "bytes": 16199,
+      "sha256": "bfaf651515edeb7b8c4d4aef5fcd2a650d817e47ec85ac4606e5be2e4dd5bbb4"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\json\\__init__.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/json/__init__.py",
+      "bytes": 14147,
+      "sha256": "43e38afede6d52ae0d602a42209b9959fc66d6020a25bcf15921446f5d1c262f"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\email\\__init__.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/email/__init__.py",
+      "bytes": 1764,
+      "sha256": "e4f46e3414c4602c9abb8b404a45e84412fc49dbe38a3d163f9575132dc7c93e"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\ast.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/ast.py",
+      "bytes": 65339,
+      "sha256": "7514eb7df98b1b76eab160ca2a83e6e9a9f3219a4659808cd9fd278b524ede1b"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\_opcode_metadata.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/_opcode_metadata.py",
+      "bytes": 9265,
+      "sha256": "9a27d5830732442110b5945ddac1668db17abb51c44882ba9d4a8536bcc0ea1c"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\opcode.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/opcode.py",
+      "bytes": 2825,
+      "sha256": "aaf8e6e0291b6ff439c27ad1657d5b1d2fc738f961bee3fa4863a51e494dc843"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\dis.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/dis.py",
+      "bytes": 40962,
+      "sha256": "1852129bf55039f192d90174334fbe459d5f982cae33a04e700fe7cdb2748a51"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\linecache.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/linecache.py",
+      "bytes": 7488,
+      "sha256": "09dbf03f17d86d843027cb6465d058859591d18d6ee166149d26c00e7dc30e0c"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\token.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/token.py",
+      "bytes": 2489,
+      "sha256": "1d2ab814992e6afbd6f1e5323edcddd681f65f7679ad1eb87fe1357a433a5bdf"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\tokenize.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/tokenize.py",
+      "bytes": 21568,
+      "sha256": "1369f7f9e57c722d1627333b705aabfaf943c24680920942e773fd4e1776be2e"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\typing.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/typing.py",
+      "bytes": 133960,
+      "sha256": "aa40d89b8d665e69c23cea58572c840509c2d2a757db537747462e55a4785b80"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\_weakrefset.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/_weakrefset.py",
+      "bytes": 5893,
+      "sha256": "91895a451d06e9f521a1171b31b9b19bc9740f35af00d4fa106338ab7167c9ac"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\weakref.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/weakref.py",
+      "bytes": 21513,
+      "sha256": "56f8d313fb74019e53eb9287400702fbce788b7fe30e097b0b6e06296f3f080c"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\inspect.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/inspect.py",
+      "bytes": 129496,
+      "sha256": "b56e92a94bd48d89e44b8a4cdaa3a16f4d69df06c8500fce737c7cc879b0c982"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\posixpath.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/posixpath.py",
+      "bytes": 18233,
+      "sha256": "69acb9e294987cd6056a2237048373cf8d6201faf1e43a49c38889b47d2fb28e"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\fnmatch.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/fnmatch.py",
+      "bytes": 6180,
+      "sha256": "95391dac2ce9f60084d65eba2f4b9d9735e28136d55b684e1fde7d6342555963"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\glob.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/glob.py",
+      "bytes": 20928,
+      "sha256": "e6693972d5999ae0be42f49f6192e1c3d24f3f1e6eeca1f95dfa0b5dae74fe07"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\pathlib\\_abc.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/pathlib/_abc.py",
+      "bytes": 33565,
+      "sha256": "75e6bc728013d11446126d535f92b8907fb6dae7404df3d0268ac7b6865a2090"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\warnings.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/warnings.py",
+      "bytes": 27071,
+      "sha256": "e040f52be0199c69fa8c0d35428ba64e6f9b6412691a689ccbd7c23e07c6ed3f"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\pathlib\\_local.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/pathlib/_local.py",
+      "bytes": 31412,
+      "sha256": "0530b4186ec5845e000bedf5817ff1ac970b9a39a6891ba6789a1776abdea42b"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\pathlib\\__init__.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/pathlib/__init__.py",
+      "bytes": 296,
+      "sha256": "07921047886282e3d324acf95f7d9f840faa806664ee7007e7333a7df4cdcaf6"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\importlib\\_abc.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/importlib/_abc.py",
+      "bytes": 1354,
+      "sha256": "80aab7931dc999dee581c8b8b56fcd973fe156335a96ceeaf6acfc03cebf10e8"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\importlib\\util.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/importlib/util.py",
+      "bytes": 11199,
+      "sha256": "47eed68cfc84cdb4950edc092fc1a81abf37b47cadd6ff68d3460b1c9f536e9b"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\_compression.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/_compression.py",
+      "bytes": 5681,
+      "sha256": "3ad5d60627477a60939ee44fc1bb3a05dbe8fb52f0f75039b8f5d8f1a278b981"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\DLLs\\_bz2.pyd": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/DLLs/_bz2.pyd",
+      "bytes": 72704,
+      "sha256": "e76a8fcfbd24b68f51f589115df536ed471a8f60f10d0dda9067550462055064"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\bz2.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/bz2.py",
+      "bytes": 11969,
+      "sha256": "b217459e4c74ccb3da3a44b51dd335cfddcbe9d3014b3279dda1c1a7ca448c08"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\DLLs\\_lzma.pyd": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/DLLs/_lzma.pyd",
+      "bytes": 152576,
+      "sha256": "f5cd436ef9607db52bcb112167df0061b3535e4f1d32b51af958cfc4cad66182"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\lzma.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/lzma.py",
+      "bytes": 13399,
+      "sha256": "6a923ba49b33897152a9398d2a39d08670238290c90c050b8f4d838046339db5"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\shutil.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/shutil.py",
+      "bytes": 57130,
+      "sha256": "11c32fd568588e38463fdf281caa7ef0edbf3d64daf7961f0e7e68d779528731"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\struct.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/struct.py",
+      "bytes": 257,
+      "sha256": "9c231f9497caf513a22dee8f790b07f969b0e45854a0bdd6dd84b492e08c2856"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\threading.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/threading.py",
+      "bytes": 55343,
+      "sha256": "a979d5ab97993d7fbfd7601e928476c8dc90e1807df7c8c7d9f324e620331caa"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\zipfile\\_path\\glob.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/zipfile/_path/glob.py",
+      "bytes": 3314,
+      "sha256": "edefea638f250b9e011526141d83b222a06466a68e357b6d780a8b4173d802f7"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\zipfile\\_path\\__init__.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/zipfile/_path/__init__.py",
+      "bytes": 11956,
+      "sha256": "ba59173a330a85dbde141add5359b6c1061d99842f27bd2ea723c3a5ad3e3c8c"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\zipfile\\__init__.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/zipfile/__init__.py",
+      "bytes": 91672,
+      "sha256": "4067e573036149c17b2a80c288c392e1f574a9566c1d94332b2576b0c2b0a0d4"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\textwrap.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/textwrap.py",
+      "bytes": 19958,
+      "sha256": "30f3d833950d53e168cc021961574b553f56aed84458712b2eb29c6495843d46"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\importlib\\metadata\\_meta.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/importlib/metadata/_meta.py",
+      "bytes": 1801,
+      "sha256": "9f167b0bc19595c04500a5b254e9ff767ee8b7fb7005c6e6d4d9af8c87ad0472"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\importlib\\metadata\\_collections.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/importlib/metadata/_collections.py",
+      "bytes": 743,
+      "sha256": "089d0e4c21c88d6034648552e2fa0e440b27d91e11d9c40112d3ec6442690126"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\importlib\\metadata\\_functools.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/importlib/metadata/_functools.py",
+      "bytes": 2895,
+      "sha256": "3ec636fb8aeb297e1155e442d681a9d65075a660bd78a37cf3f7fe6c3f6e3a80"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\importlib\\metadata\\_itertools.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/importlib/metadata/_itertools.py",
+      "bytes": 2068,
+      "sha256": "72faffdaff0145bc5c225e71e6575fa9d1e3848f188bcb3cca4e741bf9e6ea34"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\bisect.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/bisect.py",
+      "bytes": 3423,
+      "sha256": "f1cf7b85fc36b5da249813fc5ab97d9464f8cc1bc817f7146206fa2713e35999"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\random.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/random.py",
+      "bytes": 37299,
+      "sha256": "fb2625eb54412c880e8f1af449785a74e125556159fc7997814e51dd054cc5da"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\tempfile.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/tempfile.py",
+      "bytes": 32643,
+      "sha256": "7350d7f75ca8d6e4752c377777a315dc26eb4ecd3b6c9c0951bffddc576f030f"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\importlib\\resources\\abc.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/importlib/resources/abc.py",
+      "bytes": 5203,
+      "sha256": "a726c48590b21ba5532f0c654735991571bc0ecafe88145cb8891d82cd364e5e"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\importlib\\resources\\_common.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/importlib/resources/_common.py",
+      "bytes": 5616,
+      "sha256": "f476de9f54ce40631f28b7175eef8f2d3deeac748ea77e2f9b10938fb31297e8"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\importlib\\resources\\_functional.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/importlib/resources/_functional.py",
+      "bytes": 2651,
+      "sha256": "98b5380f04a587cff62175aac0a39f3d5c7246a004a41dc1e174df471af75f73"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\importlib\\resources\\__init__.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/importlib/resources/__init__.py",
+      "bytes": 703,
+      "sha256": "dc9fb6eb542ace0fb59017a7315b0eb2f268d7d11b52662a8c792b6568851ce3"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\importlib\\abc.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/importlib/abc.py",
+      "bytes": 7659,
+      "sha256": "4b60dae2e577064c376b1e594053909bf7fd790b4651f86d02c0915f327642ca"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\importlib\\metadata\\__init__.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/importlib/metadata/__init__.py",
+      "bytes": 34091,
+      "sha256": "5476c7c22a65f9e8b5a07b799336d87fa70e792758fd95b161b53b530e3b2654"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\runpy.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/runpy.py",
+      "bytes": 13276,
+      "sha256": "c5c5418c0a8caf915ca0c98619469227e390cb581f39494f2e368ec3b246c94b"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\locale.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/locale.py",
+      "bytes": 87094,
+      "sha256": "cc50796e094fab09acd48b2ecc08826d0086da9c1c99dcbb438c104ca932e198"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\concurrent\\__init__.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/concurrent/__init__.py",
+      "bytes": 38,
+      "sha256": "87ad5c8954dd56fbbca04517bf87477ff4dce575170c7dd1281d7ef1f4214ac8"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\_colorize.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/_colorize.py",
+      "bytes": 3068,
+      "sha256": "0d0c7ff11790f420c2a4d1c0c17bfe0f797b273e7e79e5c598ef17d1df0f2eaa"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\traceback.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/traceback.py",
+      "bytes": 66380,
+      "sha256": "d81f560ce5f09e217bc81a40cb9881d51720121661d1488834a7b2c72618a1a2"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\string.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/string.py",
+      "bytes": 12038,
+      "sha256": "c000d9c4340c910b869399f0f0acc1b70e39391ad9344c4e08d8d0f80210a916"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\logging\\__init__.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/logging/__init__.py",
+      "bytes": 84275,
+      "sha256": "4106cc3aa4e722116bbf0a3ffae3a8c7bc4981468ca7998ca35ed201a5605519"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\concurrent\\futures\\_base.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/concurrent/futures/_base.py",
+      "bytes": 22949,
+      "sha256": "6ca5d2bb59aa23af56d95dcdd31728fda687f7727e79f4465236d1f65c06b053"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\concurrent\\futures\\__init__.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/concurrent/futures/__init__.py",
+      "bytes": 1583,
+      "sha256": "9b597f6de7da771109ca7bf96a1af5ea4d5fda69b27b39312d34966d987f73cd"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\heapq.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/heapq.py",
+      "bytes": 23024,
+      "sha256": "6d43277e5c76fc0f073cd388fcff852d14d068f6bb6d4886c340f8b75a1229a9"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\DLLs\\_socket.pyd": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/DLLs/_socket.pyd",
+      "bytes": 72704,
+      "sha256": "e5feaeea160861e2b33353f9713578a0d7c8698828708ae7e85d55f992810625"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\DLLs\\select.pyd": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/DLLs/select.pyd",
+      "bytes": 18944,
+      "sha256": "abb442f0a8ee6328c40c4f917ba4f2cab82567403ef58757fca745d2f69da8df"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\selectors.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/selectors.py",
+      "bytes": 19457,
+      "sha256": "4b8a60cfbb619d080f87dffe1578372e56e8c0ac826f043224a154cf7b77606d"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\socket.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/socket.py",
+      "bytes": 38218,
+      "sha256": "382289c864b6a74abf0f411ec254a1dea596a45463746b05a590f9547db19d03"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\signal.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/signal.py",
+      "bytes": 2495,
+      "sha256": "0363c964c90ac0b3e515de5749205e6e6454051a1211058375d84d91eab6071a"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\subprocess.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/subprocess.py",
+      "bytes": 90794,
+      "sha256": "3418c49f58081da808966bf1d3a6c819b28e95074a43e1a36d60bcf9649bdc51"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\DLLs\\_ssl.pyd": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/DLLs/_ssl.pyd",
+      "bytes": 176640,
+      "sha256": "081ee809c9c1a8f3aa8a7ee92e5ec93860304c8aa99ac7ba9a04674f1766947e"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\base64.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/base64.py",
+      "bytes": 22317,
+      "sha256": "a80fc2454f7a0ad644f02259184de5b52084392ddb8b41c1ce372e50a09f3993"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\ssl.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/ssl.py",
+      "bytes": 53287,
+      "sha256": "3ea103be59b47ad58cb53b249e5b74d00c87b54b20650e208e3b4b9ca533e9e8"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\asyncio\\constants.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/asyncio/constants.py",
+      "bytes": 1413,
+      "sha256": "873fc2f9e66313c3c19c337269e704f204b59f9e91d6ecbec59f68335484d338"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\asyncio\\coroutines.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/asyncio/coroutines.py",
+      "bytes": 3342,
+      "sha256": "2feec17557c230a80cc2a6391bbb1c44b9f3341820b05667e36a4eb12b749436"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\contextvars.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/contextvars.py",
+      "bytes": 129,
+      "sha256": "5ed260be8d1f4fe92261b7810b4bb1e8539c42093d7493f677d076e1a87f459a"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\asyncio\\format_helpers.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/asyncio/format_helpers.py",
+      "bytes": 2727,
+      "sha256": "c02f2f8c1e2508ddb2f8d8c1bef452be1f6b9a1d2a998b89a56d153e42a5f1ef"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\asyncio\\base_futures.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/asyncio/base_futures.py",
+      "bytes": 1974,
+      "sha256": "2f3798c4b82f5ac77647908b157c924f734f36871d98970e72849ea9a9a07856"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\asyncio\\exceptions.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/asyncio/exceptions.py",
+      "bytes": 1752,
+      "sha256": "a5971f88be14cd1417d59adf539ae48c5d818f95362a4e0eb00017e3690ab37b"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\asyncio\\base_tasks.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/asyncio/base_tasks.py",
+      "bytes": 2672,
+      "sha256": "56efac65b63db927af336fa55eb5bda93c97a2defa4734ea8d695ed20fd6712a"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\DLLs\\_asyncio.pyd": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/DLLs/_asyncio.pyd",
+      "bytes": 59392,
+      "sha256": "7c9bc384a8b4eed61bf98af4ade9667c5ef1157d2ea11b17aa5828685b141fc7"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\asyncio\\events.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/asyncio/events.py",
+      "bytes": 29810,
+      "sha256": "c017571fec58a3f291da00ad160cd015612f90b1bc76407ed7ac1e36dc7a3110"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\asyncio\\futures.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/asyncio/futures.py",
+      "bytes": 14189,
+      "sha256": "9ff946bcd5e008d89efca2140a400edc5ca808f7f4b89430e8222157e0118412"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\asyncio\\protocols.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/asyncio/protocols.py",
+      "bytes": 6957,
+      "sha256": "1d1b49988c338b4ef06e30f9e92d9db2e00080c341f0a3f573bb8312deb8aff6"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\asyncio\\transports.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/asyncio/transports.py",
+      "bytes": 10808,
+      "sha256": "bfd414b25979e07b74081140bf91332957a9bf8b5aa5a0c7ff0d779d93eada21"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\asyncio\\log.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/asyncio/log.py",
+      "bytes": 124,
+      "sha256": "80e4cc3ded4b138baba486519e7444801a23d6ac35f229d336a407a96af7e8d2"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\asyncio\\sslproto.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/asyncio/sslproto.py",
+      "bytes": 31869,
+      "sha256": "b33d2f13fc373b7220402c4358dc96c770cea14489f5570b49774b37f9ac052f"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\asyncio\\mixins.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/asyncio/mixins.py",
+      "bytes": 481,
+      "sha256": "8f4a3e16eca845ebfba422550cbcee7340ec8166d2bff6b750a8ed0de6b9ae3c"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\asyncio\\locks.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/asyncio/locks.py",
+      "bytes": 20584,
+      "sha256": "c26af87d900bf8e7f8ac686a65cc547f205c2a8cc6ff895150f56b213059f420"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\asyncio\\queues.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/asyncio/queues.py",
+      "bytes": 10155,
+      "sha256": "9ce87bf63f113509d479ea25fecd25a705766d750c304a180d1bff02a0fe6f6a"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\asyncio\\timeouts.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/asyncio/timeouts.py",
+      "bytes": 6066,
+      "sha256": "2ae184db5190da7a7dee453557f71a8d3eb3dc2b9f3b2fb57ee658216c3fe6e2"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\asyncio\\tasks.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/asyncio/tasks.py",
+      "bytes": 40094,
+      "sha256": "a3d11a934e769de1156d65bb84fc08d2b3113c7632a010b4c7db4bbdd32c65b6"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\asyncio\\staggered.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/asyncio/staggered.py",
+      "bytes": 7077,
+      "sha256": "3998d04fcff2c8052af03f3f34dbd3bd510b2dadddd5f2629a2c1cccbecd136d"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\asyncio\\trsock.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/asyncio/trsock.py",
+      "bytes": 2475,
+      "sha256": "c0eac37debcc51b702b808f6b7ed3e417343f5ff5f57125dad600a27eb082328"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\asyncio\\base_events.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/asyncio/base_events.py",
+      "bytes": 81336,
+      "sha256": "8bde9b41993d4d903675fd6b74593568aa0e0d695c62138ce26fe4a2fa32234e"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\asyncio\\runners.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/asyncio/runners.py",
+      "bytes": 7234,
+      "sha256": "6b95ce20871b9e39c260c95d51a5f21153bbf8ca8cfe2b53156b6261620652da"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\asyncio\\streams.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/asyncio/streams.py",
+      "bytes": 28486,
+      "sha256": "4d10a2e227daf0ba928828c31399e1f55b7a44a50d6d2bc6e2271f9c4fa90909"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\asyncio\\subprocess.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/asyncio/subprocess.py",
+      "bytes": 7737,
+      "sha256": "7b70605716334f63cc482123b2aaa3b7c5bb7138eeab63a037bd8068d43307c1"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\asyncio\\taskgroups.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/asyncio/taskgroups.py",
+      "bytes": 10049,
+      "sha256": "393b513584475ef6607a62d6951730a36c641bc8020d62694494a6099a971368"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\asyncio\\threads.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/asyncio/threads.py",
+      "bytes": 794,
+      "sha256": "95877db9bf2c36ce9e630780ae145627f1401b95a9e8ee101b018df2898e8072"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\DLLs\\_overlapped.pyd": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/DLLs/_overlapped.pyd",
+      "bytes": 43520,
+      "sha256": "6a3664babc6e177f1407e26b1e9f02fe733fb177bc3558d7fb4cd91e43fe99aa"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\asyncio\\base_subprocess.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/asyncio/base_subprocess.py",
+      "bytes": 9700,
+      "sha256": "19c9694a4b774d409da84fc992419a6f523dcac42170f8a385b2b3add010de10"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\asyncio\\proactor_events.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/asyncio/proactor_events.py",
+      "bytes": 35207,
+      "sha256": "a99400596b3148ed08a3d20754c43dbc4efbee95492889410f928ef58c427895"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\asyncio\\selector_events.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/asyncio/selector_events.py",
+      "bytes": 48551,
+      "sha256": "1938ac8e095741b3c1237c6d7b72ede732b9dcbbe7452d81c171e2e9e48bb259"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\asyncio\\windows_utils.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/asyncio/windows_utils.py",
+      "bytes": 5470,
+      "sha256": "b9c40e077d5c00dd22a1058ffd3fad8e21c8753b0710f02d97ade7bfdad03493"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\asyncio\\windows_events.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/asyncio/windows_events.py",
+      "bytes": 32804,
+      "sha256": "8209631826ac4a8ff6f43e27eecb584a391b54e671a05b6938bf4ad58e6273e9"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\asyncio\\__init__.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/asyncio/__init__.py",
+      "bytes": 1220,
+      "sha256": "61102f2b5f8fb832f0558cb66391f227970b3dd34ea2a621455587b4295e89a1"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\copy.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/copy.py",
+      "bytes": 8975,
+      "sha256": "d6b858961b91b48a4bf5a115b0420c890d677bdf058ab2323a8a75298eed47db"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\_compat_pickle.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/_compat_pickle.py",
+      "bytes": 8735,
+      "sha256": "028d2d9845d7acac2e1ceb565aacaee64e3f8019fba96174d65eff1609b50cd0"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\pickle.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/pickle.py",
+      "bytes": 66702,
+      "sha256": "ad6eaab0a45f576b8c578d06ce94009ef28efcef4349a82d5a429778554ae0b0"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\DLLs\\_queue.pyd": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/DLLs/_queue.pyd",
+      "bytes": 22016,
+      "sha256": "333dc924679bec681460ffcf5e0355b600953cc7d039868b6d317157f5441650"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\queue.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/queue.py",
+      "bytes": 13506,
+      "sha256": "5a368568f849096d4b619503389e3832a1a0b9a8c053f87e29da7f47db753a23"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\logging\\handlers.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/logging/handlers.py",
+      "bytes": 62822,
+      "sha256": "cfa6dc4f3076ff84170ee02012c734e0c754d6604f03cb5db4da52d56a3ef5ae"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\socketserver.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/socketserver.py",
+      "bytes": 28065,
+      "sha256": "ecbbe1a633801460399a8f10b39007aa0e13cdbdad507e39414000f097b769b5"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\logging\\config.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/logging/config.py",
+      "bytes": 43174,
+      "sha256": "1c0b326e23ac750978cf99601bed99a0b3f5b0b3e1fd3ec0092108cca98d636f"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\configparser.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/configparser.py",
+      "bytes": 54531,
+      "sha256": "17735be1286d689b6002c51b6c493187bae76fcc6222e6b7386d53b7cb367e3a"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\http\\__init__.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/http/__init__.py",
+      "bytes": 8446,
+      "sha256": "d5747ca51f40e43b2366ce430154af22ce02d8d5972a6e81afb54ca946f684c0"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\ipaddress.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/ipaddress.py",
+      "bytes": 81845,
+      "sha256": "00c4ce7f1b8ec798b7b3ebeaf5def4fa7b6e410172747f360b8235233eba56f3"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\DLLs\\_wmi.pyd": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/DLLs/_wmi.pyd",
+      "bytes": 25600,
+      "sha256": "bb93da550be2892f60c6b550d72ade2a904168d1daa97746e0df3cea6495fe2a"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\platform.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/platform.py",
+      "bytes": 47345,
+      "sha256": "75fe9b94662e55b91e19602bb75e6ca6132f7a53fb22844fc44a507a639127e1"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\DLLs\\_uuid.pyd": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/DLLs/_uuid.pyd",
+      "bytes": 13824,
+      "sha256": "674a3114e00f212c9fb4503cbf20557e3a08bc3d170defc90dd51fe31c2b3404"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\uuid.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/uuid.py",
+      "bytes": 29487,
+      "sha256": "75639ec90245f9387d5fd1d74b401b9c9cfbf00db4be1f1ebe863580ac60c0d0"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\datetime.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/datetime.py",
+      "bytes": 268,
+      "sha256": "ef20dc6b3554cd585dddffdc573f1f9a7a54c522f2a3fb4576c44edbb1e14238"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\sysconfig\\__init__.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/sysconfig/__init__.py",
+      "bytes": 27444,
+      "sha256": "09a99ccf9fd3a2b5455167bf1cf64d869fe0e93107baf6c3edb1cbeb7a063b10"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\DLLs\\_ctypes.pyd": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/DLLs/_ctypes.pyd",
+      "bytes": 122880,
+      "sha256": "aba6c66e7f161524f8cd51b41ee682341facc5f452225a486d08f32b438d42fe"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\ctypes\\_endian.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/ctypes/_endian.py",
+      "bytes": 2557,
+      "sha256": "499773a028a41ee18153fedfe0a00a26efb2a650f568b9bc17e2f3a914a23468"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\ctypes\\__init__.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/ctypes/__init__.py",
+      "bytes": 19563,
+      "sha256": "f9ae3729cdf1792f614f47b1008d82216f7db824cb26a01134de40a20aba9106"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\ctypes\\wintypes.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/ctypes/wintypes.py",
+      "bytes": 5629,
+      "sha256": "5c4d9ba1a21683838ed1d1f007b6038304e42aacf34c576e820311d26cb243f3"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\urllib\\__init__.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/urllib/__init__.py",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\urllib\\parse.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/urllib/parse.py",
+      "bytes": 45762,
+      "sha256": "491b233e8d87a2ab73964afff029717177d53ad8def328ed9b00575db983da27"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\email\\_parseaddr.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/email/_parseaddr.py",
+      "bytes": 18126,
+      "sha256": "4ffb36796b7c44165ed1b5562c24e32dbaa8b937eeb0171cacc2549c96ffc375"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\email\\utils.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/email/utils.py",
+      "bytes": 16752,
+      "sha256": "6ca3d1b53285ec267213476a8403dafb554bce4d271b53a73e34019cb44b8cae"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\multiprocessing\\process.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/multiprocessing/process.py",
+      "bytes": 12055,
+      "sha256": "d3ea72a38a60590dbcd94772aa20cd257fdbdde8120d0198cbc2df3397255b3d"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\multiprocessing\\reduction.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/multiprocessing/reduction.py",
+      "bytes": 9512,
+      "sha256": "4999f8b9ae7b3e8a7f5de302612b4131498dc2e238a2c47f894905c1c63294fe"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\multiprocessing\\context.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/multiprocessing/context.py",
+      "bytes": 12072,
+      "sha256": "37f3fb05b0afd1d3d125654730762c0e732e16f1c56ba993891630b43338aa8d"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\multiprocessing\\__init__.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/multiprocessing/__init__.py",
+      "bytes": 916,
+      "sha256": "a5a42976033c7d63ee2740acceef949a3582dcb0e0442845f9717e1be771c68b"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\multiprocessing\\util.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/multiprocessing/util.py",
+      "bytes": 17468,
+      "sha256": "da2518dcfe99306a49bc6eca3d639aa5ac6ccfe22cbb86c8796a72b80cd18aa0"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\DLLs\\_multiprocessing.pyd": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/DLLs/_multiprocessing.pyd",
+      "bytes": 24064,
+      "sha256": "7d3100c54c3461450c97cb86d8e851d6252672bd74dbae74e010586a9b3a3b2e"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\multiprocessing\\connection.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/multiprocessing/connection.py",
+      "bytes": 43216,
+      "sha256": "aca73caa532de1213deecc87f72b574c4473df3f1dc31fc5a3cb3986db14730e"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\shlex.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/shlex.py",
+      "bytes": 13353,
+      "sha256": "f927227de5ba5b1b2bdd75e3d9c8cb72b602b3bba3cc8edbf8fb554de0dc1fd7"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\numbers.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/numbers.py",
+      "bytes": 11769,
+      "sha256": "e5e73beba4a7674bd5e9a881a202d403a0c3e2b59af4181699155ea4827a7561"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\DLLs\\_decimal.pyd": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/DLLs/_decimal.pyd",
+      "bytes": 273408,
+      "sha256": "542fc8f1ddfab763c52987e779d6f3ace72c67481715c12c0a1505edad34b61a"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\decimal.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/decimal.py",
+      "bytes": 2798,
+      "sha256": "ed070025c9742f71f7ea92ec1a3d24f85b3199dd79b9d15a141716154e647989"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\dataclasses.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/dataclasses.py",
+      "bytes": 66476,
+      "sha256": "71aef7961f18bacf223566a83730def028c7fd3d6854b2d27ee23732f3d10f83"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\fractions.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/fractions.py",
+      "bytes": 40090,
+      "sha256": "0669c58fc593177e76f879e92598886747dc69747223bf7f54a9c405aa91286d"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\zoneinfo\\_tzpath.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/zoneinfo/_tzpath.py",
+      "bytes": 5725,
+      "sha256": "e5026fcd64e30a41c2d6c7609e6d77757c4da9f431f5a1e14b1bccaf914489c3"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\zoneinfo\\_common.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/zoneinfo/_common.py",
+      "bytes": 5758,
+      "sha256": "0da0f341817363ada0437a53d41611aeb85ac3a9f58229f3b34d4acc49576465"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\DLLs\\_zoneinfo.pyd": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/DLLs/_zoneinfo.pyd",
+      "bytes": 37376,
+      "sha256": "a4f13374e239050d9cbffec5e0700d948f0b78388c3ad27c13b8ff0bdb9d8dcc"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\zoneinfo\\__init__.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/zoneinfo/__init__.py",
+      "bytes": 917,
+      "sha256": "9091c902b8d0385f835e9d393017f03b68f92fae7cbe1e31833b2911d65947e6"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\hmac.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/hmac.py",
+      "bytes": 7759,
+      "sha256": "491f728b010a9a565da04911f89ff1b1f01b096bc18014e4ff8c06b5545ab0fe"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\secrets.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/secrets.py",
+      "bytes": 1984,
+      "sha256": "277000574358a6ecda4bb40e73332ae81a3bc1c8e1fa36f50e5c6a7d4d3f0f17"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\email\\errors.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/email/errors.py",
+      "bytes": 3814,
+      "sha256": "dbfb4bbfc85e9d556d3385dc6356518846d8a122bc643b171ea61b6e8dc42c8b"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\email\\quoprimime.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/email/quoprimime.py",
+      "bytes": 9871,
+      "sha256": "3bc8333228477e379fe87c276a9c9223ba0c8ab15e468503cf7eefbb9f66898a"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\email\\base64mime.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/email/base64mime.py",
+      "bytes": 3551,
+      "sha256": "e2b4b87a5f42a8c5780e343f675513bbcc6abdd23fa14f8f1a7d4f7d72304770"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\quopri.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/quopri.py",
+      "bytes": 7184,
+      "sha256": "a1cd7f3b22033d32151209886cc855d4b71cc4c83530769f920097582339013a"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\email\\encoders.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/email/encoders.py",
+      "bytes": 1778,
+      "sha256": "690b275529788cc48e8f541a2aef321dc31e92f75764ac7924896db72d8a9555"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\email\\charset.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/email/charset.py",
+      "bytes": 16970,
+      "sha256": "622646159b595f777fe1579e34ad55c38193afcb8b842b9ba0f36877a77951cc"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\email\\header.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/email/header.py",
+      "bytes": 24428,
+      "sha256": "730f58dbc596e9e984dd0f5765667f8609462e9905f3c0200ba14c8cbcbf9c45"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\email\\_policybase.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/email/_policybase.py",
+      "bytes": 15544,
+      "sha256": "00074ae864bf436b89afbe35179126b9d27f875f2e731616a8be1056a6101625"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\email\\feedparser.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/email/feedparser.py",
+      "bytes": 22869,
+      "sha256": "1c50d486f2bef9b18debcb06ff552f45c83ec6c9a47b4ef257eb0f1f58b3f6bf"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\email\\parser.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/email/parser.py",
+      "bytes": 4975,
+      "sha256": "2c0e94c075ba4c46b64d51483d7a89e01cb10940d4f06eb06969d8d5a014a63c"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\email\\_encoded_words.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/email/_encoded_words.py",
+      "bytes": 8542,
+      "sha256": "a3c3de0ee744eef46a351d6b1eb21abd6c47aa1a534a52339bca4c6100c357d7"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\email\\iterators.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/email/iterators.py",
+      "bytes": 2129,
+      "sha256": "1080a2d03779176d6d45f6ecd976dbe69f5579f7e4e83b75224c3f92fd258102"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\email\\message.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/email/message.py",
+      "bytes": 48433,
+      "sha256": "3f56f7a4f21362122cd53c38fb2ca6280e21970356fc64f536e3b5ce0caa3871"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\http\\client.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/http/client.py",
+      "bytes": 59576,
+      "sha256": "d12e0060428b8389389db2244f9e1bd7fccae1450d43f74bce91b782498c300a"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\http\\cookies.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/http/cookies.py",
+      "bytes": 21770,
+      "sha256": "511f50cae03307f7a883fbc21bf1669766a0e92470c5e990f3d45bf467dfa101"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\mimetypes.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/mimetypes.py",
+      "bytes": 23903,
+      "sha256": "c93ba3128380f6837691d523d22311f77fb6ece9a2d90195480b033ac65a1fa4"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\colorsys.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/colorsys.py",
+      "bytes": 4062,
+      "sha256": "65e3dfbf7bad61d4d7d7731a69dd7e75a347fd350d91327a51010a94e6fd2f1d"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\html\\entities.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/html/entities.py",
+      "bytes": 75512,
+      "sha256": "d9c65fb2828dbc1f3e399058a341d51e9375ec5bca95a8e92599c41bd5b78bde"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\html\\__init__.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/html/__init__.py",
+      "bytes": 4775,
+      "sha256": "923d82d821e75e8d235392c10c145ab8587927b3faf9c952bbd48081eebd8522"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\urllib\\response.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/urllib/response.py",
+      "bytes": 2361,
+      "sha256": "7e6c3b6d7a95f0d74f5968f51a87adae8a51bf42390cdfec98c7a99203e7bb76"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\urllib\\error.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/urllib/error.py",
+      "bytes": 2415,
+      "sha256": "d12b3cc66af3f42a8ebe63e1c91d24f92c6237b6a93a3702938dffabd812d77b"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\nturl2path.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/nturl2path.py",
+      "bytes": 2764,
+      "sha256": "41b27461d79c01113649b231529393c35b5ec3eff3b7ab3b80c4d609537ac79a"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\urllib\\request.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/urllib/request.py",
+      "bytes": 103148,
+      "sha256": "e3bf4446c45300c800f62e869ce1ee89fa745fa073c03e6655f4f4e20fde6eb2"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\tarfile.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/tarfile.py",
+      "bytes": 118060,
+      "sha256": "0fd87b49826f745c16e3ee68b2390a206b2dfcfe9a0b1118bd7fcd7c06deaff1"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\DLLs\\_sqlite3.pyd": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/DLLs/_sqlite3.pyd",
+      "bytes": 117248,
+      "sha256": "9a4742f498e62a0da378ab8143406ab910372e4d6c726a72312ebe94d2ba12c5"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\sqlite3\\dbapi2.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/sqlite3/dbapi2.py",
+      "bytes": 3631,
+      "sha256": "7c5c8d98df1f2c50c4062a3be2c0f0499190c179fa4fc281507a1ef763a98f28"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\sqlite3\\__init__.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/sqlite3/__init__.py",
+      "bytes": 2501,
+      "sha256": "6e956d2166e24ccf36fef21ad63d06a5dd8f7b674aca6c81ea91eacca6b85b01"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\importlib\\metadata\\_text.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/importlib/metadata/_text.py",
+      "bytes": 2166,
+      "sha256": "1c2b0592c66924b7933f734493f9e0ac079755146d4ebb7287d78e001a113f80"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\Lib\\importlib\\metadata\\_adapters.py": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/Lib/importlib/metadata/_adapters.py",
+      "bytes": 2407,
+      "sha256": "c46791664cc0720374649414d0afdf24ca709580ce9feea0a25a4f76441677c1"
+    }
+  },
+  "installed_distribution_versions": [
     {
-      "path": "G:/开发测试/Projects/VideoCreator/packages/contracts/openapi.json",
-      "bytes": 627867,
-      "sha256": "66d59466415c8acdbd4eb7717611929d667c1c2ac0d39247a268a7b5ca0995f9"
+      "name": "aiofiles",
+      "version": "24.1.0"
     },
     {
-      "path": "G:/开发测试/Projects/VideoCreator/packages/contracts/schemas.json",
-      "bytes": 1036566,
-      "sha256": "45d7307f8b54393321f6b5b268879ed971ee81e6fa35da6fc54adb3ebb21a6d2"
+      "name": "aiohappyeyeballs",
+      "version": "2.7.1"
+    },
+    {
+      "name": "aiohttp",
+      "version": "3.14.4"
+    },
+    {
+      "name": "aiosignal",
+      "version": "1.4.0"
+    },
+    {
+      "name": "aiosqlite",
+      "version": "0.21.0"
+    },
+    {
+      "name": "alembic",
+      "version": "1.20.0"
+    },
+    {
+      "name": "altgraph",
+      "version": "0.17.5"
+    },
+    {
+      "name": "annotated-doc",
+      "version": "0.0.5"
+    },
+    {
+      "name": "annotated-types",
+      "version": "0.8.0"
+    },
+    {
+      "name": "anyio",
+      "version": "4.15.1"
+    },
+    {
+      "name": "appdirs",
+      "version": "1.4.4"
+    },
+    {
+      "name": "ast_serialize",
+      "version": "0.12.1"
+    },
+    {
+      "name": "attrs",
+      "version": "26.1.0"
+    },
+    {
+      "name": "av",
+      "version": "18.1.0"
+    },
+    {
+      "name": "backoff",
+      "version": "2.2.1"
+    },
+    {
+      "name": "bcrypt",
+      "version": "5.0.0"
+    },
+    {
+      "name": "build",
+      "version": "1.6.1"
+    },
+    {
+      "name": "cel-python",
+      "version": "0.5.0"
+    },
+    {
+      "name": "certifi",
+      "version": "2026.7.22"
+    },
+    {
+      "name": "cffi",
+      "version": "2.1.1"
+    },
+    {
+      "name": "charset-normalizer",
+      "version": "3.5.2"
+    },
+    {
+      "name": "chromadb",
+      "version": "1.1.1"
+    },
+    {
+      "name": "click",
+      "version": "8.5.0"
+    },
+    {
+      "name": "colorama",
+      "version": "0.4.6"
+    },
+    {
+      "name": "crewai",
+      "version": "1.15.23"
+    },
+    {
+      "name": "crewai-cli",
+      "version": "1.15.23"
+    },
+    {
+      "name": "crewai-core",
+      "version": "1.15.23"
+    },
+    {
+      "name": "cryptography",
+      "version": "50.0.2"
+    },
+    {
+      "name": "ctranslate2",
+      "version": "4.8.3"
+    },
+    {
+      "name": "deprecation",
+      "version": "2.1.0"
+    },
+    {
+      "name": "distro",
+      "version": "1.9.0"
+    },
+    {
+      "name": "docstring_parser",
+      "version": "0.18.0"
+    },
+    {
+      "name": "durationpy",
+      "version": "0.11"
+    },
+    {
+      "name": "et_xmlfile",
+      "version": "2.0.0"
+    },
+    {
+      "name": "fastapi",
+      "version": "0.142.2"
+    },
+    {
+      "name": "faster-whisper",
+      "version": "1.2.1"
+    },
+    {
+      "name": "filelock",
+      "version": "4.0.12"
+    },
+    {
+      "name": "flatbuffers",
+      "version": "25.12.19"
+    },
+    {
+      "name": "frozenlist",
+      "version": "1.8.0"
+    },
+    {
+      "name": "fsspec",
+      "version": "2026.9.0"
+    },
+    {
+      "name": "google-re2",
+      "version": "1.1.20251105"
+    },
+    {
+      "name": "googleapis-common-protos",
+      "version": "1.75.5"
+    },
+    {
+      "name": "greenlet",
+      "version": "3.5.6"
+    },
+    {
+      "name": "grpcio",
+      "version": "1.84.0"
+    },
+    {
+      "name": "h11",
+      "version": "0.16.0"
+    },
+    {
+      "name": "hf-xet",
+      "version": "1.7.0"
+    },
+    {
+      "name": "httpcore",
+      "version": "1.0.9"
+    },
+    {
+      "name": "httptools",
+      "version": "0.8.0"
+    },
+    {
+      "name": "httpx",
+      "version": "0.28.1"
+    },
+    {
+      "name": "httpx-sse",
+      "version": "0.4.3"
+    },
+    {
+      "name": "huggingface_hub",
+      "version": "1.33.0"
+    },
+    {
+      "name": "idna",
+      "version": "3.20"
+    },
+    {
+      "name": "importlib_resources",
+      "version": "7.1.0"
+    },
+    {
+      "name": "iniconfig",
+      "version": "2.3.1"
+    },
+    {
+      "name": "instructor",
+      "version": "1.15.4"
+    },
+    {
+      "name": "jaraco.classes",
+      "version": "3.4.0"
+    },
+    {
+      "name": "jaraco.context",
+      "version": "6.1.2"
+    },
+    {
+      "name": "jaraco.functools",
+      "version": "4.6.0"
+    },
+    {
+      "name": "Jinja2",
+      "version": "3.1.6"
+    },
+    {
+      "name": "jiter",
+      "version": "0.14.0"
+    },
+    {
+      "name": "jmespath",
+      "version": "1.1.0"
+    },
+    {
+      "name": "json5",
+      "version": "0.10.0"
+    },
+    {
+      "name": "json_repair",
+      "version": "0.60.1"
+    },
+    {
+      "name": "jsonref",
+      "version": "1.1.0"
+    },
+    {
+      "name": "jsonschema",
+      "version": "4.26.0"
+    },
+    {
+      "name": "jsonschema-specifications",
+      "version": "2025.9.1"
+    },
+    {
+      "name": "keyring",
+      "version": "25.7.0"
+    },
+    {
+      "name": "kubernetes",
+      "version": "36.0.3"
+    },
+    {
+      "name": "lance-namespace",
+      "version": "0.13.0"
+    },
+    {
+      "name": "lance-namespace-urllib3-client",
+      "version": "0.13.0"
+    },
+    {
+      "name": "lancedb",
+      "version": "0.30.0"
+    },
+    {
+      "name": "lark",
+      "version": "1.3.1"
+    },
+    {
+      "name": "librt",
+      "version": "0.16.0"
+    },
+    {
+      "name": "linkify-it-py",
+      "version": "2.2.0"
+    },
+    {
+      "name": "Mako",
+      "version": "1.4.3"
+    },
+    {
+      "name": "markdown-it-py",
+      "version": "4.2.0"
+    },
+    {
+      "name": "MarkupSafe",
+      "version": "3.0.4"
+    },
+    {
+      "name": "mcp",
+      "version": "1.28.1"
+    },
+    {
+      "name": "mdit-py-plugins",
+      "version": "0.6.1"
+    },
+    {
+      "name": "mdurl",
+      "version": "0.1.2"
+    },
+    {
+      "name": "mmh3",
+      "version": "5.3.1"
+    },
+    {
+      "name": "more-itertools",
+      "version": "11.1.0"
+    },
+    {
+      "name": "multidict",
+      "version": "6.9.1"
+    },
+    {
+      "name": "mypy",
+      "version": "2.4.0"
+    },
+    {
+      "name": "mypy_extensions",
+      "version": "1.1.0"
+    },
+    {
+      "name": "numpy",
+      "version": "2.5.3"
+    },
+    {
+      "name": "oauthlib",
+      "version": "4.0.0"
+    },
+    {
+      "name": "onnxruntime",
+      "version": "1.30.0"
+    },
+    {
+      "name": "openai",
+      "version": "2.54.0"
+    },
+    {
+      "name": "openpyxl",
+      "version": "3.1.5"
+    },
+    {
+      "name": "opentelemetry-api",
+      "version": "1.45.1"
+    },
+    {
+      "name": "opentelemetry-exporter-http-transport",
+      "version": "0.66b1"
+    },
+    {
+      "name": "opentelemetry-exporter-otlp-common",
+      "version": "0.66b1"
+    },
+    {
+      "name": "opentelemetry-exporter-otlp-proto-common",
+      "version": "1.45.1"
+    },
+    {
+      "name": "opentelemetry-exporter-otlp-proto-grpc",
+      "version": "1.45.1"
+    },
+    {
+      "name": "opentelemetry-exporter-otlp-proto-http",
+      "version": "1.45.1"
+    },
+    {
+      "name": "opentelemetry-proto",
+      "version": "1.45.1"
+    },
+    {
+      "name": "opentelemetry-sdk",
+      "version": "1.45.1"
+    },
+    {
+      "name": "opentelemetry-semantic-conventions",
+      "version": "0.66b1"
+    },
+    {
+      "name": "orjson",
+      "version": "3.13.0"
+    },
+    {
+      "name": "overrides",
+      "version": "7.7.0"
+    },
+    {
+      "name": "packaging",
+      "version": "26.3"
+    },
+    {
+      "name": "pathspec",
+      "version": "1.1.1"
+    },
+    {
+      "name": "pdfminer.six",
+      "version": "20260107"
+    },
+    {
+      "name": "pdfplumber",
+      "version": "0.11.10"
+    },
+    {
+      "name": "pefile",
+      "version": "2024.8.26"
+    },
+    {
+      "name": "pendulum",
+      "version": "3.2.0"
+    },
+    {
+      "name": "pillow",
+      "version": "12.3.0"
+    },
+    {
+      "name": "platformdirs",
+      "version": "4.12.3"
+    },
+    {
+      "name": "playwright",
+      "version": "1.64.1"
+    },
+    {
+      "name": "pluggy",
+      "version": "1.6.0"
+    },
+    {
+      "name": "portalocker",
+      "version": "2.7.0"
+    },
+    {
+      "name": "posthog",
+      "version": "5.4.0"
+    },
+    {
+      "name": "propcache",
+      "version": "0.5.4"
+    },
+    {
+      "name": "protobuf",
+      "version": "7.36.2"
+    },
+    {
+      "name": "pyarrow",
+      "version": "25.0.1"
+    },
+    {
+      "name": "pybase64",
+      "version": "1.5.1"
+    },
+    {
+      "name": "pycparser",
+      "version": "3.0"
+    },
+    {
+      "name": "pydantic",
+      "version": "2.12.5"
+    },
+    {
+      "name": "pydantic-settings",
+      "version": "2.15.0"
+    },
+    {
+      "name": "pydantic_core",
+      "version": "2.41.5"
+    },
+    {
+      "name": "pyee",
+      "version": "14.0.0"
+    },
+    {
+      "name": "Pygments",
+      "version": "2.21.0"
+    },
+    {
+      "name": "pyinstaller",
+      "version": "6.22.3"
+    },
+    {
+      "name": "pyinstaller-hooks-contrib",
+      "version": "2026.8"
+    },
+    {
+      "name": "PyJWT",
+      "version": "2.15.1"
+    },
+    {
+      "name": "pypdfium2",
+      "version": "5.14.0"
+    },
+    {
+      "name": "PyPika",
+      "version": "0.51.1"
+    },
+    {
+      "name": "pyproject_hooks",
+      "version": "1.3.3"
+    },
+    {
+      "name": "pytest",
+      "version": "9.1.1"
+    },
+    {
+      "name": "pytest-asyncio",
+      "version": "1.4.0"
+    },
+    {
+      "name": "python-dateutil",
+      "version": "2.9.0.post0"
+    },
+    {
+      "name": "python-dotenv",
+      "version": "1.2.4"
+    },
+    {
+      "name": "python-multipart",
+      "version": "0.0.32"
+    },
+    {
+      "name": "pywin32",
+      "version": "312"
+    },
+    {
+      "name": "pywin32-ctypes",
+      "version": "0.2.3"
+    },
+    {
+      "name": "PyYAML",
+      "version": "6.0.3"
+    },
+    {
+      "name": "referencing",
+      "version": "0.37.0"
+    },
+    {
+      "name": "regex",
+      "version": "2026.1.15"
+    },
+    {
+      "name": "requests",
+      "version": "2.34.2"
+    },
+    {
+      "name": "requests-oauthlib",
+      "version": "2.0.0"
+    },
+    {
+      "name": "rich",
+      "version": "14.3.4"
+    },
+    {
+      "name": "rpds-py",
+      "version": "2026.9.1"
+    },
+    {
+      "name": "ruff",
+      "version": "0.16.10"
+    },
+    {
+      "name": "setuptools",
+      "version": "84.0.0"
+    },
+    {
+      "name": "shellingham",
+      "version": "1.5.4"
+    },
+    {
+      "name": "six",
+      "version": "1.17.0"
+    },
+    {
+      "name": "sniffio",
+      "version": "1.3.1"
+    },
+    {
+      "name": "SQLAlchemy",
+      "version": "2.1.3"
+    },
+    {
+      "name": "sse-starlette",
+      "version": "3.5.0"
+    },
+    {
+      "name": "starlette",
+      "version": "1.7.0"
+    },
+    {
+      "name": "tenacity",
+      "version": "9.2.1"
+    },
+    {
+      "name": "textual",
+      "version": "8.2.8"
+    },
+    {
+      "name": "tokenizers",
+      "version": "0.23.2"
+    },
+    {
+      "name": "tomli",
+      "version": "2.0.2"
+    },
+    {
+      "name": "tomli_w",
+      "version": "1.1.0"
+    },
+    {
+      "name": "tqdm",
+      "version": "4.70.1"
+    },
+    {
+      "name": "typer",
+      "version": "0.27.3"
+    },
+    {
+      "name": "typing-inspection",
+      "version": "0.4.4"
+    },
+    {
+      "name": "typing_extensions",
+      "version": "4.16.0"
+    },
+    {
+      "name": "tzdata",
+      "version": "2026.5"
+    },
+    {
+      "name": "urllib3",
+      "version": "2.8.0"
+    },
+    {
+      "name": "uv",
+      "version": "0.11.33"
+    },
+    {
+      "name": "uvicorn",
+      "version": "0.54.0"
+    },
+    {
+      "name": "video-creator-engine",
+      "version": "0.1.0"
+    },
+    {
+      "name": "watchfiles",
+      "version": "1.3.0"
+    },
+    {
+      "name": "websocket-client",
+      "version": "1.9.2"
+    },
+    {
+      "name": "websockets",
+      "version": "17.2"
+    },
+    {
+      "name": "yarl",
+      "version": "1.25.1"
     }
   ],
-  "current_backend_source_bound": false,
-  "backend_import_performed": false,
-  "source_closure_verified_by_this_generation": false
+  "wrapper": {
+    "path": "G:/开发测试/Projects/VideoCreator/tools/build/ExportContracts.py",
+    "bytes": 12348,
+    "sha256": "bafe8b5b926d4cf1ceaa522eb7295c438ed0d403a46763c0f76bfb9115d92ac4"
+  },
+  "source_mode": "repository",
+  "source_snapshot": null,
+  "snapshot_source_identity": {},
+  "snapshot_source_changes": false,
+  "audited_read_identity": {},
+  "loaded_native_file_identity": {
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\python.exe": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/python.exe",
+      "bytes": 91648,
+      "sha256": "ed57c54b4fca7ef7e0e77e791129c32a516a4b8efbd814b06ccb12212f437d50"
+    },
+    "C:\\WINDOWS\\SYSTEM32\\ntdll.dll": {
+      "path": "C:/Windows/System32/ntdll.dll",
+      "bytes": 2558392,
+      "sha256": "651ac9041af8e6b5ebd331d53163244c0a27d36d1433f0f15cac1f28c5f2e82c"
+    },
+    "C:\\WINDOWS\\System32\\KERNEL32.DLL": {
+      "path": "C:/Windows/System32/kernel32.dll",
+      "bytes": 861992,
+      "sha256": "e132eba4166256e2f414b91fe7d5386590bc5ea8626aee5af9c9738383cf2ae1"
+    },
+    "C:\\WINDOWS\\System32\\KERNELBASE.dll": {
+      "path": "C:/Windows/System32/KernelBase.dll",
+      "bytes": 4254784,
+      "sha256": "5c29b73622ce0976e1ada566f31f2197ba0f8beaea89c3ec033366126172c3d0"
+    },
+    "C:\\WINDOWS\\System32\\ucrtbase.dll": {
+      "path": "C:/Windows/System32/ucrtbase.dll",
+      "bytes": 1399656,
+      "sha256": "dedb7611e1abc1ff3852dcac3d4c93a048d729e25b061973b9969f22698f14ca"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\VCRUNTIME140.dll": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/vcruntime140.dll",
+      "bytes": 124544,
+      "sha256": "d5e4d9a3e835fa679450145d6a7d94e36573a509317111904d9b3712c30d9066"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\python313.dll": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/python313.dll",
+      "bytes": 6157824,
+      "sha256": "a129035421817c4306a092911a01587a7918d7ea00497fb01b303d7c5dca1f42"
+    },
+    "C:\\WINDOWS\\System32\\WS2_32.dll": {
+      "path": "C:/Windows/System32/ws2_32.dll",
+      "bytes": 553608,
+      "sha256": "b123b00c46c415d7baeaada58c29c3e6920895db836ee4c0cfee49d738af60ad"
+    },
+    "C:\\WINDOWS\\System32\\RPCRT4.dll": {
+      "path": "C:/Windows/System32/rpcrt4.dll",
+      "bytes": 1182976,
+      "sha256": "c060f02c11fb19c9c8a30b5077a87cdb17d4be40f08070a539ec73eb53402775"
+    },
+    "C:\\WINDOWS\\SYSTEM32\\VERSION.dll": {
+      "path": "C:/Windows/System32/version.dll",
+      "bytes": 55192,
+      "sha256": "cea99f212af557a9613150c5509631403ed0f05f5d9a06ac42039bd59b40e39a"
+    },
+    "C:\\WINDOWS\\System32\\ADVAPI32.dll": {
+      "path": "C:/Windows/System32/advapi32.dll",
+      "bytes": 795272,
+      "sha256": "b864e1468a01a44f1901e03c05c1029e71655dd9abddd6d840bcfff5e7227d44"
+    },
+    "C:\\WINDOWS\\System32\\msvcrt.dll": {
+      "path": "C:/Windows/System32/msvcrt.dll",
+      "bytes": 716104,
+      "sha256": "fc1447db4e4814cbcb002179a8003a41f383fc417879f628727043cab8c25093"
+    },
+    "C:\\WINDOWS\\System32\\sechost.dll": {
+      "path": "C:/Windows/System32/sechost.dll",
+      "bytes": 716104,
+      "sha256": "b4a345ad9af0635f50e27eea8ae0ff37255dca90e6d5991bdbc4806fb02aaa72"
+    },
+    "C:\\WINDOWS\\SYSTEM32\\bcrypt.dll": {
+      "path": "C:/Windows/System32/bcrypt.dll",
+      "bytes": 195128,
+      "sha256": "d0fc7863d7b034da33f34dc82b96a8604572598a217668a43fc9eca3a8e2a8e1"
+    },
+    "C:\\WINDOWS\\System32\\bcryptprimitives.dll": {
+      "path": "C:/Windows/System32/bcryptprimitives.dll",
+      "bytes": 732800,
+      "sha256": "f0dba794068893c9616b0b54bef1be8f904be89eb2cb09b575d3d7fb1b5000f8"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\python3.DLL": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/python3.dll",
+      "bytes": 58368,
+      "sha256": "05b3daccb392fb7d42d30d5e4646abb4cf72ed75b80be6e000352e68c4dfea6b"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\DLLs\\_hashlib.pyd": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/DLLs/_hashlib.pyd",
+      "bytes": 55296,
+      "sha256": "0eb18d04d05d804a530f3a17143a26e92a7ac8938778f75648470c818f8340da"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\DLLs\\libcrypto-3-x64.dll": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/DLLs/libcrypto-3-x64.dll",
+      "bytes": 7856640,
+      "sha256": "a17740b01fe9db3be44477cdf5de584f5d29c868b558b2ca410794482c682113"
+    },
+    "C:\\WINDOWS\\System32\\CRYPT32.dll": {
+      "path": "C:/Windows/System32/crypt32.dll",
+      "bytes": 1587168,
+      "sha256": "71da5f9806f7aaf9e081c1df28b13182d2643b7f3534173f868ba65287612bbb"
+    },
+    "C:\\WINDOWS\\System32\\USER32.dll": {
+      "path": "C:/Windows/System32/user32.dll",
+      "bytes": 1974768,
+      "sha256": "f285937030bcb325cad39ee5be4818f6666241229adeadea4ff1ae469dfd7ef3"
+    },
+    "C:\\WINDOWS\\System32\\win32u.dll": {
+      "path": "C:/Windows/System32/win32u.dll",
+      "bytes": 182632,
+      "sha256": "d46a695db805e808efa63d1095ce3e1b6be9c0155dad405d444530efc1ed0362"
+    },
+    "C:\\WINDOWS\\System32\\GDI32.dll": {
+      "path": "C:/Windows/System32/gdi32.dll",
+      "bytes": 187456,
+      "sha256": "772c73e294a4c5f5e0d4146288af95287a85c074d3aee3fa9f320dc010d7dbfe"
+    },
+    "C:\\WINDOWS\\System32\\gdi32full.dll": {
+      "path": "C:/Windows/System32/gdi32full.dll",
+      "bytes": 1245368,
+      "sha256": "52de3e02898e9c0e243d08d5c51d54871e9bce90de883eff7df29a30fc8aeac9"
+    },
+    "C:\\WINDOWS\\System32\\msvcp_win.dll": {
+      "path": "C:/Windows/System32/msvcp_win.dll",
+      "bytes": 657784,
+      "sha256": "b9dacd83201e59bb74e5282d8f0dcc8c428525409b4bc458a39eb8d2a9373a9a"
+    },
+    "C:\\WINDOWS\\System32\\IMM32.DLL": {
+      "path": "C:/Windows/System32/imm32.dll",
+      "bytes": 212288,
+      "sha256": "7e45f12c1c555e2407c5ca082bd925b34655278fde4dbfac53a0468cc1e77411"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\DLLs\\_bz2.pyd": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/DLLs/_bz2.pyd",
+      "bytes": 72704,
+      "sha256": "e76a8fcfbd24b68f51f589115df536ed471a8f60f10d0dda9067550462055064"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\DLLs\\_lzma.pyd": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/DLLs/_lzma.pyd",
+      "bytes": 152576,
+      "sha256": "f5cd436ef9607db52bcb112167df0061b3535e4f1d32b51af958cfc4cad66182"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\DLLs\\_socket.pyd": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/DLLs/_socket.pyd",
+      "bytes": 72704,
+      "sha256": "e5feaeea160861e2b33353f9713578a0d7c8698828708ae7e85d55f992810625"
+    },
+    "C:\\WINDOWS\\SYSTEM32\\IPHLPAPI.DLL": {
+      "path": "C:/Windows/System32/IPHLPAPI.DLL",
+      "bytes": 220528,
+      "sha256": "8521026d021cc5193a7cd7c0256bd14c7ab39738d22c019e6d544b37deee12c0"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\DLLs\\select.pyd": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/DLLs/select.pyd",
+      "bytes": 18944,
+      "sha256": "abb442f0a8ee6328c40c4f917ba4f2cab82567403ef58757fca745d2f69da8df"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\DLLs\\_ssl.pyd": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/DLLs/_ssl.pyd",
+      "bytes": 176640,
+      "sha256": "081ee809c9c1a8f3aa8a7ee92e5ec93860304c8aa99ac7ba9a04674f1766947e"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\DLLs\\libssl-3-x64.dll": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/DLLs/libssl-3-x64.dll",
+      "bytes": 1571840,
+      "sha256": "554c5d89bd5e5c7d258ebbfb12b5257bf5d7503acae5537f6a60168114783ff0"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\DLLs\\_asyncio.pyd": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/DLLs/_asyncio.pyd",
+      "bytes": 59392,
+      "sha256": "7c9bc384a8b4eed61bf98af4ade9667c5ef1157d2ea11b17aa5828685b141fc7"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\DLLs\\_overlapped.pyd": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/DLLs/_overlapped.pyd",
+      "bytes": 43520,
+      "sha256": "6a3664babc6e177f1407e26b1e9f02fe733fb177bc3558d7fb4cd91e43fe99aa"
+    },
+    "C:\\WINDOWS\\system32\\mswsock.dll": {
+      "path": "C:/Windows/System32/mswsock.dll",
+      "bytes": 465976,
+      "sha256": "b4b75a9e5bfaa236a06f78c96f9655529a83d80b6558a84fdd4128d5cf46381c"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\DLLs\\_queue.pyd": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/DLLs/_queue.pyd",
+      "bytes": 22016,
+      "sha256": "333dc924679bec681460ffcf5e0355b600953cc7d039868b6d317157f5441650"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\DLLs\\_wmi.pyd": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/DLLs/_wmi.pyd",
+      "bytes": 25600,
+      "sha256": "bb93da550be2892f60c6b550d72ade2a904168d1daa97746e0df3cea6495fe2a"
+    },
+    "C:\\WINDOWS\\System32\\OLEAUT32.dll": {
+      "path": "C:/Windows/System32/oleaut32.dll",
+      "bytes": 916120,
+      "sha256": "e3fcdbbf040fd1e3c3504876cf060ac3908c134ac81b3d0c57f0f735769280ea"
+    },
+    "C:\\WINDOWS\\System32\\combase.dll": {
+      "path": "C:/Windows/System32/combase.dll",
+      "bytes": 3783712,
+      "sha256": "087f72ecc0c979a3b784ab319285ab64d053dfc0c274df5b28fd40cf204a234f"
+    },
+    "C:\\WINDOWS\\SYSTEM32\\PROPSYS.dll": {
+      "path": "C:/Windows/System32/propsys.dll",
+      "bytes": 1037056,
+      "sha256": "1d9e7fc09a540c6b23d239f2dceeb0a57a7a1f51e1c90ad28401ecb202f4b39b"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\VCRUNTIME140_1.dll": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/vcruntime140_1.dll",
+      "bytes": 49792,
+      "sha256": "1f2d41c4aa5db0bc33ebf7b66d72943a817d7ce6cbe880502a9403823633093f"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\DLLs\\_uuid.pyd": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/DLLs/_uuid.pyd",
+      "bytes": 13824,
+      "sha256": "674a3114e00f212c9fb4503cbf20557e3a08bc3d170defc90dd51fe31c2b3404"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\DLLs\\_ctypes.pyd": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/DLLs/_ctypes.pyd",
+      "bytes": 122880,
+      "sha256": "aba6c66e7f161524f8cd51b41ee682341facc5f452225a486d08f32b438d42fe"
+    },
+    "C:\\WINDOWS\\System32\\ole32.dll": {
+      "path": "C:/Windows/System32/ole32.dll",
+      "bytes": 1720576,
+      "sha256": "1053ffb858cddbe29eaaa6a5b0836b88c7cd11fbd58605288600e507c06db443"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\DLLs\\libffi-8.dll": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/DLLs/libffi-8.dll",
+      "bytes": 28160,
+      "sha256": "8ea5f9dc578ba452fcad3922371cad410b53e32fc6a4dda68e75f2354adb17e5"
+    },
+    "C:\\WINDOWS\\System32\\shell32.DLL": {
+      "path": "C:/Windows/System32/shell32.dll",
+      "bytes": 8101864,
+      "sha256": "c55a5f3b6ef059871fe2a0c8d82f086e0998d1154023e3ecf49698b97f9341f6"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\DLLs\\_multiprocessing.pyd": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/DLLs/_multiprocessing.pyd",
+      "bytes": 24064,
+      "sha256": "7d3100c54c3461450c97cb86d8e851d6252672bd74dbae74e010586a9b3a3b2e"
+    },
+    "G:\\开发测试\\Projects\\VideoCreator\\.venv\\Lib\\site-packages\\watchfiles\\_rust_notify.pyd": {
+      "path": "G:/开发测试/Projects/VideoCreator/.venv/Lib/site-packages/watchfiles/_rust_notify.pyd",
+      "bytes": 635904,
+      "sha256": "ab938b663eb2ee6274a9aba9d3916f264ef4c01d1bad9c8fc829b19c634d5962"
+    },
+    "G:\\开发测试\\Projects\\VideoCreator\\.venv\\Lib\\site-packages\\pydantic_core\\_pydantic_core.cp313-win_amd64.pyd": {
+      "path": "G:/开发测试/Projects/VideoCreator/.venv/Lib/site-packages/pydantic_core/_pydantic_core.cp313-win_amd64.pyd",
+      "bytes": 5437440,
+      "sha256": "77077f8f3b7dfbd9f6d4386f5ce424f72085e5fbfcd1593759fcfa1849f586e4"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\DLLs\\_decimal.pyd": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/DLLs/_decimal.pyd",
+      "bytes": 273408,
+      "sha256": "542fc8f1ddfab763c52987e779d6f3ace72c67481715c12c0a1505edad34b61a"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\DLLs\\_zoneinfo.pyd": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/DLLs/_zoneinfo.pyd",
+      "bytes": 37376,
+      "sha256": "a4f13374e239050d9cbffec5e0700d948f0b78388c3ad27c13b8ff0bdb9d8dcc"
+    },
+    "G:\\开发测试\\Projects\\VideoCreator\\.venv\\Lib\\site-packages\\orjson\\orjson.cp313-win_amd64.pyd": {
+      "path": "G:/开发测试/Projects/VideoCreator/.venv/Lib/site-packages/orjson/orjson.cp313-win_amd64.pyd",
+      "bytes": 223232,
+      "sha256": "855abf501427ccab9c93a2f30547d2465a1a4079da240d63511004446a3f5e4b"
+    },
+    "C:\\WINDOWS\\SYSTEM32\\kernel.appcore.dll": {
+      "path": "C:/Windows/System32/kernel.appcore.dll",
+      "bytes": 121360,
+      "sha256": "ed6d62f2555d260547cc94a5cdfe2a6fcb684f18b8e182f78f9e4de224321fc9"
+    },
+    "C:\\WINDOWS\\system32\\uxtheme.dll": {
+      "path": "C:/Windows/System32/uxtheme.dll",
+      "bytes": 675840,
+      "sha256": "e5087142f87989c7430d82a65616817a2515a79fa582549ba48a1dd6ac1b7200"
+    },
+    "C:\\WINDOWS\\System32\\clbcatq.dll": {
+      "path": "C:/Windows/System32/clbcatq.dll",
+      "bytes": 732752,
+      "sha256": "48a18351e09d5da0a7b45eb81bc7819488b160fb71f8979129ff5a4bd34d2595"
+    },
+    "C:\\WINDOWS\\SYSTEM32\\amsi.dll": {
+      "path": "C:/Windows/System32/amsi.dll",
+      "bytes": 114688,
+      "sha256": "9df7ad9e6826ab76294a91bef274696ee13d18a8cebabcd5c4c352a3d1141df3"
+    },
+    "C:\\WINDOWS\\SYSTEM32\\USERENV.dll": {
+      "path": "C:/Windows/System32/userenv.dll",
+      "bytes": 236768,
+      "sha256": "aeb1a6a15397bee7a0ebc67b8188f751e10089c0adadfd86146496c5faae914c"
+    },
+    "C:\\WINDOWS\\SYSTEM32\\profapi.dll": {
+      "path": "C:/Windows/System32/profapi.dll",
+      "bytes": 190912,
+      "sha256": "8983b0b95ce9e3282d3a09890316fc7290ba1ad45624167c576fbc691fbe66b0"
+    },
+    "C:\\ProgramData\\Microsoft\\Windows Defender\\Platform\\4.18.26090.9-0\\MpOav.dll": {
+      "path": "C:/ProgramData/Microsoft/Windows Defender/Platform/4.18.26090.9-0/MpOAV.dll",
+      "bytes": 682008,
+      "sha256": "24870690fb1e4dfaf6acdb09f12a7ffbbb44b5f3942f24a18ecc17900dfba044"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\DLLs\\_sqlite3.pyd": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/DLLs/_sqlite3.pyd",
+      "bytes": 117248,
+      "sha256": "9a4742f498e62a0da378ab8143406ab910372e4d6c726a72312ebe94d2ba12c5"
+    },
+    "G:\\开发测试\\Codex\\VideoCreatorImplementation\\Integration\\Runtime\\Python\\cpython-3.13.16-windows-x86_64-none\\DLLs\\sqlite3.dll": {
+      "path": "G:/开发测试/Codex/VideoCreatorImplementation/Integration/Runtime/Python/cpython-3.13.16-windows-x86_64-none/DLLs/sqlite3.dll",
+      "bytes": 1607680,
+      "sha256": "5fca9b714f14748a168cecc0e3317cb50622fceb349513852a8ea6e4a99edb2e"
+    }
+  },
+  "native_file_observation_performed": true,
+  "native_file_observation_mode": "default_platform_observation",
+  "scope": "Actual pure exporter source resolution, Python open observations and loaded environment file origins plus explicitly selected native observation; not full OS syscall audit, portable loading or native qualification"
 }

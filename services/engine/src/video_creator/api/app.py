@@ -289,10 +289,11 @@ def create_app(engine: EngineService, token: str, subject: str = "local-user",
         return c.AssetPageV1.model_validate(assets.list_assets(actor, cursor=cursor, limit=limit,
                                                                media_type=media_type))
 
-    @app.get("/api/v1/credentials", response_model=list[c.CredentialSummaryV1])
+    @app.get("/api/v1/credentials", response_model=c.CredentialListV1)
     def credential_list(actor: str = Depends(authenticate)):
-        return [c.CredentialSummaryV1.model_validate(item)
-                for item in credential_store.list_credentials(engine.db.data_dir)]
+        return c.CredentialListV1(credentials=tuple(
+            c.CredentialSummaryV1.model_validate(item)
+            for item in credential_store.list_credentials(engine.db.data_dir)))
 
     @app.post("/api/v1/credentials", response_model=c.CredentialSummaryV1, status_code=201)
     def credential_create(body: c.CredentialCreateV1, actor: str = Depends(authenticate)):

@@ -4823,6 +4823,103 @@
       "title": "BenchmarkAudio",
       "type": "object"
     },
+    "BudgetSummaryV1": {
+      "$defs": {
+        "CostAmountV1": {
+          "additionalProperties": false,
+          "description": "A cost fact that cannot silently turn unknown into zero.",
+          "properties": {
+            "kind": {
+              "enum": [
+                "confirmed",
+                "unknown",
+                "not_configured"
+              ],
+              "title": "Kind",
+              "type": "string"
+            },
+            "amount": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Amount"
+            },
+            "currency": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Currency"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "title": "CostAmountV1",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "present": {
+          "title": "Present",
+          "type": "boolean"
+        },
+        "group_id": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Group Id"
+        },
+        "authorization": {
+          "enum": [
+            "none",
+            "local_zero_cost",
+            "authorized_cap"
+          ],
+          "title": "Authorization",
+          "type": "string"
+        },
+        "cap": {
+          "$ref": "#/$defs/CostAmountV1"
+        },
+        "spent": {
+          "$ref": "#/$defs/CostAmountV1"
+        },
+        "reserved": {
+          "$ref": "#/$defs/CostAmountV1"
+        }
+      },
+      "required": [
+        "present",
+        "authorization",
+        "cap",
+        "spent",
+        "reserved"
+      ],
+      "title": "BudgetSummaryV1",
+      "type": "object"
+    },
     "BundleArtifact": {
       "$defs": {
         "ArtifactSpec": {
@@ -10420,6 +10517,50 @@
       "title": "CorrectionOriginRef",
       "type": "object"
     },
+    "CostAmountV1": {
+      "additionalProperties": false,
+      "description": "A cost fact that cannot silently turn unknown into zero.",
+      "properties": {
+        "kind": {
+          "enum": [
+            "confirmed",
+            "unknown",
+            "not_configured"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "amount": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Amount"
+        },
+        "currency": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Currency"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "CostAmountV1",
+      "type": "object"
+    },
     "CreativeBriefInput": {
       "additionalProperties": false,
       "properties": {
@@ -10868,6 +11009,123 @@
         "body"
       ],
       "title": "CreativeRevision",
+      "type": "object"
+    },
+    "CredentialCreateV1": {
+      "additionalProperties": false,
+      "properties": {
+        "provider": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:-]+$",
+          "title": "Provider",
+          "type": "string"
+        },
+        "label": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "secret": {
+          "maxLength": 4096,
+          "minLength": 1,
+          "title": "Secret",
+          "type": "string"
+        }
+      },
+      "required": [
+        "provider",
+        "label",
+        "secret"
+      ],
+      "title": "CredentialCreateV1",
+      "type": "object"
+    },
+    "CredentialListV1": {
+      "$defs": {
+        "CredentialSummaryV1": {
+          "additionalProperties": false,
+          "properties": {
+            "credential_ref": {
+              "title": "Credential Ref",
+              "type": "string"
+            },
+            "fingerprint": {
+              "title": "Fingerprint",
+              "type": "string"
+            },
+            "provider": {
+              "title": "Provider",
+              "type": "string"
+            },
+            "label": {
+              "title": "Label",
+              "type": "string"
+            },
+            "created_at_us": {
+              "title": "Created At Us",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "credential_ref",
+            "fingerprint",
+            "provider",
+            "label",
+            "created_at_us"
+          ],
+          "title": "CredentialSummaryV1",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Wrapped collection; a future next_cursor can be added without a break.",
+      "properties": {
+        "credentials": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/CredentialSummaryV1"
+          },
+          "title": "Credentials",
+          "type": "array"
+        }
+      },
+      "title": "CredentialListV1",
+      "type": "object"
+    },
+    "CredentialSummaryV1": {
+      "additionalProperties": false,
+      "properties": {
+        "credential_ref": {
+          "title": "Credential Ref",
+          "type": "string"
+        },
+        "fingerprint": {
+          "title": "Fingerprint",
+          "type": "string"
+        },
+        "provider": {
+          "title": "Provider",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "created_at_us": {
+          "title": "Created At Us",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "credential_ref",
+        "fingerprint",
+        "provider",
+        "label",
+        "created_at_us"
+      ],
+      "title": "CredentialSummaryV1",
       "type": "object"
     },
     "DelegatedTask": {
@@ -17916,6 +18174,83 @@
       "title": "ProductionInputs",
       "type": "object"
     },
+    "ProductionPreviewV1": {
+      "$defs": {
+        "CostAmountV1": {
+          "additionalProperties": false,
+          "description": "A cost fact that cannot silently turn unknown into zero.",
+          "properties": {
+            "kind": {
+              "enum": [
+                "confirmed",
+                "unknown",
+                "not_configured"
+              ],
+              "title": "Kind",
+              "type": "string"
+            },
+            "amount": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Amount"
+            },
+            "currency": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Currency"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "title": "CostAmountV1",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "max_cost": {
+          "$ref": "#/$defs/CostAmountV1"
+        },
+        "excluded_reasons": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Excluded Reasons",
+          "type": "array"
+        },
+        "cost_basis": {
+          "enum": [
+            "confirmed_no_charge",
+            "usage_price_calculation",
+            "unknown"
+          ],
+          "title": "Cost Basis",
+          "type": "string"
+        }
+      },
+      "required": [
+        "max_cost",
+        "cost_basis"
+      ],
+      "title": "ProductionPreviewV1",
+      "type": "object"
+    },
     "ProductionRequest": {
       "$defs": {
         "Automation": {
@@ -18798,6 +19133,9 @@
       "type": "object"
     },
     "ProductionRevisionSummary": {
+      "$defs": {
+        "JsonValue": {}
+      },
       "additionalProperties": false,
       "properties": {
         "revision_id": {
@@ -18808,8 +19146,14 @@
           "type": "string"
         },
         "kind": {
-          "maxLength": 30,
-          "minLength": 1,
+          "enum": [
+            "insight",
+            "brief",
+            "plan",
+            "script",
+            "storyboard",
+            "quality"
+          ],
           "title": "Kind",
           "type": "string"
         },
@@ -18827,6 +19171,20 @@
           ],
           "default": null,
           "title": "Parent Revision Id"
+        },
+        "input_revision_refs": {
+          "default": [],
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "type": "string"
+          },
+          "title": "Input Revision Refs",
+          "type": "array"
+        },
+        "body": {
+          "$ref": "#/$defs/JsonValue"
         },
         "expires_at_us": {
           "anyOf": [
@@ -18858,7 +19216,8 @@
       },
       "required": [
         "revision_id",
-        "kind"
+        "kind",
+        "body"
       ],
       "title": "ProductionRevisionSummary",
       "type": "object"
@@ -18934,6 +19293,32 @@
         }
       },
       "title": "ProjectInput",
+      "type": "object"
+    },
+    "PublishUnavailableV1": {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "const": "unavailable",
+          "default": "unavailable",
+          "title": "Status",
+          "type": "string"
+        },
+        "code": {
+          "const": "publish_unavailable",
+          "default": "publish_unavailable",
+          "title": "Code",
+          "type": "string"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "reason"
+      ],
+      "title": "PublishUnavailableV1",
       "type": "object"
     },
     "QualityCheck": {

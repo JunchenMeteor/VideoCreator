@@ -158,6 +158,123 @@ export const ROUTES = {
       ]
     }
   },
+  "GET /api/v1/credentials": {
+    "method": "GET",
+    "template": "/api/v1/credentials",
+    "operationId": "credential_list_api_v1_credentials_get",
+    "requestMedia": [],
+    "responseMedia": {
+      "200": [
+        "application/json"
+      ],
+      "400": [
+        "text/plain",
+        "application/json"
+      ],
+      "401": [
+        "application/json"
+      ],
+      "403": [
+        "application/json"
+      ],
+      "404": [
+        "application/json"
+      ],
+      "409": [
+        "application/json"
+      ],
+      "413": [
+        "application/json"
+      ],
+      "415": [
+        "application/json"
+      ],
+      "422": [
+        "application/json"
+      ],
+      "503": [
+        "application/json"
+      ]
+    }
+  },
+  "POST /api/v1/credentials": {
+    "method": "POST",
+    "template": "/api/v1/credentials",
+    "operationId": "credential_create_api_v1_credentials_post",
+    "requestMedia": [
+      "application/json"
+    ],
+    "responseMedia": {
+      "201": [
+        "application/json"
+      ],
+      "400": [
+        "text/plain",
+        "application/json"
+      ],
+      "401": [
+        "application/json"
+      ],
+      "403": [
+        "application/json"
+      ],
+      "404": [
+        "application/json"
+      ],
+      "409": [
+        "application/json"
+      ],
+      "413": [
+        "application/json"
+      ],
+      "415": [
+        "application/json"
+      ],
+      "422": [
+        "application/json"
+      ],
+      "503": [
+        "application/json"
+      ]
+    }
+  },
+  "DELETE /api/v1/credentials/{ref}": {
+    "method": "DELETE",
+    "template": "/api/v1/credentials/{ref}",
+    "operationId": "credential_delete_api_v1_credentials__ref__delete",
+    "requestMedia": [],
+    "responseMedia": {
+      "204": [],
+      "400": [
+        "text/plain",
+        "application/json"
+      ],
+      "401": [
+        "application/json"
+      ],
+      "403": [
+        "application/json"
+      ],
+      "404": [
+        "application/json"
+      ],
+      "409": [
+        "application/json"
+      ],
+      "413": [
+        "application/json"
+      ],
+      "415": [
+        "application/json"
+      ],
+      "422": [
+        "application/json"
+      ],
+      "503": [
+        "application/json"
+      ]
+    }
+  },
   "GET /api/v1/projects/{project_id}": {
     "method": "GET",
     "template": "/api/v1/projects/{project_id}",
@@ -409,6 +526,122 @@ export const ROUTES = {
       "200": [
         "application/json"
       ],
+      "400": [
+        "text/plain",
+        "application/json"
+      ],
+      "401": [
+        "application/json"
+      ],
+      "403": [
+        "application/json"
+      ],
+      "404": [
+        "application/json"
+      ],
+      "409": [
+        "application/json"
+      ],
+      "413": [
+        "application/json"
+      ],
+      "415": [
+        "application/json"
+      ],
+      "422": [
+        "application/json"
+      ],
+      "503": [
+        "application/json"
+      ]
+    }
+  },
+  "GET /api/v1/budget": {
+    "method": "GET",
+    "template": "/api/v1/budget",
+    "operationId": "budget_summary_api_v1_budget_get",
+    "requestMedia": [],
+    "responseMedia": {
+      "200": [
+        "application/json"
+      ],
+      "400": [
+        "text/plain",
+        "application/json"
+      ],
+      "401": [
+        "application/json"
+      ],
+      "403": [
+        "application/json"
+      ],
+      "404": [
+        "application/json"
+      ],
+      "409": [
+        "application/json"
+      ],
+      "413": [
+        "application/json"
+      ],
+      "415": [
+        "application/json"
+      ],
+      "422": [
+        "application/json"
+      ],
+      "503": [
+        "application/json"
+      ]
+    }
+  },
+  "POST /api/v1/productions/preview": {
+    "method": "POST",
+    "template": "/api/v1/productions/preview",
+    "operationId": "production_preview_api_v1_productions_preview_post",
+    "requestMedia": [
+      "application/json"
+    ],
+    "responseMedia": {
+      "200": [
+        "application/json"
+      ],
+      "400": [
+        "text/plain",
+        "application/json"
+      ],
+      "401": [
+        "application/json"
+      ],
+      "403": [
+        "application/json"
+      ],
+      "404": [
+        "application/json"
+      ],
+      "409": [
+        "application/json"
+      ],
+      "413": [
+        "application/json"
+      ],
+      "415": [
+        "application/json"
+      ],
+      "422": [
+        "application/json"
+      ],
+      "503": [
+        "application/json"
+      ]
+    }
+  },
+  "POST /api/v1/productions/{production_id}/publish": {
+    "method": "POST",
+    "template": "/api/v1/productions/{production_id}/publish",
+    "operationId": "production_publish_api_v1_productions__production_id__publish_post",
+    "requestMedia": [],
+    "responseMedia": {
       "400": [
         "text/plain",
         "application/json"

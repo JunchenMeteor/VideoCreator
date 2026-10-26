@@ -987,6 +987,697 @@
         }
       }
     },
+    "/api/v1/credentials": {
+      "get": {
+        "summary": "Credential List",
+        "operationId": "credential_list_api_v1_credentials_get",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredentialListV1"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid domain input (JSON), or a rejected transport Host/Origin/Range (plain text)",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "401": {
+            "description": "Installation session is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "403": {
+            "description": "Installation permission or browser origin is denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "404": {
+            "description": "Owned resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "409": {
+            "description": "Version, idempotency or execution state conflicts; inspect retryability",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "413": {
+            "description": "Asset upload exceeds the configured limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "415": {
+            "description": "Identified media format or media reference is not supported by installation policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "422": {
+            "description": "Request contract, content integrity or media decoding is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "503": {
+            "description": "Required installation resource or media validator is unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "InstallationBearer": []
+          }
+        ],
+        "x-engine-transport": {
+          "format": "engine-http-transport-v1-candidate",
+          "authorization": {
+            "mode": "installation_owner_only",
+            "domain_operations": [],
+            "purposes": {
+              "source": "fixed",
+              "values": []
+            },
+            "resource_scope": "actual subject/project ownership, current registration/grant/rights checks; IDs are not authorization tickets"
+          },
+          "body": {
+            "kind": "none",
+            "maximum_bytes": null,
+            "limit_semantics": "Published field constraints; no separate JSON HTTP byte cap is implemented"
+          },
+          "response": {
+            "kind": "json",
+            "head_supported": false
+          },
+          "mutating": false,
+          "automatic_http_retry": false,
+          "request_headers": [],
+          "response_headers": [
+            "Content-Type"
+          ]
+        }
+      },
+      "post": {
+        "summary": "Credential Create",
+        "operationId": "credential_create_api_v1_credentials_post",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CredentialCreateV1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredentialSummaryV1"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid domain input (JSON), or a rejected transport Host/Origin/Range (plain text)",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "401": {
+            "description": "Installation session is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "403": {
+            "description": "Installation permission or browser origin is denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "404": {
+            "description": "Owned resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "409": {
+            "description": "Version, idempotency or execution state conflicts; inspect retryability",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "413": {
+            "description": "Asset upload exceeds the configured limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "415": {
+            "description": "Identified media format or media reference is not supported by installation policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "422": {
+            "description": "Request contract, content integrity or media decoding is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "503": {
+            "description": "Required installation resource or media validator is unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "InstallationBearer": []
+          }
+        ],
+        "x-engine-transport": {
+          "format": "engine-http-transport-v1-candidate",
+          "authorization": {
+            "mode": "installation_owner_only",
+            "domain_operations": [],
+            "purposes": {
+              "source": "fixed",
+              "values": []
+            },
+            "resource_scope": "actual subject/project ownership, current registration/grant/rights checks; IDs are not authorization tickets"
+          },
+          "body": {
+            "kind": "json_bytes",
+            "maximum_bytes": null,
+            "limit_semantics": "Published field constraints; no separate JSON HTTP byte cap is implemented"
+          },
+          "response": {
+            "kind": "json",
+            "head_supported": false
+          },
+          "mutating": true,
+          "automatic_http_retry": false,
+          "request_headers": [
+            "Content-Type"
+          ],
+          "response_headers": [
+            "Content-Type"
+          ]
+        }
+      }
+    },
+    "/api/v1/credentials/{ref}": {
+      "delete": {
+        "summary": "Credential Delete",
+        "operationId": "credential_delete_api_v1_credentials__ref__delete",
+        "parameters": [
+          {
+            "name": "ref",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Ref"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response",
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid domain input (JSON), or a rejected transport Host/Origin/Range (plain text)",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "401": {
+            "description": "Installation session is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "403": {
+            "description": "Installation permission or browser origin is denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "404": {
+            "description": "Owned resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "409": {
+            "description": "Version, idempotency or execution state conflicts; inspect retryability",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "413": {
+            "description": "Asset upload exceeds the configured limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "415": {
+            "description": "Identified media format or media reference is not supported by installation policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "422": {
+            "description": "Request contract, content integrity or media decoding is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "503": {
+            "description": "Required installation resource or media validator is unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "InstallationBearer": []
+          }
+        ],
+        "x-engine-transport": {
+          "format": "engine-http-transport-v1-candidate",
+          "authorization": {
+            "mode": "installation_owner_only",
+            "domain_operations": [],
+            "purposes": {
+              "source": "fixed",
+              "values": []
+            },
+            "resource_scope": "actual subject/project ownership, current registration/grant/rights checks; IDs are not authorization tickets"
+          },
+          "body": {
+            "kind": "none",
+            "maximum_bytes": null,
+            "limit_semantics": "Published field constraints; no separate JSON HTTP byte cap is implemented"
+          },
+          "response": {
+            "kind": "json",
+            "head_supported": false
+          },
+          "mutating": true,
+          "automatic_http_retry": false,
+          "request_headers": [],
+          "response_headers": [
+            "Content-Type"
+          ]
+        }
+      }
+    },
     "/api/v1/projects/{project_id}": {
       "get": {
         "summary": "Project Get",
@@ -2747,6 +3438,713 @@
             "head_supported": false
           },
           "mutating": false,
+          "automatic_http_retry": false,
+          "request_headers": [],
+          "response_headers": [
+            "Content-Type"
+          ]
+        }
+      }
+    },
+    "/api/v1/budget": {
+      "get": {
+        "summary": "Budget Summary",
+        "operationId": "budget_summary_api_v1_budget_get",
+        "parameters": [
+          {
+            "name": "group_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Group Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BudgetSummaryV1"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid domain input (JSON), or a rejected transport Host/Origin/Range (plain text)",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "401": {
+            "description": "Installation session is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "403": {
+            "description": "Installation permission or browser origin is denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "404": {
+            "description": "Owned resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "409": {
+            "description": "Version, idempotency or execution state conflicts; inspect retryability",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "413": {
+            "description": "Asset upload exceeds the configured limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "415": {
+            "description": "Identified media format or media reference is not supported by installation policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "422": {
+            "description": "Request contract, content integrity or media decoding is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "503": {
+            "description": "Required installation resource or media validator is unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "InstallationBearer": []
+          }
+        ],
+        "x-engine-transport": {
+          "format": "engine-http-transport-v1-candidate",
+          "authorization": {
+            "mode": "installation_owner_only",
+            "domain_operations": [],
+            "purposes": {
+              "source": "fixed",
+              "values": []
+            },
+            "resource_scope": "actual subject/project ownership, current registration/grant/rights checks; IDs are not authorization tickets"
+          },
+          "body": {
+            "kind": "none",
+            "maximum_bytes": null,
+            "limit_semantics": "Published field constraints; no separate JSON HTTP byte cap is implemented"
+          },
+          "response": {
+            "kind": "json",
+            "head_supported": false
+          },
+          "mutating": false,
+          "automatic_http_retry": false,
+          "request_headers": [],
+          "response_headers": [
+            "Content-Type"
+          ]
+        }
+      }
+    },
+    "/api/v1/productions/preview": {
+      "post": {
+        "summary": "Production Preview",
+        "operationId": "production_preview_api_v1_productions_preview_post",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/ProductionRequest-Input"
+                  },
+                  {
+                    "$ref": "#/components/schemas/ProductionRequestV03-Input"
+                  }
+                ],
+                "title": "Body"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductionPreviewV1"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid domain input (JSON), or a rejected transport Host/Origin/Range (plain text)",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "401": {
+            "description": "Installation session is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "403": {
+            "description": "Installation permission or browser origin is denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "404": {
+            "description": "Owned resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "409": {
+            "description": "Version, idempotency or execution state conflicts; inspect retryability",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "413": {
+            "description": "Asset upload exceeds the configured limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "415": {
+            "description": "Identified media format or media reference is not supported by installation policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "422": {
+            "description": "Request contract, content integrity or media decoding is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "503": {
+            "description": "Required installation resource or media validator is unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "InstallationBearer": []
+          }
+        ],
+        "x-engine-transport": {
+          "format": "engine-http-transport-v1-candidate",
+          "authorization": {
+            "mode": "installation_owner_only",
+            "domain_operations": [],
+            "purposes": {
+              "source": "fixed",
+              "values": []
+            },
+            "resource_scope": "actual subject/project ownership, current registration/grant/rights checks; IDs are not authorization tickets"
+          },
+          "body": {
+            "kind": "json_bytes",
+            "maximum_bytes": null,
+            "limit_semantics": "Published field constraints; no separate JSON HTTP byte cap is implemented"
+          },
+          "response": {
+            "kind": "json",
+            "head_supported": false
+          },
+          "mutating": true,
+          "automatic_http_retry": false,
+          "request_headers": [
+            "Content-Type"
+          ],
+          "response_headers": [
+            "Content-Type"
+          ]
+        }
+      }
+    },
+    "/api/v1/productions/{production_id}/publish": {
+      "post": {
+        "summary": "Production Publish",
+        "operationId": "production_publish_api_v1_productions__production_id__publish_post",
+        "parameters": [
+          {
+            "name": "production_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Production Id"
+            }
+          }
+        ],
+        "responses": {
+          "503": {
+            "description": "Required installation resource or media validator is unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid domain input (JSON), or a rejected transport Host/Origin/Range (plain text)",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "401": {
+            "description": "Installation session is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "403": {
+            "description": "Installation permission or browser origin is denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "404": {
+            "description": "Owned resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "409": {
+            "description": "Version, idempotency or execution state conflicts; inspect retryability",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "413": {
+            "description": "Asset upload exceeds the configured limit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "415": {
+            "description": "Identified media format or media reference is not supported by installation policy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          },
+          "422": {
+            "description": "Request contract, content integrity or media decoding is invalid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "headers": {
+              "Content-Type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Actual response MIME, including charset/boundary when supplied."
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "InstallationBearer": []
+          }
+        ],
+        "x-engine-transport": {
+          "format": "engine-http-transport-v1-candidate",
+          "authorization": {
+            "mode": "installation_owner_only",
+            "domain_operations": [],
+            "purposes": {
+              "source": "fixed",
+              "values": []
+            },
+            "resource_scope": "actual subject/project ownership, current registration/grant/rights checks; IDs are not authorization tickets"
+          },
+          "body": {
+            "kind": "none",
+            "maximum_bytes": null,
+            "limit_semantics": "Published field constraints; no separate JSON HTTP byte cap is implemented"
+          },
+          "response": {
+            "kind": "json",
+            "head_supported": false
+          },
+          "mutating": true,
           "automatic_http_retry": false,
           "request_headers": [],
           "response_headers": [
@@ -13897,6 +15295,56 @@
         ],
         "title": "BindLocalCopyInputScope"
       },
+      "BudgetSummaryV1": {
+        "properties": {
+          "present": {
+            "type": "boolean",
+            "title": "Present"
+          },
+          "group_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 128,
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9_.:-]+$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group Id"
+          },
+          "authorization": {
+            "type": "string",
+            "enum": [
+              "none",
+              "local_zero_cost",
+              "authorized_cap"
+            ],
+            "title": "Authorization"
+          },
+          "cap": {
+            "$ref": "#/components/schemas/CostAmountV1"
+          },
+          "spent": {
+            "$ref": "#/components/schemas/CostAmountV1"
+          },
+          "reserved": {
+            "$ref": "#/components/schemas/CostAmountV1"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "present",
+          "authorization",
+          "cap",
+          "spent",
+          "reserved"
+        ],
+        "title": "BudgetSummaryV1"
+      },
       "BundleArtifact": {
         "properties": {
           "artifact_id": {
@@ -15244,6 +16692,48 @@
         ],
         "title": "ContentRequestPurpose"
       },
+      "CostAmountV1": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "confirmed",
+              "unknown",
+              "not_configured"
+            ],
+            "title": "Kind"
+          },
+          "amount": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "kind"
+        ],
+        "title": "CostAmountV1",
+        "description": "A cost fact that cannot silently turn unknown into zero."
+      },
       "CreativeBriefInput": {
         "properties": {
           "language": {
@@ -15288,6 +16778,87 @@
         "additionalProperties": false,
         "type": "object",
         "title": "CreativeBriefInput"
+      },
+      "CredentialCreateV1": {
+        "properties": {
+          "provider": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9_.:-]+$",
+            "title": "Provider"
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Label"
+          },
+          "secret": {
+            "type": "string",
+            "maxLength": 4096,
+            "minLength": 1,
+            "title": "Secret"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "provider",
+          "label",
+          "secret"
+        ],
+        "title": "CredentialCreateV1"
+      },
+      "CredentialListV1": {
+        "properties": {
+          "credentials": {
+            "items": {
+              "$ref": "#/components/schemas/CredentialSummaryV1"
+            },
+            "type": "array",
+            "title": "Credentials",
+            "default": []
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "CredentialListV1",
+        "description": "Wrapped collection; a future next_cursor can be added without a break."
+      },
+      "CredentialSummaryV1": {
+        "properties": {
+          "credential_ref": {
+            "type": "string",
+            "title": "Credential Ref"
+          },
+          "fingerprint": {
+            "type": "string",
+            "title": "Fingerprint"
+          },
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "created_at_us": {
+            "type": "integer",
+            "title": "Created At Us"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "credential_ref",
+          "fingerprint",
+          "provider",
+          "label",
+          "created_at_us"
+        ],
+        "title": "CredentialSummaryV1"
       },
       "DailyProjectAuthorizationRef": {
         "properties": {
@@ -16187,6 +17758,7 @@
         ],
         "title": "InstanceHealth"
       },
+      "JsonValue": {},
       "LocalBundleExportSource": {
         "properties": {
           "kind": {
@@ -17815,6 +19387,37 @@
         ],
         "title": "ProductionPolicyRef"
       },
+      "ProductionPreviewV1": {
+        "properties": {
+          "max_cost": {
+            "$ref": "#/components/schemas/CostAmountV1"
+          },
+          "excluded_reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Excluded Reasons",
+            "default": []
+          },
+          "cost_basis": {
+            "type": "string",
+            "enum": [
+              "confirmed_no_charge",
+              "usage_price_calculation",
+              "unknown"
+            ],
+            "title": "Cost Basis"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "max_cost",
+          "cost_basis"
+        ],
+        "title": "ProductionPreviewV1"
+      },
       "ProductionRequest-Input": {
         "properties": {
           "request_format_version": {
@@ -18274,8 +19877,14 @@
           },
           "kind": {
             "type": "string",
-            "maxLength": 30,
-            "minLength": 1,
+            "enum": [
+              "insight",
+              "brief",
+              "plan",
+              "script",
+              "storyboard",
+              "quality"
+            ],
             "title": "Kind"
           },
           "parent_revision_id": {
@@ -18291,6 +19900,20 @@
               }
             ],
             "title": "Parent Revision Id"
+          },
+          "input_revision_refs": {
+            "items": {
+              "type": "string",
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9_.:-]+$"
+            },
+            "type": "array",
+            "title": "Input Revision Refs",
+            "default": []
+          },
+          "body": {
+            "$ref": "#/components/schemas/JsonValue"
           },
           "expires_at_us": {
             "anyOf": [
@@ -18322,7 +19945,8 @@
         "type": "object",
         "required": [
           "revision_id",
-          "kind"
+          "kind",
+          "body"
         ],
         "title": "ProductionRevisionSummary"
       },
@@ -18849,6 +20473,32 @@
           "content_sha256"
         ],
         "title": "ProjectScopeDerivationRef"
+      },
+      "PublishUnavailableV1": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "unavailable",
+            "title": "Status",
+            "default": "unavailable"
+          },
+          "code": {
+            "type": "string",
+            "const": "publish_unavailable",
+            "title": "Code",
+            "default": "publish_unavailable"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "reason"
+        ],
+        "title": "PublishUnavailableV1"
       },
       "ReviewDecision": {
         "properties": {
@@ -19609,67 +21259,7 @@
           "media_type"
         ],
         "title": "StagedAsset"
-      },
-      "CreativeRevision": {
-        "properties": {
-          "revision_id": {
-            "type": "string",
-            "maxLength": 128,
-            "minLength": 1,
-            "pattern": "^[A-Za-z0-9_.:-]+$",
-            "title": "Revision Id"
-          },
-          "kind": {
-            "type": "string",
-            "enum": [
-              "insight",
-              "brief",
-              "plan",
-              "script",
-              "storyboard",
-              "quality"
-            ],
-            "title": "Kind"
-          },
-          "parent_revision_id": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 128,
-                "minLength": 1,
-                "pattern": "^[A-Za-z0-9_.:-]+$"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Parent Revision Id"
-          },
-          "input_revision_refs": {
-            "items": {
-              "type": "string",
-              "maxLength": 128,
-              "minLength": 1,
-              "pattern": "^[A-Za-z0-9_.:-]+$"
-            },
-            "type": "array",
-            "title": "Input Revision Refs",
-            "default": []
-          },
-          "body": {
-            "$ref": "#/components/schemas/JsonValue"
-          }
-        },
-        "additionalProperties": false,
-        "type": "object",
-        "required": [
-          "revision_id",
-          "kind",
-          "body"
-        ],
-        "title": "CreativeRevision"
-      },
-      "JsonValue": {}
+      }
     },
     "securitySchemes": {
       "InstallationBearer": {
@@ -19723,6 +21313,6 @@
       "response_bytes": "original uncompressed bytes; no transparent transformation",
       "native_ipc_format": "native-ipc-v1-candidate"
     },
-    "operation_count": 46
+    "operation_count": 52
   }
 }
