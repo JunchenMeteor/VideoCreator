@@ -767,9 +767,14 @@ def _produce_local(engine, bundle, executor, media, lease, *, production_service
         speech_method=speech_method)
     outputs = tuple(c.BundleOutput(role=role, artifact_ids=tuple(
         artifact_ids[path] for path in OUTPUT_PATHS[role])) for role in request.outputs)
+    _local_event('assembly_context_started', run_id=lease.run_id,
+                 preparation_id=preparation.preparation_id)
     persisted_assembly = _persisted_assembly_context(
         engine=engine, bundle=bundle, lease=lease, preparation=preparation,
         intent=intent, registration_sha256=production_services.registration_sha256)
+    _local_event('assembly_persisted_read', run_id=lease.run_id,
+                 preparation_id=preparation.preparation_id,
+                 present=persisted_assembly is not None)
     persisted_created_at = (None if persisted_assembly is None
                             else persisted_assembly.manifest_created_at_us)
     methods = _methods(composition, artifact_ids, video=selection.content_kind == 'video',
@@ -805,8 +810,16 @@ def _produce_local(engine, bundle, executor, media, lease, *, production_service
         authored_fence=(None if persisted_assembly is None
                         else persisted_assembly.authored_fence),
         asr_operation_id=(None if speech_bundle is None else speech_bundle['asr_operation_id']))
+    _local_event('assembly_context_done', run_id=lease.run_id,
+                 preparation_id=preparation.preparation_id,
+                 media_artifacts=len(media_artifacts))
+    _local_event('assembly_persist_started', run_id=lease.run_id,
+                 preparation_id=preparation.preparation_id)
     commit = require_final_port(final_evidence_ports).persist_assembly_context(
         lease, preparation.preparation_id, assembly)
+    _local_event('assembly_persist_done', run_id=lease.run_id,
+                 preparation_id=preparation.preparation_id,
+                 content_sha256=getattr(commit, 'content_sha256', None))
     # On re-entry the committed bytes, not the rebuilt object, are the byte
     # authority; persist still compares every current field strictly.
     raw_context = assembly if persisted_assembly is None else persisted_assembly

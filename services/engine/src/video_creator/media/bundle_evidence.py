@@ -56,6 +56,10 @@ class BundleMediaEvidence:
         argv = list(self.argv)
         control = current_attempt()
         deadline = time.monotonic() + control.remaining(30)
+        started = time.monotonic()
+        print(json.dumps({'event': 'observe_started', 'mode': mode, 'sha256': sha[:12],
+                          'path': str(path), 'argv': argv, 'deadline_in': round(deadline - started, 3)},
+                         ensure_ascii=False), file=sys.stderr, flush=True)
         process, tree, writer, streams = None, None, None, None
         failure = None
         failed_write = threading.Event()
@@ -77,6 +81,10 @@ class BundleMediaEvidence:
             while process.poll() is None:
                 control.check()
                 if time.monotonic() >= deadline:
+                    print(json.dumps({'event': 'observe_timeout', 'mode': mode, 'sha256': sha[:12],
+                                      'elapsed_seconds': round(time.monotonic() - started, 3),
+                                      'bound_seconds': 30}, ensure_ascii=False),
+                          file=sys.stderr, flush=True)
                     raise EngineError("media_evidence_timeout", "Actual media observation exceeded its bound.", 503)
                 if stdout.exceeded.is_set() or stderr.exceeded.is_set() or failed_write.is_set() or stdout.failed.is_set() or stderr.failed.is_set():
                     raise EngineError("media_evidence_failed", "Actual media observation output is unavailable.", 503)
@@ -114,6 +122,10 @@ class BundleMediaEvidence:
             raise EngineError("media_evidence_cleanup_failed", "Actual observation resources have not all terminated.", 503, "reconcile")
         if failure is not None:
             raise failure
+        print(json.dumps({'event': 'observe_finished', 'mode': mode, 'sha256': sha[:12],
+                          'elapsed_seconds': round(time.monotonic() - started, 3),
+                          'return_code': process.returncode}, ensure_ascii=False),
+              file=sys.stderr, flush=True)
         if process.returncode != 0 or stdout.exceeded.is_set() or stderr.exceeded.is_set():
             raise EngineError("media_evidence_failed", "Actual media observation is unavailable.", 503)
         try:
