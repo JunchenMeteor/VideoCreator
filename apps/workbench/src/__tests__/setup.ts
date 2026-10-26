@@ -16,6 +16,8 @@ const element = Element.prototype as unknown as Record<string, unknown>;
 element.hasPointerCapture ??= () => false;
 element.setPointerCapture ??= () => {};
 element.releasePointerCapture ??= () => {};
+// Radix Select scrolls the highlighted option into view; jsdom has no layout.
+element.scrollIntoView ??= () => {};
 
 afterEach(() => {
   cleanup();
