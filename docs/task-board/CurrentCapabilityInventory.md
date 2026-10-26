@@ -163,3 +163,25 @@ MCP `production_create` 可创建 production，但实测发现：① MCP 启动�
 | subtitles.srt | 107 | `6442f340…3d30d14c` |
 
 字幕：`00:00:00,000 --> 00:00:05,460 / 这是一段本地生成的测试庞白,用来验证语音识别链路。`（ASR 同音输出，未修饰）；`precision=not_measured` 在 transcript / quality-report / 证据安装记录三处一致。创建→成片 414.4 s。
+
+
+## 2026-10-26 16:52 R1 闭环（最终包，同一 SHA 上的完整实测）
+
+**安装包**：`VideoCreator-Setup-0.1.0-local.exe`，916,636,562 B（874.2 MiB），SHA `dc3f998f…4633`，未签名。
+
+| 步骤 | 实测 |
+| --- | --- |
+| 干净安装 | **220 s**，exit 0 |
+| 收尾 | `finalize_done 2026-10-26T08:41:30Z record=157d9e6b…f418` |
+| 启动（ShellExecute/双击） | `launcher_ready`（`instance-b6786934…`），health 200 |
+| 权限摘要 | `chcp 65001` 与 `936` 摘要相同（`bd2ca1c7…5c36`，invariant True） |
+| 授权 | 页面 pending → 同意 → 重启 → none、`/projects` 200 |
+| 静音作品 | 出片、下载 |
+| 语音作品 | `accepted → plan → review → quality → review → asr.original_context_committed → bundle.prepared → final_assembly_committed → bundle.ready → production.succeeded` |
+| 证据门 | 第一次语音按预期 `alignment_required` → 启用证据（receipt `local-evidence-cli-7fc43d9d…`）→ 重启 → 第二次 succeeded |
+| 成片 | mp4 132,811 B `7287be52…`；mixed-audio 445,518 B `257d6db4…`；srt 89 B `7089c43f…` |
+| 字幕 | `00:00:00,000 --> 00:00:03,880 / 这是本地语音证据测试,画面是一张镜图。` |
+| 诚实性 | `precision_claim = not_measured` |
+| 总耗时 | 双击 → 成片 约 **15 分钟**（含两次语音流程与证据启用） |
+
+**R1 完成。** R2 未开始：缺真实平台账号授权、支付与订阅额度、发布接口，不以模拟替代。
