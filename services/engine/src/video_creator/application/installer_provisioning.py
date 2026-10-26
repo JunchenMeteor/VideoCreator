@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import subprocess
 from pathlib import Path
 
@@ -145,14 +146,58 @@ def _project(connection, project_id: str, now_us: int) -> dict:
     return {'project_id': project_id, 'created': True}
 
 
+_ACE_LINE = re.compile(r'^(?P<identity>.+?):(?P<rights>(?:\([^)]*\))+)\s*$')
+_DACL_FLAGS = frozenset({'OI', 'CI', 'IO', 'NP', 'ID', 'InheritOnly', 'ContainerInherit', 'ObjectInherit'})
+
+
+def _decode_icacls(raw: bytes) -> str:
+    # icacls emits the active console code page. Decode bytes explicitly; the
+    # two real Windows cases are UTF-8 (65001) and ACP (e.g. GBK/936).
+    for encoding in ('utf-8', 'mbcs'):
+        try:
+            text = raw.decode(encoding)
+        except (UnicodeDecodeError, LookupError):
+            continue
+        if _ACE_LINE.search(text):
+            return text
+    return raw.decode('utf-8', errors='replace')
+
+
+def _dacl_entries(raw: bytes, path: Path) -> tuple[tuple[str, tuple[str, ...], tuple[str, ...]], ...]:
+    text = _decode_icacls(raw)
+    path_text = str(path)
+    entries = []
+    for line in text.splitlines():
+        value = line.strip()
+        if not value or ':' not in value:
+            continue
+        if value.startswith(('已成功处理', 'Successfully processed', 'processed')):
+            continue
+        if value.startswith(path_text):
+            value = value[len(path_text):].strip()
+        if not value or re.match(r'^[A-Za-z]:\\', value):
+            continue
+        match = _ACE_LINE.match(value)
+        if match is None:
+            continue
+        identity = ' '.join(match.group('identity').split())
+        tokens = tuple(re.findall(r'\(([^)]*)\)', match.group('rights')))
+        if not identity or not tokens:
+            continue
+        flags = tuple(sorted(token for token in tokens if token in _DACL_FLAGS))
+        mask = tuple(sorted(token for token in tokens if token not in _DACL_FLAGS))
+        entries.append((identity, mask, flags))
+    if not entries:
+        raise EngineError('dacl_parse_failed', 'No ACE entries were parsed from icacls output', 503)
+    return tuple(sorted(set(entries)))
+
+
 def _dacl_summary(path: Path) -> str:
     if os.name != 'nt':
         return hashlib.sha256(b'posix-0700').hexdigest()
-    result = subprocess.run(['icacls', str(path)], capture_output=True, text=True, encoding='utf-8', errors='replace', check=False)
-    lines = [line.strip() for line in result.stdout.splitlines()
-             if line.strip() and str(path) not in line]
-    lines.sort()
-    return hashlib.sha256('\n'.join(lines).encode('utf-8')).hexdigest()
+    result = subprocess.run(['icacls', str(path)], capture_output=True, check=False)
+    entries = _dacl_entries(result.stdout, path)
+    return hashlib.sha256(json.dumps(entries, ensure_ascii=False, separators=(',', ':')).encode('utf-8')).hexdigest()
 
 
 def _files(base: Path) -> list[dict]:
