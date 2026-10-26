@@ -5,6 +5,7 @@ import { Check, Clapperboard, FileText, RefreshCw, ShieldCheck, Upload, X } from
 import { engineData, errorMessage, RequestFailure } from './engine';
 import type { AssetRecord, ProductionAccepted, ProductionInput, Schemas } from './engine';
 import { DeliveryView } from './DeliveryView';
+import { ProductionPreviewPanel } from './R2Panels';
 import {
   formatBytes, latestReviewRevisions, OUTPUT_LABEL, PRODUCTION_STATUS, productionFailure,
   productionStatusInfo, reviewExpiry, reviewFailureMessage, reviewKindOf, REVIEW_INFO,
@@ -43,6 +44,23 @@ function newKey() {
 function failureText(error: unknown): string {
   if (error instanceof RequestFailure) return `${error.code}：${errorMessage(error)}`;
   return errorMessage(error);
+}
+
+function makeProductionBody(input: {
+  goal: string; projectId: string | null; sourceText: string; assetIds: readonly string[];
+  language: string; duration: string; aspect: string; extras: readonly OutputRole[];
+}): ProductionInput {
+  return {
+    request_format_version: '0.3.0-candidate',
+    goal: input.goal,
+    project_id: input.projectId,
+    inputs: { source_text: input.sourceText, asset_ids: [...new Set(input.assetIds)] },
+    source_bindings: [],
+    brief: { language: input.language, aspect_ratio: input.aspect as '9:16' | '16:9', target_duration_us: Number(input.duration) * 1_000_000, guidance: '请优先给出可审核的制作计划，等待用户确认后再继续。' },
+    automation: { mode: 'interactive', max_revision_cycles: 2 },
+    outputs: ['video', ...VOICE_OUTPUTS.filter(role => input.extras.includes(role))],
+    delivery: 'reference',
+  };
 }
 
 function StatusBadge({ status }: { status: Schemas['RunStatus'] }) {
@@ -214,7 +232,7 @@ function SelectedProduction({ connected, production, projectName, onOpenAssets }
       <Button variant="soft" size="2" onClick={() => void detail.refetch()}><RefreshCw size={14} />刷新状态</Button>
       {bundleRef ? <Button size="2" variant="soft" onClick={() => { document.getElementById('product-delivery')?.scrollIntoView({ behavior: 'smooth' }); }}><Clapperboard size={14} />去取片</Button> : null}
     </Flex>
-    {bundleRef ? <div id="product-delivery"><DeliveryView key={bundleRef.bundle_revision_id} bundleRef={bundleRef} connected={connected} status={status} onAssets={onOpenAssets} /></div> : null}
+    {bundleRef ? <div id="product-delivery"><DeliveryView key={bundleRef.bundle_revision_id} bundleRef={bundleRef} connected={connected} status={status} onAssets={onOpenAssets} productionId={production.production_id} /></div> : null}
     {status === 'succeeded' && !bundleRef ? <p className="product-empty">实例报告已完成，但还没有可读取的作品包；不会把“已完成”当作可取片。</p> : null}
     {reviewCount && status === 'waiting_user' ? <p className="small-note">审核队列在页面顶部；同意或拒绝后这里的状态会刷新。</p> : null}
   </section>;
@@ -259,6 +277,9 @@ export function ProductWorkspaceView({ connected, instanceId, knownAssets, onReq
   const selectedProduction = productions.data?.find(item => item.production_id === selected?.productionId);
   const selectedProjectName = projects.data?.find(item => item.project_id === selectedProduction?.project_id)?.name;
   const selectedAssetRecords = knownAssets.filter(asset => assetIds.includes(asset.asset_id));
+  const previewBody = goal.trim()
+    ? makeProductionBody({ goal, projectId: projectId && projectId !== 'new' ? projectId : null, sourceText, assetIds, language, duration, aspect, extras })
+    : null;
 
   const addManualAsset = () => {
     const id = manualAsset.trim();
@@ -286,17 +307,7 @@ export function ProductWorkspaceView({ connected, instanceId, knownAssets, onReq
         setProjectId(project.project_id);
         await queryClient.invalidateQueries({ queryKey: ['product-projects', instanceId] });
       }
-      const body: ProductionInput = {
-        request_format_version: '0.3.0-candidate',
-        goal,
-        project_id: destination,
-        inputs: { source_text: sourceText, asset_ids: [...new Set(assetIds)] },
-        source_bindings: [],
-        brief: { language, aspect_ratio: aspect as '9:16' | '16:9', target_duration_us: Number(duration) * 1_000_000, guidance: '请优先给出可审核的制作计划，等待用户确认后再继续。' },
-        automation: { mode: 'interactive', max_revision_cycles: 2 },
-        outputs: ['video', ...VOICE_OUTPUTS.filter(role => extras.includes(role))],
-        delivery: 'reference',
-      };
+      const body = makeProductionBody({ goal, projectId: destination, sourceText, assetIds, language, duration, aspect, extras });
       const signature = JSON.stringify(body);
       if (productionIntent.current?.signature !== signature) productionIntent.current = { key: newKey(), signature };
       const receipt = await engineData('POST /api/v1/productions', {
@@ -371,6 +382,7 @@ export function ProductWorkspaceView({ connected, instanceId, knownAssets, onReq
         <p className="small-note">导入或读取素材不等于获得制作权限；是否允许使用仍由实例授权检查。素材编号只接受实例标识，不接受本机路径。</p>
       </section>
 
+      <ProductionPreviewPanel connected={connected} body={previewBody} />
       {formError ? <p className="field-error" role="alert">{formError}</p> : null}
       {failure ? <Callout.Root color="red" role="alert"><Callout.Text>{failureText(failure)}</Callout.Text></Callout.Root> : null}
       {notice ? <p className="action-notice" role="status">{notice}</p> : null}

@@ -5,6 +5,7 @@ import { Download, Film, Link, RefreshCw, ShieldCheck } from 'lucide-react';
 import { ARCHIVE_BUFFER_BYTES, engineData, engineRequest, engineContent, errorMessage, inputHash, PREVIEW_BUFFER_BYTES, rememberLocator, RequestFailure, storedLocator, verifiedContentBlob, verifyContentMetadata } from './engine';
 import type { Schemas } from './engine';
 import { benchmarkBindingLabel, formatBytes, selfIssuedNote, shortSha } from './productFlow';
+import { PublishPanel } from './R2Panels';
 
 type BundleRef = Schemas['BundleRef'];
 type Artifact = Schemas['BundleArtifact'];
@@ -21,7 +22,7 @@ function BlobDownload({ blob, filename, children }: { blob: Blob; filename: stri
   return url ? <a className="bundle-download" href={url} download={filename}><Download size={15} />{children}</a> : null;
 }
 
-export function DeliveryView({ bundleRef: publishedRef, importReceipt, connected, status, onAssets }: { bundleRef?: BundleRef | null; importReceipt?: Schemas['BundleImportReceipt']; connected: boolean; status?: Schemas['RunStatus']; onAssets: () => void }) {
+export function DeliveryView({ bundleRef: publishedRef, importReceipt, connected, status, onAssets, productionId }: { bundleRef?: BundleRef | null; importReceipt?: Schemas['BundleImportReceipt']; connected: boolean; status?: Schemas['RunStatus']; onAssets: () => void; productionId?: string }) {
   const bundleRef = importReceipt?.origin_bundle_ref ?? publishedRef;
   const revision = bundleRef?.bundle_revision_id;
   const identity = bundleRef ? `${importReceipt?.local_instance_id ?? bundleRef.instance_id}:${importReceipt?.import_id ?? ''}:${revision}:${bundleRef.manifest_sha256}` : 'empty';
@@ -236,6 +237,7 @@ export function DeliveryView({ bundleRef: publishedRef, importReceipt, connected
       {loaded ? <Button variant="ghost" size="1" color="gray" onClick={() => { loading.current?.abort(); setLoaded(null); setSubtitles(null); setBusy(false); }}>关闭预览</Button> : null}
       {importReceipt ? <p className="small-note">本地索引状态：{importReceipt.index_state === 'ready' ? '已建立' : importReceipt.index_state === 'failed' ? '建立失败' : '尚未建立'}。来源版本与本地定位分别保存；引用授权由来源实例管理。</p> : null}
       <div className="delivery-actions"><Button disabled={!connected || busy} onClick={() => setExportOpen(true)}><Download size={16} />导出作品包</Button><Button variant="soft" disabled={!connected || busy || Boolean(importReceipt)} onClick={() => setGrantOpen(true)}><Link size={16} />授权引用</Button></div>
+      {bundleRef ? <PublishPanel connected={connected} productionId={productionId} /> : null}
     </> : null}
     {busy ? <p role="status" className="small-note">正在处理，请稍候。已有作品保留。</p> : null}
     {error ? <Callout.Root color="red" role="alert"><Callout.Text>{errorMessage(error)}</Callout.Text></Callout.Root> : null}
