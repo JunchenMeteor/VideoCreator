@@ -1037,6 +1037,41 @@ def _next_runnable_local(engine, runtime):
     return None
 
 
+
+def _acquire_worker_lock(root: Path):
+    """One OS-level worker per instance; a second process must not steal leases."""
+    import os
+    path = Path(root) / "Worker.lock"
+    fd = os.open(path, os.O_RDWR | os.O_CREAT, 0o600)
+    try:
+        if os.fstat(fd).st_size == 0:
+            os.write(fd, bytes([0]))
+        os.lseek(fd, 0, os.SEEK_SET)
+        if os.name == "nt":
+            import msvcrt
+            msvcrt.locking(fd, msvcrt.LK_NBLCK, 1)
+        else:
+            import fcntl
+            fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError:
+        os.close(fd)
+        raise EngineError("worker_already_running", "Only one product worker may own this instance", 409) from None
+    return fd
+
+
+def _release_worker_lock(fd):
+    import os
+    try:
+        os.lseek(fd, 0, os.SEEK_SET)
+        if os.name == "nt":
+            import msvcrt
+            msvcrt.locking(fd, msvcrt.LK_UNLCK, 1)
+        else:
+            import fcntl
+            fcntl.flock(fd, fcntl.LOCK_UN)
+    finally:
+        os.close(fd)
+
 def run_registered_worker(runtime: RegisteredMediaRuntime, *, control, on_ready: Callable[[str], None],
                           run_id=None, once=False, max_seconds=300):
     """Continuously dispatch the same durable queue; each attempt remains bounded."""
@@ -1044,6 +1079,7 @@ def run_registered_worker(runtime: RegisteredMediaRuntime, *, control, on_ready:
 
     engine = runtime.engine
     worker = runtime.worker
+    worker_lock = _acquire_worker_lock(engine.db.data_dir)
     worker_id = worker.register_presence(runtime.sha256)
     failed = False
     reported_reconciliation = set()
@@ -1313,6 +1349,7 @@ def run_registered_worker(runtime: RegisteredMediaRuntime, *, control, on_ready:
             runtime.bundle._affected_execution_held.clear()
             runtime.bundle._affected_observation_held.clear()
         worker.close_presence(worker_id, failed=failed)
+        _release_worker_lock(worker_lock)
 
 
 def sys_event(event, **values):

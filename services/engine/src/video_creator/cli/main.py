@@ -192,7 +192,7 @@ def parser() -> argparse.ArgumentParser:
         product.add_argument("--production-config", required=True, type=Path)
         product.add_argument("--production-config-sha256", required=True)
         product.add_argument("--native-origin", default="http://tauri.localhost")
-        product.add_argument("--max-seconds", type=int, default=300)
+        product.add_argument("--max-seconds", type=int, default=600)
         product.add_argument("--control-stdin", action="store_true")
     commands.add_parser("media-probe", help=argparse.SUPPRESS)
     mcp = commands.add_parser("mcp-stdio")
