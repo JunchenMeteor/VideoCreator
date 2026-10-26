@@ -1770,6 +1770,45 @@ class BundleImportReceiptV03(BundleImportReceipt):
     execution_qualification_inherited: Literal[False] = False
 
 
+class CostAmountV1(Contract):
+    """A cost fact that cannot silently turn unknown into zero."""
+
+    kind: Literal["confirmed", "unknown", "not_configured"]
+    amount: str | None = None
+    currency: str | None = None
+
+    @model_validator(mode="after")
+    def amount_matches_kind(self) -> "CostAmountV1":
+        if self.kind == "confirmed":
+            if self.amount is None or self.currency is None:
+                raise ValueError("confirmed cost requires amount and currency")
+            Decimal(self.amount)
+        elif self.amount is not None or self.currency is not None:
+            raise ValueError("unknown/not_configured cost has no amount")
+        return self
+
+
+class BudgetSummaryV1(Contract):
+    present: bool
+    group_id: Identifier | None = None
+    authorization: Literal["none", "local_zero_cost", "authorized_cap"]
+    cap: CostAmountV1
+    spent: CostAmountV1
+    reserved: CostAmountV1
+
+
+class ProductionPreviewV1(Contract):
+    max_cost: CostAmountV1
+    excluded_reasons: tuple[str, ...] = ()
+    cost_basis: Literal["confirmed_no_charge", "usage_price_calculation", "unknown"]
+
+
+class PublishUnavailableV1(Contract):
+    status: Literal["unavailable"] = "unavailable"
+    code: Literal["publish_unavailable"] = "publish_unavailable"
+    reason: str
+
+
 ProductionRequestAny = ProductionRequest | ProductionRequestV03
 BundleManifestAny = BundleManifest | BundleManifestV03
 BundleImportReceiptAny = BundleImportReceipt | BundleImportReceiptV03

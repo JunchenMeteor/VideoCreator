@@ -358,6 +358,60 @@ def create_app(engine: EngineService, token: str, subject: str = "local-user",
     def production_get(production_id: str, actor: AccessContext = access_dependency):
         return bundles.production(actor, production_id)
 
+    @app.get('/api/v1/budget', response_model=c.BudgetSummaryV1)
+    def budget_summary(group_id: str | None = None, actor: str = Depends(authenticate)):
+        with engine.db.connect_readonly() as connection:
+            if group_id is None:
+                row = connection.execute("SELECT * FROM budget_groups WHERE owner=? ORDER BY rowid LIMIT 1",
+                                         (actor,)).fetchone()
+            else:
+                row = connection.execute("SELECT * FROM budget_groups WHERE id=? AND owner=?",
+                                         (group_id, actor)).fetchone()
+        if row is None:
+            unknown = c.CostAmountV1(kind='not_configured')
+            return c.BudgetSummaryV1(present=False, authorization='none', cap=unknown,
+                                     spent=unknown, reserved=unknown)
+        cap_units, spent_units, reserved_units = row['cap_units'], row['spent_units'], row['reserved_units']
+        zero = cap_units == 0
+        return c.BudgetSummaryV1(
+            present=True, group_id=row['id'], authorization='local_zero_cost' if zero else 'authorized_cap',
+            cap=c.CostAmountV1(kind='confirmed', amount=str(c.Money.from_units(cap_units).amount),
+                               currency=row['currency']),
+            spent=c.CostAmountV1(kind='confirmed', amount=str(c.Money.from_units(spent_units).amount),
+                                 currency=row['currency']),
+            reserved=c.CostAmountV1(kind='confirmed', amount=str(c.Money.from_units(reserved_units).amount),
+                                    currency=row['currency']))
+
+    @app.post('/api/v1/productions/preview', response_model=c.ProductionPreviewV1)
+    def production_preview(body: c.ProductionRequestAny, actor: str = Depends(authenticate)):
+        reasons = []
+        confirmed_zero = True
+        for route_id in body.policy.allowed_provider_routes:
+            try:
+                route = engine.configured_route(route_id)
+            except EngineError:
+                reasons.append('route_unavailable:' + route_id)
+                confirmed_zero = False
+                continue
+            if route.source != 'owned_local' or route.max_operation_cost.units():
+                confirmed_zero = False
+        if not body.policy.allowed_provider_routes:
+            reasons.append('no_routes_selected')
+            confirmed_zero = False
+        if confirmed_zero:
+            max_cost = c.CostAmountV1(kind='confirmed', amount='0', currency='CNY')
+            basis = 'confirmed_no_charge'
+        else:
+            max_cost = c.CostAmountV1(kind='unknown')
+            basis = 'unknown' if reasons else 'usage_price_calculation'
+        return c.ProductionPreviewV1(max_cost=max_cost, excluded_reasons=tuple(reasons), cost_basis=basis)
+
+    @app.post('/api/v1/productions/{production_id}/publish', response_model=c.PublishUnavailableV1,
+              status_code=503)
+    def production_publish(production_id: str, actor: str = Depends(authenticate)):
+        return JSONResponse(status_code=503, content=c.PublishUnavailableV1(
+            reason='No platform publishing adapter is installed for this instance').model_dump(mode='json'))
+
     @app.post("/api/v1/productions/{production_id}/cancel", response_model=ProductionDetail)
     def production_cancel(production_id: str, actor: str = Depends(authenticate)):
         engine.cancel_production(actor, production_id)
