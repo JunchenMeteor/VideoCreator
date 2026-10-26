@@ -183,6 +183,11 @@ class Database:
             connection.execute("BEGIN IMMEDIATE")
             yield connection
             connection.commit()
+        except sqlite3.OperationalError as error:
+            connection.rollback()
+            if "locked" in str(error).lower() or "busy" in str(error).lower():
+                raise EngineError("database_busy", "The instance writer lock was not available within its bound", 503) from error
+            raise
         except BaseException:
             connection.rollback()
             raise

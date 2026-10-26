@@ -88,6 +88,10 @@ def final_read_set_asr(assembly, validated):
     return validated
 
 
+def _assembly_event(event, **fields):
+    print(json.dumps({"event": event, **fields}, ensure_ascii=False), file=sys.stderr, flush=True)
+
+
 class CurrentFinalEvidenceRecovery(DiagnosticSelectionService, ComponentDiagnosisService, DiagnosedAffectedService, PlanRepairService, AffectedRepairService, RegisteredAlignmentService):
     def _original_final_candidate(self, row, journal, binding):
         from video_creator.application.bundles import strict_json
@@ -388,7 +392,9 @@ class CurrentFinalEvidenceRecovery(DiagnosticSelectionService, ComponentDiagnosi
         # re-entry deliberately keeps the committed earlier fence for byte
         # identity, while every other context field is still current.
         author_context = context.model_copy(update={'authored_fence': lease.fencing_token})
+        _assembly_event('assembly_validate_started', run_id=lease.run_id, preparation_id=preparation_id)
         self._validate_final_assembly_facts(lease, row, intent, binding, author_context, author=True)
+        _assembly_event('assembly_validate_done', run_id=lease.run_id, preparation_id=preparation_id)
         correction_context = self._assembly_correction_context(lease, preparation_id, context)
         correction_pair = self.assert_current_correction_pair(lease, preparation_id, context=context)
         saved_context = self._read_final_assembly(row, binding)
@@ -412,10 +418,15 @@ class CurrentFinalEvidenceRecovery(DiagnosticSelectionService, ComponentDiagnosi
         raw = (canonical(context) + '\n').encode('utf-8')
         ref = AssemblyContextRef(preparation_id=preparation_id, preparation_intent_sha256=digest(row['intent_json']),
             content_sha256=hashlib.sha256(raw).hexdigest(), size=len(raw))
+        _assembly_event('assembly_file_writing', run_id=lease.run_id, preparation_id=preparation_id,
+                        bytes=len(raw))
         self._write('CurrentFinalAssemblies', 'assembly-' + ref.content_sha256, raw)
+        _assembly_event('assembly_file_written', run_id=lease.run_id, preparation_id=preparation_id,
+                        bytes=len(raw))
         body = canonical_body({'format': 'current-final-assembly-binding-v1', 'binding': binding, 'ref': ref})
         key = ASSEMBLY_PREFIX + preparation_id
         issuer = self._production_authorization.issuer()
+        _assembly_event('assembly_metadata_tx_started', run_id=lease.run_id, preparation_id=preparation_id)
         with issuer.current_guard(self._production_authorization.registered(lease)) as guard, self.engine.db.transaction() as connection:
             current, run, production, _request = self._preparation(connection, lease, preparation_id)
             if local_snapshot is not None:
@@ -439,6 +450,7 @@ class CurrentFinalEvidenceRecovery(DiagnosticSelectionService, ComponentDiagnosi
             if correction_context is not None:
                 self._origin_bindings_current(connection, lease, production, correction_context, guard=guard)
             issuer._guard(connection, guard)
+        _assembly_event('assembly_metadata_committed', run_id=lease.run_id, preparation_id=preparation_id)
         return ref
 
     def read_current_final_continuation_inputs(self, lease, continuation):
