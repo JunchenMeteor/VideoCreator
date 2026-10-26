@@ -149,6 +149,9 @@ def _factory(record_path: Path, record_sha: str, registration: Path, registratio
                                                  role=role)
         connection = ProductStartupConnection(ProductStartupContext(engine.instance_id, role))
         authority.connection = connection
+        # Full installation observation happens once here; every later
+        # admission reuses the process-local cached evidence.
+        authority.observe()
         owner = bundle.principals.owner_subject
         registration_config = json.loads(registration.read_text(encoding='utf-8'))
         projects = tuple(registration_config['local_registration']['rights_declaration']['project_ids'])

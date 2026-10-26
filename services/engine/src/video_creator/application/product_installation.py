@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import json
+import sys
 import threading
+import time
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -54,6 +56,7 @@ class ProductInstallationAuthority:
         self.role = role
         self._lock = threading.RLock()
         self._observations = {}
+        self._cached_observation = None
         self._closed = False
         self.connection = None
 
@@ -99,6 +102,7 @@ class ProductInstallationAuthority:
 
     def observe(self):
         with self._lock:
+            started = time.monotonic()
             if self._closed:
                 raise EngineError('trusted_startup_retired', 'Product installation authority was closed', 503)
             record = self._record()
@@ -107,6 +111,15 @@ class ProductInstallationAuthority:
                     or record.get('registration_sha256') != self.registration_sha256
                     or hashlib_sha(self.registration.read_bytes()) != self.registration_sha256):
                 raise EngineError('trusted_startup_registration_conflict', 'Registration record or bytes changed', 409)
+            cache_key = (self.record_sha256, record.get('install_root'), self.registration_sha256,
+                         self.engine.instance_id)
+            if self._cached_observation is not None and self._cached_observation[0] == cache_key:
+                evidence = self._cached_observation[1]
+                self._observations[id(evidence)] = (evidence, threading.get_ident())
+                print(json.dumps({'event': 'installation_observe', 'cached': True,
+                                  'elapsed_seconds': round(time.monotonic() - started, 4)},
+                                 ensure_ascii=False), file=sys.stderr, flush=True)
+                return evidence
             files = self._files(record)
             evidence = InstalledProductionEvidence(
                 instance_id=self.engine.instance_id,
@@ -119,6 +132,11 @@ class ProductInstallationAuthority:
                     (name, _hash(_local_file(PACKAGE_ROOT, name))) for name in _package_sources(PACKAGE_ROOT))),
                 indexed_resource_sha256=files)
             self._observations[id(evidence)] = (evidence, threading.get_ident())
+            self._cached_observation = (cache_key, evidence)
+            print(json.dumps({'event': 'installation_observe', 'cached': False,
+                              'indexed_files': len(files),
+                              'elapsed_seconds': round(time.monotonic() - started, 4)},
+                             ensure_ascii=False), file=sys.stderr, flush=True)
             return evidence
 
     def assert_current(self, evidence):
