@@ -604,14 +604,32 @@ class LocalMaterialFlow(Flow[dict]):
         # the exact declaration. Only that identifier is added; every declared
         # field stays as installed, and the real decision is still required.
         publication = publication_rights(plan, quality_id)
-        quality = services.engine.commit_creative_revision(lease, checked_revision(
+        proposed = checked_revision(
             quality_id, 'quality',
             (self._script.revision_id, self._revision.revision_id),
             json_body({'format': 'local-material-quality-v1', 'observed_masters': observation.result_json['observed_masters'],
                 'local_plan_revision_ref': revision_ref(self._revision).model_dump(mode='json'),
                 'source_provenance': source_timeline_records(plan), 'precision': 'not_measured',
                 'rights': [right.model_dump(mode='json') for right in publication],
-                'asr_status': 'not_measured', 'release_evidence': 'Actual final Bundle validation remains required'})))
+                'asr_status': 'not_measured', 'release_evidence': 'Actual final Bundle validation remains required'}))
+        from video_creator.application.media_registration import sys_event
+        with services.engine.db.connect_readonly() as connection:
+            existing = connection.execute("SELECT body FROM creative_revisions WHERE id=? AND run_id=?",
+                                          (quality_id, lease.run_id)).fetchone()
+            decisions = connection.execute("SELECT body FROM decisions WHERE run_id=?", (lease.run_id,)).fetchall()
+        decided = any(__import__('json').loads(row[0]).get('target_revision_id') == quality_id
+                      for row in decisions)
+        if existing is not None and decided:
+            # Reuse the exact quality revision the Owner approved; a retry may
+            # see newer derivative bytes, but replacing its sha would orphan the
+            # decision and loop back to plan forever.
+            quality = c.CreativeRevision.model_validate_json(existing[0])
+            sys_event('quality_revision_reused', run_id=lease.run_id, quality_id=quality_id,
+                      content_sha256=digest(existing[0]))
+        else:
+            quality = services.engine.commit_creative_revision(lease, proposed)
+            sys_event('quality_revision_committed', run_id=lease.run_id, quality_id=quality.revision_id,
+                      content_sha256=digest(canonical(quality)))
         self.state['quality_revision_id'] = quality.revision_id
         self._save('local_masters_and_actual_quality_committed')
         if not self._admit(quality):
