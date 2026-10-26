@@ -1015,3 +1015,127 @@ def local_evidence_audit_filename() -> str:
 
 def local_evidence_audit_metadata_key() -> str:
     return 'local_evidence_authorization_audit'
+
+
+
+
+def evidence_admin_install_confirmed(*, data_dir: str | Path, install_root: str | Path,
+                                     installation_record: str | Path, installation_record_sha256: str,
+                                     confirmed_by_ui: bool, confirmation_nonce: str,
+                                     confirmation_sha256: str, policy: str,
+                                     receipt: str | Path | None = None) -> dict:
+    """A' trusted post-Owner install: explicit UI confirmation, audit first, own receipt."""
+    import secrets
+
+    from video_creator.application.owner_bootstrap import OwnerBootstrapStore
+    from video_creator.application.product_authorization import (
+        _audit_baseline,
+        _commit_audit_digest,
+        _fingerprint,
+        _install_audit_file,
+        _restore_audit,
+    )
+
+    if confirmed_by_ui is not True:
+        raise _denied('local_evidence_ui_confirmation_required',
+                      'The user must explicitly confirm local evidence installation in the UI', 403)
+    if (type(confirmation_nonce) is not str or len(confirmation_nonce) < 16
+            or any(character not in '0123456789abcdef' for character in confirmation_nonce)):
+        raise _denied('local_evidence_nonce_invalid', 'A one-time confirmation nonce is required', 403)
+    expected_confirmation = hashlib.sha256(_canonical({
+        'nonce': confirmation_nonce,
+        'install_record_sha256': installation_record_sha256,
+        'policy': policy,
+    }).encode('utf-8')).hexdigest()
+    if not hmac.compare_digest(expected_confirmation, confirmation_sha256):
+        raise _denied('local_evidence_confirmation_invalid',
+                      'The UI confirmation does not bind this nonce, record and policy', 403)
+    record_path = Path(installation_record)
+    raw_record = record_path.read_bytes()
+    if hashlib.sha256(raw_record).hexdigest() != installation_record_sha256:
+        raise _denied('local_evidence_install_record_changed',
+                      'The installation record differs from its confirmed digest', 409)
+    record = strict_json(raw_record)
+    root = Path(install_root).resolve()
+    if (type(record) is not dict or record.get('format') != 'installation-provisioning-v1'
+            or record.get('complete') is not True
+            or Path(record.get('install_root', '')).resolve() != root):
+        raise _denied('local_evidence_install_record_invalid',
+                      'The confirmed installation record does not describe this install root', 403)
+    engine = EngineService(data_dir)
+    with OwnerBootstrapStore(engine).current(allow_inactive=False) as owner:
+        principal = owner.principal
+        owner_subject = principal.owner_subject
+        project_id = principal.project_ids[0]
+    found = load_local_evidence_key(engine.instance_id, create=True)
+    if found is None:
+        raise _denied('local_evidence_key_unavailable', 'The local evidence issuer key is unavailable', 503)
+    issuer, _key = found
+    now = engine.clock()
+    scope = {
+        'kind': 'local_evidence_policy', 'instance_id': engine.instance_id,
+        'owner_subject': owner_subject, 'project_id': project_id,
+        'method_profile': PROFILE_ID, 'issuer': issuer,
+        'authority_ref': authority_for(engine.instance_id),
+        'expires_at_us': now + 30 * 24 * 3600 * 1_000_000,
+    }
+    scope_sha256 = hashlib.sha256(_canonical(scope).encode('utf-8')).hexdigest()
+    nonce_fingerprint = _fingerprint(confirmation_nonce)
+    receipt_id = 'local-evidence-cli-' + hashlib.sha256(confirmation_nonce.encode()).hexdigest()[:24]
+    policy_sha256 = hashlib.sha256(policy.encode('utf-8')).hexdigest()
+    nonce_record = _canonical({'receipt_id': receipt_id, 'policy_sha256': policy_sha256,
+                               'install_record_sha256': installation_record_sha256})
+    with engine.db.connect_readonly() as connection:
+        prior_nonce = connection.execute('SELECT value FROM metadata WHERE key=?',
+                                         ('local_evidence_nonce:' + nonce_fingerprint,)).fetchone()
+    if prior_nonce is not None:
+        if prior_nonce[0] == nonce_record:
+            consumed = _consumed_record(engine, receipt_id)
+            return {'event': 'evidence_admin_confirmed', 'status': 'already_installed',
+                    'receipt_id': receipt_id, 'policy_ref': (consumed or {}).get('policy_ref')}
+        raise _denied('local_evidence_nonce_replayed',
+                      'This one-time UI confirmation nonce was already consumed', 409)
+    consumed = _consumed_record(engine, receipt_id)
+    if consumed is not None:
+        return {'event': 'evidence_admin_confirmed', 'status': 'already_installed',
+                'receipt_id': receipt_id, 'policy_ref': consumed.get('policy_ref')}
+    session_secret = secrets.token_hex(16)
+    authorization_id = 'local-evidence-cli-' + secrets.token_hex(12)
+    audit_body = {
+        'format': 'product-authorization-audit-v1', 'authorization_id': authorization_id,
+        'kind': 'local_evidence_policy', 'decision': 'approve', 'scope': scope,
+        'scope_sha256': scope_sha256, 'instance_id': engine.instance_id,
+        'session_secret_fingerprint': _fingerprint(session_secret),
+        'nonce_fingerprint': nonce_fingerprint, 'confirmed_by_ui': True,
+        'install_root': str(root), 'install_record_sha256': installation_record_sha256,
+        'policy_sha256': hashlib.sha256(policy.encode('utf-8')).hexdigest(), 'policy': policy, 'actor': owner_subject,
+        'at_us': now, 'result': {'receipt_id': receipt_id},
+    }
+    audit_raw = (json.dumps(audit_body, ensure_ascii=False, sort_keys=True,
+                            separators=(',', ':')) + '\n').encode('utf-8')
+    audit_sha256 = _sha256_bytes(audit_raw)
+    baseline = _audit_baseline(engine, local_evidence_audit_filename())
+    receipt_body = build_receipt(
+        request_scope=scope, authorization_id=authorization_id, scope_sha256=scope_sha256,
+        audit_sha256=audit_sha256, receipt_id=receipt_id, approved_at_us=now,
+        install_by_us=now + 10 * 60 * 1_000_000, origin='local-ui',
+        nonce_fingerprint=nonce_fingerprint,
+        session_secret_fingerprint=_fingerprint(session_secret), session_secret=session_secret)
+    target, _payload, receipt_sha256 = prepare_receipt(engine, receipt=receipt_body)
+    try:
+        _install_audit_file(engine, audit_raw,
+                            'The UI-confirmed local evidence audit could not be written',
+                            filename=local_evidence_audit_filename())
+        _commit_audit_digest(engine, audit_sha256, key=local_evidence_audit_metadata_key())
+        finalize_receipt(engine, target=target)
+        result = evidence_admin_install(data_dir=data_dir, receipt=target, session_secret=session_secret)
+        with engine.db.transaction() as connection:
+            connection.execute('INSERT INTO metadata(key,value) VALUES(?,?)',
+                               ('local_evidence_nonce:' + nonce_fingerprint, nonce_record))
+    except BaseException:
+        discard_pending_receipt(engine)
+        _restore_audit(engine, baseline, filename=local_evidence_audit_filename())
+        raise
+    return {'event': 'evidence_admin_confirmed', 'status': 'installed',
+            'receipt_id': receipt_id, 'receipt_sha256': receipt_sha256,
+            'audit_sha256': audit_sha256, 'policy_ref': result.get('policy_ref')}

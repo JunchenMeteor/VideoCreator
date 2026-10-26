@@ -21,6 +21,7 @@ from video_creator.application.bundles import BundleService
 from video_creator.application.engine import EngineService
 from video_creator.application.local_evidence import (
     evidence_admin_install,
+    evidence_admin_install_confirmed,
     install_local_evidence_trust,
     local_evidence_resource_manifest_hashes,
 )
@@ -173,8 +174,15 @@ def parser() -> argparse.ArgumentParser:
     evidence_commands = evidence.add_subparsers(dest="evidence_command", required=True)
     evidence_install = evidence_commands.add_parser("install")
     evidence_install.add_argument("--data-dir", required=True, type=Path)
-    evidence_install.add_argument("--receipt", required=True, type=Path,
-                                  help="The one-shot receipt issued by the approved product authorization")
+    evidence_install.add_argument("--receipt", type=Path,
+                                  help="Existing receipt; omitted for the UI-confirmed A' path")
+    evidence_install.add_argument("--install-root", type=Path)
+    evidence_install.add_argument("--installation-record", type=Path)
+    evidence_install.add_argument("--installation-record-sha256")
+    evidence_install.add_argument("--confirmed-by-ui", action="store_true")
+    evidence_install.add_argument("--confirmation-nonce")
+    evidence_install.add_argument("--confirmation-sha256")
+    evidence_install.add_argument("--policy")
     installer = commands.add_parser("installer-admin",
                                     help="ADR0083 one-shot installer provisioning; never starts a listener")
     installer_commands = installer.add_subparsers(dest="installer_command", required=True)
@@ -380,8 +388,25 @@ def main(*, installed_service_factory: InstalledServiceFactory | None = None,
             if args.evidence_command != "install":
                 raise EngineError("evidence_admin_command_invalid",
                                   "Only the one-shot evidence-admin install is supported", 400)
-            print(json.dumps(evidence_admin_install(data_dir=args.data_dir, receipt=args.receipt),
-                             ensure_ascii=False))
+            if args.receipt is not None:
+                print(json.dumps(evidence_admin_install(data_dir=args.data_dir, receipt=args.receipt),
+                                 ensure_ascii=False))
+            else:
+                required = (args.install_root, args.installation_record,
+                            args.installation_record_sha256, args.confirmation_nonce,
+                            args.confirmation_sha256, args.policy)
+                if any(value is None for value in required):
+                    raise EngineError("evidence_admin_configuration_invalid",
+                                      "The A' path requires install-root, installation-record, its sha, "
+                                      "confirmed-by-ui, confirmation nonce/sha and policy", 400)
+                print(json.dumps(evidence_admin_install_confirmed(
+                    data_dir=args.data_dir, install_root=args.install_root,
+                    installation_record=args.installation_record,
+                    installation_record_sha256=args.installation_record_sha256,
+                    confirmed_by_ui=args.confirmed_by_ui,
+                    confirmation_nonce=args.confirmation_nonce,
+                    confirmation_sha256=args.confirmation_sha256, policy=args.policy),
+                    ensure_ascii=False))
         elif args.command in {"product-serve", "product-worker"}:
             from video_creator.cli import product_host
             return product_host.main([
