@@ -382,8 +382,10 @@ class CurrentFinalEvidenceRecovery(DiagnosticSelectionService, ComponentDiagnosi
     def persist_current_final_assembly_context(self, lease, preparation_id, context):
         local_snapshot = None
         if type(context) is local.LocalFinalAssemblyContextV1:
+            _assembly_event('assembly_lock_waiting', run_id=lease.run_id, preparation_id=preparation_id)
             with self._lock:
                 held_context = getattr(self, '_local_preparation_contexts', {}).get(preparation_id)
+            _assembly_event('assembly_lock_acquired', run_id=lease.run_id, preparation_id=preparation_id)
             if held_context is None:
                 raise EngineError('local_preparation_context_missing', 'Original controlled local preparation is required.', 409)
             local_snapshot = self._local_source().context_snapshot(lease, held_context)

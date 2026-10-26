@@ -280,6 +280,25 @@ class InstancePrincipalRegistry:
         return self.principal(principal, now_us)
 
 
+class _TimeoutRLock:
+    """RLock with a named failure instead of an unbounded cross-thread wait."""
+
+    def __init__(self, timeout=10.0):
+        self._lock = threading.RLock()
+        self._timeout = timeout
+
+    def __enter__(self):
+        if not self._lock.acquire(timeout=self._timeout):
+            import faulthandler
+            faulthandler.dump_traceback(all_threads=True)
+            raise EngineError('bundle_lock_timeout', 'Bundle lock was not available within its bound', 503)
+        return self
+
+    def __exit__(self, *exc):
+        self._lock.release()
+        return False
+
+
 class BundleService(CurrentFinalEvidenceService):
     def __init__(self, engine: EngineService, validators: TrustedBundleValidators | None = None,
                  principals: InstancePrincipalRegistry | None = None,
@@ -302,7 +321,7 @@ class BundleService(CurrentFinalEvidenceService):
         self._final_evidence_ports = {}
         self._final_evidence_assessments = {}
         self._final_evidence_scopes = {}
-        self._lock = threading.RLock()
+        self._lock = _TimeoutRLock()
         self._export_stop = threading.Event()
         self._export_thread = None
         self._export_users = 0

@@ -815,8 +815,24 @@ def _produce_local(engine, bundle, executor, media, lease, *, production_service
                  media_artifacts=len(media_artifacts))
     _local_event('assembly_persist_started', run_id=lease.run_id,
                  preparation_id=preparation.preparation_id)
-    commit = require_final_port(final_evidence_ports).persist_assembly_context(
-        lease, preparation.preparation_id, assembly)
+    import faulthandler
+    import threading
+    stack_done = threading.Event()
+
+    def _dump_stack():
+        if not stack_done.wait(5.0):
+            faulthandler.dump_traceback()
+            _local_event('assembly_persist_stack', run_id=lease.run_id,
+                         preparation_id=preparation.preparation_id)
+
+    stack_thread = threading.Thread(target=_dump_stack, name='assembly-persist-stack', daemon=True)
+    stack_thread.start()
+    try:
+        commit = require_final_port(final_evidence_ports).persist_assembly_context(
+            lease, preparation.preparation_id, assembly)
+    finally:
+        stack_done.set()
+        stack_thread.join(timeout=1.0)
     _local_event('assembly_persist_done', run_id=lease.run_id,
                  preparation_id=preparation.preparation_id,
                  content_sha256=getattr(commit, 'content_sha256', None))
