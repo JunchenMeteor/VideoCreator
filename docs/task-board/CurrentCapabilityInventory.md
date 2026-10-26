@@ -141,3 +141,25 @@ MCP `production_create` 可创建 production，但实测发现：① MCP 启动�
 
 引擎 `1f5147a3…`（`f4498ff` 构建），`product-serve`/`product-worker --help` exit 0。
 未完成：单文件 `Setup.exe`（7-Zip SFX 需重做）；语音作品的 srt 尚未在此安装上验证（本条为纯 video）。
+
+
+## 2026-10-26 16:05 安装包双击路径通过 + 语音在安装形态下跑通
+
+**安装包**：`VideoCreator-Setup-0.1.0-local.exe`，916,593,074 B（874 MiB），SHA `29e9474f…81e2`，未签名；静默安装 211 s。
+**双击路径**（ShellExecute）：`finalize_done` → `launcher_registration` → `launcher_ready`，`/health` 200，无 `trusted_startup_acl_changed`。
+**ACL 根因**：`icacls` 的本地化汇总行随控制台代码页变化（bash 英文 / Start-Process hidden CP936），却被计入摘要哈希；已用 `chcp 65001` + launcher `SetConsoleOutputCP(65001)` 修复，并保留 `finalize.pending` 预检。
+
+**语音作品（新安装实例，同一 run）**：
+
+```
+15:45:50 accepted → +8.9 plan → +32.6 quality → +63.0 真实 ASR（6.4 s）
+→ +75.6 alignment_required（证据门）→ 15:51:22 receipt → 重启 → 15:52:44 succeeded
+```
+
+| 文件 | 字节 | SHA-256 |
+| --- | --- | --- |
+| video.mp4 | 161,545 | `4e25d14d…14ebd5` |
+| mixed-audio.wav | 602,958 | `a17169ac…c7a746fa` |
+| subtitles.srt | 107 | `6442f340…3d30d14c` |
+
+字幕：`00:00:00,000 --> 00:00:05,460 / 这是一段本地生成的测试庞白,用来验证语音识别链路。`（ASR 同音输出，未修饰）；`precision=not_measured` 在 transcript / quality-report / 证据安装记录三处一致。创建→成片 414.4 s。
