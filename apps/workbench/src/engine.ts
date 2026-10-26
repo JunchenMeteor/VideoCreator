@@ -7,7 +7,8 @@ export type ProjectInput = Schemas['ProjectInput'];
 export type ProductionDetail = Schemas['ProductionDetail'];
 export type ProductionAccepted = Schemas['ProductionAccepted'];
 export type ProductionInput = RequestArguments<'POST /api/v1/productions'>['body'];
-export type CreativeRevision = Schemas['CreativeRevision'];
+// The contract exposes revisions only as ProductionRevisionSummary.
+export type CreativeRevision = Schemas['ProductionRevisionSummary'];
 export type EngineEvent = Schemas['EventEnvelope'];
 export type AssetRecord = Schemas['AssetRecord'];
 export type ErrorEnvelope = Schemas['ErrorEnvelope'];

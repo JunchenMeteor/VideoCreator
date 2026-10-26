@@ -120,7 +120,7 @@ it('creates a production with the selected outputs and shows the real accepted s
 it('lists real waiting revisions and rejects with a required reason', async () => {
   const production = accepted({ status: 'waiting_user', production_id: 'production-review' });
   const revision: Schemas['ProductionRevisionSummary'] = {
-    revision_id: 'revision-plan-1', kind: 'plan',
+    revision_id: 'revision-plan-1', kind: 'plan', input_revision_refs: [], body: {},
     expires_at_us: Date.now() * 1000 + 5 * 60 * 1_000_000,
   };
   const { state } = installApi({ productions: [production], details: { [production.production_id]: detail('waiting_user') }, revisions: { [production.production_id]: [revision] } });
@@ -171,7 +171,7 @@ it('maps queued, running, review, success and failure to honest product copy', (
 it('approves a real waiting revision with the approve action and no instruction', async () => {
   const production = accepted({ status: 'waiting_user', production_id: 'production-approve' });
   const revision: Schemas['ProductionRevisionSummary'] = {
-    revision_id: 'revision-quality-1', kind: 'quality',
+    revision_id: 'revision-quality-1', kind: 'quality', input_revision_refs: [], body: {},
     expires_at_us: Date.now() * 1000 + 5 * 60 * 1_000_000,
     failure_code: 'alignment_required',
   };
@@ -190,7 +190,7 @@ it('approves a real waiting revision with the approve action and no instruction'
 it('shows an expired review window and disables both decisions', async () => {
   const production = accepted({ status: 'waiting_user', production_id: 'production-expired' });
   const revision: Schemas['ProductionRevisionSummary'] = {
-    revision_id: 'revision-quality-expired', kind: 'quality',
+    revision_id: 'revision-quality-expired', kind: 'quality', input_revision_refs: [], body: {},
     expires_at_us: Date.now() * 1000 - 60 * 1_000_000,
     failure_code: 'media_invalid',
   };

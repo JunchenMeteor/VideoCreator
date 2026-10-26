@@ -5,7 +5,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Theme } from '@radix-ui/themes';
 import { CredentialsPanel } from '../CredentialsPanel';
 import {
-  CREDENTIAL_IN_USE_TEXT, CREDENTIAL_TEST_NOTE, EMPTY_CREDENTIALS_TEXT, VAULT_UNAVAILABLE_TEXT,
+  CREDENTIAL_IN_USE_TEXT, CREDENTIAL_RESPONSE_INVALID_TEXT, CREDENTIAL_TEST_NOTE,
+  EMPTY_CREDENTIALS_TEXT, VAULT_UNAVAILABLE_TEXT,
   fingerprintPrefix, type CredentialSummary,
 } from '../credentialApi';
 
@@ -114,12 +115,20 @@ it('shows the empty state when no credential exists', async () => {
   expect(await screen.findByText(EMPTY_CREDENTIALS_TEXT)).toBeInTheDocument();
 });
 
-it('accepts the engine list response without the optional envelope', async () => {
-  installApi({ listBody: [credential({ provider: 'deepseek', label: '备用' })] });
+it('reports a contract failure instead of showing an empty list when the envelope is missing', async () => {
+  installApi({ listBody: [credential()] });
   renderPanel();
-  const list = await screen.findByRole('list', { name: '已配置的模型凭证' });
-  expect(within(list).getByText('deepseek')).toBeInTheDocument();
-  expect(within(list).getByText('备用')).toBeInTheDocument();
+  expect(await screen.findByText(CREDENTIAL_RESPONSE_INVALID_TEXT)).toBeInTheDocument();
+  expect(screen.queryByText(EMPTY_CREDENTIALS_TEXT)).not.toBeInTheDocument();
+  expect(screen.queryByRole('list', { name: '已配置的模型凭证' })).not.toBeInTheDocument();
+});
+
+it('rejects a malformed credential entry instead of silently dropping it', async () => {
+  installApi({ listBody: { credentials: [credential({ fingerprint: 'not a fingerprint!' })] } });
+  renderPanel();
+  expect(await screen.findByText(CREDENTIAL_RESPONSE_INVALID_TEXT)).toBeInTheDocument();
+  expect(screen.queryByText('主账号')).not.toBeInTheDocument();
+  expect(screen.queryByText(EMPTY_CREDENTIALS_TEXT)).not.toBeInTheDocument();
 });
 
 it('offers exactly the supported providers', async () => {

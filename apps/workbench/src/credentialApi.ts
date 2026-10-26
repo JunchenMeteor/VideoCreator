@@ -21,6 +21,7 @@ export type CredentialSummary = Readonly<{
 export const EMPTY_CREDENTIALS_TEXT = '尚未配置模型凭证';
 export const CREDENTIAL_IN_USE_TEXT = '该凭证仍被路由引用，无法删除';
 export const VAULT_UNAVAILABLE_TEXT = '本机保险库不可用，无法保存凭证';
+export const CREDENTIAL_RESPONSE_INVALID_TEXT = '实例返回的凭证信息无法识别';
 /** The engine has no connection-test endpoint; say so instead of faking a pass. */
 export const CREDENTIAL_TEST_NOTE = '连接测试需先配置模型路由（尚未实现）';
 
@@ -31,7 +32,7 @@ const ERROR_TEXT: Readonly<Record<string, string>> = {
   credential_store_failed: '本机保险库未能保存该凭证',
   credential_not_found: '该凭证不存在或已被删除',
   credential_ref_invalid: '凭证编号无效，未发送删除请求',
-  credential_response_invalid: '实例返回的凭证信息无法识别',
+  credential_response_invalid: CREDENTIAL_RESPONSE_INVALID_TEXT,
   credential_request_failed: '凭证请求未完成',
 };
 
@@ -124,18 +125,18 @@ function summary(value: unknown): CredentialSummary | null {
 }
 
 /**
- * The engine at HEAD returns a bare array; the published contract wraps it in
- * `{credentials: [...]}`. Accept either shape, then validate every entry.
+ * The published contract (OpenAPI `CredentialListV1`) is
+ * `{"credentials":[...]}`. Anything else is a contract failure: report it,
+ * never silently render it as an empty list.
  */
 export async function readCredentials(signal?: AbortSignal): Promise<CredentialSummary[]> {
   const response = await request('/api/v1/credentials', { method: 'GET', signal });
   if (!response.ok) throw await responseFailure(response);
   const value: unknown = await response.json().catch(() => undefined);
-  const list = Array.isArray(value)
-    ? value
-    : isRecord(value) && Array.isArray(value.credentials) ? value.credentials : null;
-  if (!list) throw new CredentialApiFailure(502, 'credential_response_invalid');
-  const items = list.map(summary);
+  if (!isRecord(value) || !Array.isArray(value.credentials)) {
+    throw new CredentialApiFailure(502, 'credential_response_invalid');
+  }
+  const items = value.credentials.map(summary);
   if (items.some(item => item === null)) throw new CredentialApiFailure(502, 'credential_response_invalid');
   return items as CredentialSummary[];
 }
