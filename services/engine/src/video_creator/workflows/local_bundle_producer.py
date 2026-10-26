@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import sys
 
 from pydantic import ValidationError
 
@@ -626,6 +627,10 @@ def _publication_composition(composition, right):
         update={'rights': (right,)})}
 
 
+
+def _local_event(event, **fields):
+    print(json.dumps({"event": event, **fields}, ensure_ascii=False), file=sys.stderr, flush=True)
+
 def _produce_local(engine, bundle, executor, media, lease, *, production_services,
         local_material_context, selection, media_roles, asr_route_id,
         plan_admission, production_rights_fact, final_evidence_ports=None,
@@ -639,6 +644,8 @@ def _produce_local(engine, bundle, executor, media, lease, *, production_service
         LocalMaterialServices,
     )
 
+    _local_event('produce_local_entered', run_id=lease.run_id, roles=list(media_roles),
+                 outputs=list(selection.outputs), has_ports=final_evidence_ports is not None)
     control = current_attempt()
     control.check()
     if type(production_services) not in {LocalMaterialServices, LocalMaterialPolicyServices}:
@@ -743,11 +750,16 @@ def _produce_local(engine, bundle, executor, media, lease, *, production_service
             schema_kind=kind, media_type=media_type) for path, kind, media_type in slots),
         media_asset_ids=tuple(assets[role].asset_id for role in selection.master_roles))
     preparation = bundle.prepare_local(lease, intent, context=local_material_context)
+    _local_event('produce_local_prepared', run_id=lease.run_id,
+                 preparation_id=preparation.preparation_id,
+                 items=len(getattr(preparation, 'materials', ()) or ()))
     receipts = {}
     for path, (_kind, _media_type, data) in documents.items():
         control.check()
         receipts[path] = bundle.stage_material(lease, preparation.preparation_id,
                                                artifact_ids[path], data)
+    _local_event('produce_local_documents_staged', run_id=lease.run_id,
+                 preparation_id=preparation.preparation_id, receipts=len(receipts))
     media_artifacts = _media_artifacts(composition, selection=selection, tracks=tracks, right=right)
     speech_method = None if speech_bundle is None else speech_bundle['method'].method_id
     artifacts = _document_artifacts(documents=documents, receipts=receipts,
@@ -811,9 +823,18 @@ def _produce_local(engine, bundle, executor, media, lease, *, production_service
         # benchmark: until the local self-issued installation exists this is the
         # documented stopping point, and a silent work is unaffected.
         _evidence_gate(bundle, lease, request, speech_bundle)
+    _local_event('produce_local_verifying', run_id=lease.run_id,
+                 preparation_id=preparation.preparation_id, artifacts=len(manifest.artifacts))
     verified = bundle.verify_local(lease, preparation.preparation_id, manifest)
+    _local_event('produce_local_verified', run_id=lease.run_id,
+                 preparation_id=preparation.preparation_id)
     control.check()
+    _local_event('produce_local_publishing', run_id=lease.run_id,
+                 preparation_id=preparation.preparation_id)
     reference = bundle.publish(lease, verified)
+    _local_event('produce_local_published', run_id=lease.run_id,
+                 preparation_id=preparation.preparation_id,
+                 bundle_revision_id=reference.bundle_revision_id)
     from video_creator.workflows.bundle_producer import BundleProductionResult
     return BundleProductionResult('published', preparation.preparation_id, manifest,
         tuple(receipts.values()), bundle_ref=reference)
@@ -839,18 +860,25 @@ def produce_local_bundle(engine, bundle, executor, media, lease, *,
     """
     with attempt_control(cancel, deadline_monotonic).activate():
         try:
-            return _produce_local(engine, bundle, executor, media, lease,
+            result = _produce_local(engine, bundle, executor, media, lease,
                 production_services=production_services,
                 local_material_context=local_material_context, selection=selection,
                 media_roles=media_roles, asr_route_id=asr_route_id,
                 plan_admission=plan_admission, production_rights_fact=production_rights_fact,
                 final_evidence_ports=final_evidence_ports,
                 asr_resources=asr_resources, runtime_root=runtime_root)
-        except EngineError:
+            _local_event('produce_local_returned', run_id=lease.run_id,
+                         reason='published', bundle_revision_id=result.bundle_ref.bundle_revision_id)
+            return result
+        except EngineError as error:
+            _local_event('produce_local_returned', run_id=lease.run_id,
+                         reason='engine_error', code=error.code, message=str(error.message)[:300])
             raise
         except Exception as error:  # report the real cause by name
             import traceback
 
+            _local_event('produce_local_returned', run_id=lease.run_id,
+                         reason='exception', error=type(error).__name__, message=str(error)[:300])
             traceback.print_exc()
             raise EngineError('local_speech_evidence_invalid',
                 f'Local final production failed: {type(error).__name__}: {error}', 422) from error
