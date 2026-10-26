@@ -1802,12 +1802,6 @@ class BudgetSummaryV1(Contract):
     reserved: CostAmountV1
 
 
-class ProductionPreviewV1(Contract):
-    max_cost: CostAmountV1
-    excluded_reasons: tuple[str, ...] = ()
-    cost_basis: Literal["confirmed_no_charge", "usage_price_calculation", "unknown"]
-
-
 class PublishUnavailableV1(Contract):
     status: Literal["unavailable"] = "unavailable"
     code: Literal["publish_unavailable"] = "publish_unavailable"
@@ -1832,6 +1826,32 @@ class CredentialListV1(Contract):
     """Wrapped collection; a future next_cursor can be added without a break."""
 
     credentials: tuple[CredentialSummaryV1, ...] = ()
+
+
+class RouteDecisionV1(Contract):
+    capability: str
+    route_id: str | None = None
+    source_kind: Literal["owned_local", "byok", "official", "unavailable"]
+    reason: str
+
+
+class CapabilitySourceV1(Contract):
+    kind: Literal["owned_local", "byok", "official"]
+    route_id: str | None = None
+    credential_ref: str | None = None
+    available: bool
+    reason: str
+
+
+class CapabilityListV1(Contract):
+    capabilities: tuple[CapabilitySourceV1, ...] = ()
+
+
+class ProductionPreviewV1(Contract):
+    max_cost: CostAmountV1
+    excluded_reasons: tuple[str, ...] = ()
+    cost_basis: Literal["confirmed_no_charge", "usage_price_calculation", "unknown"]
+    route_decision: tuple[RouteDecisionV1, ...] = ()
 
 
 ProductionRequestAny = ProductionRequest | ProductionRequestV03

@@ -17,9 +17,9 @@
     "services/engine/migrations/0005_alignment_admissions.sql": "20fa2f1c6ce15b5a0551e84588727172b70a7f83588ec61f84f4458fa2b4ba06",
     "services/engine/src/video_creator/__init__.py": "f5d6e64939446302f3dc31049b4174b8ae11d9eba2e9144e2321f6007b52793e",
     "services/engine/src/video_creator/api/__init__.py": "19184243110e4d91978d970d0ebf61015dd8ec383d91537c10b0dd67d5cc9752",
-    "services/engine/src/video_creator/api/app.py": "e2befe806fc2107450891d374b7bf35adedb082aab3f02e1a9073802e8720e4b",
+    "services/engine/src/video_creator/api/app.py": "a6752b26362ed084fa159f4d8d1d18f7d3a0addee29d6917922a9f2733c7a381",
     "services/engine/src/video_creator/api/development_marker.py": "f98b174e4ea95672de7e0a3cf3549043dadf30b9e08621b2bf2a0e8ce15a0031",
-    "services/engine/src/video_creator/api/transport_contract.py": "424249a8f9779b761da8008d6559334a7d6b36c752447e32f11ad54adffa3ddc",
+    "services/engine/src/video_creator/api/transport_contract.py": "db4aa9cbaf078c89301ee0cd8512161c515846cce186888bf0b7c69020a3e60b",
     "services/engine/src/video_creator/application/__init__.py": "5432faa13e5839f3b96aecf7c8e26db05803b7b987bedb4087f9eb69bf67d68c",
     "services/engine/src/video_creator/application/affected_recipe_plan.py": "13e431109b8be4697658d4961082b3968cba3eda3edf8555ebbc5138e579b7f5",
     "services/engine/src/video_creator/application/affected_repair_service.py": "43901ec332e62c020a72a74a9af157ac83ec80e3dff39a24baa2594d17a30e8b",
@@ -28,6 +28,7 @@
     "services/engine/src/video_creator/application/bundle_authorization.py": "84f12cf36277c9f2aca3d7fdc26ed23e218be881ae93b699ff67212d460fbe68",
     "services/engine/src/video_creator/application/bundle_facts.py": "e86cbbd1b3b5a6953852ee1ecd327fea56c18fb812383e1cb202a44d464cafc5",
     "services/engine/src/video_creator/application/bundles.py": "0ec481603bedac2e2182f90ee01ea10e209ad139cef41e85a63d40a2745fb9cf",
+    "services/engine/src/video_creator/application/capability_sources.py": "2ae0d9afc6bdf50466093553b8133de19640e3c831142173e75183009cc4db0a",
     "services/engine/src/video_creator/application/committed_alignment_read.py": "5b4aa9a8ca1dd35e7d11253aa9593f158019078a24e53467b97b1e874cb4f511",
     "services/engine/src/video_creator/application/component_diagnosis_service.py": "b73938149e2ba87daf9c4c88ef6b996dfa7b025db3acc922c248d363f0cf965b",
     "services/engine/src/video_creator/application/credentials.py": "2ac0470222a6f94b8a99df21c86233e65a6093191228c6c8f5796848045d9267",
@@ -55,7 +56,7 @@
     "services/engine/src/video_creator/domain/affected_repair.py": "9768bc4220283c2265d7e185a32343d1b5d88e83733ee1b4efd1d5252e05589d",
     "services/engine/src/video_creator/domain/bundle.py": "72c4aad698b9c551dbd7f08bd6f15d6f0a15508d222fa7f73523e64799acc215",
     "services/engine/src/video_creator/domain/component_diagnosis.py": "1d3b07b9a253e56f812e99517841a30b509a584b473f4cce77c014bad871ac3b",
-    "services/engine/src/video_creator/domain/contracts.py": "f8bb44dc74672907d1b66e226aaf042b89b27d5068b36ecbaac94c3cf667baee",
+    "services/engine/src/video_creator/domain/contracts.py": "e8cc7862eae6a13711227f21f8fdcd3147e5b9abdbb84b27c1a54bd9eb49d803",
     "services/engine/src/video_creator/domain/current_final_evidence.py": "e3ee6f4bb5add649e2442e0d0575d7e0fe6c3a0799a7ef44b8cc9f7d30cdcab4",
     "services/engine/src/video_creator/domain/daily_project_authorization.py": "f9483593c9cfe6e9d7d13bc51defbe1a3dcb48bf1973410a516b91387311c838",
     "services/engine/src/video_creator/domain/diagnostic_recovery.py": "705a548d339d67ef85c868c679524cb064d51ddba2cff914279ae264a241b7a9",
@@ -83,12 +84,12 @@
     "tools/build/GenerateNativeContracts.mjs": "1f6d48ed6983f136deb14ac2b2a53239b8f5effe684e21e2ee65950661cf3887"
   },
   "outputs": {
-    "packages/contracts/openapi.json": "7da5d9d8bee2fa607a89f07e14f6345e0c64ac248999d393d2460205206c7745",
-    "packages/contracts/schemas.json": "427cc91a4dc21709f233bdf8181d708b0c46fd5a5bf040ec74db766e34d52c76",
-    "packages/contracts/export.sources.json": "065f301d2e547ae62bf933061db7b657007dba269bea2408072fb6d4d64fc99b",
-    "packages/contracts/NativeRouteManifest.json": "985ded82608567e26bc515c25cbc48c5ea5a81fb38aecad7352c32f712fece35",
-    "packages/api-client/src/schema.d.ts": "755d17ced9f35ab91632e750cfcc1e5f7f762500562c248f0140aa13714066ec",
-    "packages/api-client/src/routes.generated.ts": "0efabfd1c59cbde10b6b71beb9154b29b44f9730f3e376db069028395c91260c",
-    "packages/api-client/src/native.routes.generated.ts": "38d294c63112fafd6a029ccdadafaf38013c5ff9f618396e7f4b678b86404579"
+    "packages/contracts/openapi.json": "0b3354575ef7aa59a0eb0ade1eac34b7f56adcd44aa4bd8beab055cbb222dec1",
+    "packages/contracts/schemas.json": "cb878a5fd185ba9a5e8067f6c1fa0aec6d9ece65cf5bbb76a5ce92b313268673",
+    "packages/contracts/export.sources.json": "4d8331afc3dda238a75818ae2212458b9757a086905f857821cdf6461b73a2df",
+    "packages/contracts/NativeRouteManifest.json": "78a406215f3009ac373758d60e6e83d5d3222c96cfcf5ebc44a002101d06bf02",
+    "packages/api-client/src/schema.d.ts": "d8088fe2eb1a6313d9f69a67d2e7462f5a125d9febccf1bbbe6ed664d28729e6",
+    "packages/api-client/src/routes.generated.ts": "53373d0a4cf01aa9a2950f6dfa4346219428e3135d8bb0b85fad35dd0a9ed6b6",
+    "packages/api-client/src/native.routes.generated.ts": "cd4c044e5e66cd4687638842ebaead20d0749469c523ae7185b8ea0e09160625"
   }
 }

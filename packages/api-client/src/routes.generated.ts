@@ -636,6 +636,45 @@ export const ROUTES = {
       ]
     }
   },
+  "GET /api/v1/capabilities": {
+    "method": "GET",
+    "template": "/api/v1/capabilities",
+    "operationId": "capability_list_api_v1_capabilities_get",
+    "requestMedia": [],
+    "responseMedia": {
+      "200": [
+        "application/json"
+      ],
+      "400": [
+        "text/plain",
+        "application/json"
+      ],
+      "401": [
+        "application/json"
+      ],
+      "403": [
+        "application/json"
+      ],
+      "404": [
+        "application/json"
+      ],
+      "409": [
+        "application/json"
+      ],
+      "413": [
+        "application/json"
+      ],
+      "415": [
+        "application/json"
+      ],
+      "422": [
+        "application/json"
+      ],
+      "503": [
+        "application/json"
+      ]
+    }
+  },
   "POST /api/v1/productions/{production_id}/publish": {
     "method": "POST",
     "template": "/api/v1/productions/{production_id}/publish",

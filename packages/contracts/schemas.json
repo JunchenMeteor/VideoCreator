@@ -10304,6 +10304,76 @@
       "title": "BundleSourceRef",
       "type": "object"
     },
+    "CapabilityListV1": {
+      "$defs": {
+        "CapabilitySourceV1": {
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "enum": [
+                "owned_local",
+                "byok",
+                "official"
+              ],
+              "title": "Kind",
+              "type": "string"
+            },
+            "route_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Route Id"
+            },
+            "credential_ref": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Credential Ref"
+            },
+            "available": {
+              "title": "Available",
+              "type": "boolean"
+            },
+            "reason": {
+              "title": "Reason",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "available",
+            "reason"
+          ],
+          "title": "CapabilitySourceV1",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "capabilities": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/CapabilitySourceV1"
+          },
+          "title": "Capabilities",
+          "type": "array"
+        }
+      },
+      "title": "CapabilityListV1",
+      "type": "object"
+    },
     "CapabilityRoute": {
       "$defs": {
         "Money": {
@@ -10412,6 +10482,59 @@
         "cost_rule_version"
       ],
       "title": "CapabilityRoute",
+      "type": "object"
+    },
+    "CapabilitySourceV1": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "owned_local",
+            "byok",
+            "official"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "route_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Route Id"
+        },
+        "credential_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Credential Ref"
+        },
+        "available": {
+          "title": "Available",
+          "type": "boolean"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "available",
+        "reason"
+      ],
+      "title": "CapabilitySourceV1",
       "type": "object"
     },
     "ContentRequestPurpose": {
@@ -18219,6 +18342,48 @@
           ],
           "title": "CostAmountV1",
           "type": "object"
+        },
+        "RouteDecisionV1": {
+          "additionalProperties": false,
+          "properties": {
+            "capability": {
+              "title": "Capability",
+              "type": "string"
+            },
+            "route_id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Route Id"
+            },
+            "source_kind": {
+              "enum": [
+                "owned_local",
+                "byok",
+                "official",
+                "unavailable"
+              ],
+              "title": "Source Kind",
+              "type": "string"
+            },
+            "reason": {
+              "title": "Reason",
+              "type": "string"
+            }
+          },
+          "required": [
+            "capability",
+            "source_kind",
+            "reason"
+          ],
+          "title": "RouteDecisionV1",
+          "type": "object"
         }
       },
       "additionalProperties": false,
@@ -18242,6 +18407,14 @@
           ],
           "title": "Cost Basis",
           "type": "string"
+        },
+        "route_decision": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/RouteDecisionV1"
+          },
+          "title": "Route Decision",
+          "type": "array"
         }
       },
       "required": [
@@ -20261,6 +20434,48 @@
         "permitted_uses"
       ],
       "title": "RightsSnapshot",
+      "type": "object"
+    },
+    "RouteDecisionV1": {
+      "additionalProperties": false,
+      "properties": {
+        "capability": {
+          "title": "Capability",
+          "type": "string"
+        },
+        "route_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Route Id"
+        },
+        "source_kind": {
+          "enum": [
+            "owned_local",
+            "byok",
+            "official",
+            "unavailable"
+          ],
+          "title": "Source Kind",
+          "type": "string"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "capability",
+        "source_kind",
+        "reason"
+      ],
+      "title": "RouteDecisionV1",
       "type": "object"
     },
     "ScriptCandidate": {

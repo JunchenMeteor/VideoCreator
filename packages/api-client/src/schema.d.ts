@@ -221,6 +221,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/capabilities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Capability List */
+        get: operations["capability_list_api_v1_capabilities_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/productions/{production_id}/publish": {
         parameters: {
             query?: never;
@@ -1551,6 +1568,30 @@ export interface components {
             /** Valid Until Us */
             valid_until_us?: number | null;
         };
+        /** CapabilityListV1 */
+        CapabilityListV1: {
+            /**
+             * Capabilities
+             * @default []
+             */
+            capabilities: components["schemas"]["CapabilitySourceV1"][];
+        };
+        /** CapabilitySourceV1 */
+        CapabilitySourceV1: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "owned_local" | "byok" | "official";
+            /** Route Id */
+            route_id?: string | null;
+            /** Credential Ref */
+            credential_ref?: string | null;
+            /** Available */
+            available: boolean;
+            /** Reason */
+            reason: string;
+        };
         /** ContentRequestPurpose */
         ContentRequestPurpose: {
             /**
@@ -2503,6 +2544,11 @@ export interface components {
              * @enum {string}
              */
             cost_basis: "confirmed_no_charge" | "usage_price_calculation" | "unknown";
+            /**
+             * Route Decision
+             * @default []
+             */
+            route_decision: components["schemas"]["RouteDecisionV1"][];
         };
         /** ProductionRequest */
         "ProductionRequest-Input": {
@@ -3031,6 +3077,20 @@ export interface components {
              * @default []
              */
             limitations: string[];
+        };
+        /** RouteDecisionV1 */
+        RouteDecisionV1: {
+            /** Capability */
+            capability: string;
+            /** Route Id */
+            route_id?: string | null;
+            /**
+             * Source Kind
+             * @enum {string}
+             */
+            source_kind: "owned_local" | "byok" | "official" | "unavailable";
+            /** Reason */
+            reason: string;
         };
         /**
          * RunStatus
@@ -5095,6 +5155,128 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ProductionPreviewV1"];
+                };
+            };
+            /** @description Invalid domain input (JSON), or a rejected transport Host/Origin/Range (plain text) */
+            400: {
+                headers: {
+                    /** @description Actual response MIME, including charset/boundary when supplied. */
+                    "Content-Type"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/plain": string;
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Installation session is invalid */
+            401: {
+                headers: {
+                    /** @description Actual response MIME, including charset/boundary when supplied. */
+                    "Content-Type"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Installation permission or browser origin is denied */
+            403: {
+                headers: {
+                    /** @description Actual response MIME, including charset/boundary when supplied. */
+                    "Content-Type"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Owned resource does not exist */
+            404: {
+                headers: {
+                    /** @description Actual response MIME, including charset/boundary when supplied. */
+                    "Content-Type"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Version, idempotency or execution state conflicts; inspect retryability */
+            409: {
+                headers: {
+                    /** @description Actual response MIME, including charset/boundary when supplied. */
+                    "Content-Type"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Asset upload exceeds the configured limit */
+            413: {
+                headers: {
+                    /** @description Actual response MIME, including charset/boundary when supplied. */
+                    "Content-Type"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Identified media format or media reference is not supported by installation policy */
+            415: {
+                headers: {
+                    /** @description Actual response MIME, including charset/boundary when supplied. */
+                    "Content-Type"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Request contract, content integrity or media decoding is invalid */
+            422: {
+                headers: {
+                    /** @description Actual response MIME, including charset/boundary when supplied. */
+                    "Content-Type"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+            /** @description Required installation resource or media validator is unavailable */
+            503: {
+                headers: {
+                    /** @description Actual response MIME, including charset/boundary when supplied. */
+                    "Content-Type"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorEnvelope"];
+                };
+            };
+        };
+    };
+    capability_list_api_v1_capabilities_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    /** @description Actual response MIME, including charset/boundary when supplied. */
+                    "Content-Type"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CapabilityListV1"];
                 };
             };
             /** @description Invalid domain input (JSON), or a rejected transport Host/Origin/Range (plain text) */

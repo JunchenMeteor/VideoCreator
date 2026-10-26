@@ -56,13 +56,13 @@
     "video_creator.api.app": {
       "before_source_read": {
         "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/api/app.py",
-        "bytes": 44090,
-        "sha256": "e2befe806fc2107450891d374b7bf35adedb082aab3f02e1a9073802e8720e4b"
+        "bytes": 45023,
+        "sha256": "a6752b26362ed084fa159f4d8d1d18f7d3a0addee29d6917922a9f2733c7a381"
       },
       "after_export": {
         "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/api/app.py",
-        "bytes": 44090,
-        "sha256": "e2befe806fc2107450891d374b7bf35adedb082aab3f02e1a9073802e8720e4b"
+        "bytes": 45023,
+        "sha256": "a6752b26362ed084fa159f4d8d1d18f7d3a0addee29d6917922a9f2733c7a381"
       },
       "changed": false
     },
@@ -82,13 +82,13 @@
     "video_creator.api.transport_contract": {
       "before_source_read": {
         "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/api/transport_contract.py",
-        "bytes": 21212,
-        "sha256": "424249a8f9779b761da8008d6559334a7d6b36c752447e32f11ad54adffa3ddc"
+        "bytes": 21231,
+        "sha256": "db4aa9cbaf078c89301ee0cd8512161c515846cce186888bf0b7c69020a3e60b"
       },
       "after_export": {
         "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/api/transport_contract.py",
-        "bytes": 21212,
-        "sha256": "424249a8f9779b761da8008d6559334a7d6b36c752447e32f11ad54adffa3ddc"
+        "bytes": 21231,
+        "sha256": "db4aa9cbaf078c89301ee0cd8512161c515846cce186888bf0b7c69020a3e60b"
       },
       "changed": false
     },
@@ -108,13 +108,13 @@
     "video_creator.domain.contracts": {
       "before_source_read": {
         "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/contracts.py",
-        "bytes": 70806,
-        "sha256": "f8bb44dc74672907d1b66e226aaf042b89b27d5068b36ecbaac94c3cf667baee"
+        "bytes": 71324,
+        "sha256": "e8cc7862eae6a13711227f21f8fdcd3147e5b9abdbb84b27c1a54bd9eb49d803"
       },
       "after_export": {
         "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/domain/contracts.py",
-        "bytes": 70806,
-        "sha256": "f8bb44dc74672907d1b66e226aaf042b89b27d5068b36ecbaac94c3cf667baee"
+        "bytes": 71324,
+        "sha256": "e8cc7862eae6a13711227f21f8fdcd3147e5b9abdbb84b27c1a54bd9eb49d803"
       },
       "changed": false
     },
@@ -700,6 +700,19 @@
         "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/evidence.py",
         "bytes": 33949,
         "sha256": "98252eea1059c32e92e55b8b176402261b16463f5701b841fcf5a03e5ffd0756"
+      },
+      "changed": false
+    },
+    "video_creator.application.capability_sources": {
+      "before_source_read": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/capability_sources.py",
+        "bytes": 4810,
+        "sha256": "2ae0d9afc6bdf50466093553b8133de19640e3c831142173e75183009cc4db0a"
+      },
+      "after_export": {
+        "path": "G:/开发测试/Projects/VideoCreator/services/engine/src/video_creator/application/capability_sources.py",
+        "bytes": 4810,
+        "sha256": "2ae0d9afc6bdf50466093553b8133de19640e3c831142173e75183009cc4db0a"
       },
       "changed": false
     },
@@ -2634,15 +2647,15 @@
       "bytes": 55192,
       "sha256": "cea99f212af557a9613150c5509631403ed0f05f5d9a06ac42039bd59b40e39a"
     },
-    "C:\\WINDOWS\\System32\\ADVAPI32.dll": {
-      "path": "C:/Windows/System32/advapi32.dll",
-      "bytes": 795272,
-      "sha256": "b864e1468a01a44f1901e03c05c1029e71655dd9abddd6d840bcfff5e7227d44"
-    },
     "C:\\WINDOWS\\System32\\msvcrt.dll": {
       "path": "C:/Windows/System32/msvcrt.dll",
       "bytes": 716104,
       "sha256": "fc1447db4e4814cbcb002179a8003a41f383fc417879f628727043cab8c25093"
+    },
+    "C:\\WINDOWS\\System32\\ADVAPI32.dll": {
+      "path": "C:/Windows/System32/advapi32.dll",
+      "bytes": 795272,
+      "sha256": "b864e1468a01a44f1901e03c05c1029e71655dd9abddd6d840bcfff5e7227d44"
     },
     "C:\\WINDOWS\\System32\\sechost.dll": {
       "path": "C:/Windows/System32/sechost.dll",

@@ -26,6 +26,13 @@ from video_creator.api.transport_contract import (
 from video_creator.application import credentials as credential_store
 from video_creator.application.assets import AssetService
 from video_creator.application.bundles import BundleService, InstancePrincipalRegistry
+from video_creator.application.capability_sources import (
+    assert_decisions_available,
+    route_decisions,
+)
+from video_creator.application.capability_sources import (
+    capabilities as capability_sources,
+)
 from video_creator.application.engine import EngineService, identity
 from video_creator.application.product_authorization import (
     AUTHORIZATION_HEADER,
@@ -360,7 +367,15 @@ def create_app(engine: EngineService, token: str, subject: str = "local-user",
                   "is not recovery evidence."
               ))
     def production_create(body: ProductionRequestAny, key: str = Header(alias="Idempotency-Key", min_length=1, max_length=128), actor: AccessContext = access_dependency):
-        return bundles.create_production(actor, key, body)
+        decisions = route_decisions(engine, body)
+        assert_decisions_available(decisions)
+        accepted = bundles.create_production(actor, key, body)
+        from video_creator.application.media_registration import sys_event
+        for decision in decisions:
+            sys_event('route.decided', run_id=accepted.run_id, capability=decision.capability,
+                      route_id=decision.route_id, source_kind=decision.source_kind,
+                      reason=decision.reason)
+        return accepted
 
     @app.post('/api/v1/project-goals', response_model=ProjectGoalAccepted, status_code=202,
               operation_id='create_project_goal',
@@ -431,7 +446,12 @@ def create_app(engine: EngineService, token: str, subject: str = "local-user",
         else:
             max_cost = c.CostAmountV1(kind='unknown')
             basis = 'unknown' if reasons else 'usage_price_calculation'
-        return c.ProductionPreviewV1(max_cost=max_cost, excluded_reasons=tuple(reasons), cost_basis=basis)
+        return c.ProductionPreviewV1(max_cost=max_cost, excluded_reasons=tuple(reasons),
+                                     cost_basis=basis, route_decision=route_decisions(engine, body))
+
+    @app.get('/api/v1/capabilities', response_model=c.CapabilityListV1)
+    def capability_list(actor: str = Depends(authenticate)):
+        return capability_sources(engine)
 
     @app.post('/api/v1/productions/{production_id}/publish', response_model=c.PublishUnavailableV1,
               status_code=503)

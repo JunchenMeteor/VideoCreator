@@ -87,3 +87,15 @@ def test_external_reference_and_weak_vault(tmp_path, monkeypatch):
                                                          'secret': 'sk-weak-1234567890'}, headers=headers)
     assert response.status_code == 503
     assert response.json()['code'] == 'vault_unavailable'
+
+
+def test_saved_credential_without_route_is_not_available(tmp_path, monkeypatch):
+    _engine, _vault, client = _client(tmp_path, monkeypatch)
+    headers = {'Authorization': 'Bearer ' + 't' * 64}
+    client.post('/api/v1/credentials', json={'provider': 'deepseek', 'label': 'p',
+                                              'secret': 'sk-byok-1234567890'}, headers=headers)
+    response = client.get('/api/v1/capabilities', headers=headers)
+    assert response.status_code == 200, response.text
+    byok = [item for item in response.json()['capabilities'] if item['kind'] == 'byok']
+    assert byok and byok[0]['available'] is False
+    assert byok[0]['reason'] == 'byok_route_not_installed'

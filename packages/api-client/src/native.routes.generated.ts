@@ -1,5 +1,5 @@
 /* Generated only from the unique OpenAPI transport declaration. Do not edit. */
-export const NATIVE_ROUTE_MANIFEST_SHA256 = "985ded82608567e26bc515c25cbc48c5ea5a81fb38aecad7352c32f712fece35" as const;
+export const NATIVE_ROUTE_MANIFEST_SHA256 = "78a406215f3009ac373758d60e6e83d5d3222c96cfcf5ebc44a002101d06bf02" as const;
 export const NATIVE_CONTRACT_VERSION = "0.3.0-candidate" as const;
 export const NATIVE_TRANSPORT_FORMAT = "native-ipc-v1-candidate" as const;
 export const NATIVE_CONSTRAINTS = {
@@ -2237,6 +2237,72 @@ export const NATIVE_COMPONENTS = {
       "binding_kind"
     ],
     "title": "BundleSourceRef"
+  },
+  "CapabilityListV1": {
+    "properties": {
+      "capabilities": {
+        "items": {
+          "$ref": "#/components/schemas/CapabilitySourceV1"
+        },
+        "type": "array",
+        "title": "Capabilities",
+        "default": []
+      }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "title": "CapabilityListV1"
+  },
+  "CapabilitySourceV1": {
+    "properties": {
+      "kind": {
+        "type": "string",
+        "enum": [
+          "owned_local",
+          "byok",
+          "official"
+        ],
+        "title": "Kind"
+      },
+      "route_id": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Route Id"
+      },
+      "credential_ref": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Credential Ref"
+      },
+      "available": {
+        "type": "boolean",
+        "title": "Available"
+      },
+      "reason": {
+        "type": "string",
+        "title": "Reason"
+      }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+      "kind",
+      "available",
+      "reason"
+    ],
+    "title": "CapabilitySourceV1"
   },
   "ContentRequestPurpose": {
     "properties": {
@@ -4983,6 +5049,14 @@ export const NATIVE_COMPONENTS = {
           "unknown"
         ],
         "title": "Cost Basis"
+      },
+      "route_decision": {
+        "items": {
+          "$ref": "#/components/schemas/RouteDecisionV1"
+        },
+        "type": "array",
+        "title": "Route Decision",
+        "default": []
       }
     },
     "additionalProperties": false,
@@ -6319,6 +6393,47 @@ export const NATIVE_COMPONENTS = {
       "permitted_uses"
     ],
     "title": "RightsSnapshot"
+  },
+  "RouteDecisionV1": {
+    "properties": {
+      "capability": {
+        "type": "string",
+        "title": "Capability"
+      },
+      "route_id": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Route Id"
+      },
+      "source_kind": {
+        "type": "string",
+        "enum": [
+          "owned_local",
+          "byok",
+          "official",
+          "unavailable"
+        ],
+        "title": "Source Kind"
+      },
+      "reason": {
+        "type": "string",
+        "title": "Reason"
+      }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+      "capability",
+      "source_kind",
+      "reason"
+    ],
+    "title": "RouteDecisionV1"
   },
   "RunStatus": {
     "type": "string",
@@ -10895,6 +11010,233 @@ export const NATIVE_ROUTES = {
       "request_headers": [
         "Content-Type"
       ],
+      "response_headers": [
+        "Content-Type"
+      ]
+    }
+  },
+  "capability_list_api_v1_capabilities_get": {
+    "operation_id": "capability_list_api_v1_capabilities_get",
+    "method": "GET",
+    "path_template": "/api/v1/capabilities",
+    "parameters": [],
+    "header_rules": {},
+    "request_body": null,
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/CapabilityListV1"
+            }
+          }
+        },
+        "headers": {
+          "Content-Type": {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Actual response MIME, including charset/boundary when supplied."
+          }
+        }
+      },
+      "400": {
+        "description": "Invalid domain input (JSON), or a rejected transport Host/Origin/Range (plain text)",
+        "content": {
+          "text/plain": {
+            "schema": {
+              "type": "string"
+            }
+          },
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorEnvelope"
+            }
+          }
+        },
+        "headers": {
+          "Content-Type": {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Actual response MIME, including charset/boundary when supplied."
+          }
+        }
+      },
+      "401": {
+        "description": "Installation session is invalid",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorEnvelope"
+            }
+          }
+        },
+        "headers": {
+          "Content-Type": {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Actual response MIME, including charset/boundary when supplied."
+          }
+        }
+      },
+      "403": {
+        "description": "Installation permission or browser origin is denied",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorEnvelope"
+            }
+          }
+        },
+        "headers": {
+          "Content-Type": {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Actual response MIME, including charset/boundary when supplied."
+          }
+        }
+      },
+      "404": {
+        "description": "Owned resource does not exist",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorEnvelope"
+            }
+          }
+        },
+        "headers": {
+          "Content-Type": {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Actual response MIME, including charset/boundary when supplied."
+          }
+        }
+      },
+      "409": {
+        "description": "Version, idempotency or execution state conflicts; inspect retryability",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorEnvelope"
+            }
+          }
+        },
+        "headers": {
+          "Content-Type": {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Actual response MIME, including charset/boundary when supplied."
+          }
+        }
+      },
+      "413": {
+        "description": "Asset upload exceeds the configured limit",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorEnvelope"
+            }
+          }
+        },
+        "headers": {
+          "Content-Type": {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Actual response MIME, including charset/boundary when supplied."
+          }
+        }
+      },
+      "415": {
+        "description": "Identified media format or media reference is not supported by installation policy",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorEnvelope"
+            }
+          }
+        },
+        "headers": {
+          "Content-Type": {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Actual response MIME, including charset/boundary when supplied."
+          }
+        }
+      },
+      "422": {
+        "description": "Request contract, content integrity or media decoding is invalid",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorEnvelope"
+            }
+          }
+        },
+        "headers": {
+          "Content-Type": {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Actual response MIME, including charset/boundary when supplied."
+          }
+        }
+      },
+      "503": {
+        "description": "Required installation resource or media validator is unavailable",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorEnvelope"
+            }
+          }
+        },
+        "headers": {
+          "Content-Type": {
+            "schema": {
+              "type": "string"
+            },
+            "description": "Actual response MIME, including charset/boundary when supplied."
+          }
+        }
+      }
+    },
+    "security": [
+      {
+        "InstallationBearer": []
+      }
+    ],
+    "transport": {
+      "format": "engine-http-transport-v1-candidate",
+      "authorization": {
+        "mode": "installation_owner_only",
+        "domain_operations": [],
+        "purposes": {
+          "source": "fixed",
+          "values": []
+        },
+        "resource_scope": "actual subject/project ownership, current registration/grant/rights checks; IDs are not authorization tickets"
+      },
+      "body": {
+        "kind": "none",
+        "maximum_bytes": null,
+        "limit_semantics": "Published field constraints; no separate JSON HTTP byte cap is implemented"
+      },
+      "response": {
+        "kind": "json",
+        "head_supported": false
+      },
+      "mutating": false,
+      "automatic_http_retry": false,
+      "request_headers": [],
       "response_headers": [
         "Content-Type"
       ]
