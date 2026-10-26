@@ -229,6 +229,30 @@ def _completed(step):
     return envelope
 
 
+def _flow_step_trace(func):
+    """Emit enter/exit around one Flow step without changing its semantics."""
+    from functools import wraps
+
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        from video_creator.application.media_registration import sys_event
+        started = time.monotonic()
+        sys_event('flow_step_enter', run_id=self._lease.run_id, step=func.__name__)
+        try:
+            result = func(self, *args, **kwargs)
+        except BaseException as error:
+            sys_event('flow_step_exit', run_id=self._lease.run_id, step=func.__name__,
+                      elapsed_seconds=round(time.monotonic() - started, 3),
+                      error=type(error).__name__, message=str(error)[:300])
+            raise
+        sys_event('flow_step_exit', run_id=self._lease.run_id, step=func.__name__,
+                  elapsed_seconds=round(time.monotonic() - started, 3),
+                  result_is_none=result is None, outcome=self.state.get('outcome'),
+                  blocker_code=self.state.get('blocker_code'))
+        return result
+    return wrapper
+
+
 class LocalMaterialFlow(Flow[dict]):
     _services: object = PrivateAttr()
     _lease: c.LeaseGrant = PrivateAttr()
@@ -337,6 +361,7 @@ class LocalMaterialFlow(Flow[dict]):
             raise EngineError(self.state.get('blocker_code') or 'local_plan_permission_changed', 'Original current plan permission is required for each Step.', 403)
 
     @start()
+    @_flow_step_trace
     def plan(self):
         self._check()
         services = self._services
@@ -488,6 +513,7 @@ class LocalMaterialFlow(Flow[dict]):
         return self._outputs(saved, roles, masters)
 
     @listen(plan)
+    @_flow_step_trace
     def derivatives(self, ready):
         if not ready:
             return False
@@ -518,6 +544,7 @@ class LocalMaterialFlow(Flow[dict]):
         return True
 
     @listen(derivatives)
+    @_flow_step_trace
     def masters(self, ready):
         if not ready:
             return None
@@ -590,6 +617,7 @@ class LocalMaterialFlow(Flow[dict]):
         if not self._admit(quality):
             return None
         self.state['outcome'] = 'masters_ready'
+        self.state['masters'] = dict(self._roles)
         self._save('local_masters_ready_not_bundle_success')
         return dict(self._roles)
 
@@ -615,6 +643,8 @@ def _run(services, lease, *, checkpoint_path, cancel, deadline_monotonic, policy
         started = time.monotonic()
         try:
             result = flow.kickoff()
+            if result is None:
+                result = flow.state.get('masters')
         except EngineError as error:
             sys_event('flow_kickoff_failed', run_id=lease.run_id, type=type(error).__name__,
                       code=error.code, message=str(error.message)[:300],
