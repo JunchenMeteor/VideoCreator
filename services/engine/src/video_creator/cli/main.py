@@ -194,6 +194,7 @@ def parser() -> argparse.ArgumentParser:
         product.add_argument("--native-origin", default="http://tauri.localhost")
         product.add_argument("--max-seconds", type=int, default=300)
         product.add_argument("--control-stdin", action="store_true")
+    commands.add_parser("media-probe", help=argparse.SUPPRESS)
     mcp = commands.add_parser("mcp-stdio")
     mcp.add_argument("--data-dir", required=True, type=Path)
     mcp.add_argument("--ffmpeg", type=Path)
@@ -233,12 +234,18 @@ def main(*, installed_service_factory: InstalledServiceFactory | None = None,
     args = parser().parse_args()
     try:
         if installed_service_factory is not None and not (
-                args.command in {"serve", "mcp-stdio"}
+                args.command in {"serve", "mcp-stdio", "media-probe"}
                 or args.command == "worker" and args.workflow == "registered-media-bundle-v1"):
             raise EngineError("installed_services_command_denied", "Private installation assembly is limited to the actual API, MCP and registered Worker", 503)
         if owner_installation_observer_factory is not None and args.command != 'owner-execution':
             raise EngineError('owner_installation_command_denied', 'Private installation observer is limited to actual Owner execution registration actions', 403)
-        if args.command in {"owner-init", "owner-policy", "owner-execution", "owner-project-creation"}:
+        if args.command == "media-probe":
+            from video_creator.media.bundle_probe_worker import observe
+            raw = sys.stdin.buffer.read(16385)
+            if len(raw) > 16384:
+                raise ValueError("request too large")
+            sys.stdout.buffer.write(json.dumps(observe(json.loads(raw)), allow_nan=False).encode("utf-8"))
+        elif args.command in {"owner-init", "owner-policy", "owner-execution", "owner-project-creation"}:
             from video_creator.cli.owner import run_owner_command
             run_owner_command(args, installation_observer_factory=owner_installation_observer_factory)
         elif args.command == "export-contracts":

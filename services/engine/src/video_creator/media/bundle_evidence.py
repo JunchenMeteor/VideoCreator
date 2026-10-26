@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 import subprocess
+import sys
 import threading
 import time
 from pathlib import Path
@@ -19,6 +20,12 @@ class BundleMediaEvidence:
     def __init__(self, python: Path, storage_root: Path):
         self.python, self.root = Path(python).resolve(strict=True), Path(storage_root).resolve(strict=True)
         self.worker = Path(__file__).with_name("bundle_probe_worker.py")
+        # A frozen executable is not a Python interpreter. Launch its private
+        # media-probe command so the observer uses the bundled av/_internal libs
+        # in the same product process image; source/dev keeps the isolated
+        # interpreter + script form.
+        self.argv = ([str(self.python), "media-probe"] if getattr(sys, "frozen", False)
+                     else [str(self.python), "-I", "-B", "-X", "utf8", str(self.worker)])
         self.execution_records = []
         # Measured identities of the actual observer process, never constants.
         self.tool_versions = []
@@ -46,7 +53,7 @@ class BundleMediaEvidence:
         request = {"path": str(path), "storage_root": str(self.root), "sha256": sha, "mode": mode, "at_us": at_us}
         if exact_frame is not None:
             request["exact_frame"] = exact_frame
-        argv = [str(self.python), "-I", "-B", "-X", "utf8", str(self.worker)]
+        argv = list(self.argv)
         control = current_attempt()
         deadline = time.monotonic() + control.remaining(30)
         process, tree, writer, streams = None, None, None, None
