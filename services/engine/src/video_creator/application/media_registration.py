@@ -268,6 +268,7 @@ class RegisteredMediaRuntime(CurrentFinalEvidenceRuntime):
         if runtime.is_symlink() or runtime.is_junction() or not runtime.resolve().is_relative_to(engine.db.data_dir):
             raise EngineError('production_resource_denied', 'Local runtime must remain in its actual instance', 403)
         self.runtime_root, self._active_final_ports = runtime, {}
+        self._asr_resources_cache = {}
         self.bundle._production_services_runtime = self
         self.engine._registered_plan_source = self.bundle
         self.bundle._production_services_held = {}
@@ -290,7 +291,10 @@ class RegisteredMediaRuntime(CurrentFinalEvidenceRuntime):
         if route.source != 'owned_local' or route.capability != 'transcription' or route.credential_ref or route.max_operation_cost.units():
             raise EngineError('production_asr_route_invalid', 'Actual zero-cost owned ASR route required', 503)
         key = (self.config.asr_resource_manifest_sha256, self.config.asr_runtime_manifest_sha256)
-        cached = getattr(self, '_asr_resources_cache', {}).get(key)
+        cache = getattr(self, '_asr_resources_cache', None)
+        if cache is None:
+            cache = self._asr_resources_cache = {}
+        cached = cache.get(key)
         if cached is not None:
             sys_event('asr_resources_loaded', phase='final', elapsed_seconds=0.0, cached=True)
             return cached
