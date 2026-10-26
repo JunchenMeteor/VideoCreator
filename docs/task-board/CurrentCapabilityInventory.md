@@ -185,3 +185,12 @@ MCP `production_create` 可创建 production，但实测发现：① MCP 启动�
 | 总耗时 | 双击 → 成片 约 **15 分钟**（含两次语音流程与证据启用） |
 
 **R1 完成。** R2 未开始：缺真实平台账号授权、支付与订阅额度、发布接口，不以模拟替代。
+
+
+## 2026-10-26 17:20 R2 非阻塞：费用/发布诚实化 + BYOK 凭证（真机验证）
+
+**费用与发布**（`d1daf27`、`ff0aa73`）：`GET /budget` 无预算组返回 `present:false / cap.kind=not_configured / amount=null`（不是 0 元）；`POST /productions/preview` 返回 `cost_basis`（`confirmed_no_charge` / `usage_price_calculation` / `unknown`，unknown **结构上无 amount**）；发布端点 503 `publish_unavailable` + `reason`。前端三面板按同样语义展示，发布按钮置灰显示"不可用"。
+
+**BYOK 凭证**（`04fc090`，真机验证）：`keyring.backends.Windows.WinVaultKeyring` 强后端可用；创建后 `cmdkey /list` 有条目、`load_secret` 可读（未打印）；
+实例目录 + `%LOCALAPPDATA%\VideoCreator` + 仓库共扫 **9,997 个文件，明文命中 0**；
+`GET` 仅返回 ref/fingerprint；`DELETE` 未引用条目 → 204，`cmdkey` 条目消失。`tests/development` 53 passed / 1 skipped。
