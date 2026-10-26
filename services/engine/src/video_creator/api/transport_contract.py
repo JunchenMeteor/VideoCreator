@@ -43,7 +43,8 @@ DELEGATED = {
 OWNER_ONLY = frozenset(("health", "projects", "project_create", "project_get", "project_update",
     "production_list", "production_cancel", "production_revisions", "run_pause", "run_resume",
     "run_events", "asset_list", "asset_stage", "asset_import", "asset_get", "asset_content",
-    "budget_summary", "production_preview", "production_publish"))
+    "budget_summary", "production_preview", "production_publish",
+    "credential_list", "credential_create", "credential_delete"))
 FILE_ENDPOINTS = frozenset(("asset_content", "bundle_get", "bundle_content", "bundle_export_content",
     "bundle_import_manifest", "bundle_import_content"))
 MANIFEST_ENDPOINTS = frozenset(("bundle_get", "bundle_import_manifest"))

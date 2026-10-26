@@ -1809,6 +1809,20 @@ class PublishUnavailableV1(Contract):
     reason: str
 
 
+class CredentialSummaryV1(Contract):
+    credential_ref: str
+    fingerprint: str
+    provider: str
+    label: str
+    created_at_us: int
+
+
+class CredentialCreateV1(Contract):
+    provider: Identifier
+    label: str = Field(min_length=1, max_length=200)
+    secret: str = Field(min_length=1, max_length=4096)
+
+
 ProductionRequestAny = ProductionRequest | ProductionRequestV03
 BundleManifestAny = BundleManifest | BundleManifestV03
 BundleImportReceiptAny = BundleImportReceipt | BundleImportReceiptV03

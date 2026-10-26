@@ -23,6 +23,7 @@ from video_creator.api.transport_contract import (
     content_metadata_for,
     install_transport_contract,
 )
+from video_creator.application import credentials as credential_store
 from video_creator.application.assets import AssetService
 from video_creator.application.bundles import BundleService, InstancePrincipalRegistry
 from video_creator.application.engine import EngineService, identity
@@ -287,6 +288,31 @@ def create_app(engine: EngineService, token: str, subject: str = "local-user",
                    actor: str = Depends(authenticate)):
         return c.AssetPageV1.model_validate(assets.list_assets(actor, cursor=cursor, limit=limit,
                                                                media_type=media_type))
+
+    @app.get("/api/v1/credentials", response_model=list[c.CredentialSummaryV1])
+    def credential_list(actor: str = Depends(authenticate)):
+        return [c.CredentialSummaryV1.model_validate(item)
+                for item in credential_store.list_credentials(engine.db.data_dir)]
+
+    @app.post("/api/v1/credentials", response_model=c.CredentialSummaryV1, status_code=201)
+    def credential_create(body: c.CredentialCreateV1, actor: str = Depends(authenticate)):
+        item = credential_store.create_credential(engine.db.data_dir, actor, body.provider,
+                                                  body.label, body.secret, engine.clock())
+        return c.CredentialSummaryV1.model_validate(item)
+
+    @app.delete("/api/v1/credentials/{ref}", status_code=204)
+    def credential_delete(ref: str, actor: str = Depends(authenticate)):
+        references = credential_store.references_for(engine, ref)
+        try:
+            credential_store.delete_credential(engine.db.data_dir, actor, ref,
+                                               engine.clock(), references)
+        except EngineError as error:
+            if error.code == "credential_in_use":
+                return JSONResponse(status_code=409, content={
+                    "code": "credential_in_use", "message": error.message,
+                    "retryability": "never", "references": references})
+            raise
+        return Response(status_code=204)
 
     @app.post("/api/v1/projects", response_model=ProjectDraft, status_code=201)
     def project_create(body: ProjectInput, key: str | None = Header(default=None, alias="Idempotency-Key", min_length=1, max_length=128), actor: str = Depends(authenticate)):
