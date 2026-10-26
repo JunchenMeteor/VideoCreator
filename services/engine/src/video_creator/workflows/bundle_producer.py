@@ -602,14 +602,23 @@ def _produce_bundle(
         from video_creator.workflows.component_diagnosis import prepare_initial
 
         prepare_initial(final_evidence_ports, lease, preparation.preparation_id, production_services)
+        _producer_event('bundle_verify_started', run_id=lease.run_id, preparation_id=preparation.preparation_id,
+                        artifacts=len(manifest.artifacts))
         assessment = verify_final_evidence(final_evidence_ports, manifest, engine=engine, bundle=bundle,
                     context=context, request=request, lease=lease, preparation=preparation,
                     intent_sha256=digest(canonical(preparation_intent)),
                     registration_sha256=plan_admission.registration_sha256)
+        _producer_event('bundle_verify_done', run_id=lease.run_id, preparation_id=preparation.preparation_id,
+                        snapshot=assessment.snapshot is not None, verified=assessment.verified_material is not None)
         if assessment.snapshot is not None:
+            _producer_event('bundle_media_waiting', run_id=lease.run_id, preparation_id=preparation.preparation_id)
             return _final_wait(assessment, manifest)
         control.check()
+        _producer_event('bundle_commit_started', run_id=lease.run_id, preparation_id=preparation.preparation_id,
+                        artifacts=len(manifest.artifacts))
         reference = bundle.publish(lease, assessment.verified_material)
+        _producer_event('bundle_commit_done', run_id=lease.run_id, bundle_id=reference.bundle_id,
+                        bundle_revision_id=reference.bundle_revision_id)
         return BundleProductionResult("published", preparation.preparation_id, manifest,
                     tuple(receipts.values()), bundle_ref=reference)
     try:
@@ -627,6 +636,10 @@ def _produce_bundle(
     reference = bundle.publish(lease, verified)
     return BundleProductionResult("published", preparation.preparation_id, manifest, tuple(receipts.values()), bundle_ref=reference)
 
+
+
+def _producer_event(event, **fields):
+    print(json.dumps({"event": event, **fields}, ensure_ascii=False), file=sys.stderr, flush=True)
 
 def _local_fact(binding, fact):
     # Use the backend's unique source identity algorithm, not a second interpretation.

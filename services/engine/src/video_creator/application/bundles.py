@@ -6,6 +6,7 @@ import math
 import os
 import re
 import secrets
+import sys
 import threading
 import time
 import zipfile
@@ -1477,6 +1478,12 @@ class BundleService(CurrentFinalEvidenceService):
         raw = (canonical(manifest) + "\n").encode("utf-8")
         sha, file_key = hashlib.sha256(raw).hexdigest(), "manifest-" + row["revision_id"]
         final_rights_context = self._final_rights_context(lease, preparation_id, manifest, sha, request)
+        media_artifacts = [artifact for artifact in manifest.artifacts if artifact.asset_id]
+        print(json.dumps({'event': 'bundle_media_writing', 'run_id': lease.run_id,
+                          'preparation_id': preparation_id, 'artifacts': len(media_artifacts),
+                          'asset_ids': [artifact.asset_id for artifact in media_artifacts],
+                          'relative_paths': [artifact.relative_path for artifact in media_artifacts]},
+                         ensure_ascii=False), file=sys.stderr, flush=True)
         with self.engine.db.transaction() as connection:
             current, _, _, _ = self._preparation(connection, lease, preparation_id)
             if local_snapshot is not None:
@@ -1497,6 +1504,11 @@ class BundleService(CurrentFinalEvidenceService):
             if local_snapshot is not None:
                 self._local_source().assert_context_writer(connection, lease, local_snapshot)
         path = self._write("BundleManifests", file_key, raw)
+        print(json.dumps({'event': 'bundle_media_written', 'run_id': lease.run_id,
+                          'preparation_id': preparation_id, 'artifacts': len(media_artifacts),
+                          'asset_ids': [artifact.asset_id for artifact in media_artifacts],
+                          'media_type': [artifact.media_type for artifact in media_artifacts]},
+                         ensure_ascii=False), file=sys.stderr, flush=True)
         token = identity("verification")
         with self._lock:
             self._verified[token] = (lease, manifest, tuple(file_records), path, time.monotonic() + 30,
