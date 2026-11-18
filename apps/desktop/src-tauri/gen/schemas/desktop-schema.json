@@ -225,6 +225,30 @@
           "markdownDescription": "Enables the get_engine_session command without any pre-configured scope."
         },
         {
+          "description": "Enables the owner_setup_abort command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-owner-setup-abort",
+          "markdownDescription": "Enables the owner_setup_abort command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the owner_setup_prepare command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-owner-setup-prepare",
+          "markdownDescription": "Enables the owner_setup_prepare command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the owner_setup_present command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-owner-setup-present",
+          "markdownDescription": "Enables the owner_setup_present command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the owner_setup_status command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-owner-setup-status",
+          "markdownDescription": "Enables the owner_setup_status command without any pre-configured scope."
+        },
+        {
           "description": "Denies the engine_request_abort command without any pre-configured scope.",
           "type": "string",
           "const": "deny-engine-request-abort",
@@ -271,6 +295,30 @@
           "type": "string",
           "const": "deny-get-engine-session",
           "markdownDescription": "Denies the get_engine_session command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the owner_setup_abort command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-owner-setup-abort",
+          "markdownDescription": "Denies the owner_setup_abort command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the owner_setup_prepare command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-owner-setup-prepare",
+          "markdownDescription": "Denies the owner_setup_prepare command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the owner_setup_present command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-owner-setup-present",
+          "markdownDescription": "Denies the owner_setup_present command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the owner_setup_status command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-owner-setup-status",
+          "markdownDescription": "Denies the owner_setup_status command without any pre-configured scope."
         },
         {
           "description": "Default core plugins set.\n#### This default permission set includes:\n\n- `core:path:default`\n- `core:event:default`\n- `core:window:default`\n- `core:webview:default`\n- `core:app:default`\n- `core:image:default`\n- `core:resources:default`\n- `core:menu:default`\n- `core:tray:default`",
