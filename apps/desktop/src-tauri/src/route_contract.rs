@@ -57,12 +57,18 @@ impl Contract {
             value["engine_transport"]["native_constraints"]["arbitrary_url_method_path"] != false ||
             value["engine_transport"]["native_constraints"]["redirects"] != "reject" ||
             value["engine_transport"]["native_constraints"]["environment_proxy"] != "disabled" { return Err("native_contract_invalid"); }
+        let source = value["operations"].as_object().ok_or("native_contract_invalid")?;
         let mut operations = BTreeMap::new();
-        for (id, operation) in value["operations"].as_object().ok_or("native_contract_invalid")? {
+        for (id, operation) in source {
             let transport = &operation["transport"];
             if operation["operation_id"] != *id || transport["format"] != "engine-http-transport-v1-candidate" || transport["automatic_http_retry"] != false ||
-                !["none","json_bytes","raw_bytes"].contains(&string(&transport["body"],"kind")?) ||
-                !["installation_owner_only","current_principal_registration"].contains(&string(&transport["authorization"],"mode")?) { return Err("native_contract_invalid"); }
+                !["none","json_bytes","raw_bytes"].contains(&string(&transport["body"],"kind")?) { return Err("native_contract_invalid"); }
+            let mode = string(&transport["authorization"],"mode")?;
+            // Owner-management operations are never renderer reachable: the
+            // shell holds no management credential, so they stay unmapped
+            // instead of failing the whole manifest.
+            if mode == "actual_owner_management" { continue; }
+            if !["installation_owner_only","current_principal_registration"].contains(&mode) { return Err("native_contract_invalid"); }
             let security = operation["security"].as_array().ok_or("native_contract_invalid")?;
             if security.is_empty() || security.iter().any(|s| s.as_object().is_none_or(|a| a.is_empty() || a.iter().any(|(name,scopes)| {
                 value["security_schemes"][name]["type"] != "http" || value["security_schemes"][name]["scheme"] != "bearer" || scopes.as_array().is_none_or(|v|!v.is_empty())
@@ -75,7 +81,7 @@ impl Contract {
                 response_headers:string_set(&transport["response_headers"] )?, response_kind:string(&transport["response"],"kind")?.to_owned(),responses:operation["responses"].clone(), request_body:operation["request_body"].clone() };
             operations.insert(id.clone(), Arc::new(route));
         }
-        if value["engine_transport"]["operation_count"].as_u64() != Some(operations.len() as u64) { return Err("native_contract_invalid"); }
+        if value["engine_transport"]["operation_count"].as_u64() != Some(source.len() as u64) { return Err("native_contract_invalid"); }
         Ok(Self { sha256:format!("{:x}",Sha256::digest(MANIFEST)),version:string(&value,"contract_version")?.to_owned(),format:string(&value,"transport_format")?.to_owned(),operations })
     }
     pub fn unique_json_operation(&self,schema:&str)->Result<String,&'static str>{

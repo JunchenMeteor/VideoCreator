@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-owner-setup-abort"
+description = "Enables the owner_setup_abort command without any pre-configured scope."
+commands.allow = ["owner_setup_abort"]
+
+[[permission]]
+identifier = "deny-owner-setup-abort"
+description = "Denies the owner_setup_abort command without any pre-configured scope."
+commands.deny = ["owner_setup_abort"]
